@@ -10,7 +10,7 @@ This is the repository for the project code.
 
 ### Windows
  - Open the project root in the command prompt
- - Run `gradlew.bat`
+ - Run `gradlew.bat build`
 
 The project `.jar` can be found in `build/libs/sep-0.1.jar`
 
