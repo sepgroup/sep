@@ -1,6 +1,9 @@
 apply plugin: 'java'
+apply from: "http://dl.bintray.com/content/shemnon/javafx-gradle/8.1.1/javafx.plugin"
 
-sourceCompatibility = 1.5
+defaultTasks 'clean', 'run'
+
+sourceCompatibility = 1.8
 version = '0.1'
 
 repositories {
