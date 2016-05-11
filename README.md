@@ -18,7 +18,7 @@ This is the repository for the project code.
 ### In IntelliJ IDEA
  - Go to File > New > Project From Existing Sources... and select the project folder
  - Import project from external model > Gradle > Next
- - Make sure 'Use default gradle wrapper (recommended) is selected and Gradle JVM is a Java 8 version, and press 'Finish'
+ - Uncheck 'Create separate model per source set', make sure 'Use default gradle wrapper (recommended) is selected, and Gradle JVM is a Java 8 version, then press 'Finish'
  - Create a new Gradle run configuration using `build.gradle` from the repo root with tasks `clean run`
 
 ### In Eclipse
