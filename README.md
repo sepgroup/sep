@@ -6,6 +6,7 @@ COMP 354 Software Engineering Project
 This is the repository for the project code.
 
 ## How to run
+Ensure you have Java 8 installed.
 ### From the command line
 #### OS X / Linux
  - `cd` to the project root
