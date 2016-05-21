@@ -30,7 +30,7 @@ public class Database {
 	public Database(String dbPath) {
         try {
             Class.forName("org.sqlite.JDBC");
-            this.conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
+            this.conn = DriverManager.getConnection("jdbc:sqlite:" + getClass().getResource(dbPath));
             conn.setAutoCommit(false);
         } catch (ClassNotFoundException e) {
             logger.error("Unable to load class org.sqlite.JDBC");
