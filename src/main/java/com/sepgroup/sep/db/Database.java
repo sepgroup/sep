@@ -8,10 +8,10 @@ import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SQLiteDB {
+public class Database {
 
-    private static Logger logger = LoggerFactory.getLogger(SQLiteDB.class);
-    private static Map<String, SQLiteDB> activeDBs = new HashMap<>();
+    private static Logger logger = LoggerFactory.getLogger(Database.class);
+    private static Map<String, Database> activeDBs = new HashMap<>();
 
     /**
      * Path to the DB file
@@ -27,7 +27,7 @@ public class SQLiteDB {
      *
      * @param dbPath path to the DB file
      */
-	public SQLiteDB(String dbPath) {
+	public Database(String dbPath) {
         try {
             Class.forName("org.sqlite.JDBC");
             this.conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
@@ -80,7 +80,7 @@ public class SQLiteDB {
     /**
      * Get the instance of the DB from the specified path
      */
-    public static SQLiteDB getActiveDB() {
+    public static Database getActiveDB() {
         DBConfig cfg = ConfigFactory.create(DBConfig.class);
         String activeDBPath = cfg.activeDbPath();
         return getDB(activeDBPath);
@@ -90,13 +90,13 @@ public class SQLiteDB {
      * Get the instance of the DB from the specified path
      * @param dbPath the path to the specified DB
      */
-    public static SQLiteDB getDB(String dbPath) {
-        SQLiteDB activeDB = activeDBs.get(dbPath);
+    public static Database getDB(String dbPath) {
+        Database activeDB = activeDBs.get(dbPath);
         if (activeDB != null) {
             return activeDB;
         }
         else {
-            return new SQLiteDB(dbPath);
+            return new Database(dbPath);
         }
     }
 }

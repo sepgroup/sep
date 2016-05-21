@@ -17,6 +17,8 @@ public interface DBObject {
 
     int getLastInsertedId() throws DBException;
 
+    ResultSet findAll() throws DBException;
+
     ResultSet findById(int i) throws DBException;
 
     /**

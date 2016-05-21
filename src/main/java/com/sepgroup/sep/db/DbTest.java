@@ -7,7 +7,7 @@ public class DbTest {
 	public static void main(String[] args) {
 		
 		// TODO Auto-generated method stub
-		SQLiteDB db = new SQLiteDB();
+		Database db = new Database();
 		ProjectModel p = new ProjectModel("ProjectModel test", "2015-05-23", "2015-06-25", 2500, false);
 		System.out.println(p.toString());
 		String sql = "SELECT * FROM ProjectModel;";
