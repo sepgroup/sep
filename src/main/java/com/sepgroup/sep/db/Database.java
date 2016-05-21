@@ -40,7 +40,11 @@ public class Database {
 	    }
 	  }
 
-	public ResultSet query(String sql) throws SQLException {
+    public Database() {
+
+    }
+
+    public ResultSet query(String sql) throws SQLException {
         Statement s = conn.createStatement();
         s.setQueryTimeout(5);
         return s.executeQuery(sql);

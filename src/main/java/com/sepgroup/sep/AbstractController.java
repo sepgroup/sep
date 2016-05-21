@@ -1,6 +1,8 @@
 package com.sepgroup.sep;
 
 
+import com.sepgroup.sep.db.DBException;
+
 /**
  * Created by jeremybrown on 2016-05-17.
  */
@@ -18,11 +20,11 @@ public abstract class AbstractController implements Observer {
         return fxmlPath;
     }
 
-    public void refreshModel() {
+    public void refreshModel() throws DBException {
         model.refreshData();
     }
 
-    public void persistModel() {
+    public void persistModel() throws DBException {
         model.persistData();
     }
 }

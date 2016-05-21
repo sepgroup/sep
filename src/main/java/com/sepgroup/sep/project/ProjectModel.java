@@ -306,6 +306,10 @@ public class ProjectModel extends AbstractModel {
 		return ("Project info is "+this.projectId +" ,"+" Project name is " + this.name + " ,"+this.castDateToString(startDate)+" ,"+this.castDateToString(deadline)+" ,"+this.budget);
 	}
 
+    public boolean findBySql(String sql) {
+        return false;
+    }
+
     class ProjectModelDBObject implements DBObject {
 
         private final Logger logger = LoggerFactory.getLogger(ProjectModel.ProjectModelDBObject.class);

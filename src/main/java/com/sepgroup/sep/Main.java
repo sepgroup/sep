@@ -1,6 +1,6 @@
 package com.sepgroup.sep;
 
-import com.sepgroup.sep.login.LoginController;
+import com.sepgroup.sep.login   .LoginController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
