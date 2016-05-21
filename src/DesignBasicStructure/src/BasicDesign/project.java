@@ -3,6 +3,7 @@ package BasicDesign;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -60,42 +61,107 @@ public class project implements DataBaseFunctions{
 		this.DeadLine=this.CastStringToDate(dl);
 		this.Done=done;
 	}
-
-	@Override
-	public boolean Create() {
-		String sql = "INSERT INTO "+tableName+" VALUES ("+ this.name+" ,"+this.budget+" ,"+this.StartDate+" ,"+this.DeadLine+")";
-		 try{
-		PreparedStatement ps = db.getConnection().prepareStatement(sql,
-		        Statement.RETURN_GENERATED_KEYS);
-		 
-		ps.execute();
-		 
-		ResultSet rs = ps.getGeneratedKeys();
-		if (rs.next()) {
-		    this.PID = rs.getInt(1);
-		}
-		 return true;
-		 }catch(Exception e){
-			 e.getMessage();
-			 return false;
-		 }
-	}
-
-	@Override
-	public boolean update() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean delete() {
-		// TODO Auto-generated method stub
-		return false;
+	/**
+	 * Setter for name of project which is used in update method
+	 * @param name updated name of project
+	 */
+	public void setName(String name){
+		this.name=name;
 	}
 	
+	/**
+	 * Setter for budget of project which is used in update method
+	 * @param budget updated budget of project
+	 */
+	public void setBudget(int budget){
+		this.budget=budget;
+	}
+	/**
+	 * Setter for Start date of project which is used in update method
+	 * @param date updated date of project
+	 */
+	public void setStartDate(String date){
+		this.StartDate=this.CastStringToDate(date);
+	}
+	/**
+	 * Setter for Dead Line of project which is used in update method
+	 * @param deadline updated date of deadline
+	 */
+	public void setDeadLine(String deadline){
+		this.DeadLine=this.CastStringToDate(deadline);
+	}
+	
+	/**
+	 * Setter for done attribute of project which is used in update method
+	 * @param done updated status of project
+	 */
+	public void setDone(boolean done){
+		this.Done=done;
+	}
+	/**
+	 * This Method insert the information of new project inside database
+	 * if fetches the Id from inserted row and assign it to the PID
+	 */
+	@Override
+	public boolean Create() {
+		String sql = "INSERT INTO "+tableName + " (ProjectName, StartDate, DeadLine, Budget, Done";
+		sql+=") VALUES ('"+ this.name + "' ,'" + this.CastDateToString(this.StartDate) + "' ,'" + this.CastDateToString(this.DeadLine) + "' ," + this.budget + " , 0);";
+		
+		if(this.db.commitQuery(sql)){
+			String sqlTemp="SELECT last_insert_rowid() AS tempID;";
+			ResultSet rs=this.db.query(sqlTemp);
+			try {
+				this.PID=rs.getInt("tempID");
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return true;
+		}else{
+			return false;
+		}
+
+	}
+	
+	/**
+	 * This method update an object which is fetched from database
+	 */
+	@Override
+	public boolean update() {
+		String sql="UPDATE "+ tableName + " SET";
+		sql+=" ProjectName = "+ this.name;
+		sql+=" StartDate = "+ this.StartDate;
+		sql+=" DeadLine = "+ this.DeadLine;
+		sql+=" Budget = "+ this.budget;
+		sql+=" Done = "+ this.Done;
+		sql+=" WHERE ID = " + this.PID + " ;";
+		return this.db.commitQuery(sql);
+	}
+
+	/**
+	 * This method delete an object from database
+	 */
+	@Override
+	public boolean delete() {
+		String sql="DELETE FROM "+ tableName;
+		sql+=" WHERE ID = "+this.PID  + " ;";
+		return this.db.commitQuery(sql);
+	}
+	/**
+	 * This is the function to create task for project object
+	 * @param name the name of the task
+	 * @param budget the dedicated budget for the task
+	 * @param start the starting date for the task
+	 * @param deadline the deadline for the task
+	 * @return true if it registers in database and false if there is an error
+	 */
 	public boolean addTask(String name, int budget, String start, String deadline){
-		task temp= new task(name, budget, this.PID, start, deadline);
-		return true;
+		Task temp= new Task(name, budget, this.PID, start, deadline);
+		if(temp.Create()){
+			return true;
+		}else{
+			return false;
+		}
 	}
 	/**
 	 * Makes Date object to the String format which is easier to put in database
@@ -123,14 +189,23 @@ public class project implements DataBaseFunctions{
 			return null;
 		}
 	}
+	
 	/**
 	 * This method finds the last inserted id in the table.
 	 * ID in the table is auto increment
-	 * @return last inserted id
+	 * @return if there is no error last inserted id, if there is any error -1
 	 */
-	//public static int getLastInsertedId(){
-		
-	//}
+	public static int getLastInsertedId(){
+		String sqlTemp="SELECT last_insert_rowid() AS tempID;";
+		ResultSet rs=db.query(sqlTemp);
+		try {
+			return (rs.getInt("tempID"));
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return -1;
+		}
+	}
 	/**
 	 * It fetches the data from database which has the given ID 
 	 * and create one object of project and returns it
@@ -210,45 +285,5 @@ public class project implements DataBaseFunctions{
 	public String toString(){
 		return ("Project info is "+this.PID+" ,"+" Project name is " + this.name + " ,"+this.CastDateToString(StartDate)+" ,"+this.CastDateToString(DeadLine)+" ,"+this.budget);
 	}
-	/**
-	 * task is inner class because we don't want to instantiate it without project
-	 * @author Ali
-	 *
-	 */
-	private class task implements DataBaseFunctions{
-		private final String tableName="Task";
-		private String name;
-		public int Tbudget;
-		private Date TStartDate;
-		private Date TdeadLine;
-		private int Pid;
-		private int Tid;
-		public task(String name,int budget, int pid, String tstartdate, String tdeadline) {
-			this.name=name;
-			this.Pid=pid;
-			this.Tbudget=budget;
-			this.TStartDate=CastStringToDate(tstartdate);
-			this.TdeadLine=CastStringToDate(tdeadline);
-		}
-		@Override
-		public boolean Create() {
-			// TODO Auto-generated method stub
-			return false;
-		}
-		@Override
-		public boolean update() {
-			// TODO Auto-generated method stub
-			return false;
-		}
-		@Override
-		public boolean delete() {
-			// TODO Auto-generated method stub
-			return false;
-		}
-
-		
-		
-	}
-
 
 }

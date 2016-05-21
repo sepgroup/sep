@@ -18,17 +18,43 @@ public class Database {
 	      System.exit(0);
 	    }
 	  }
+	
+	/**
+	 * Make query from Database according to asked sql
+	 * @param sql asked to fetch some data
+	 * @return ResultSet object which contains the fetched data from database
+	 */
 	public ResultSet query(String sql){
+		ResultSet rs;
 		try{
 		Statement stmt=this.c.createStatement();
-		ResultSet rs=stmt.executeQuery(sql);
-		return rs;
+		rs=stmt.executeQuery(sql);
 		}catch(Exception e){
 			e.getMessage();
-			return null;
+			rs= null;
+		}
+		return rs;
+	}
+	/**
+	 * 
+	 * @param sql sent sql to update, delete, create
+	 * @return
+	 */
+	public boolean commitQuery(String sql){
+		try{
+			Statement stmt= this.c.createStatement();
+			stmt.executeUpdate(sql);
+			this.c.commit();
+			return true;
+		}catch(Exception e){
+			e.getMessage();
+			return false;
 		}
 	}
 	
+	/**
+	 * Close the opened connection
+	 */
 	public void closeConnection(){
 		try {
 			this.c.close();
@@ -37,7 +63,10 @@ public class Database {
 			e.printStackTrace();
 		}
 	}
-	
+	/**
+	 * Getter of connection object which connect to database
+	 * @return the connection object
+	 */
 	public Connection getConnection(){
 		return this.c;
 	}
