@@ -7,7 +7,6 @@ import com.sepgroup.sep.db.Database;
 import com.sepgroup.sep.login.UserModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -163,7 +162,8 @@ public class ProjectModel extends AbstractModel {
 
     public static List<ProjectModel> getAllByOwner(int userId) {
         // TODO
-        throw new NotImplementedException();
+        logger.error("Not implemented");
+        return null;
     }
 
     /**

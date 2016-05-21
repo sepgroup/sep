@@ -32,4 +32,9 @@ public class LoginController extends AbstractController {
     public boolean validateLogin() {
         return true;
     }
+
+    @Override
+    public void update() {
+
+    }
 }
