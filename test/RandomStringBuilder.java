@@ -6,7 +6,7 @@ import java.util.Random;
  */
 public final class RandomStringBuilder
 {
-	// Seeds random number generator with current time UTC in seconds
+	// Random number generator
 	private static final Random random = new Random();
 
 	// Holds all available symbols to construct strings from
@@ -31,7 +31,6 @@ public final class RandomStringBuilder
 		sb.append(' ');
 		sb.append('\t');
 		sb.append('\n');
-
 
 		symbols = sb.toString().toCharArray();
 	}
