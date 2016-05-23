@@ -8,7 +8,7 @@ public class TestProjectGenerator
 
 	public static void main(String[] args)
 	{
-		System.out.println(RandomStringBuilder.randomString(100));
+		System.out.println(RandomStringBuilder.randomString(1000, true));
 		System.out.println(RandomStringBuilder.randomString(10));
 		System.out.println(RandomStringBuilder.randomString(10));
 		System.out.println(RandomStringBuilder.randomString(11));
