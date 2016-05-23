@@ -8,10 +8,8 @@ public class TestProjectGenerator
 
 	public static void main(String[] args)
 	{
-		System.out.println(RandomStringBuilder.randomString(1000, true));
-		System.out.println(RandomStringBuilder.randomString(10));
-		System.out.println(RandomStringBuilder.randomString(10));
-		System.out.println(RandomStringBuilder.randomString(11));
-		System.out.println(RandomStringBuilder.randomString(10));
+		RandomDateBuilder.StringPair dates = RandomDateBuilder.randomDateStringPair(true);
+		System.out.println(dates.first);
+		System.out.println(dates.second);
 	}
 }
