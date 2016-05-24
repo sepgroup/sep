@@ -5,13 +5,14 @@ import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.db.DBObject;
 import com.sepgroup.sep.db.Database;
 import com.sepgroup.sep.login.UserModel;
+import com.sepgroup.sep.task.TaskModel;
+import com.sepgroup.sep.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -48,9 +49,13 @@ public class ProjectModel extends AbstractModel {
 	public ProjectModel(String name, String sd, String dl, int budget, boolean done){
         this();
 		this.name=name;
-		this.budget=budget;
-		this.startDate =this.castStringToDate(sd);
-		this.deadline =this.castStringToDate(dl);
+        this.budget=budget;
+        try {
+            this.startDate = DateUtils.castStringToDate(sd);
+            this.deadline = DateUtils.castStringToDate(dl);
+        } catch (ParseException e) {
+            logger.error("Unable to parse string to date.", e);
+        }
 		this.done =done;
 	}
 	/**
@@ -64,12 +69,16 @@ public class ProjectModel extends AbstractModel {
 	 */
 	private ProjectModel(int id, String name, String sd, String dl, int budget, boolean done){
         this();
-		this.projectId =id;
-		this.name=name;
-		this.budget=budget;
-		this.startDate =this.castStringToDate(sd);
-		this.deadline =this.castStringToDate(dl);
-		this.done =done;
+		this.projectId = id;
+		this.name = name;
+		this.budget = budget;
+        try {
+            this.startDate = DateUtils.castStringToDate(sd);
+            this.deadline = DateUtils.castStringToDate(dl);
+        } catch (ParseException e) {
+            logger.error("Unable to parse string to date.", e);
+        }
+		this.done = done;
 	}
 
     @Override
@@ -214,8 +223,8 @@ public class ProjectModel extends AbstractModel {
 	 * Setter for Start date of project which is used in update method
 	 * @param date updated date of project
 	 */
-	public void setStartDate(String date){
-		this.startDate = castStringToDate(date);
+	public void setStartDate(String date) throws ParseException {
+		this.startDate = DateUtils.castStringToDate(date);
 	}
 
     /**
@@ -246,8 +255,8 @@ public class ProjectModel extends AbstractModel {
      * Setter for Dead Line of project which is used in update method
      * @param deadline updated date of deadline
      */
-    public void setDeadline(String deadline){
-        this.deadline = castStringToDate(deadline);
+    public void setDeadline(String deadline) throws ParseException {
+        this.deadline = DateUtils.castStringToDate(deadline);
     }
 
     /**
@@ -274,41 +283,19 @@ public class ProjectModel extends AbstractModel {
         return this.done;
     }
 
-	/**
-	 * Makes Date object to the String format which is easier to put in database
-	 * @param input Date object that we want to cast to String
-	 * @return String format of Date
-	 */
-	public static String castDateToString(Date input){
-		SimpleDateFormat temp = new SimpleDateFormat("yyyy-MM-dd");
-		String date = temp.format(input);
-		return date;
-	}
-	/**
-	 * Makes String to Date object
-	 * @param input this is a String format variable
-	 * @return Date object
-	 */
-	public static Date castStringToDate(String input){
-		SimpleDateFormat temp = new SimpleDateFormat("yyyy-MM-dd");
-		try {
-			Date date=temp.parse(input);
-			return date;
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		}
-	}
-
-	@Override
-	public String toString(){
-		return ("Project info is "+this.projectId +" ,"+" Project name is " + this.name + " ,"+this.castDateToString(startDate)+" ,"+this.castDateToString(deadline)+" ,"+this.budget);
-	}
-
-    public boolean findBySql(String sql) {
-        return false;
+    /**
+     * Get a list of tasks associated to this project
+     * @return a list of tasks associated to this project
+     */
+    public List<TaskModel> getTasks() {
+        return TaskModel.getAllByProject(projectId);
     }
+
+    @Override
+	public String toString(){
+		return ("Project info is "+ this.projectId + ", " + " Project name is " + this.name + ", " +
+                DateUtils.castDateToString(startDate) + ", " + DateUtils.castDateToString(deadline)+", " + this.budget);
+	}
 
     class ProjectModelDBObject implements DBObject {
 
@@ -322,11 +309,19 @@ public class ProjectModel extends AbstractModel {
         private static final String DONE_COLUMN = "Done";
 
         private static final String tableName="Project";
-        private Database db = Database.getActiveDB();
+        private Database db;
+
+        private ProjectModelDBObject() {
+            try {
+                db = Database.getActiveDB();
+            } catch (DBException e) {
+                logger.error("Unable to read from database", e);
+            }
+        }
 
         @Override
         public String getTableName() {
-            return null;
+            return tableName;
         }
 
         /**
@@ -402,8 +397,8 @@ public class ProjectModel extends AbstractModel {
             sql.append("INSERT INTO "+ getTableName() + " ");
             sql.append("("+ PROJECT_NAME_COLUMN + "," + START_DATE_COLUMN + "," + DEADLINE_COLUMN + "," + BUDGET_COLUMN + "," + DONE_COLUMN + ") ");
             sql.append("VALUES ('" + getName() + "'");
-            sql.append(",'" + castDateToString(getStartDate()) + "'");
-            sql.append(",'" + castDateToString(getDeadline()) + "'");
+            sql.append(",'" + DateUtils.castDateToString(getStartDate()) + "'");
+            sql.append(",'" + DateUtils.castDateToString(getDeadline()) + "'");
             sql.append(",'" + getBudget() + "'");
             sql.append(",'" + (isDone() ? 1 : 0) + "'");
             sql.append(");");
@@ -426,8 +421,8 @@ public class ProjectModel extends AbstractModel {
             sql.append("UPDATE "+ getTableName() + " ");
             sql.append("SET ");
             sql.append(PROJECT_NAME_COLUMN + "='" + getName() + "'");
-            sql.append(START_DATE_COLUMN + "='" + castDateToString(getStartDate()) + "'");
-            sql.append(DEADLINE_COLUMN + "='" + castDateToString(getDeadline()) + "'");
+            sql.append(START_DATE_COLUMN + "='" + DateUtils.castDateToString(getStartDate()) + "'");
+            sql.append(DEADLINE_COLUMN + "='" + DateUtils.castDateToString(getDeadline()) + "'");
             sql.append(BUDGET_COLUMN + "='" + getBudget() + "'");
             sql.append(DONE_COLUMN + "='" + (isDone() ? 1 : 0) + "'");
             sql.append("WHERE " + PROJECT_ID_COLUMN + "=" + getProjectId() + ";");

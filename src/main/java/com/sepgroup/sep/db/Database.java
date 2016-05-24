@@ -4,6 +4,9 @@ import org.aeonbits.owner.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.crypto.Data;
+import java.io.File;
+import java.net.URL;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,21 +30,25 @@ public class Database {
      *
      * @param dbPath path to the DB file
      */
-	public Database(String dbPath) {
+	public Database(String dbPath) throws DBException {
         try {
             Class.forName("org.sqlite.JDBC");
-            this.conn = DriverManager.getConnection("jdbc:sqlite:" + getClass().getResource(dbPath));
+            URL dbUrl = Thread.currentThread().getContextClassLoader().getResource(dbPath);
+            String dbFullPath = dbUrl.getFile();
+            this.dbPath = dbFullPath;
+            conn = DriverManager.getConnection("jdbc:sqlite:" + dbFullPath);
             conn.setAutoCommit(false);
         } catch (ClassNotFoundException e) {
-            logger.error("Unable to load class org.sqlite.JDBC");
+            logger.error("Unable to load class org.sqlite.JDBC",e );
+            throw new DBException(e);
         } catch ( SQLException e ) {
             logger.error("Unable to open database file", e);
-            System.exit(0);
+            throw new DBException(e);
 	    }
 	  }
 
-    public Database() {
-
+    public String getDbPath() {
+        return dbPath;
     }
 
     public ResultSet query(String sql) throws SQLException {
@@ -84,7 +91,11 @@ public class Database {
     /**
      * Get the instance of the DB from the specified path
      */
-    public static Database getActiveDB() {
+    public static Database getActiveDB() throws DBException {
+        System.out.println(ConfigFactory.getProperty("configPath"));
+        if (ConfigFactory.getProperty("configPath") == null) {
+            ConfigFactory.setProperty("configPath", Database.class.getResource("/db.properties").getFile());
+        }
         DBConfig cfg = ConfigFactory.create(DBConfig.class);
         String activeDBPath = cfg.activeDbPath();
         return getDB(activeDBPath);
@@ -94,13 +105,18 @@ public class Database {
      * Get the instance of the DB from the specified path
      * @param dbPath the path to the specified DB
      */
-    public static Database getDB(String dbPath) {
+    public static Database getDB(String dbPath) throws DBException {
         Database activeDB = activeDBs.get(dbPath);
-        if (activeDB != null) {
+        if (isDBActive(dbPath)) {
             return activeDB;
         }
         else {
             return new Database(dbPath);
         }
+    }
+
+    public static boolean isDBActive(String dbPath) {
+        Database activeDB = activeDBs.get(dbPath);
+        return activeDB != null;
     }
 }

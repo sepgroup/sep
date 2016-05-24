@@ -4,12 +4,12 @@ import com.sepgroup.sep.AbstractModel;
 import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.db.DBObject;
 import com.sepgroup.sep.db.Database;
+import com.sepgroup.sep.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -250,7 +250,7 @@ public class TaskModel extends AbstractModel {
     @Override
     public String toString() {
         return "Task TID = " + this.taskId + ", name = " + this.name + " , start date = ";
-//                this.castDateToString(startDate) + ", end date = " + this.castDateToString(deadline);
+//                DateUtils.castDateToString(startDate) + ", end date = " + DateUtils.castDateToString(deadline);
     }
 
     class TaskModelDBObject implements DBObject {
@@ -264,7 +264,15 @@ public class TaskModel extends AbstractModel {
         private static final String TASK_DESCRIPTION = "Description";
         private static final String TASK_NAME = "TaskName";
 
-        private Database db = Database.getActiveDB();
+        private Database db;
+
+        private TaskModelDBObject() {
+            try {
+                db = Database.getActiveDB();
+            } catch (DBException e) {
+                logger.error("Unable to read from database", e);
+            }
+        }
 
         @Override
         public String getTableName() {
