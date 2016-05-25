@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.GridPane?>
+
+<GridPane alignment="center" hgap="10" prefHeight="533.0" prefWidth="791.0" vgap="10" xmlns="http://javafx.com/javafx/null" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sepgroup.sep.project.ProjectController">
+   <columnConstraints>
+      <ColumnConstraints />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints />
+   </rowConstraints>
+   <children>
+      <BorderPane prefHeight="497.0" prefWidth="750.0">
+         <center>
+            <Button mnemonicParsing="false" text="Project" BorderPane.alignment="CENTER" />
+         </center>
+      </BorderPane>
+   </children>
+</GridPane>
