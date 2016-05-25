@@ -92,7 +92,6 @@ public class Database {
      * Get the instance of the DB from the specified path
      */
     public static Database getActiveDB() throws DBException {
-        System.out.println(ConfigFactory.getProperty("configPath"));
         if (ConfigFactory.getProperty("configPath") == null) {
             ConfigFactory.setProperty("configPath", Database.class.getResource("/db.properties").getFile());
         }

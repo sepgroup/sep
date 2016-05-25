@@ -54,7 +54,7 @@ public class ProjectModel extends AbstractModel {
             this.startDate = DateUtils.castStringToDate(sd);
             this.deadline = DateUtils.castStringToDate(dl);
         } catch (ParseException e) {
-            logger.error("Unable to parse string to date.", e);
+            logger.error("Unable to parse string to date, leaving as null.", e);
         }
 		this.done =done;
 	}
@@ -76,7 +76,7 @@ public class ProjectModel extends AbstractModel {
             this.startDate = DateUtils.castStringToDate(sd);
             this.deadline = DateUtils.castStringToDate(dl);
         } catch (ParseException e) {
-            logger.error("Unable to parse string to date.", e);
+            logger.error("Unable to parse string to date, leaving as null.", e);
         }
 		this.done = done;
 	}
@@ -123,14 +123,14 @@ public class ProjectModel extends AbstractModel {
         ProjectModel p = new ProjectModel();
         try{
             ResultSet rs = p.dbo.findById(projectId);
+            int i =rs.getFetchSize();
             while (rs.next()) {
-                int idTemp = rs.getInt("projectId");
-                String  PnameTemp = rs.getString("ProjectName");
+                String PnameTemp = rs.getString("ProjectName");
                 String stDateTemp=rs.getString("startDate");
                 String dlDateTemp=rs.getString("deadline");
                 int budgetTemp = rs.getInt("Budget");
                 Boolean doneTemp=rs.getBoolean("done");
-                p = new ProjectModel(idTemp, PnameTemp, stDateTemp, dlDateTemp, budgetTemp, doneTemp);
+                p = new ProjectModel(projectId, PnameTemp, stDateTemp, dlDateTemp, budgetTemp, doneTemp);
             }
         } catch (DBException | SQLException e) {
             logger.error("Unable to find ProjectModel(s)", e);
@@ -149,7 +149,7 @@ public class ProjectModel extends AbstractModel {
             ResultSet rs = new ProjectModel().dbo.findAll();
             while (rs.next()) {
                 // Extract values
-                int idTemp = rs.getInt("projectId");
+                int idTemp = rs.getInt("PID");
                 String  PnameTemp = rs.getString("ProjectName");
                 String stDateTemp=rs.getString("startDate");
                 String dlDateTemp=rs.getString("deadline");
@@ -293,9 +293,37 @@ public class ProjectModel extends AbstractModel {
 
     @Override
 	public String toString(){
-		return ("Project info is "+ this.projectId + ", " + " Project name is " + this.name + ", " +
-                DateUtils.castDateToString(startDate) + ", " + DateUtils.castDateToString(deadline)+", " + this.budget);
+		return ("Project info is "+ this.projectId + ", " + " Project name is " + this.name + ", ");
+//                DateUtils.castDateToString(startDate) + ", " + DateUtils.castDateToString(deadline)+", " + this.budget);
 	}
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof ProjectModel)) {
+            return false;
+        }
+        ProjectModel other = (ProjectModel) obj;
+        if (other.getProjectId() != this.projectId) {
+            return false;
+        }
+        if (other.getBudget() != this.projectId) {
+            return false;
+        }
+        if (other.getStartDate() != null && startDate != null && !other.getStartDate().equals(this.startDate)) {
+            return false;
+        }
+        if (other.getDeadline() != null && deadline != null && !other.getDeadline().equals(this.deadline)) {
+            return false;
+        }
+        if (other.getName() != null && name != null && !other.getName().equals(this.name)) {
+            return false;
+        }
+        if (other.getTasks() != null && getTasks() != null && other.getTasks().equals(this.getTasks())) {
+            return false;
+        }
+
+        return true;
+    }
 
     class ProjectModelDBObject implements DBObject {
 
@@ -358,6 +386,7 @@ public class ProjectModel extends AbstractModel {
 
         @Override
         public ResultSet findById(int projectId) throws DBException {
+            // TODO fix bad query
             StringBuilder sql = new StringBuilder();
             sql.append("SELECT * ");
             sql.append("FROM " + getTableName() + " ");
@@ -395,20 +424,41 @@ public class ProjectModel extends AbstractModel {
             // Build query
             StringBuilder sql = new StringBuilder();
             sql.append("INSERT INTO "+ getTableName() + " ");
-            sql.append("("+ PROJECT_NAME_COLUMN + "," + START_DATE_COLUMN + "," + DEADLINE_COLUMN + "," + BUDGET_COLUMN + "," + DONE_COLUMN + ") ");
+            sql.append("("+ PROJECT_NAME_COLUMN + "," + BUDGET_COLUMN + "," + DONE_COLUMN);
+            if (getStartDate() != null) {
+                sql.append(", " + START_DATE_COLUMN);
+            }
+            if (getDeadline() != null) {
+                sql.append(", " + DEADLINE_COLUMN);
+            }
+            sql.append(") ");
             sql.append("VALUES ('" + getName() + "'");
-            sql.append(",'" + DateUtils.castDateToString(getStartDate()) + "'");
-            sql.append(",'" + DateUtils.castDateToString(getDeadline()) + "'");
             sql.append(",'" + getBudget() + "'");
             sql.append(",'" + (isDone() ? 1 : 0) + "'");
+            if (getStartDate() != null) {
+                sql.append(",'" + DateUtils.castDateToString(getStartDate()) + "'");
+            }
+            if (getDeadline() != null) {
+                sql.append(",'" + DateUtils.castDateToString(getDeadline()) + "'");
+            }
             sql.append(");");
 
+            int insertedKey;
             try {
-                return this.db.insert(sql.toString());
+                insertedKey = this.db.insert(sql.toString());
             } catch (SQLException e) {
                 logger.error("Unable to create task " + ". Query: " + sql, e);
                 throw new DBException(e);
             }
+            finally {
+                try {
+                    db.closeConnection();
+                } catch (SQLException e) {
+                    throw new DBException(e);
+                }
+            }
+
+            return insertedKey;
         }
 
         /**
@@ -432,6 +482,12 @@ public class ProjectModel extends AbstractModel {
             } catch (SQLException e) {
                 logger.error("Unable to update project with projectId " + getProjectId() + ". Query: " + sql, e);
                 throw new DBException(e);
+            } finally {
+                try {
+                    db.closeConnection();
+                } catch (SQLException e) {
+                    throw new DBException(e);
+                }
             }
         }
 
@@ -447,6 +503,12 @@ public class ProjectModel extends AbstractModel {
             } catch (SQLException e) {
                 logger.error("Unable to delete task with taskId" + getProjectId() + ". Query: " + sql, e);
                 throw new DBException(e);
+            } finally {
+                try {
+                    db.closeConnection();
+                } catch (SQLException e) {
+                    throw new DBException(e);
+                }
             }
         }
     }

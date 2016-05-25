@@ -5,6 +5,7 @@ import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.db.DBObject;
 import com.sepgroup.sep.db.Database;
 import com.sepgroup.sep.utils.DateUtils;
+import com.sun.javafx.tk.Toolkit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -253,6 +254,31 @@ public class TaskModel extends AbstractModel {
 //                DateUtils.castDateToString(startDate) + ", end date = " + DateUtils.castDateToString(deadline);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof TaskModel)) {
+            return false;
+        }
+        TaskModel other = (TaskModel) obj;
+        if (other.getProjectId() != projectId) {
+            return false;
+        }
+        if (other.getName() != null && name != null && !other.getName().equals(name)) {
+            return false;
+        }
+        if (other.getTaskId() != taskId) {
+            return false;
+        }
+        if (other.getDescription() != null && description != null && !other.getDescription().equals(description)) {
+            return false;
+        }
+        if (other.getDependencies() != null && dependencies != null && !other.getDependencies().equals(dependencies)) {
+            return false;
+        }
+
+        return true;
+    }
+
     class TaskModelDBObject implements DBObject {
 
         private final Logger logger = LoggerFactory.getLogger(TaskModelDBObject.class);
@@ -361,12 +387,21 @@ public class TaskModel extends AbstractModel {
             sql.append(",'" + getProjectId() + "'");
             sql.append(");");
 
+            int insertedKey;
             try {
-                return db.insert(sql.toString());
+                insertedKey = db.insert(sql.toString());
             } catch (SQLException e) {
                 logger.error("Unable to create task " + ". Query: " + sql, e);
                 throw new DBException(e);
+            } finally {
+                try {
+                    db.closeConnection();
+                } catch (SQLException e) {
+                    throw new DBException(e);
+                }
             }
+
+            return insertedKey;
         }
 
         @Override
@@ -384,6 +419,12 @@ public class TaskModel extends AbstractModel {
             } catch (SQLException e) {
                 logger.error("Unable to update task with taskId" + getTaskId() + ". Query: " + sql, e);
                 throw new DBException(e);
+            } finally {
+                try {
+                    db.closeConnection();
+                } catch (SQLException e) {
+                    throw new DBException(e);
+                }
             }
         }
 
@@ -399,6 +440,12 @@ public class TaskModel extends AbstractModel {
             } catch (SQLException e) {
                 logger.error("Unable to delete task with taskId" + getTaskId() + ". Query: " + sql, e);
                 throw new DBException(e);
+            } finally {
+                try {
+                    db.closeConnection();
+                } catch (SQLException e) {
+                    throw new DBException(e);
+                }
             }
         }
     }
