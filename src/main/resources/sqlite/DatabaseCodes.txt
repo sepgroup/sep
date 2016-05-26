@@ -1,0 +1,16 @@
+CREATE TABLE Project_tmp(ProjectID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, ProjectName VARCHAR(50) NOT NULL, StartDate DATE, Deadline Date, Budget INT, Done BOOLEAN, ManagerID INT);
+INSERT INTO Project_tmp(ProjectID, ProjectName, StartDate, Deadline, Done) SELECT PID, ProjectName, StartDate, DeadLine, Done FROM Project;
+ALTER TABLE Project_tmp RENAME TO Project;
+
+CREATE TABLE User_tmp(UserID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, FirstName VARCHAR(50), LastName VARCHAR(50), SalaryPerHour INT);
+INSERT INTO User_tmp(UserID, FirstName, LastName, SalaryPerHour) SELECT ResourceID, FirstName, LastName, SalaryPerHour FROM User;
+ALTER TABLE User_tmp RENAME TO User;
+
+CREATE TABLE Task_tmp(TaskID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, FKProjectID INTEGER NOT NULL, TaskName VARCHAR(50) NOT NULL, Description TEXT, StartDate DATE, Deadline Date, Budget INT, Done BOOLEAN, Tags TEXT, FOREIGN KEY (FKProjectID) REFERENCES Project(ProjectID) ON DELETE CASCADE);
+ALTER TABLE Task_tmp RENAME TO Task;
+
+CREATE TABLE AssignedTask(FKUserID INT NOT NULL, FKTaskID INT NOT NULL, Tags TEXT, StartDate DATE, Deadline DATE, RequiredHoursWork INT, Done BOOLEAN, FOREIGN KEY (FKUserID) REFERENCES User(UserID) ON DELETE CASCADE, FOREIGN KEY (FKTaskID) REFERENCES Task(TaskID) ON DELETE CASCADE);
+INSERT INTO Task (FKProjectID, TaskName, StartDate, Deadline, Budget, Done, Tags) VALUES (1, "DataBase Design", "2016-04-28", "2016-05-05", 2000, 0, "Database, sqlite, Efficient");
+INSERT INTO AssignedTask (UserID, TaskID, Tags, StartDate, Deadline, RequiredHoursWork, Done) VALUES (1, 1, "Efficiency Progress", "2016-05-01", "2016-05-04", 30, 0);
+
+CREATE TABLE TaskDependency(TaskID INT NOT NULL)

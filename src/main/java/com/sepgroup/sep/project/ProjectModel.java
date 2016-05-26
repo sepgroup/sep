@@ -4,7 +4,7 @@ import com.sepgroup.sep.AbstractModel;
 import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.db.DBObject;
 import com.sepgroup.sep.db.Database;
-import com.sepgroup.sep.login.UserModel;
+import com.sepgroup.sep.user.UserModel;
 import com.sepgroup.sep.task.TaskModel;
 import com.sepgroup.sep.utils.DateUtils;
 import org.slf4j.Logger;
@@ -329,12 +329,13 @@ public class ProjectModel extends AbstractModel {
 
         private final Logger logger = LoggerFactory.getLogger(ProjectModel.ProjectModelDBObject.class);
 
-        private static final String PROJECT_ID_COLUMN = "PID";
+        private static final String PROJECT_ID_COLUMN = "ProjectID";
         private static final String PROJECT_NAME_COLUMN = "ProjectName";
-        private static final String DEADLINE_COLUMN = "DeadLine";
         private static final String START_DATE_COLUMN = "StartDate";
+        private static final String DEADLINE_COLUMN = "DeadLine";
         private static final String BUDGET_COLUMN = "Budget";
         private static final String DONE_COLUMN = "Done";
+        private static final String MANAGER_ID = "ManagerID";
 
         private static final String tableName="Project";
         private Database db;

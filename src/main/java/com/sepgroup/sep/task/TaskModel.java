@@ -285,10 +285,15 @@ public class TaskModel extends AbstractModel {
 
         private static final String tableName = "Task";
 
-        private static final String TASK_ID = "TID";
-        private static final String PROJECT_ID = "PID";
-        private static final String TASK_DESCRIPTION = "Description";
-        private static final String TASK_NAME = "TaskName";
+        private static final String TASK_ID_COLUMN = "TaskID";
+        private static final String PROJECT_ID_COLUMN = "FKProjectID";
+        private static final String TASK_NAME_COLUMN = "TaskName";
+        private static final String DESCRIPTION_COLUMN = "Description";
+        private static final String START_DATE_COLUMN = "StartDate";
+        private static final String DEADLINE_COLUMN = "Deadline";
+        private static final String BUDGET_COLUMN = "Budget";
+        private static final String DONE_COLUMN = "Done";
+        private static final String TAGS_COLUMN = "Tags";
 
         private Database db;
 
@@ -342,7 +347,7 @@ public class TaskModel extends AbstractModel {
             StringBuilder sql = new StringBuilder();
             sql.append("SELECT * ");
             sql.append("FROM " + getTableName() + " ");
-            sql.append("WHERE TID=" + taskId + ";");
+            sql.append("WHERE "+ TASK_ID_COLUMN +"=" + taskId + ";");
             try {
                 return db.query(sql.toString());
             }
@@ -356,7 +361,7 @@ public class TaskModel extends AbstractModel {
             StringBuilder sql = new StringBuilder();
             sql.append("SELECT * ");
             sql.append("FROM " + getTableName() + " ");
-            sql.append("WHERE PID=" + projectId + ";");
+            sql.append("WHERE "+ PROJECT_ID_COLUMN +"=" + projectId + ";");
             try {
                 return db.query(sql.toString());
             }
@@ -381,7 +386,7 @@ public class TaskModel extends AbstractModel {
             // Build query
             StringBuilder sql = new StringBuilder();
             sql.append("INSERT INTO "+ getTableName() + " ");
-            sql.append("("+ TASK_NAME + "," + TASK_DESCRIPTION + "," + PROJECT_ID + ") ");
+            sql.append("("+ TASK_NAME_COLUMN + "," + DESCRIPTION_COLUMN + "," + PROJECT_ID_COLUMN + ") ");
             sql.append("VALUES ('" + getName() + "'");
             sql.append(",'" + getDescription() + "'");
             sql.append(",'" + getProjectId() + "'");
@@ -410,9 +415,9 @@ public class TaskModel extends AbstractModel {
             StringBuilder sql = new StringBuilder();
             sql.append("UPDATE "+ getTableName() + " ");
             sql.append("SET ");
-            sql.append(TASK_NAME + "='" + getName() + "'");
-            sql.append(", " + TASK_DESCRIPTION + "='" + getDescription() + "' ");
-            sql.append("WHERE " + TASK_ID + "=" + getTaskId() + ";");
+            sql.append(TASK_NAME_COLUMN + "='" + getName() + "'");
+            sql.append(", " + DESCRIPTION_COLUMN + "='" + getDescription() + "' ");
+            sql.append("WHERE " + TASK_ID_COLUMN + "=" + getTaskId() + ";");
 
             try {
                 db.update(sql.toString());
@@ -433,7 +438,7 @@ public class TaskModel extends AbstractModel {
             // Build query
             StringBuilder sql = new StringBuilder();
             sql.append("DELETE FROM " + getTableName() + " ");
-            sql.append("WHERE " + TASK_ID + "=" + getTaskId() + ";");
+            sql.append("WHERE " + TASK_ID_COLUMN + "=" + getTaskId() + ";");
 
             try {
                 db.update(sql.toString());
