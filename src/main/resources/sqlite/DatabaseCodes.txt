@@ -14,3 +14,5 @@ INSERT INTo Task (FKProjectID, TaskName, StartDate, Deadline, Budget, Done, Tags
 INSERT INTo AssignedTask (UserID, TaskID, Tags, StartDate, Deadline, RequiredHoursWork, Done) VALUES (1, 1, "Efficiency Progress", "2016-05-01", "2016-05-04", 30, 0);
 
 CREATE TABLE TaskDependency(TaskID INT NOT NULL)
+
+ALTER TABLE Task ADD COLUMN FKUserID INT;
