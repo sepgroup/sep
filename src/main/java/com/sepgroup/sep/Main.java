@@ -1,6 +1,6 @@
 package com.sepgroup.sep;
 
-import com.sepgroup.sep.login   .LoginController;
+import com.sepgroup.sep.project.ProjectController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
@@ -26,8 +26,8 @@ public class Main extends Application {
         primaryStage.setWidth(windowWidth);
         primaryStage.setHeight(windowHeight);
 
-        // Start with login view
-        AbstractController loginController = new LoginController();
+        // Start with user view
+        AbstractController loginController = new ProjectController();
         setPrimaryScene(loginController);
 
         primaryStage.show();

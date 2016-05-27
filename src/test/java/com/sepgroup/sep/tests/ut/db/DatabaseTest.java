@@ -2,10 +2,7 @@ package com.sepgroup.sep.tests.ut.db;
 
 import com.sepgroup.sep.db.Database;
 import org.aeonbits.owner.ConfigFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 
 import java.sql.ResultSet;
 
@@ -22,11 +19,11 @@ public class DatabaseTest {
 
     private static String dbPath = "test.db";
 
-    private Database db;
+    private static Database db;
 
-    @Before
-    public void setUpBeforeMethod() throws Exception {
-        ConfigFactory.setProperty("configPath", getClass().getResource("/test-db.properties").getFile());
+    @BeforeClass
+    public static void setUpBeforeMethod() throws Exception {
+        ConfigFactory.setProperty("configPath", DatabaseTest.class.getResource("/test-db.properties").getFile());
     }
 
     @After
