@@ -1,12 +1,12 @@
-CREATE TABLE Project_tmp(ProjectID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, ProjectName VARCHAR(50) NOT NULL, StartDate DATE, Deadline Date, Budget INT, Done BOOLEAN, ManagerID INT);
+CREATE TABLE Project_tmp(ProjectID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, ProjectName VARCHAR(50) NOT NULL, StartDate DATE, Deadline Date, Budget FLOAT, Done BOOLEAN, FKManagerID INT, ProjectDescription TEXT);
 INSERT INTO Project_tmp(ProjectID, ProjectName, StartDate, Deadline, Done) SELECT PID, ProjectName, StartDate, DeadLine, Done FROM Project;
 ALTER TABLE Project_tmp RENAME TO Project;
 
-CREATE TABLE User_tmp(UserID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, FirstName VARCHAR(50), LastName VARCHAR(50), SalaryPerHour INT,  UserName VARCHAR(10), PassWord char(32), IsManager BOOLEAN);
+CREATE TABLE User_tmp(UserID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, FirstName VARCHAR(50), LastName VARCHAR(50), SalaryPerHour FLOAT);
 INSERT INTO User_tmp(UserID, FirstName, LastName, SalaryPerHour, UserName, PassWord, IsManager) SELECT ResourceID, FirstName, LastName, SalaryPerHour, UserName, PassWord, IsManager FROM User;
 ALTER TABLE User_tmp RENAME TO User;
 
-CREATE TABLE Task_tmp(TaskID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, FKProjectID INTEGER NOT NULL, TaskName VARCHAR(50) NOT NULL, StartDate DATE, Deadline Date, Budget INT, Done BOOLEAN, Tags TEXT, FOREIGN KEY (FKProjectID) REFERENCES Project(ProjectID) ON DELETE CASCADE);
+CREATE TABLE Task_tmp(TaskID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, FKProjectID INTEGER NOT NULL, TaskName VARCHAR(50) NOT NULL, StartDate DATE, Deadline Date, Budget FLOAT, Done BOOLEAN, Tags TEXT, TaskDescription TEXT, FOREIGN KEY (FKProjectID) REFERENCES Project(ProjectID) ON DELETE CASCADE);
 ALTER TABLE Task_tmp RENAME TO Task;
 
 CREATE TABLE AssignedTask(FKUserID INT NOT NULL, FKTaskID INT NOT NULL, Tags TEXT, StartDate DATE, Deadline DATE, RequiredHoursWork INT, Done BOOLEAN, FOREIGN KEY (FKUserID) REFERENCES User(UserID) ON DELETE CASCADE, FOREIGN KEY (FKTaskID) REFERENCES Task(TaskID) ON DELETE CASCADE);
