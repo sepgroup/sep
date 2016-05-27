@@ -1,6 +1,7 @@
 package com.sepgroup.sep.tests.ut.db;
 
 import com.sepgroup.sep.db.Database;
+import com.sepgroup.sep.project.ProjectModel;
 import org.aeonbits.owner.ConfigFactory;
 import org.junit.*;
 
@@ -20,6 +21,12 @@ public class DatabaseTest {
     private static String dbPath = "test.db";
 
     private static Database db;
+
+    private static String expectedProjectName = "P1";
+
+    private static String projectTableName = ProjectModel.ProjectModelDBObject.TABLE_NAME;
+    private static String projectIDColumn = ProjectModel.ProjectModelDBObject.PROJECT_ID_COLUMN;
+    private static String projectNameColumn = ProjectModel.ProjectModelDBObject.PROJECT_NAME_COLUMN;
 
     @BeforeClass
     public static void setUpBeforeMethod() throws Exception {
@@ -49,49 +56,45 @@ public class DatabaseTest {
     }
 
     @Test
-    public void testDBInsert() throws Exception {
-        db = Database.getDB(dbPath);
-        String sql = "INSERT INTO Task (TaskName, Description, PID) VALUES ('T1', 'D1', 11);";
-        int insertedTaskKey = db.insert(sql);
-
-        ResultSet rs = db.query("SELECT * FROM Task WHERE TID=" + insertedTaskKey);
+    public void testDBInsertAndQuery() throws Exception {
+        int insertedKey = insertProject();
+        ResultSet rs = db.query("SELECT * FROM " + projectTableName + " WHERE " + projectIDColumn + "=" + insertedKey);
 
         assertThat(rs.next(), equalTo(true));
-    }
 
-    @Test
-    public void testDBQuery() throws Exception {
-        db = Database.getDB(dbPath);
-        String sql = "INSERT INTO Project (ProjectName) VALUES ('P1');";
-        int insertedTaskKey = db.insert(sql);
-
-        ResultSet rs = db.query("SELECT * FROM Project WHERE PID=" + insertedTaskKey);
-
-        assertThat(rs.next(), equalTo(true));
+        String actualProjectName = rs.getString(projectNameColumn);
+        assertThat(expectedProjectName, equalTo(actualProjectName));
     }
 
     @Test
     public void testDBUpdate() throws Exception{
-        db = Database.getDB(dbPath);
-        String sql = "INSERT INTO Task (TaskName, Description, PID) VALUES ('T3', 'D3', 33);";
-        int insertedTaskKey = db.insert(sql);
+        int insertedKey = insertProject();
 
-        db.update("UPDATE Task SET Description='D33', PID=333 WHERE TID=" + insertedTaskKey);
-        ResultSet rs = db.query("SELECT * FROM Task WHERE TID=" + insertedTaskKey);
+        String updatedProjectName = "PPP111";
+        db.update("UPDATE " + projectTableName + " SET " + projectNameColumn + "='" + updatedProjectName +
+                "' WHERE " + projectIDColumn + "=" + insertedKey);
 
-        assertThat(rs.next(), equalTo(true));
-        assertThat(rs.getString("Description"), equalTo("D33"));
-        assertThat(rs.getInt("PID"), equalTo(333));
+        ResultSet rs = db.query("SELECT * FROM " + projectTableName + " WHERE " + projectIDColumn + "=" + insertedKey);
+
+        String actualProjectName = rs.getString(projectNameColumn);
+        assertThat(actualProjectName, equalTo(updatedProjectName));
     }
 
     @Test
     public void testDBDelete() throws Exception {
-        db = Database.getDB(dbPath);
-        String sql = "INSERT INTO Task (TaskName, Description, PID) VALUES ('T1', 'D1', 25);";
-        int insertedTaskKey = db.insert(sql);
-        db.update("DELETE FROM Task WHERE TID=" + insertedTaskKey);
-        ResultSet rs = db.query("SELECT * FROM Task WHERE TID=" + insertedTaskKey);
+        int insertedKey = insertProject();
+
+        String updatedProjectName = "PPP111";
+        db.update("DELETE FROM " + projectTableName + " WHERE " + projectIDColumn + "=" + insertedKey);
+
+        ResultSet rs = db.query("SELECT * FROM " + projectTableName + " WHERE " + projectIDColumn + "=" + insertedKey);
 
         assertThat(rs.next(), equalTo(false));
+    }
+
+    private int insertProject() throws Exception {
+        db = Database.getDB(dbPath);
+        String sql = "INSERT INTO Project (" + projectNameColumn + ") VALUES ('" + expectedProjectName + "');";
+        return db.insert(sql);
     }
 }

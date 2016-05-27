@@ -1,5 +1,7 @@
 package com.sepgroup.sep.user;
 
+import com.sepgroup.sep.AbstractModel;
+import com.sepgroup.sep.ModelNotFoundException;
 import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.db.DBObject;
 import com.sepgroup.sep.db.Database;
@@ -8,11 +10,12 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * Created by jeremybrown on 2016-05-17.
  */
-public class UserModel {
+public class UserModel extends AbstractModel {
     private int userId;
 
     /**
@@ -29,6 +32,21 @@ public class UserModel {
      */
     private void setUserId(int userId) {
         this.userId = userId;
+    }
+
+    @Override
+    public void refreshData() throws ModelNotFoundException {
+
+    }
+
+    @Override
+    public void persistData() throws DBException {
+
+    }
+
+    @Override
+    public void deleteData() throws DBException {
+
     }
 
 
@@ -63,17 +81,17 @@ public class UserModel {
         }
 
         @Override
-        public ResultSet findAll() throws DBException {
+        public List<UserModel> findAll() throws ModelNotFoundException {
             return null;
         }
 
         @Override
-        public ResultSet findById(int i) throws DBException {
+        public UserModel findById(int i) throws ModelNotFoundException {
             return null;
         }
 
         @Override
-        public ResultSet findBySql(String s) throws DBException {
+        public List<UserModel> findBySql(String s) throws ModelNotFoundException {
             return null;
         }
 

@@ -54,7 +54,9 @@ public class Database {
     public ResultSet query(String sql) throws SQLException {
         Statement s = conn.createStatement();
         s.setQueryTimeout(5);
-        return s.executeQuery(sql);
+        ResultSet rs = s.executeQuery(sql);
+        conn.commit();
+        return rs;
 	}
 
     public int insert(String sql) throws SQLException {
@@ -64,6 +66,7 @@ public class Database {
         if (s.executeUpdate() == 0) {
             throw new SQLException("Inserting failed, no rows affected. Query: " + sql);
         }
+        conn.commit();
 
         try (ResultSet generatedKeys = s.getGeneratedKeys()) {
             if (generatedKeys.next()) {
@@ -82,9 +85,11 @@ public class Database {
         if (s.executeUpdate(sql) == 0) {
             throw new SQLException("Update failed, no rows affected. Query: " + sql);
         }
+        conn.commit();
     }
 	
 	public void closeConnection() throws SQLException {
+        logger.debug("Closing DB connection to " + getDbPath());
         conn.close();
 	}
 

@@ -38,7 +38,7 @@ public abstract class AbstractController implements Observer {
     public void refreshModel() {
         try {
             model.refreshData();
-        } catch (DBException e) {
+        } catch (ModelNotFoundException e) {
             logger.error("Unable to refresh model data", e);
         }
     }

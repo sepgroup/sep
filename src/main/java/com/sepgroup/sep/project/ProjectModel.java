@@ -1,6 +1,7 @@
 package com.sepgroup.sep.project;
 
 import com.sepgroup.sep.AbstractModel;
+import com.sepgroup.sep.ModelNotFoundException;
 import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.db.DBObject;
 import com.sepgroup.sep.db.Database;
@@ -51,8 +52,8 @@ public class ProjectModel extends AbstractModel {
 		this.name=name;
         this.budget=budget;
         try {
-            this.startDate = DateUtils.castStringToDate(sd);
-            this.deadline = DateUtils.castStringToDate(dl);
+            if (sd != null) this.startDate = DateUtils.castStringToDate(sd);
+            if (dl != null) this.deadline = DateUtils.castStringToDate(dl);
         } catch (ParseException e) {
             logger.error("Unable to parse string to date, leaving as null.", e);
         }
@@ -73,8 +74,8 @@ public class ProjectModel extends AbstractModel {
 		this.name = name;
 		this.budget = budget;
         try {
-            this.startDate = DateUtils.castStringToDate(sd);
-            this.deadline = DateUtils.castStringToDate(dl);
+            if (sd != null) this.startDate = DateUtils.castStringToDate(sd);
+            if (dl != null) this.deadline = DateUtils.castStringToDate(dl);
         } catch (ParseException e) {
             logger.error("Unable to parse string to date, leaving as null.", e);
         }
@@ -82,7 +83,7 @@ public class ProjectModel extends AbstractModel {
 	}
 
     @Override
-    public void refreshData() throws DBException {
+    public void refreshData() throws ModelNotFoundException {
         ProjectModel refreshed = getById(getProjectId());
 
         setName(refreshed.getName());
@@ -119,23 +120,8 @@ public class ProjectModel extends AbstractModel {
      * @param projectId is the ID that we search for that
      * @return the data inside the row of selected table
      */
-    public static ProjectModel getById(int projectId){
-        ProjectModel p = new ProjectModel();
-        try{
-            ResultSet rs = p.dbo.findById(projectId);
-            int i =rs.getFetchSize();
-            while (rs.next()) {
-                String PnameTemp = rs.getString("ProjectName");
-                String stDateTemp=rs.getString("startDate");
-                String dlDateTemp=rs.getString("deadline");
-                int budgetTemp = rs.getInt("Budget");
-                Boolean doneTemp=rs.getBoolean("done");
-                p = new ProjectModel(projectId, PnameTemp, stDateTemp, dlDateTemp, budgetTemp, doneTemp);
-            }
-        } catch (DBException | SQLException e) {
-            logger.error("Unable to find ProjectModel(s)", e);
-        }
-        return p;
+    public static ProjectModel getById(int projectId) throws ModelNotFoundException {
+        return new ProjectModel().dbo.findById(projectId);
     }
 
     /**
@@ -143,26 +129,8 @@ public class ProjectModel extends AbstractModel {
      * of project objects and return it
      * @return LinkedList of Project Objects
      */
-    public static List<ProjectModel> getAll(){
-        List<ProjectModel> projectList = new LinkedList<>();
-        try {
-            ResultSet rs = new ProjectModel().dbo.findAll();
-            while (rs.next()) {
-                // Extract values
-                int idTemp = rs.getInt("PID");
-                String  PnameTemp = rs.getString("ProjectName");
-                String stDateTemp=rs.getString("startDate");
-                String dlDateTemp=rs.getString("deadline");
-                int budgetTemp = rs.getInt("Budget");
-                Boolean doneTemp=rs.getBoolean("done");
-                projectList.add(new ProjectModel(idTemp, PnameTemp, stDateTemp, dlDateTemp, budgetTemp, doneTemp));
-            }
-        }
-        catch (DBException | SQLException e) {
-            logger.error("Unable to find ProjectModel(s)", e);
-        }
-
-        return projectList;
+    public static List<ProjectModel> getAll() throws ModelNotFoundException {
+        return new ProjectModel().dbo.findAll();
     }
 
     public static List<ProjectModel> getAllByOwner(UserModel userModel) {
@@ -306,7 +274,7 @@ public class ProjectModel extends AbstractModel {
         if (other.getProjectId() != this.projectId) {
             return false;
         }
-        if (other.getBudget() != this.projectId) {
+        if (other.getBudget() != this.budget) {
             return false;
         }
         if (other.getStartDate() != null && startDate != null && !other.getStartDate().equals(this.startDate)) {
@@ -325,19 +293,18 @@ public class ProjectModel extends AbstractModel {
         return true;
     }
 
-    class ProjectModelDBObject implements DBObject {
+    public class ProjectModelDBObject implements DBObject {
 
         private final Logger logger = LoggerFactory.getLogger(ProjectModel.ProjectModelDBObject.class);
 
-        private static final String PROJECT_ID_COLUMN = "ProjectID";
-        private static final String PROJECT_NAME_COLUMN = "ProjectName";
-        private static final String START_DATE_COLUMN = "StartDate";
-        private static final String DEADLINE_COLUMN = "DeadLine";
-        private static final String BUDGET_COLUMN = "Budget";
-        private static final String DONE_COLUMN = "Done";
-        private static final String MANAGER_ID = "ManagerID";
+        public static final String PROJECT_ID_COLUMN = "ProjectID";
+        public static final String PROJECT_NAME_COLUMN = "ProjectName";
+        public static final String START_DATE_COLUMN = "StartDate";
+        public static final String DEADLINE_COLUMN = "Deadline";
+        public static final String BUDGET_COLUMN = "Budget";
+        public static final String DONE_COLUMN = "Done";
+        public static final String TABLE_NAME = "Project";
 
-        private static final String tableName="Project";
         private Database db;
 
         private ProjectModelDBObject() {
@@ -350,7 +317,7 @@ public class ProjectModel extends AbstractModel {
 
         @Override
         public String getTableName() {
-            return tableName;
+            return TABLE_NAME;
         }
 
         /**
@@ -362,58 +329,110 @@ public class ProjectModel extends AbstractModel {
         @Override
         public int getLastInsertedId() throws DBException {
             String sql = "SELECT last_insert_rowid() AS tempID;";
+            int id;
             try {
                 ResultSet rs = db.query(sql);
-                return (rs.getInt("tempID"));
+                id = (rs.getInt("tempID"));
             } catch (SQLException e) {
                 logger.error("Unable to find last inserted id" + ". Query: " + sql, e);
                 throw new DBException(e);
+            } finally {
+                try {
+                    db.closeConnection();
+                } catch (SQLException e) {
+                    throw new DBException("Unable to close connection to " + db.getDbPath(), e);
+                }
             }
+            return id;
         }
 
         @Override
-        public ResultSet findAll() throws DBException {
+        public List<ProjectModel> findAll() throws ModelNotFoundException {
             StringBuilder sql = new StringBuilder();
             sql.append("SELECT * ");
             sql.append("FROM " + getTableName() + ";");
+
+            List<ProjectModel> projectList = new LinkedList<>();
             try {
-                return db.query(sql.toString());
+                ResultSet rs =  db.query(sql.toString());
+
+                while (rs.next()) {
+                    // Extract values
+                    int idTemp = rs.getInt(ProjectModelDBObject.PROJECT_ID_COLUMN);
+                    String pNameTemp = rs.getString(ProjectModelDBObject.PROJECT_NAME_COLUMN);
+                    String stDateTemp=rs.getString(ProjectModelDBObject.START_DATE_COLUMN);
+                    String dlDateTemp=rs.getString(ProjectModelDBObject.DEADLINE_COLUMN);
+                    int budgetTemp = rs.getInt(ProjectModelDBObject.BUDGET_COLUMN);
+                    boolean doneTemp=rs.getBoolean(ProjectModelDBObject.DONE_COLUMN);
+                    projectList.add(new ProjectModel(idTemp, pNameTemp, stDateTemp, dlDateTemp, budgetTemp, doneTemp));
+                }
+
+                if (projectList.isEmpty()) {
+                    logger.info("DB query returned zero results");
+                    throw new ModelNotFoundException("DB query for all projects returned no results");
+                }
             }
             catch (SQLException e) {
                 logger.error("Unable to fetch all entries in Project table" + ". Query: " + sql, e);
-                throw new DBException(e);
+                throw new ModelNotFoundException(e);
+            } finally {
+                try {
+                    db.closeConnection();
+                } catch (SQLException e) {
+                    logger.debug("Unable to close connection to " + db.getDbPath(), e);
+                }
             }
+            return projectList;
         }
 
         @Override
-        public ResultSet findById(int projectId) throws DBException {
-            // TODO fix bad query
+        public ProjectModel findById(int projectId) throws ModelNotFoundException {
+            logger.debug("Building query for project ID " + projectId);
             StringBuilder sql = new StringBuilder();
             sql.append("SELECT * ");
             sql.append("FROM " + getTableName() + " ");
-            sql.append("WHERE PID=" + projectId + ";");
+            sql.append("WHERE " + PROJECT_ID_COLUMN + "=" + projectId + ";");
+            logger.debug("Query: " + sql.toString());
+
+            ProjectModel p = null;
             try {
-                return db.query(sql.toString());
+                ResultSet rs = db.query(sql.toString());
+                if (rs.next()) {
+                    logger.debug("Constructing ProjectModel with DB fields");
+                    String pNameTemp = rs.getString(ProjectModelDBObject.PROJECT_NAME_COLUMN);
+                    String stDateTemp=rs.getString(ProjectModelDBObject.START_DATE_COLUMN);
+                    String dlDateTemp=rs.getString(ProjectModelDBObject.DEADLINE_COLUMN);
+                    int budgetTemp = rs.getInt(ProjectModelDBObject.BUDGET_COLUMN);
+                    boolean doneTemp=rs.getBoolean(ProjectModelDBObject.DONE_COLUMN);
+                    p = new ProjectModel(projectId, pNameTemp, stDateTemp, dlDateTemp, budgetTemp, doneTemp);
+                }
+                else {
+                    logger.info("DB query returned zero results");
+                    throw new ModelNotFoundException("DB query for project ID " + projectId + " returned no results");
+                }
             }
             catch (SQLException e) {
                 logger.error("Unable to fetch all tasks with project projectId" + projectId + ". Query: " + sql, e);
-                throw new DBException(e);
+                throw new ModelNotFoundException(e);
+            } finally {
+                try {
+                    db.closeConnection();
+                } catch (SQLException e) {
+                    logger.debug("Unable to close connection to " + db.getDbPath(), e);
+                }
             }
+            return p;
         }
 
         /**
-         * It fetches the data from database and make one linklist of project objects
+         * It fetches the data from database and make one linked list of project objects
          * @param sql asked sql statement from database
          * @return Linklist of project objects
          */
         @Override
-        public ResultSet findBySql(String sql) throws DBException {
-            try {
-                return db.query(sql);
-            } catch (SQLException e) {
-                logger.error("Unable to fetch using query" + sql, e);
-                throw new DBException(e);
-            }
+        public List<AbstractModel> findBySql(String sql) throws ModelNotFoundException {
+            // TODO
+            return null;
         }
 
         /**
@@ -422,7 +441,7 @@ public class ProjectModel extends AbstractModel {
          */
         @Override
         public int create() throws DBException {
-            // Build query
+            logger.debug("Building SQL query for project model");
             StringBuilder sql = new StringBuilder();
             sql.append("INSERT INTO "+ getTableName() + " ");
             sql.append("("+ PROJECT_NAME_COLUMN + "," + BUDGET_COLUMN + "," + DONE_COLUMN);
@@ -443,19 +462,20 @@ public class ProjectModel extends AbstractModel {
                 sql.append(",'" + DateUtils.castDateToString(getDeadline()) + "'");
             }
             sql.append(");");
+            logger.debug("SQL query: " + sql.toString());
 
             int insertedKey;
             try {
                 insertedKey = this.db.insert(sql.toString());
+                logger.debug("Insert query returned key " + insertedKey);
             } catch (SQLException e) {
-                logger.error("Unable to create task " + ". Query: " + sql, e);
-                throw new DBException(e);
+                throw new DBException("Unable to create project " + ". Query: " + sql, e);
             }
             finally {
                 try {
                     db.closeConnection();
                 } catch (SQLException e) {
-                    throw new DBException(e);
+                    throw new DBException("Unable to close connection to " + db.getDbPath(), e);
                 }
             }
 
@@ -477,17 +497,18 @@ public class ProjectModel extends AbstractModel {
             sql.append(BUDGET_COLUMN + "='" + getBudget() + "'");
             sql.append(DONE_COLUMN + "='" + (isDone() ? 1 : 0) + "'");
             sql.append("WHERE " + PROJECT_ID_COLUMN + "=" + getProjectId() + ";");
+            logger.debug("SQL query: " + sql.toString());
 
             try {
                 db.update(sql.toString());
             } catch (SQLException e) {
-                logger.error("Unable to update project with projectId " + getProjectId() + ". Query: " + sql, e);
+                logger.error("Unable to update project with project ID " + getProjectId() + ". Query: " + sql, e);
                 throw new DBException(e);
             } finally {
                 try {
                     db.closeConnection();
                 } catch (SQLException e) {
-                    throw new DBException(e);
+                    throw new DBException("Unable to close connection to " + db.getDbPath(), e);
                 }
             }
         }
@@ -502,13 +523,13 @@ public class ProjectModel extends AbstractModel {
             try {
                 db.update(sql.toString());
             } catch (SQLException e) {
-                logger.error("Unable to delete task with taskId" + getProjectId() + ". Query: " + sql, e);
+                logger.error("Unable to delete project with project ID " + getProjectId() + ". Query: " + sql, e);
                 throw new DBException(e);
             } finally {
                 try {
                     db.closeConnection();
                 } catch (SQLException e) {
-                    throw new DBException(e);
+                    throw new DBException("Unable to close connection to " + db.getDbPath(), e);
                 }
             }
         }

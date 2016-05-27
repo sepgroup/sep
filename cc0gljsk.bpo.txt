@@ -1,0 +1,15 @@
+﻿Database is updated. Name of Columns is updated. TaskDependency is added.
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# Explicit paths specified without -i or -o; assuming --only paths...
+# On branch master
+# Your branch is up-to-date with 'origin/master'.
+#
+# Changes to be committed:
+#	modified:   build.gradle
+#	new file:   src/DesignBasicStructure/gradle/wrapper/gradle-wrapper.properties
+#	modified:   src/main/java/com/sepgroup/sep/Main.java
+#	new file:   src/main/resources/sqlite/DatabaseCodes.txt
+#	modified:   src/main/resources/sqlite/ProjectManagement.db
+#
+
