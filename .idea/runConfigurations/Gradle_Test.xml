@@ -13,7 +13,7 @@
           <option value="test" />
         </list>
       </option>
-      <option name="vmOptions" value="-Dorg.slf4j.simpleLogger.defaultLogLevel=DEBUG" />
+      <option name="vmOptions" value="" />
     </ExternalSystemSettings>
     <method />
   </configuration>

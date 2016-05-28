@@ -85,7 +85,8 @@ public class ProjectCreator extends AbstractController {
 			budgetFromField = Integer.parseInt(budgetField.getText());
         }
 		
-		ProjectModel createdProject = new ProjectModel(nameFromField, startDateFromField, deadlineFromField, budgetFromField, false);
+		ProjectModel createdProject = new ProjectModel(nameFromField, startDateFromField, deadlineFromField,
+				budgetFromField, false, 0, "");
 		
 		try{
 		createdProject.persistData();
