@@ -1,0 +1,39 @@
+.root{
+	
+	-fx-background-color: white;
+}
+
+#projectview{
+	-fx-background-image:url("Manager.jpg");
+}
+
+#projectcreator{
+-fx-background-image:url("newproject.jpg");
+-fx-background-repeat:stretch;
+-fx-background-position:top right;
+}
+
+#projecteditor{
+-fx-background-image:url("newproject.jpg");
+-fx-background-repeat:stretch;
+-fx-background-position:top right;
+}
+
+#taskview{
+-fx-background-image:url("newproject.jpg");
+-fx-background-repeat:stretch;
+-fx-background-position:top right;
+}
+
+
+
+.button {
+    -fx-effect: dropshadow(two-pass-box , darkgray, 10, 0.0 , 4, 5);
+    -fx-background-color: #3366FF;
+    -fx-background-radius: 15 15 15 15;
+    -fx-background-insets: 2 2 2 2 ;
+    -fx-color:white;
+	
+	
+	
+}

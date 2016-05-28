@@ -19,13 +19,13 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
         Main.primaryStage = primaryStage;
 
-        // Window size
+       /* Window size
         Rectangle2D screenDimensions = Screen.getPrimary().getVisualBounds();
         double windowWidth = screenDimensions.getWidth() * 3 / 4;
         double windowHeight = screenDimensions.getHeight() * 3 / 4;
         primaryStage.setWidth(windowWidth);
         primaryStage.setHeight(windowHeight);
-
+*/
         // Start with user view
         AbstractController loginController = new ProjectController();
         setPrimaryScene(loginController);
@@ -39,7 +39,10 @@ public class Main extends Application {
 
     public static void setPrimaryScene(AbstractController controller) throws IOException {
         Parent parent = FXMLLoader.load(controller.getClass().getResource(controller.getFxmlPath()));
-        primaryStage.setScene(new Scene(parent, primaryStage.getWidth(), primaryStage.getHeight()));
+        primaryStage.setScene(new Scene(parent));
+        parent.getStylesheets().add(controller.getClass().getResource(controller.getCssPath()).toExternalForm());
+
+
     }
 
     public static void main(String[] args) {

@@ -14,6 +14,8 @@ public class ProjectController extends AbstractController {
 
     public ProjectController() {
         setFxmlPath("/views/projectview.fxml");
+        setCssPath("/style/stylesheet.css");
+
     }
     /**
      * Moves to createproject

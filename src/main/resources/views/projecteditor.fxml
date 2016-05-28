@@ -4,20 +4,45 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="366.0" prefWidth="521.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sepgroup.sep.project.ProjectEditor">
+<AnchorPane fx:id="projecteditor" prefHeight="366.0" prefWidth="521.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sepgroup.sep.project.ProjectEditor">
    <children>
-      <Label layoutX="23.0" layoutY="29.0" prefHeight="25.0" prefWidth="213.0" text="Edit Existing Project" />
-      <Label layoutX="23.0" layoutY="158.0" prefHeight="25.0" prefWidth="144.0" text="Budget" />
-      <Label layoutX="261.0" layoutY="90.0" prefHeight="25.0" prefWidth="105.0" text="Start Date" />
-      <Label layoutX="23.0" layoutY="84.0" prefHeight="25.0" prefWidth="114.0" text="Name" />
-      <Label layoutX="260.0" layoutY="158.0" prefHeight="25.0" prefWidth="105.0" text="Deadline" />
-      <Button layoutX="69.0" layoutY="253.0" mnemonicParsing="false" text="Update" />
-      <Button layoutX="211.0" layoutY="253.0" mnemonicParsing="false" text="Delete" />
-      <Button layoutX="350.0" layoutY="253.0" mnemonicParsing="false" onAction="#onEditCancelClicked" text="Cancel" />
-      <TextField layoutX="93.0" layoutY="84.0" />
-      <TextField layoutX="97.0" layoutY="158.0" />
-      <TextField layoutX="336.0" layoutY="90.0" />
-      <TextField layoutX="336.0" layoutY="158.0" />
+      <Label layoutX="181.0" layoutY="24.0" prefHeight="25.0" prefWidth="213.0" text="Edit Existing Project">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font></Label>
+      <Label layoutX="22.0" layoutY="125.0" prefHeight="25.0" prefWidth="144.0" text="Budget">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font></Label>
+      <Label layoutX="23.0" layoutY="171.0" prefHeight="25.0" prefWidth="105.0" text="Start Date">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font></Label>
+      <Label layoutX="23.0" layoutY="84.0" prefHeight="25.0" prefWidth="114.0" text="Name">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font></Label>
+      <Label layoutX="23.0" layoutY="214.0" prefHeight="25.0" prefWidth="105.0" text="Deadline">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font></Label>
+      <Button layoutX="41.0" layoutY="278.0" mnemonicParsing="false" prefHeight="60.0" prefWidth="105.0" text="Update" textFill="WHITE">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font></Button>
+      <Button layoutX="208.0" layoutY="278.0" mnemonicParsing="false" prefHeight="60.0" prefWidth="105.0" text="Delete" textFill="WHITE">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font></Button>
+      <Button layoutX="365.0" layoutY="278.0" mnemonicParsing="false" onAction="#onEditCancelClicked" prefHeight="60.0" prefWidth="105.0" text="Cancel" textFill="WHITE">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font></Button>
+      <TextField layoutX="119.0" layoutY="84.0" />
+      <TextField layoutX="119.0" layoutY="125.0" />
+      <TextField layoutX="119.0" layoutY="171.0" />
+      <TextField layoutX="119.0" layoutY="214.0" />
    </children>
 </AnchorPane>

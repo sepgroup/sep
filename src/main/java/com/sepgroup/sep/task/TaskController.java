@@ -17,6 +17,8 @@ public class TaskController extends AbstractController {
 
 	public TaskController() {
         setFxmlPath("/views/taskview.fxml");
+        setCssPath("/style/stylesheet.css");
+
     }
 	
 	@FXML
