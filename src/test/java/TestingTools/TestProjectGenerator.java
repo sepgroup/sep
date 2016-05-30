@@ -9,6 +9,7 @@ public class TestProjectGenerator
 	public static void main(String[] args)
 	{
 		RandomDateBuilder.StringPair dates = RandomDateBuilder.randomDateStringPair(true);
+		System.out.println(RandomStringBuilder.randomString(100000000));
 		System.out.println(dates.first);
 		System.out.println(dates.second);
 	}

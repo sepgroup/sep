@@ -1,15 +1,20 @@
 package com.sepgroup.sep.task;
 
 import com.sepgroup.sep.AbstractModel;
+import com.sepgroup.sep.ModelNotFoundException;
 import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.db.DBObject;
 import com.sepgroup.sep.db.Database;
+import com.sepgroup.sep.utils.DateUtils;
+import com.sun.javafx.tk.Toolkit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.text.ParseException;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -24,27 +29,55 @@ public class TaskModel extends AbstractModel {
 
     private int taskId;
     private String name;
-    private String description;
+//    private String description;
     private int projectId;
+    private double budget;
+    private Date startDate;
+    private Date deadline;
+    private boolean done;
+    private int userId;
+    private List<String> tags;
     private List<TaskModel> dependencies;
-
-//    public int budget;
-//    private Date startDate;
-//    private Date deadline;
 
     /**
      * Default constructor
      */
     public TaskModel() {
         dbo = new TaskModelDBObject();
+        tags = new LinkedList<>();
         dependencies = new LinkedList<>();
     }
 
-    public TaskModel(String name, String description, int projectId) {
+    public TaskModel(String name, int projectId) {
         this();
         this.name = name;
-        this.description = description;
+//        this.description = description;
         this.projectId = projectId;
+    }
+
+    public TaskModel(String name, int projectId, double budget, Date startDate, Date deadline, boolean done, int userId) {
+        this();
+        this.name = name;
+//        this.description = description;
+        this.projectId = projectId;
+        this.budget = budget;
+        this.startDate = startDate;
+        this.deadline = deadline;
+        this.done = done;
+        this.userId = userId;
+    }
+
+    public TaskModel(int taskId, String name, int projectId, double budget, Date startDate, Date deadline, boolean done, int userId) {
+        this();
+        this.taskId = taskId;
+        this.name = name;
+//        this.description = description;
+        this.projectId = projectId;
+        this.budget = budget;
+        this.startDate = startDate;
+        this.deadline = deadline;
+        this.done = done;
+        this.userId = userId;
     }
 
     /**
@@ -73,12 +106,13 @@ public class TaskModel extends AbstractModel {
     }
 
     @Override
-    public void refreshData() throws DBException {
+    public void refreshData() throws ModelNotFoundException {
         TaskModel refreshed = getById(getTaskId());
 
         setName(refreshed.getName());
-        setDescription(refreshed.getDescription());
+//        setDescription(refreshed.getDescription());
         setProjectId(refreshed.getProjectId());
+        // TODO
 
         updateObservers();
     }
@@ -101,117 +135,76 @@ public class TaskModel extends AbstractModel {
 
     }
 
-    public static List<TaskModel> getAll() {
-        List<TaskModel> taskList = new LinkedList<>();
-        try {
-            ResultSet rs = new TaskModel().dbo.findAll();
-            while (rs.next()) {
-                // Extract values
-                String taskName = rs.getString("TaskName");
-                String taskDescription = rs.getString("Description");
-                int taskId = rs.getInt("TID");
-                int projectId = rs.getInt("PID");
-
-                // Assign values
-                TaskModel tt = new TaskModel();
-                tt.setTaskId(taskId);
-                tt.setName(taskName);
-                tt.setDescription(taskDescription);
-                tt.setProjectId(projectId);
-                taskList.add(tt);
-            }
-        } catch (DBException | SQLException e) {
-            logger.error("Unable to find TaskModel(s)", e);
-        }
-
-        return taskList;
+    public static List<TaskModel> getAll() throws ModelNotFoundException {
+        return new TaskModel().dbo.findAll();
     }
 
-    public static TaskModel getById(int taskId) {
-        TaskModel t = null;
-        try {
-            ResultSet r = t.dbo.findById(taskId);
-            if (r.next()) {
-                // Extract values
-                String taskName = r.getString("TaskName");
-                String taskDescription = r.getString("Description");
-                int projectId = r.getInt("PID");
-
-                // Assign values
-                t.setTaskId(taskId);
-                t.setName(taskName);
-                t.setDescription(taskDescription);
-                t.setProjectId(projectId);
-                // TODO set dependencies
-                return t;
-            }
-            else {
-                logger.error("Unable to find TaskModel with ID " + taskId);
-            }
-        } catch (DBException | SQLException e) {
-            logger.error("Unable to find TaskModel with ID " + taskId, e);
-        }
-        return t;
+    public static TaskModel getById(int taskId) throws ModelNotFoundException {
+        return new TaskModel().dbo.findById(taskId);
     }
 
     public static List<TaskModel> getAllByProject(int projectId) {
-        List<TaskModel> taskList = new LinkedList<>();
-        try {
-            ResultSet r = new TaskModel().dbo.findByProjectId(projectId);
-            while (r.next()) {
-                // Extract values
-                String taskName = r.getString("TaskName");
-                String taskDescription = r.getString("Description");
-                int taskId = r.getInt("TID");
-
-                // Assign values
-                TaskModel tt = new TaskModel();
-                tt.setTaskId(taskId);
-                tt.setName(taskName);
-                tt.setDescription(taskDescription);
-                tt.setProjectId(projectId);
-                taskList.add(tt);
-                // TODO set dependencies
-            }
-        } catch (DBException | SQLException e) {
-            logger.error("Unable to find TaskModel with project ID " + projectId, e);
-        }
-
-        return taskList;
+        // TODO
+//        List<TaskModel> taskList = new LinkedList<>();
+//        try {
+//            ResultSet r = new TaskModel().dbo.findByProjectId(projectId);
+//            while (r.next()) {
+//                // Extract values
+//                String taskName = r.getString("TaskName");
+//                String taskDescription = r.getString("Description");
+//                int taskId = r.getInt("TID");
+//
+//                // Assign values
+//                TaskModel tt = new TaskModel();
+//                tt.setTaskId(taskId);
+//                tt.setName(taskName);
+//                tt.setDescription(taskDescription);
+//                tt.setProjectId(projectId);
+//                taskList.add(tt);
+//                // TODO set dependencies
+//            }
+//        } catch (DBException | SQLException e) {
+//            logger.error("Unable to find TaskModel with project ID " + projectId, e);
+//        }
+//
+//        return taskList;
+        return null;
     }
 
     public static List<TaskModel> getAllByUser(int userId) {
-        List<TaskModel> taskList = new LinkedList<>();
-
-        // Build query
-        StringBuilder sql = new StringBuilder();
-        sql.append("SELECT ...");
         // TODO
-
-        try {
-            ResultSet r = new TaskModel().dbo.findBySql(sql.toString());
-            while (r.next()) {
-                // Extract values
-                String taskName = r.getString("TaskName");
-                String taskDescription = r.getString("Description");
-                int taskId = r.getInt("TID");
-                int projectId = r.getInt("PID");
-
-                // Assign values
-                TaskModel tt = new TaskModel();
-                tt.setTaskId(taskId);
-                tt.setName(taskName);
-                tt.setDescription(taskDescription);
-                tt.setProjectId(projectId);
-//                tt.setUserId(userId);  // TODO
-                taskList.add(tt);
-                // TODO set dependencies
-            }
-        } catch (DBException | SQLException e) {
-            logger.error("Unable to find TaskModel(s) with user ID " + userId, e);
-        }
-
-        return taskList;
+//        List<TaskModel> taskList = new LinkedList<>();
+//
+//        // Build query
+//        StringBuilder sql = new StringBuilder();
+//        sql.append("SELECT ...");
+//        // TODO
+//
+//        try {
+//            ResultSet r = new TaskModel().dbo.findBySql(sql.toString());
+//            while (r.next()) {
+//                // Extract values
+//                String taskName = r.getString("TaskName");
+//                String taskDescription = r.getString("Description");
+//                int taskId = r.getInt("TID");
+//                int projectId = r.getInt("PID");
+//
+//                // Assign values
+//                TaskModel tt = new TaskModel();
+//                tt.setTaskId(taskId);
+//                tt.setName(taskName);
+//                tt.setDescription(taskDescription);
+//                tt.setProjectId(projectId);
+////                tt.setUserId(userId);  // TODO
+//                taskList.add(tt);
+//                // TODO set dependencies
+//            }
+//        } catch (DBException | SQLException e) {
+//            logger.error("Unable to find TaskModel(s) with user ID " + userId, e);
+//        }
+//
+//        return taskList;
+        return null;
     }
 
 
@@ -231,13 +224,13 @@ public class TaskModel extends AbstractModel {
         this.name = name;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
+//    public String getDescription() {
+//        return description;
+//    }
+//
+//    public void setDescription(String description) {
+//        this.description = description;
+//    }
 
     public int getProjectId() {
         return projectId;
@@ -247,28 +240,122 @@ public class TaskModel extends AbstractModel {
         this.projectId = projectId;
     }
 
+    public double getBudget() {
+        return budget;
+    }
+
+    public void setBudget(int budget) {
+        this.budget = budget;
+    }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public Date getDeadline() {
+        return deadline;
+    }
+
+    public void setDeadline(Date deadline) {
+        this.deadline = deadline;
+    }
+
+    public boolean isDone() {
+        return done;
+    }
+
+    public void setDone(boolean done) {
+        this.done = done;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public boolean addTag(String tag) {
+        if (tags.stream().noneMatch((t) -> t.equals(tag))) {
+            tags.add(tag);
+            return true;
+        }
+        return false;
+    }
+
+    public void removeTag(String tag) {
+        tags.remove(tag);
+    }
+
     @Override
     public String toString() {
         return "Task TID = " + this.taskId + ", name = " + this.name + " , start date = ";
-//                this.castDateToString(startDate) + ", end date = " + this.castDateToString(deadline);
+//                DateUtils.castDateToString(startDate) + ", end date = " + DateUtils.castDateToString(deadline);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof TaskModel)) {
+            return false;
+        }
+        TaskModel other = (TaskModel) obj;
+        if (other.getProjectId() != projectId) {
+            return false;
+        }
+        if (other.getName() != null && name != null && !other.getName().equals(name)) {
+            return false;
+        }
+        if (other.getTaskId() != taskId) {
+            return false;
+        }
+//        if (other.getDescription() != null && description != null && !other.getDescription().equals(description)) {
+//            return false;
+//        }
+        if (other.getDependencies() != null && dependencies != null && !other.getDependencies().equals(dependencies)) {
+            return false;
+        }
+
+        return true;
     }
 
     class TaskModelDBObject implements DBObject {
 
         private final Logger logger = LoggerFactory.getLogger(TaskModelDBObject.class);
 
-        private static final String tableName = "Task";
+        public static final String TABLE_NAME = "Task";
+        public static final String TASK_ID_COLUMN = "TaskID";
+        public static final String PROJECT_ID_COLUMN = "FKProjectID";
+        public static final String TASK_NAME_COLUMN = "TaskName";
+//        public static final String DESCRIPTION_COLUMN = "Description";
+        public static final String START_DATE_COLUMN = "StartDate";
+        public static final String DEADLINE_COLUMN = "Deadline";
+        public static final String BUDGET_COLUMN = "Budget";
+        public static final String DONE_COLUMN = "Done";
+        public static final String TAGS_COLUMN = "Tags";
+        public static final String USER_ID_COLUMN = "FKUserID";
 
-        private static final String TASK_ID = "TID";
-        private static final String PROJECT_ID = "PID";
-        private static final String TASK_DESCRIPTION = "Description";
-        private static final String TASK_NAME = "TaskName";
+        private Database db;
 
-        private Database db = Database.getActiveDB();
+        private TaskModelDBObject() {
+            try {
+                db = Database.getActiveDB();
+            } catch (DBException e) {
+                logger.error("Unable to read from database", e);
+            }
+        }
 
         @Override
         public String getTableName() {
-            return tableName;
+            return TABLE_NAME;
         }
 
         /**
@@ -290,56 +377,136 @@ public class TaskModel extends AbstractModel {
         }
 
         @Override
-        public ResultSet findAll() throws DBException {
+        public List<TaskModel> findAll() throws ModelNotFoundException  {
             StringBuilder sql = new StringBuilder();
             sql.append("SELECT * ");
             sql.append("FROM " + getTableName() + ";");
+
+            List<TaskModel> taskList = new LinkedList<>();
             try {
-                return db.query(sql.toString());
+                ResultSet rs =  db.query(sql.toString());
+
+                while (rs.next()) {
+                    // Extract values
+                    int idTemp = rs.getInt(TaskModelDBObject.TASK_ID_COLUMN);
+                    String nameTemp = rs.getString(TaskModelDBObject.TASK_NAME_COLUMN);
+                    int projectIdTemp = rs.getInt(TaskModelDBObject.PROJECT_ID_COLUMN);
+                    String stDateTemp = rs.getString(TaskModelDBObject.START_DATE_COLUMN);
+                    String dlDateTemp = rs.getString(TaskModelDBObject.DEADLINE_COLUMN);
+                    Date stDateTempDate;
+                    Date dlDateTempDate;
+                    try {
+                        stDateTempDate = DateUtils.castStringToDate(stDateTemp);
+                        dlDateTempDate = DateUtils.castStringToDate(dlDateTemp);
+                    } catch (ParseException e) {
+                        logger.error("Unable to parse Date from DB");
+                        throw new ModelNotFoundException(e);
+                    }
+                    double budgetTemp = rs.getInt(TaskModelDBObject.BUDGET_COLUMN);
+                    boolean doneTemp = rs.getBoolean(TaskModelDBObject.DONE_COLUMN);
+                    int userIdTemp = rs.getInt(TaskModelDBObject.USER_ID_COLUMN);
+                    String tagsTemp = rs.getString(TaskModelDBObject.TAGS_COLUMN);
+                    List<String> tagsList = Arrays.asList(tagsTemp.split(" "));
+                    taskList.add(new TaskModel(idTemp, nameTemp, projectIdTemp, budgetTemp, stDateTempDate, dlDateTempDate, doneTemp, userIdTemp));
+                }
+
+                if (taskList.isEmpty()) {
+                    logger.info("DB query returned zero results");
+                    throw new ModelNotFoundException("DB query for all projects returned no results");
+                }
             }
             catch (SQLException e) {
-                logger.error("Unable to fetch all entries in Task table" + ". Query: " + sql, e);
-                throw new DBException(e);
+                logger.error("Unable to fetch all entries in Project table" + ". Query: " + sql, e);
+                throw new ModelNotFoundException(e);
+            } finally {
+                try {
+                    db.closeConnection();
+                } catch (SQLException e) {
+                    logger.debug("Unable to close connection to " + db.getDbPath(), e);
+                }
             }
+            return taskList;
         }
 
         @Override
-        public ResultSet findById(int taskId) throws DBException {
+        public TaskModel findById(int taskId) throws ModelNotFoundException {
             StringBuilder sql = new StringBuilder();
             sql.append("SELECT * ");
-            sql.append("FROM " + getTableName() + " ");
-            sql.append("WHERE TID=" + taskId + ";");
+            sql.append("FROM " + getTableName() + ";");
+            sql.append("WHERE " + TASK_ID_COLUMN + "=" + taskId + ";");
+            logger.debug("Query: " + sql.toString());
+
+            TaskModel m = null;
             try {
-                return db.query(sql.toString());
+                ResultSet rs =  db.query(sql.toString());
+
+                if (rs.next()) {
+                    // Extract values
+                    int idTemp = rs.getInt(TaskModelDBObject.TASK_ID_COLUMN);
+                    String nameTemp = rs.getString(TaskModelDBObject.TASK_NAME_COLUMN);
+                    int projectIdTemp = rs.getInt(TaskModelDBObject.PROJECT_ID_COLUMN);
+                    String stDateTemp = rs.getString(TaskModelDBObject.START_DATE_COLUMN);
+                    String dlDateTemp = rs.getString(TaskModelDBObject.DEADLINE_COLUMN);
+                    Date stDateTempDate;
+                    Date dlDateTempDate;
+                    try {
+                        stDateTempDate = DateUtils.castStringToDate(stDateTemp);
+                        dlDateTempDate = DateUtils.castStringToDate(dlDateTemp);
+                    } catch (ParseException e) {
+                        logger.error("Unable to parse Date from DB");
+                        throw new ModelNotFoundException(e);
+                    }
+                    int budgetTemp = rs.getInt(TaskModelDBObject.BUDGET_COLUMN);
+                    boolean doneTemp = rs.getBoolean(TaskModelDBObject.DONE_COLUMN);
+                    int userIdTemp = rs.getInt(TaskModelDBObject.USER_ID_COLUMN);
+                    String tagsTemp = rs.getString(TaskModelDBObject.TAGS_COLUMN);
+                    List<String> tagsList = Arrays.asList(tagsTemp.split(" "));
+                    m = new TaskModel(idTemp, nameTemp, projectIdTemp, budgetTemp, stDateTempDate, dlDateTempDate, doneTemp, userIdTemp);
+                }
+                else {
+                    logger.info("DB query returned zero results");
+                    throw new ModelNotFoundException("DB query for task with ID " + taskId + " returned no results");
+                }
             }
             catch (SQLException e) {
-                logger.error("Unable to fetch task with taskId " + taskId + ". Query: " + sql, e);
-                throw new DBException(e);
+                logger.error("Unable to fetch all entries in Project table" + ". Query: " + sql, e);
+                throw new ModelNotFoundException(e);
+            } finally {
+                try {
+                    db.closeConnection();
+                } catch (SQLException e) {
+                    logger.debug("Unable to close connection to " + db.getDbPath(), e);
+                }
             }
+            return m;
         }
 
-        public ResultSet findByProjectId(int projectId) throws DBException {
-            StringBuilder sql = new StringBuilder();
-            sql.append("SELECT * ");
-            sql.append("FROM " + getTableName() + " ");
-            sql.append("WHERE PID=" + projectId + ";");
-            try {
-                return db.query(sql.toString());
-            }
-            catch (SQLException e) {
-                logger.error("Unable to fetch all tasks with project projectId" + projectId + ". Query: " + sql, e);
-                throw new DBException(e);
-            }
+        public TaskModel findByProjectId(int projectId) throws ModelNotFoundException {
+            // TODO
+//            StringBuilder sql = new StringBuilder();
+//            sql.append("SELECT * ");
+//            sql.append("FROM " + getTableName() + " ");
+//            sql.append("WHERE "+ PROJECT_ID_COLUMN +"=" + projectId + ";");
+//            try {
+//                return db.query(sql.toString());
+//            }
+//            catch (SQLException e) {
+//                logger.error("Unable to fetch all tasks with project projectId" + projectId + ". Query: " + sql, e);
+//                throw new DBException(e);
+//            }
+            return null;
         }
 
         @Override
-        public ResultSet findBySql(String sql) throws DBException {
-            try {
-                return db.query(sql);
-            } catch (SQLException e) {
-                logger.error("Unable to fetch using query" + sql, e);
-                throw new DBException(e);
-            }
+        public List<TaskModel> findBySql(String sql) throws ModelNotFoundException {
+            // TODO
+//            try {
+//                return db.query(sql);
+//            } catch (SQLException e) {
+//                logger.error("Unable to fetch using query" + sql, e);
+//                throw new DBException(e);
+//            }
+            return null;
         }
 
         @Override
@@ -347,18 +514,29 @@ public class TaskModel extends AbstractModel {
             // Build query
             StringBuilder sql = new StringBuilder();
             sql.append("INSERT INTO "+ getTableName() + " ");
-            sql.append("("+ TASK_NAME + "," + TASK_DESCRIPTION + "," + PROJECT_ID + ") ");
+//            sql.append("("+ TASK_NAME_COLUMN + "," + DESCRIPTION_COLUMN + "," + PROJECT_ID_COLUMN + ") ");
             sql.append("VALUES ('" + getName() + "'");
-            sql.append(",'" + getDescription() + "'");
+//            sql.append(",'" + getDescription() + "'");
             sql.append(",'" + getProjectId() + "'");
             sql.append(");");
+            // TODO dependencies
+            // TODO tags
 
+            int insertedKey;
             try {
-                return db.insert(sql.toString());
+                insertedKey = db.insert(sql.toString());
             } catch (SQLException e) {
                 logger.error("Unable to create task " + ". Query: " + sql, e);
                 throw new DBException(e);
+            } finally {
+                try {
+                    db.closeConnection();
+                } catch (SQLException e) {
+                    throw new DBException(e);
+                }
             }
+
+            return insertedKey;
         }
 
         @Override
@@ -367,15 +545,21 @@ public class TaskModel extends AbstractModel {
             StringBuilder sql = new StringBuilder();
             sql.append("UPDATE "+ getTableName() + " ");
             sql.append("SET ");
-            sql.append(TASK_NAME + "='" + getName() + "'");
-            sql.append(", " + TASK_DESCRIPTION + "='" + getDescription() + "' ");
-            sql.append("WHERE " + TASK_ID + "=" + getTaskId() + ";");
+            sql.append(TASK_NAME_COLUMN + "='" + getName() + "'");
+//            sql.append(", " + DESCRIPTION_COLUMN + "='" + getDescription() + "' ");
+            sql.append("WHERE " + TASK_ID_COLUMN + "=" + getTaskId() + ";");
 
             try {
                 db.update(sql.toString());
             } catch (SQLException e) {
                 logger.error("Unable to update task with taskId" + getTaskId() + ". Query: " + sql, e);
                 throw new DBException(e);
+            } finally {
+                try {
+                    db.closeConnection();
+                } catch (SQLException e) {
+                    throw new DBException(e);
+                }
             }
         }
 
@@ -384,13 +568,19 @@ public class TaskModel extends AbstractModel {
             // Build query
             StringBuilder sql = new StringBuilder();
             sql.append("DELETE FROM " + getTableName() + " ");
-            sql.append("WHERE " + TASK_ID + "=" + getTaskId() + ";");
+            sql.append("WHERE " + TASK_ID_COLUMN + "=" + getTaskId() + ";");
 
             try {
                 db.update(sql.toString());
             } catch (SQLException e) {
                 logger.error("Unable to delete task with taskId" + getTaskId() + ". Query: " + sql, e);
                 throw new DBException(e);
+            } finally {
+                try {
+                    db.closeConnection();
+                } catch (SQLException e) {
+                    throw new DBException(e);
+                }
             }
         }
     }
