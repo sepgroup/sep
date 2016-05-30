@@ -27,6 +27,15 @@ public class ProjectModelTest {
     }
 
     @Test
+    public void testEquals() throws Exception {
+        // Create two projects with same data
+        ProjectModel p1 = new ProjectModel("Proj", "2016-10-10", "2016-10-20", 1000, false, 0, "P Desc.");
+        ProjectModel p2 = new ProjectModel("Proj", "2016-10-10", "2016-10-20", 1000, false, 0, "P Desc.");
+
+        assertTrue(p1.equals(p2));
+    }
+
+    @Test
     public void testPersistData() throws Exception {
         ProjectModel createdProject = new ProjectModel();
         createdProject.setName("Project X");
@@ -73,7 +82,6 @@ public class ProjectModelTest {
         createdProject.refreshData();
 
         assertThat(createdProject, equalTo(fetchedProject));
-
     }
 
     @Test(expected = ModelNotFoundException.class)
@@ -118,12 +126,7 @@ public class ProjectModelTest {
     }
 
     @Test
-    public void testEquals() throws Exception {
-        // Create two projects with same data
-        ProjectModel p1 = new ProjectModel("Proj", "2016-10-10", "2016-10-20", 1000, false, 0, "P Desc.");
-        ProjectModel p2 = new ProjectModel("Proj", "2016-10-10", "2016-10-20", 1000, false, 0, "P Desc.");
-
-        assertTrue(p1.equals(p2));
-
+    public void testGetLastInsertedId() throws Exception {
+        // TODO
     }
 }
