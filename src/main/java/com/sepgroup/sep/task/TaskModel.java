@@ -379,15 +379,14 @@ public class TaskModel extends AbstractModel {
                     }
                     double budgetTemp = rs.getInt(BUDGET_COLUMN);
                     boolean doneTemp = rs.getBoolean(DONE_COLUMN);
-                    int userIdTemp = 0;
-//                    int userIdTemp = rs.getInt(ASSIGNEE_USER_ID_COLUMN); TODO
+                    int userIdTemp = rs.getInt(ASSIGNEE_USER_ID_COLUMN);
                     String tagsTemp = rs.getString(TAGS_COLUMN);
                     List<String> tagsListTemp = null;
                     if (tagsTemp != null) {
                         tagsListTemp = getTagsListFromString(tagsTemp);
                     }
                     else {
-                        tagsListTemp = new LinkedList<String>();
+                        tagsListTemp = new LinkedList<>();
                     }
                     m = new TaskModel(idTemp, nameTemp, descriptionTemp, projectIdTemp, budgetTemp, stDateTempDate,
                             dlDateTempDate, doneTemp, userIdTemp, tagsListTemp);
@@ -434,15 +433,14 @@ public class TaskModel extends AbstractModel {
                     }
                     double budgetTemp = rs.getInt(BUDGET_COLUMN);
                     boolean doneTemp = rs.getBoolean(DONE_COLUMN);
-                    int userIdTemp = 0;
-//                    int userIdTemp = rs.getInt(ASSIGNEE_USER_ID_COLUMN); TODO
+                    int userIdTemp = rs.getInt(ASSIGNEE_USER_ID_COLUMN);
                     String tagsTemp = rs.getString(TAGS_COLUMN);
                     List<String> tagsListTemp;
                     if (tagsTemp != null) {
                         tagsListTemp = getTagsListFromString(tagsTemp);
                     }
                     else {
-                        tagsListTemp = new LinkedList<String>();
+                        tagsListTemp = new LinkedList<>();
                     }
                     taskList.add(new TaskModel(idTemp, nameTemp, descriptionTemp, projectIdTemp, budgetTemp, stDateTempDate,
                             dlDateTempDate, doneTemp, userIdTemp, tagsListTemp));
@@ -521,7 +519,7 @@ public class TaskModel extends AbstractModel {
             if (getStartDate() != null) sql.append("," + START_DATE_COLUMN);
             if (getDeadline() != null) sql.append("," + DEADLINE_COLUMN);
             sql.append("," + DONE_COLUMN);
-//            sql.append("," + ASSIGNEE_USER_ID_COLUMN); TODO
+            sql.append("," + ASSIGNEE_USER_ID_COLUMN);
             if (getTags().size() > 0) sql.append("," + TAGS_COLUMN);
             sql.append(") ");
 
@@ -532,7 +530,7 @@ public class TaskModel extends AbstractModel {
             if (getStartDate() != null) sql.append(",'" + DateUtils.castDateToString(getStartDate()) + "'");
             if (getDeadline() != null) sql.append(",'" + DateUtils.castDateToString(getDeadline()) + "'");
             sql.append(",'" + (isDone() ? 1 : 0) + "'");
-//            sql.append(",'" + getAssigneeUserId() + "'"); TODO
+            sql.append(",'" + getAssigneeUserId() + "'");
             if (getTags().size() > 0)sql.append(",'" + getTagsString() + "'");
             sql.append(");");
 
@@ -570,7 +568,7 @@ public class TaskModel extends AbstractModel {
             if (getStartDate() != null) sql.append(", " + START_DATE_COLUMN + "='" + DateUtils.castDateToString(getStartDate()) + "' ");
             if (getDeadline() != null) sql.append(", " + DEADLINE_COLUMN + "='" + DateUtils.castDateToString(getDeadline()) + "' ");
             sql.append(", " + DONE_COLUMN + "=" + (isDone() ? 1 : 0) + " ");
-//            sql.append(", " + ASSIGNEE_USER_ID_COLUMN + "=" + getAssigneeUserId() + " "); TODO
+            sql.append(", " + ASSIGNEE_USER_ID_COLUMN + "=" + getAssigneeUserId() + " ");
             if (getTags().size() > 0) sql.append(", " + TAGS_COLUMN + "='" + getTagsString() + "' ");
             sql.append("WHERE " + TASK_ID_COLUMN + "=" + getTaskId() + ";");
 
