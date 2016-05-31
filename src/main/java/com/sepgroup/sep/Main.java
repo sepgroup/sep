@@ -19,16 +19,20 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
         Main.primaryStage = primaryStage;
 
-       /* Window size
-        Rectangle2D screenDimensions = Screen.getPrimary().getVisualBounds();
-        double windowWidth = screenDimensions.getWidth() * 3 / 4;
-        double windowHeight = screenDimensions.getHeight() * 3 / 4;
-        primaryStage.setWidth(windowWidth);
-        primaryStage.setHeight(windowHeight);
-*/
-        // Start with user view
+       // Window size
+
+  primaryStage.setTitle("Project Management Application");
+        
+
+
         AbstractController loginController = new ProjectController();
         setPrimaryScene(loginController);
+        primaryStage.setMaxHeight(420);
+        primaryStage.setMaxWidth(500);
+        
+        primaryStage.setMinHeight(420);
+        primaryStage.setMinWidth(500);
+        
 
         primaryStage.show();
     }

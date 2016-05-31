@@ -33,7 +33,18 @@
     -fx-background-radius: 15 15 15 15;
     -fx-background-insets: 2 2 2 2 ;
     -fx-color:white;
-	
-	
-	
+		
+}
+
+.button {
+    -fx-effect: dropshadow(two-pass-box , darkgray, 10, 0.0 , 4, 5);
+    -fx-background-color: #3366FF;
+    -fx-background-radius: 15 15 15 15;
+    -fx-background-insets: 2 2 2 2 ;
+    -fx-color:white;
+		
+}
+
+.button:hover {
+    -fx-background-color: linear-gradient(#2A5058, #61a2b1);
 }
