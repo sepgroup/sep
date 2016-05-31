@@ -12,4 +12,8 @@ public class ModelNotFoundException extends Exception {
     public ModelNotFoundException(Throwable cause) {
         super(cause);
     }
+
+    public ModelNotFoundException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }
