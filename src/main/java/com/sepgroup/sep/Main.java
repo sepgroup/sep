@@ -24,13 +24,20 @@ public class Main extends Application {
         
 
 
+<<<<<<< Updated upstream
         AbstractController loginController = new WelcomeController();
         setPrimaryScene(loginController);
         primaryStage.setMaxHeight(420);
         primaryStage.setMaxWidth(500);
+=======
+        AbstractController loginController = new ProjectController();
+       setPrimaryScene(loginController);
+      //  primaryStage.setMaxHeight(420);
+      //  primaryStage.setMaxWidth(500);
+>>>>>>> Stashed changes
         
-        primaryStage.setMinHeight(420);
-        primaryStage.setMinWidth(500);
+      //  primaryStage.setMinHeight(420);
+       // primaryStage.setMinWidth(500);
         
 
         primaryStage.show();
