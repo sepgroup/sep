@@ -1,12 +1,8 @@
-package com.sepgroup.sep.task;
+package com.sepgroup.sep.model;
 
-import com.sepgroup.sep.AbstractModel;
-import com.sepgroup.sep.ModelNotFoundException;
 import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.db.DBObject;
 import com.sepgroup.sep.db.Database;
-import com.sepgroup.sep.project.ProjectModel;
-import com.sepgroup.sep.user.UserModel;
 import com.sepgroup.sep.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +46,12 @@ public class TaskModel extends AbstractModel {
         dependencies = new LinkedList<>();
     }
 
+    /**
+     *
+     * @param name
+     * @param description
+     * @param projectId
+     */
     public TaskModel(String name, String description, int projectId) {
         this();
         this.name = name;
@@ -61,8 +63,8 @@ public class TaskModel extends AbstractModel {
             boolean done, int assigneeUserId) {
         this(name, description, projectId);
         this.budget = budget;
-        if (startDate != null) this.startDate = startDate;
-        if (deadline != null) this.deadline = deadline;
+        setStartDate(startDate);
+        setDeadline(deadline);
         this.done = done;
         this.assigneeUserId = assigneeUserId;
     }
@@ -93,9 +95,9 @@ public class TaskModel extends AbstractModel {
     }
 
     /**
-     *
-     * @param task
-     * @return
+     * Add a task dependency to this task
+     * @param task task on which this task is dependent
+     * @return true if the task was not already in the list of dependencies
      */
     public boolean addDependency(TaskModel task) {
         if (dependencies.stream().noneMatch((t) -> t.equals(task))) {
@@ -105,6 +107,11 @@ public class TaskModel extends AbstractModel {
         return false;
     }
 
+    /**
+     *
+     * @param task
+     * @return
+     */
     public boolean removeDependency(TaskModel task) {
         return dependencies.remove(task);
     }
@@ -220,16 +227,24 @@ public class TaskModel extends AbstractModel {
         return startDate;
     }
 
+    public void setStartDate(String input) throws ParseException {
+        this.startDate = DateUtils.castStringToDate(input);
+    }
+
     public void setStartDate(Date startDate) {
-        this.startDate = startDate;
+        this.startDate = DateUtils.filterDateToMidnight(startDate);
     }
 
     public Date getDeadline() {
         return deadline;
     }
 
+    public void setDeadline(String input) throws ParseException {
+        this.deadline = DateUtils.castStringToDate(input);
+    }
+
     public void setDeadline(Date deadline) {
-        this.deadline = deadline;
+        this.deadline= DateUtils.filterDateToMidnight(deadline);
     }
 
     public boolean isDone() {
@@ -278,28 +293,56 @@ public class TaskModel extends AbstractModel {
 
     @Override
     public String toString() {
-        // TODO
-        return "Task TID = " + this.taskId + ", name = " + this.name + " , start date = ";
-//                DateUtils.castDateToString(startDate) + ", end date = " + DateUtils.castDateToString(deadline);
+        String startDateStr = "";
+        String deadlineStr = "";
+        if (getStartDate() != null) startDateStr = DateUtils.castDateToString(getStartDate());
+        if (getDeadline() != null) deadlineStr = DateUtils.castDateToString(getDeadline());
+        String tagsStr = getTags().stream().collect(Collectors.joining(" "));
+        String dependenciesStr = getDependencies().stream().map(t -> t.getName()).collect(Collectors.joining(", "));
+
+        return "Task ID: " + getTaskId() + ", name: " + getName() + ", description: " + getDescription() +
+                ", project ID: " + getProjectId() + ", budget: " + getBudget() + ", start date: " + startDateStr +
+                ", deadline: " + deadlineStr + ", done: " + isDone() + ", manager user ID: " + getAssigneeUserId() +
+                ", tags" + tagsStr + ", task dependencies: " + dependenciesStr;
     }
 
     @Override
     public boolean equals(Object obj) {
-        // TODO fixed upstream
         if (!(obj instanceof TaskModel)) {
             return false;
         }
         TaskModel other = (TaskModel) obj;
-        if (other.getProjectId() != projectId) {
+        if (other.getTaskId() != getTaskId()) {
             return false;
         }
-        if (other.getName() != null && name != null && !other.getName().equals(name)) {
+        if (!equalsNullable(other.getName(), getName())) {
             return false;
         }
-        if (other.getTaskId() != taskId) {
+        if (!equalsNullable(other.getDescription(), getDescription())) {
             return false;
         }
-        if (other.getDependencies() != null && dependencies != null && !other.getDependencies().equals(dependencies)) {
+        if (other.getProjectId() != getProjectId()) {
+            return false;
+        }
+        if (other.getBudget() != getBudget()) {
+            return false;
+        }
+        if (!equalsNullable(other.getStartDate(), getStartDate())) {
+            return false;
+        }
+        if (!equalsNullable(other.getDeadline(), getDeadline())) {
+            return false;
+        }
+        if (other.isDone() != isDone()) {
+            return false;
+        }
+        if (other.getAssigneeUserId() != getAssigneeUserId()) {
+            return false;
+        }
+        if (!equalsNullable(other.getTags(), getTags())) {
+            return false;
+        }
+        if (!equalsNullable(other.getDependencies(), getDependencies())) {
             return false;
         }
 

@@ -1,7 +1,7 @@
 package com.sepgroup.sep.tests.ut.model;
 
-import com.sepgroup.sep.ModelNotFoundException;
-import com.sepgroup.sep.task.TaskModel;
+import com.sepgroup.sep.model.ModelNotFoundException;
+import com.sepgroup.sep.model.TaskModel;
 import org.junit.Ignore;
 import org.junit.Test;
 

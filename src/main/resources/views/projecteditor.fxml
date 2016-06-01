@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="projecteditor" prefHeight="366.0" prefWidth="521.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sepgroup.sep.project.ProjectEditor">
+<AnchorPane fx:id="projecteditor" prefHeight="366.0" prefWidth="521.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sepgroup.sep.controller.ProjectEditorController">
    <children>
       <Label layoutX="181.0" layoutY="24.0" prefHeight="25.0" prefWidth="213.0" text="Edit Existing Project">
          <font>

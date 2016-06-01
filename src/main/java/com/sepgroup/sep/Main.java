@@ -1,12 +1,11 @@
 package com.sepgroup.sep;
 
-import com.sepgroup.sep.project.ProjectController;
+import com.sepgroup.sep.controller.AbstractController;
+import com.sepgroup.sep.controller.WelcomeController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -25,7 +24,7 @@ public class Main extends Application {
         
 
 
-        AbstractController loginController = new ProjectController();
+        AbstractController loginController = new WelcomeController();
         setPrimaryScene(loginController);
         primaryStage.setMaxHeight(420);
         primaryStage.setMaxWidth(500);

@@ -1,7 +1,7 @@
 package com.sepgroup.sep.tests.ut.model;
 
-import com.sepgroup.sep.ModelNotFoundException;
-import com.sepgroup.sep.user.UserModel;
+import com.sepgroup.sep.model.ModelNotFoundException;
+import com.sepgroup.sep.model.UserModel;
 import org.aeonbits.owner.ConfigFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -30,7 +30,6 @@ public class UserModelTest {
         // Create two projects with same data
         UserModel u1 = new UserModel("FirstName", "LastName", 10.99);
         UserModel u2 = new UserModel("FirstName", "LastName", 10.99);
-
 
         assertTrue(u1.equals(u2));
     }

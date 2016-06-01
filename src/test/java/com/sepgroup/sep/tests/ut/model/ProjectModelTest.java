@@ -1,7 +1,7 @@
 package com.sepgroup.sep.tests.ut.model;
 
-import com.sepgroup.sep.ModelNotFoundException;
-import com.sepgroup.sep.project.ProjectModel;
+import com.sepgroup.sep.model.ModelNotFoundException;
+import com.sepgroup.sep.model.ProjectModel;
 import org.aeonbits.owner.ConfigFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -21,6 +21,9 @@ import static org.junit.Assert.fail;
  */
 public class ProjectModelTest {
 
+    private static Date defaultStartDate = new Date();
+    private static Date defaultDeadline = new Date();
+
     @BeforeClass
     public static void setUp() throws Exception {
         ConfigFactory.setProperty("configPath", ProjectModelTest.class.getResource("/test-db.properties").getFile());
@@ -29,8 +32,8 @@ public class ProjectModelTest {
     @Test
     public void testEquals() throws Exception {
         // Create two projects with same data
-        ProjectModel p1 = new ProjectModel("Proj", "2016-10-10", "2016-10-20", 1000, false, 0, "P Desc.");
-        ProjectModel p2 = new ProjectModel("Proj", "2016-10-10", "2016-10-20", 1000, false, 0, "P Desc.");
+        ProjectModel p1 = new ProjectModel("Proj", defaultStartDate, defaultDeadline, 1000, false, 0, "P Desc.");
+        ProjectModel p2 = new ProjectModel("Proj", defaultStartDate, defaultDeadline, 1000, false, 0, "P Desc.");
 
         assertTrue(p1.equals(p2));
     }

@@ -1,4 +1,4 @@
-package com.sepgroup.sep;
+package com.sepgroup.sep.model;
 
 /**
  * Created by jeremybrown on 2016-05-20.

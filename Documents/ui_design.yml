@@ -1,5 +1,5 @@
 - screens:
-    - first screen (create/edit project):
+    - welcome screen (create/edit project):
         - fields:
             - list of existing projects:
                 - project:
@@ -25,7 +25,7 @@
                 - on click:
                   - persist project data
                   - go to view project screen
-            - cancel button: go back to first screen
+            - cancel button: go back to welcome screen
 
     - view project screen:
         - fields:
@@ -62,7 +62,7 @@
                     - yes button:
                         - on click:
                             - delete project in DB
-                            - return to first screen
+                            - return to welcome screen
                     - no button:
                         - on click:
                             - close pop-up
