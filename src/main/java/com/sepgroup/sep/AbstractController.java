@@ -13,6 +13,8 @@ public abstract class AbstractController implements Observer {
     private static Logger logger = LoggerFactory.getLogger(AbstractController.class);
 
     private String fxmlPath;
+    
+    private String CssPath;
 
     private AbstractModel model;
 
@@ -33,12 +35,28 @@ public abstract class AbstractController implements Observer {
     }
 
     /**
+     * Gets the path to the view's associated CSS file
+     * @return the path to the view's associated CSS file
+     */
+    public String getCssPath() {
+        return CssPath;
+    }
+    
+    /**
+     * Sets the path to the view's associated CSS file
+     * @param fxml the path to the view's associated CSS file
+     */
+    
+    public void setCssPath(String css) {
+        this.CssPath = css;
+    }
+    /**
      * Instructs the model to reload its data from the database
      */
     public void refreshModel() {
         try {
             model.refreshData();
-        } catch (DBException e) {
+        } catch (ModelNotFoundException e) {
             logger.error("Unable to refresh model data", e);
         }
     }

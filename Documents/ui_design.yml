@@ -1,0 +1,111 @@
+- screens:
+    - first screen (create/edit project):
+        - fields:
+            - list of existing projects:
+                - project:
+                    - on click: select the project
+        - buttons:
+            - create project button:
+                - on click: open create project screen
+            - open project button:
+                - on click:
+                  - activate selected project
+                  - go to project view screen
+
+    - create project screen:
+        - fields:
+            - project name text field
+            - project description text area
+            - start date date picker
+            - deadline date picker
+            - budget text field
+            - project manager field
+        - buttons:
+            - create project button:
+                - on click:
+                  - persist project data
+                  - go to view project screen
+            - cancel button: go back to first screen
+
+    - view project screen:
+        - fields:
+            - project name label
+            - project description text area (not editable)
+            - start date label
+            - deadline label
+            - budget label
+            - project manager label
+        - buttons:
+            - edit project button:
+                - on click: open edit project screen
+            - create task button:
+                - on click: open create task screen
+            - table of project tasks
+                - task:
+                    - on click: open edit task screen
+
+    - edit project screen:
+        - fields:
+            - project name text field
+            - project description text field
+            - budget text field
+            - start date date picker
+            - deadline date picker
+            - project manager name field
+        - buttons:
+            - update project button:
+                - on click:
+                  - persist data to DB
+                  - return to project view screen
+            - delete project button:
+                - on click: confirmation pop-up
+                    - yes button:
+                        - on click:
+                            - delete project in DB
+                            - return to first screen
+                    - no button:
+                        - on click:
+                            - close pop-up
+                            - return to edit project screen
+            - cancel button:
+                - on click: return to project view screen
+
+    - create task screen:
+        - fields:
+            - task name text field
+            - task ID label (non-editable)
+            - task description text area
+            - budget text field
+            - start date date picker
+            - deadline date picker
+            - complete checkbox
+            - assignee user name text field
+            - tags text field
+            - task dependencies list
+        - buttons:
+            - create task button:
+                - on click:
+                    - persist task to DB
+                    - return to project view screen
+            - cancel button:
+                - on click: return to project view screen
+
+    - edit task screen:
+    - fields:
+        - task name text field
+        - task ID label (non-editable)
+        - task description text area
+        - budget text field
+        - start date date picker
+        - deadline date picker
+        - complete checkbox
+        - assignee user name text field
+        - tags text field
+        - task dependencies list
+    - buttons:
+        - update task button:
+            - on click:
+                - persist task to DB
+                - return to project view screen
+        - cancel button:
+            - on click: return to project view screen
