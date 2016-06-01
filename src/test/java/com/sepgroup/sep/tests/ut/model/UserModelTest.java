@@ -93,6 +93,10 @@ public class UserModelTest {
 
     @Test
     public void testGetAll() throws Exception {
+        // Create two users
+        new UserModel("FirstName", "LastName", 10.99).persistData();
+        new UserModel("FirstName2", "LastName2", 100.99).persistData();
+
         List<UserModel> userList = UserModel.getAll();
 
         assertThat(userList.size(), isA(Integer.class));
@@ -101,11 +105,12 @@ public class UserModelTest {
 
     @Test
     public void testGetById() throws Exception {
-        // Create project
+        // Create user
         UserModel createdUser = new UserModel("Bobby", "Moynihan", 1000000.00);
         createdUser.persistData();
         int uId = createdUser.getUserId();
 
+        // Fetch same user
         UserModel fetchedUser = UserModel.getById(uId);
 
         assertThat(fetchedUser, equalTo(createdUser));

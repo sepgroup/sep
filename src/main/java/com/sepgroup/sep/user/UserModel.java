@@ -117,14 +117,6 @@ public class UserModel extends AbstractModel {
      *
      * @return
      */
-    public List<TaskModel> getAssignedTasks() {
-        return TaskModel.getAllByUser(getUserId());
-    }
-
-    /**
-     *
-     * @return
-     */
     public int getUserId() {
         return userId;
     }
@@ -192,6 +184,7 @@ public class UserModel extends AbstractModel {
 
     @Override
     public boolean equals(Object obj) {
+        // TODO fixed upstream
         if (!(obj instanceof UserModel)) {
             return false;
         }
@@ -205,6 +198,7 @@ public class UserModel extends AbstractModel {
         if (!other.getLastName().equals(this.getLastName())) {
             return false;
         }
+        // TODO fix float comparison
         if (other.getSalaryPerHour() != this.getSalaryPerHour()) {
             return false;
         }
@@ -331,7 +325,7 @@ public class UserModel extends AbstractModel {
 
         @Override
         public int create() throws DBException {
-            logger.debug("Building SQL query for project model");
+            logger.debug("Building SQL query for user model");
             StringBuilder sql = new StringBuilder();
             sql.append("INSERT INTO "+ getTableName() + " ");
             sql.append("("+ FIRST_NAME_COLUMN + "," + LAST_NAME_COLUMN + "," + SALARY_PER_HOUR_COLUMN + ") ");
@@ -394,7 +388,7 @@ public class UserModel extends AbstractModel {
                 db.update(sql.toString());
             } catch (SQLException e) {
                 logger.error("Unable to delete user with ID " + getUserId() + ". Query: " + sql, e);
-                throw new DBException(e);
+                throw new DBException("Unable to delete user with ID " + getUserId() + ". Query: " + sql, e);
             } finally {
                 try {
                     db.closeConnection();

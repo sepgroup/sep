@@ -303,7 +303,7 @@ public class ProjectModel extends AbstractModel {
      * Get a list of tasks associated to this project
      * @return a list of tasks associated to this project
      */
-    public List<TaskModel> getTasks() {
+    public List<TaskModel> getTasks() throws ModelNotFoundException {
         return TaskModel.getAllByProject(getProjectId());
     }
 
@@ -323,6 +323,7 @@ public class ProjectModel extends AbstractModel {
         if (other.getProjectId() != this.projectId) {
             return false;
         }
+        // TODO fix
         if (other.getBudget() != this.budget) {
             return false;
         }
@@ -335,8 +336,12 @@ public class ProjectModel extends AbstractModel {
         if (other.getName() != null && name != null && !other.getName().equals(this.name)) {
             return false;
         }
-        if (other.getTasks() != null && getTasks() != null && other.getTasks().equals(this.getTasks())) {
-            return false;
+        try {
+            if (other.getTasks() != null && getTasks() != null && other.getTasks().equals(this.getTasks())) {
+                return false;
+            }
+        } catch (ModelNotFoundException e) {
+            logger.debug("Hacky, ignoring for now but should fix.");
         }
 
         return true;
