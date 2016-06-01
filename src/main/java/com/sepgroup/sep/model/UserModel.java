@@ -1,11 +1,8 @@
-package com.sepgroup.sep.user;
+package com.sepgroup.sep.model;
 
-import com.sepgroup.sep.AbstractModel;
-import com.sepgroup.sep.ModelNotFoundException;
 import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.db.DBObject;
 import com.sepgroup.sep.db.Database;
-import com.sepgroup.sep.task.TaskModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -192,10 +189,10 @@ public class UserModel extends AbstractModel {
         if (other.getUserId() != this.getUserId()) {
             return false;
         }
-        if (!other.getFirstName().equals(this.getFirstName())) {
+        if (!equalsNullable(other.getFirstName(), getFirstName())) {
             return false;
         }
-        if (!other.getLastName().equals(this.getLastName())) {
+        if (!equalsNullable(other.getLastName(), getLastName())) {
             return false;
         }
         // TODO fix float comparison

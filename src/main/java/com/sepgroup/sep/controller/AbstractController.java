@@ -1,7 +1,10 @@
-package com.sepgroup.sep;
+package com.sepgroup.sep.controller;
 
 
+import com.sepgroup.sep.model.ModelNotFoundException;
+import com.sepgroup.sep.Observer;
 import com.sepgroup.sep.db.DBException;
+import com.sepgroup.sep.model.AbstractModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +47,7 @@ public abstract class AbstractController implements Observer {
     
     /**
      * Sets the path to the view's associated CSS file
-     * @param fxml the path to the view's associated CSS file
+     * @param css the path to the view's associated CSS file
      */
     
     public void setCssPath(String css) {

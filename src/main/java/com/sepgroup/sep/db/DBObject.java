@@ -1,9 +1,8 @@
 package com.sepgroup.sep.db;
 
-import com.sepgroup.sep.AbstractModel;
-import com.sepgroup.sep.ModelNotFoundException;
+import com.sepgroup.sep.model.AbstractModel;
+import com.sepgroup.sep.model.ModelNotFoundException;
 
-import java.sql.ResultSet;
 import java.util.List;
 
 /**
