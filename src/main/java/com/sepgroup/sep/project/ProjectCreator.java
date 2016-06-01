@@ -17,6 +17,8 @@ public class ProjectCreator extends AbstractController {
 
 	public ProjectCreator() {
         setFxmlPath("/views/projectcreator.fxml");
+        setCssPath("/style/stylesheet.css");
+
     }
 	
 	/**

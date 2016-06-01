@@ -16,6 +16,8 @@ public class ProjectEditor extends AbstractController {
 
 	public ProjectEditor() {
         setFxmlPath("/views/projecteditor.fxml");
+        setCssPath("/style/stylesheet.css");
+
     }
 	
 	@FXML

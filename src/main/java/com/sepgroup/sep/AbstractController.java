@@ -13,6 +13,8 @@ public abstract class AbstractController implements Observer {
     private static Logger logger = LoggerFactory.getLogger(AbstractController.class);
 
     private String fxmlPath;
+    
+    private String CssPath;
 
     private AbstractModel model;
 
@@ -32,6 +34,22 @@ public abstract class AbstractController implements Observer {
         return fxmlPath;
     }
 
+    /**
+     * Gets the path to the view's associated CSS file
+     * @return the path to the view's associated CSS file
+     */
+    public String getCssPath() {
+        return CssPath;
+    }
+    
+    /**
+     * Sets the path to the view's associated CSS file
+     * @param fxml the path to the view's associated CSS file
+     */
+    
+    public void setCssPath(String css) {
+        this.CssPath = css;
+    }
     /**
      * Instructs the model to reload its data from the database
      */
