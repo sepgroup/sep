@@ -62,15 +62,19 @@ public class WelcomeController extends AbstractController {
         try {
             Main.setPrimaryScene(new ProjectCreatorController());
         } catch (IOException e) {
-            e.printStackTrace();
-            // TODO popup or something
+            DialogCreator.showErrorDialog("Error", "An error has occurred", e.getMessage());
         }
     }
 
     @FXML
     public void onProjectListSelected() {
         selectedProject = existingProjectsList.getSelectionModel().getSelectedItem();
-        if (selectedProject != null) openSelectedProjectButton.setDisable(false);
+        if (selectedProject != null) {
+            openSelectedProjectButton.setDisable(false);
+        }
+        else {
+            openSelectedProjectButton.setDisable(true);
+        }
     }
 
     /**
@@ -79,11 +83,12 @@ public class WelcomeController extends AbstractController {
     @FXML
     public void onOpenSelectedProjectClicked() {
         ProjectModel selectedProject = existingProjectsList.getSelectionModel().getSelectedItem();
-        try {
-            Main.setPrimaryScene(new ProjectViewerController(selectedProject));
-        } catch (IOException e) {
-            e.printStackTrace();
-            // TODO popup or something
+        if (selectedProject != null) {
+            try {
+                Main.setPrimaryScene(new ProjectViewerController(selectedProject));
+            } catch (IOException e) {
+                DialogCreator.showErrorDialog("Error", "An error has occurred", e.getMessage());
+            }
         }
     }
 
