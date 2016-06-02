@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="taskview" prefHeight="400.0" prefWidth="534.0" xmlns="http://javafx.com/javafx/null" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sepgroup.sep.controller.TaskCreatorController">
+<AnchorPane fx:id="taskview" prefHeight="400.0" prefWidth="534.0" xmlns="http://javafx.com/javafx/null" xmlns:fx="http://javafx.com/fxml/1">
     <children>
         <Label layoutX="218.0" layoutY="23.0" prefHeight="32.0" prefWidth="129.0" text="Edit Task">
             <font>

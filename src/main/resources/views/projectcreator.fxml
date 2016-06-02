@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="projectcreator" prefHeight="387.0" prefWidth="503.0" xmlns="http://javafx.com/javafx/null" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sepgroup.sep.controller.ProjectCreatorController">
+<AnchorPane fx:id="projectcreator" prefHeight="387.0" prefWidth="503.0" xmlns="http://javafx.com/javafx/null" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <Label layoutX="171.0" layoutY="25.0" prefHeight="17.0" prefWidth="155.0" text="Create New Project">
          <font>
