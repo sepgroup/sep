@@ -5,6 +5,7 @@ import java.io.IOException;
 import com.sepgroup.sep.Main;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
 /**
@@ -25,7 +26,6 @@ public class TaskCreatorController extends AbstractController {
 	public TextField taskStartDateField;
 	@FXML
 	public TextField taskDeadlineField;
-	
 	/**
 	 * Returns to createproject
 	 */

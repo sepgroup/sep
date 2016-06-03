@@ -24,8 +24,8 @@ public class Main extends Application {
 
         AbstractController loginController = new WelcomeController();
         setPrimaryScene(loginController);
-        primaryStage.setMaxHeight(420);
-        primaryStage.setMaxWidth(500);
+        primaryStage.setMaxHeight(400);
+        primaryStage.setMaxWidth(600);
         
         primaryStage.setMinHeight(420);
         primaryStage.setMinWidth(500);
