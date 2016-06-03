@@ -54,6 +54,7 @@ public class ProjectModelTest {
         ProjectModel fetchedProject = null;
         try {
             fetchedProject = ProjectModel.getById(pId);
+            System.out.println(fetchedProject);
         } catch (ModelNotFoundException e) {
             fail(e.getMessage());
         }

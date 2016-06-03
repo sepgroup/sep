@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="projectcreator" prefHeight="387.0" prefWidth="503.0" xmlns="http://javafx.com/javafx/null" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sepgroup.sep.controller.ProjectCreatorController">
+<AnchorPane fx:id="projectcreator" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sepgroup.sep.controller.ProjectCreatorController">
    <children>
       <Label layoutX="171.0" layoutY="25.0" prefHeight="17.0" prefWidth="155.0" text="Create New Project">
          <font>
@@ -47,5 +47,11 @@
       </Label>
       <DatePicker fx:id="startDatePicker" layoutX="147.0" layoutY="180.0" prefHeight="27.0" prefWidth="167.0" promptText="Start Date" />
       <DatePicker fx:id="deadlinePicker" layoutX="146.0" layoutY="223.0" prefHeight="27.0" prefWidth="167.0" promptText="Deadline" />
+      <TextArea fx:id="descText" layoutX="375.0" layoutY="138.0" prefHeight="66.0" prefWidth="200.0" />
+      <Label layoutX="375.0" layoutY="101.0" prefHeight="17.0" prefWidth="91.0" text="Description">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </Label>
    </children>
 </AnchorPane>

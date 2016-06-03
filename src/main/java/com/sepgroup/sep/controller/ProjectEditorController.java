@@ -6,6 +6,8 @@ import java.io.IOException;
 import com.sepgroup.sep.Main;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
 /**
@@ -23,14 +25,15 @@ public class ProjectEditorController extends AbstractController {
 	@FXML
 	public TextField editBudgetField;
 	@FXML
-	public TextField editStartDateField;
+	public DatePicker editStartDatePicker;
 	@FXML
-	public TextField editDeadlineField;
+	public DatePicker editDeadlinePicker;
+	@FXML
+	public TextArea editDescText;
 	
 	public String editNameFromField = " ";
 	public int editBudgetFromField = 0;
-	public String editStartDateFromField = "0000-00-00 ";
-	public String editDeadlineFromField = "0000-00-00 ";
+	public String editDescription;
 	
 	/**
 	 * Returns to projectview
