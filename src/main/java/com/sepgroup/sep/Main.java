@@ -20,9 +20,7 @@ public class Main extends Application {
 
        // Window size
 
-  primaryStage.setTitle("Project Management Application");
-        
-
+        primaryStage.setTitle("Project Management Application");
 
 <<<<<<< Updated upstream
         AbstractController loginController = new WelcomeController();
@@ -48,11 +46,11 @@ public class Main extends Application {
     }
 
     public static void setPrimaryScene(AbstractController controller) throws IOException {
-        Parent parent = FXMLLoader.load(controller.getClass().getResource(controller.getFxmlPath()));
+        FXMLLoader loader = new FXMLLoader(controller.getClass().getResource(controller.getFxmlPath()));
+        loader.setController(controller);
+        Parent parent = loader.load();
         primaryStage.setScene(new Scene(parent));
         parent.getStylesheets().add(controller.getClass().getResource(controller.getCssPath()).toExternalForm());
-
-
     }
 
     public static void main(String[] args) {

@@ -10,11 +10,15 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 <AnchorPane fx:id="projectcreator" prefHeight="387.0" prefWidth="503.0" xmlns="http://javafx.com/javafx/null" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sepgroup.sep.controller.ProjectCreatorController">
 =======
 <AnchorPane fx:id="projectcreator" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sepgroup.sep.project.ProjectCreator">
 >>>>>>> Stashed changes
+=======
+<AnchorPane fx:id="projectcreator" prefHeight="387.0" prefWidth="503.0" xmlns="http://javafx.com/javafx/null" xmlns:fx="http://javafx.com/fxml/1">
+>>>>>>> 1552c3591ec8dbf88235b620cd56a24ba08ba3c2
    <children>
       <Label layoutX="171.0" layoutY="25.0" prefHeight="17.0" prefWidth="155.0" text="Create New Project">
          <font>
