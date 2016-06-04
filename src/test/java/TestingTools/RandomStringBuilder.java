@@ -24,10 +24,8 @@ public final class RandomStringBuilder
 	{
 		StringBuilder sb = new StringBuilder();
 
-		// Alphanumerics
-		appendCharRange(sb, '0', '9');
-		appendCharRange(sb, 'a', 'z');
-		appendCharRange(sb, 'A', 'Z');
+		// Alphanumerics and symbols
+		appendCharRange(sb, 33, 126);
 
 		// Whitespace
 		sb.append(' ');
@@ -35,6 +33,11 @@ public final class RandomStringBuilder
 		sb.append('\n');
 
 		symbols = sb.toString().toCharArray();
+	}
+
+	public static void main(String[] args)
+	{
+		System.out.println(randomString(100, true));
 	}
 
 	/**
@@ -46,6 +49,12 @@ public final class RandomStringBuilder
 	private static void appendCharRange(final StringBuilder sb, final char first, final char last)
 	{
 		for (char c = first; c <= last; c++)
+			sb.append(c);
+	}
+
+	private static void appendCharRange(final StringBuilder sb, final int first, final int last)
+	{
+		for (char c = (char)first; c <= last; c++)
 			sb.append(c);
 	}
 
@@ -94,6 +103,8 @@ public final class RandomStringBuilder
 			builders.put(length, builder = new RandomStringBuilder(length));
 		return builder.nextString(withNewline);
 	}
+
+
 
 	/**
 	 * Generates a random string with a specified length.

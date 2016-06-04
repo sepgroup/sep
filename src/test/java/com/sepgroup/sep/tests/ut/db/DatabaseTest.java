@@ -1,7 +1,7 @@
 package com.sepgroup.sep.tests.ut.db;
 
 import com.sepgroup.sep.db.Database;
-import com.sepgroup.sep.project.ProjectModel;
+import com.sepgroup.sep.model.ProjectModel;
 import org.aeonbits.owner.ConfigFactory;
 import org.junit.*;
 
