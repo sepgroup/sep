@@ -31,11 +31,7 @@ public class TaskCreatorController extends AbstractController {
 	 */
 	@FXML
     public void onTaskCancelClicked() {
-		try {
-			Main.setPrimaryScene(new ProjectCreatorController());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		Main.getPrimaryStage().setScene(getPreviousScene());
     }
 
 	@Override

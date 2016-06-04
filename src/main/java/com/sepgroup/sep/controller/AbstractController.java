@@ -5,6 +5,8 @@ import com.sepgroup.sep.model.ModelNotFoundException;
 import com.sepgroup.sep.Observer;
 import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.model.AbstractModel;
+import com.sepgroup.sep.model.ProjectModel;
+import javafx.scene.Scene;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +21,9 @@ public abstract class AbstractController implements Observer {
     
     private String CssPath;
 
-    private AbstractModel model;
+    protected AbstractModel model;
+
+    private Scene previousScene;
 
     /**
      * Sets the path to the view's associated FXML file
@@ -53,6 +57,23 @@ public abstract class AbstractController implements Observer {
     public void setCssPath(String css) {
         this.CssPath = css;
     }
+
+    /**
+     *
+     * @return
+     */
+    public Scene getPreviousScene() {
+        return previousScene;
+    }
+
+    /**
+     *
+     * @param previousScene
+     */
+    public void setPreviousScene(Scene previousScene) {
+        this.previousScene = previousScene;
+    }
+
     /**
      * Instructs the model to reload its data from the database
      */

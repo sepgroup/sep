@@ -44,33 +44,12 @@ public class ProjectCreatorController extends AbstractController {
 	public int budgetFromField = 0;
 	public String description;
 	
-	
-	/**
-	 * Moves to taskview
-	 */
-	@FXML
-    public void onAddTaskButtonClicked() {
-              
-            try {
-                	
-                  Main.setPrimaryScene(new TaskCreatorController());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-    }
-	
 	/**
 	 * Returns back to projectview.
 	 */
 	@FXML
     public void onCreateCancelClicked() {
-              
-            try {
-                	
-                  Main.setPrimaryScene(new WelcomeController());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        Main.setPrimaryScene(new WelcomeController());
     }
 	
 	//Test code
@@ -106,17 +85,11 @@ public class ProjectCreatorController extends AbstractController {
 		    createdProject.persistData();
 		}
 		catch (DBException e) {
-            // TODO handle
-            // show popup or something
-            System.out.println(e.getLocalizedMessage());
+            DialogCreator.showErrorDialog("Error", "Database error", e.getLocalizedMessage());
 		}
-		
-		
-        try {
-            Main.setPrimaryScene(new ProjectViewerController(createdProject));
-        } catch (IOException e) {
-           e.printStackTrace();
-       }
+
+        ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(new ProjectViewerController());
+        pvc.setModel(createdProject);
     }
 	
 	@Override
