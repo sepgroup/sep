@@ -126,4 +126,9 @@ public final class RandomStringBuilder
 		final int length = RandomUtility.randomInt(1, maxLength + 1);
 		return randomString(length, withNewline);
 	}
+
+	public static String randomStringMaxLength(final int maxLength)
+	{
+		return randomStringMaxLength(maxLength, false);
+	}
 }
