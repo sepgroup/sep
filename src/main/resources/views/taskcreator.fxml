@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="taskview" prefHeight="400.0" prefWidth="534.0" xmlns="http://javafx.com/javafx/null" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sepgroup.sep.controller.TaskCreatorController">
+<AnchorPane fx:id="taskview" prefHeight="400.0" prefWidth="534.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sepgroup.sep.controller.TaskCreatorController">
    <children>
       <Label layoutX="218.0" layoutY="23.0" prefHeight="32.0" prefWidth="129.0" text="Create Task">
          <font>
@@ -32,17 +30,29 @@
          <font>
             <Font name="System Bold" size="12.0" />
          </font></Label>
-      <Button layoutX="121.0" layoutY="277.0" mnemonicParsing="false" prefHeight="88.0" prefWidth="116.0" text="Save" textFill="WHITE">
+      <Button layoutX="108.0" layoutY="325.0" mnemonicParsing="false" onAction="#onCreateTaskClicked" prefHeight="40.0" prefWidth="129.0" text="Create Task" textFill="WHITE">
          <font>
             <Font name="System Bold" size="12.0" />
          </font></Button>
-      <Button layoutX="289.0" layoutY="277.0" mnemonicParsing="false" onAction="#onTaskCancelClicked" prefHeight="88.0" prefWidth="116.0" text="Cancel" textFill="WHITE">
+      <Button layoutX="290.0" layoutY="325.0" mnemonicParsing="false" onAction="#onTaskCancelClicked" prefHeight="40.0" prefWidth="129.0" text="Cancel" textFill="WHITE">
          <font>
             <Font name="System Bold" size="12.0" />
          </font></Button>
-      <TextField layoutX="105.0" layoutY="95.0" />
-      <TextField layoutX="105.0" layoutY="137.0" />
-      <TextField layoutX="105.0" layoutY="175.0" />
-      <TextField layoutX="105.0" layoutY="220.0" />
+      <TextField fx:id="taskNameField" layoutX="105.0" layoutY="95.0" />
+      <TextField fx:id="taskBudgetField" layoutX="105.0" layoutY="137.0" />
+      <TextArea fx:id="taskDescriptionArea" layoutX="282.0" layoutY="138.0" prefHeight="108.0" prefWidth="227.0" />
+      <Label layoutX="282.0" layoutY="92.0" prefHeight="32.0" prefWidth="105.0" text="Description">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </Label>
+      <DatePicker fx:id="taskStartDatePicker" layoutX="106.0" layoutY="175.0" prefHeight="25.0" prefWidth="172.0" />
+      <DatePicker fx:id="taskDeadlinePicker" layoutX="106.0" layoutY="220.0" prefHeight="25.0" prefWidth="172.0" />
+      <TextField fx:id="taskAssigneeNumber" layoutX="105.0" layoutY="265.0" />
+      <Label layoutX="22.0" layoutY="262.0" prefHeight="32.0" prefWidth="74.0" text="Assignee #">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </Label>
    </children>
 </AnchorPane>

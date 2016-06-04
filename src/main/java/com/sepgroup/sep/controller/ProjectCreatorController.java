@@ -80,7 +80,7 @@ public class ProjectCreatorController extends AbstractController {
 
 		
 		ProjectModel createdProject = new ProjectModel(nameFromField, startDate, deadline, budgetFromField, false, 0, description);
-		
+		System.out.println(createdProject.getProjectId());
 		try {
 		    createdProject.persistData();
 		}

@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
@@ -11,8 +7,9 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
 
-<AnchorPane fx:id="projecteditor" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sepgroup.sep.controller.ProjectEditorController">
+<AnchorPane fx:id="projecteditor" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sepgroup.sep.controller.ProjectEditorController">
    <children>
       <Label layoutX="182.0" layoutY="16.0" prefHeight="25.0" prefWidth="105.0" text="Edit Project">
          <font>
@@ -34,7 +31,7 @@
          <font>
             <Font name="System Bold" size="12.0" />
          </font></Label>
-      <Button layoutX="28.0" layoutY="292.0" mnemonicParsing="false" prefHeight="60.0" prefWidth="105.0" text="Update" textFill="WHITE">
+      <Button layoutX="28.0" layoutY="292.0" mnemonicParsing="false" onAction="#onEditUpdateClicked" prefHeight="60.0" prefWidth="105.0" text="Update" textFill="WHITE">
          <font>
             <Font name="System Bold" size="12.0" />
          </font></Button>
@@ -46,34 +43,23 @@
          <font>
             <Font name="System Bold" size="12.0" />
          </font></Button>
-<<<<<<< HEAD
-      <TextField layoutX="119.0" layoutY="63.0" />
-      <TextField layoutX="119.0" layoutY="94.0" />
-      <Label fx:id="projectNameLabel" layoutX="274.0" layoutY="20.0" text="[Project Name]" />
-      <DatePicker layoutX="119.0" layoutY="125.0" prefHeight="25.0" prefWidth="149.0" />
-      <DatePicker layoutX="119.0" layoutY="158.0" prefHeight="25.0" prefWidth="149.0" />
-      <Label layoutX="287.0" layoutY="67.0" text="[Project Name]" />
+      <TextField fx:id="editNameField" layoutX="119.0" layoutY="63.0" />
+      <TextField fx:id="editBudgetField" layoutX="119.0" layoutY="94.0" />
+      <DatePicker fx:id="editStartDatePicker" layoutX="119.0" layoutY="125.0" prefHeight="25.0" prefWidth="149.0" />
+      <DatePicker fx:id="editDeadlinePicker" layoutX="119.0" layoutY="158.0" prefHeight="25.0" prefWidth="149.0" />
+      <Label fx:id="projectNameLabel" layoutX="287.0" layoutY="67.0" text="[Project Name]" />
       <Label fx:id="budgetValueLabel" layoutX="298.0" layoutY="98.0" text="[ budget ]" />
       <Label fx:id="startDateValueLabel" layoutX="292.0" layoutY="129.0" text="[ start date ]" />
       <Label fx:id="deadlineValueLabel" layoutX="294.0" layoutY="162.0" text="[ end date ]" />
-      <TextField layoutX="119.0" layoutY="194.0" />
+      <TextField fx:id="editManagerField" layoutX="119.0" layoutY="194.0" />
       <Label layoutX="23.0" layoutY="194.0" prefHeight="25.0" prefWidth="105.0" text="Manager">
-=======
-      <TextField layoutX="119.0" layoutY="84.0" />
-      <TextField layoutX="119.0" layoutY="125.0" />
-      <DatePicker fx:id="editDeadlinePicker" layoutX="119.0" layoutY="214.0" prefHeight="27.0" prefWidth="167.0" promptText="Deadline" />
-      <DatePicker fx:id="editStartDatePicker" layoutX="120.0" layoutY="171.0" prefHeight="27.0" prefWidth="167.0" promptText="Start Date" />
-      <Label layoutX="353.0" layoutY="86.0" prefHeight="17.0" prefWidth="91.0" text="Description">
->>>>>>> master
          <font>
             <Font name="System Bold" size="12.0" />
          </font>
       </Label>
-<<<<<<< HEAD
-      <Label fx:id="managerValueLabel1" layoutX="294.0" layoutY="198.0" text="[ manager ]" />
+      <Label fx:id="managerValueLabel" layoutX="294.0" layoutY="198.0" text="[ manager ]" />
       <TextArea fx:id="projectDescriptionTextArea" layoutX="21.0" layoutY="229.0" prefHeight="17.0" prefWidth="250.0" text="Project Description..." />
-=======
-      <TextArea fx:id="editDescText" layoutX="353.0" layoutY="123.0" prefHeight="66.0" prefWidth="200.0" />
->>>>>>> master
+      <Text fx:id="projectNameText" layoutX="287.0" layoutY="33.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Project" wrappingWidth="78.999999538064" />
+
    </children>
 </AnchorPane>

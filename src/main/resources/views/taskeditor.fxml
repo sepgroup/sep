@@ -1,52 +1,81 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="taskview" prefHeight="400.0" prefWidth="534.0" xmlns="http://javafx.com/javafx/null" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sepgroup.sep.controller.TaskEditorController">
+<AnchorPane fx:id="taskview" prefHeight="400.0" prefWidth="534.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sepgroup.sep.controller.TaskEditorController">
     <children>
-        <Label layoutX="218.0" layoutY="23.0" prefHeight="32.0" prefWidth="129.0" text="Edit Task">
+        <Label layoutX="208.0" layoutY="15.0" prefHeight="32.0" prefWidth="129.0" text="Edit Task">
             <font>
                 <Font name="System Bold" size="14.0" />
             </font></Label>
-        <Label layoutX="22.0" layoutY="171.0" prefHeight="32.0" prefWidth="74.0" text="Start Date">
+        <Label layoutX="22.0" layoutY="117.0" prefHeight="32.0" prefWidth="74.0" text="Start Date">
             <font>
                 <Font name="System Bold" size="12.0" />
             </font></Label>
-        <Label layoutX="22.0" layoutY="133.0" prefHeight="32.0" prefWidth="129.0" text="Budget">
+        <Label layoutX="21.0" layoutY="84.0" prefHeight="32.0" prefWidth="129.0" text="Budget">
             <font>
                 <Font name="System Bold" size="12.0" />
             </font></Label>
-        <Label layoutX="22.0" layoutY="91.0" prefHeight="32.0" prefWidth="74.0" text="Name">
+        <Label layoutX="22.0" layoutY="52.0" prefHeight="32.0" prefWidth="74.0" text="Name">
             <font>
                 <Font name="System Bold" size="12.0" />
             </font></Label>
-        <Label layoutX="22.0" layoutY="216.0" prefHeight="32.0" prefWidth="63.0" text="Deadline">
+        <Label layoutX="23.0" layoutY="149.0" prefHeight="32.0" prefWidth="63.0" text="Deadline">
             <font>
                 <Font name="System Bold" size="12.0" />
             </font></Label>
-        <Button layoutX="41.0" layoutY="278.0" mnemonicParsing="false" prefHeight="60.0" prefWidth="105.0" text="Update" textFill="WHITE">
+        <Button layoutX="44.0" layoutY="319.0" mnemonicParsing="false" prefHeight="60.0" prefWidth="105.0" text="Update" textFill="WHITE">
             <font>
                 <Font name="System Bold" size="12.0" />
             </font></Button>
-        <Button layoutX="208.0" layoutY="278.0" mnemonicParsing="false" prefHeight="60.0" prefWidth="105.0" text="Delete" textFill="WHITE">
+        <Button layoutX="215.0" layoutY="319.0" mnemonicParsing="false" prefHeight="60.0" prefWidth="105.0" text="Delete" textFill="WHITE">
             <font>
                 <Font name="System Bold" size="12.0" />
             </font></Button>
-        <Button layoutX="365.0" layoutY="278.0" mnemonicParsing="false" prefHeight="60.0" prefWidth="105.0" text="Cancel" textFill="WHITE">
+        <Button layoutX="366.0" layoutY="319.0" mnemonicParsing="false" prefHeight="60.0" prefWidth="105.0" text="Cancel" textFill="WHITE">
             <font>
                 <Font name="System Bold" size="12.0" />
             </font></Button>
-        <TextField layoutX="105.0" layoutY="95.0" />
-        <TextField layoutX="105.0" layoutY="137.0" />
-        <TextField layoutX="105.0" layoutY="175.0" />
-        <TextField layoutX="105.0" layoutY="220.0" />
+        <TextField fx:id="editTaskNameField" layoutX="105.0" layoutY="55.0" />
+        <TextField fx:id="editTaskBudgetField" layoutX="105.0" layoutY="88.0" />
+      <DatePicker fx:id="editStartDateTaskField" layoutX="104.0" layoutY="120.0" prefHeight="25.0" prefWidth="149.0" />
+      <DatePicker fx:id="editDeadlineTaskField" layoutX="105.0" layoutY="152.0" prefHeight="25.0" prefWidth="149.0" />
+      <CheckBox layoutX="348.0" layoutY="23.0" mnemonicParsing="false" text="Complete?">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </CheckBox>
+      <TextField fx:id="assigneeTaskField" layoutX="105.0" layoutY="188.0" />
+      <Label layoutX="22.0" layoutY="184.0" prefHeight="32.0" prefWidth="74.0" text="Assignee">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </Label>
+      <Label fx:id="taskIdLabel" layoutX="285.0" layoutY="23.0" text="[Task id]" />
+      <TextArea fx:id="taskDescriptionField" layoutX="104.0" layoutY="238.0" prefHeight="51.0" prefWidth="149.0" />
+      <Label layoutX="22.0" layoutY="248.0" prefHeight="32.0" prefWidth="74.0" text="Description">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </Label>
+      <ListView layoutX="359.0" layoutY="238.0" prefHeight="51.0" prefWidth="156.0" />
+      <Label layoutX="268.0" layoutY="248.0" prefHeight="32.0" prefWidth="91.0" text="Dependencies">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </Label>
+      <Label fx:id="taskNameLabel" layoutX="274.0" layoutY="59.0" text="[Task Name]" />
+      <Label fx:id="taskBudgetValueLabel" layoutX="273.0" layoutY="92.0" text="[ budget ]" />
+      <Label fx:id="taskStartDateValueLabel" layoutX="275.0" layoutY="125.0" text="[ start date ]" />
+      <Label fx:id="taskDadlineValueLabel" layoutX="277.0" layoutY="156.0" text="[ end date ]" />
+      <Label fx:id="assigneeTaskLabel" layoutX="277.0" layoutY="192.0" text="[Assignee]" />
     </children>
 </AnchorPane>

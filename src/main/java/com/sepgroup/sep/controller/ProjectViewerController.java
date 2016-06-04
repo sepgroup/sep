@@ -1,11 +1,5 @@
 package com.sepgroup.sep.controller;
 
-<<<<<<< HEAD
-import java.io.IOException;
-
-import com.sepgroup.sep.Main;
-import com.sepgroup.sep.model.ProjectModel;
-=======
 import com.sepgroup.sep.Main;
 import com.sepgroup.sep.model.*;
 import javafx.collections.FXCollections;
@@ -19,8 +13,8 @@ import javafx.scene.text.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.List;
->>>>>>> master
 
 /**
  * Created by jeremybrown on 2016-06-01.
@@ -61,11 +55,7 @@ public class ProjectViewerController extends AbstractController {
     }
     
     public void onEditClicked() {
-		try {
-			Main.setPrimaryScene(new ProjectEditorController());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		Main.setPrimaryScene(new ProjectEditorController());
     }
 
     public void setModel(ProjectModel p) {
