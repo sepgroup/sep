@@ -80,14 +80,15 @@ public class Database {
         }
         conn.commit();
 
-        try (ResultSet generatedKeys = s.getGeneratedKeys()) {
-            if (generatedKeys.next()) {
-                return generatedKeys.getInt(1);
-            }
-            else {
-                logger.error("Inserting failed, no ID obtained. Query: " + sql);
-                throw new SQLException("Inserting failed, no ID obtained. Query: " + sql);
-            }
+        ResultSet generatedKeys = s.getGeneratedKeys();
+        if (generatedKeys.next()) {
+            s.close();
+            return generatedKeys.getInt(1);
+        }
+        else {
+            logger.error("Inserting failed, no ID obtained. Query: " + sql);
+            s.close();
+            throw new SQLException("Inserting failed, no ID obtained. Query: " + sql);
         }
     }
 
@@ -101,6 +102,7 @@ public class Database {
             throw new SQLException("Update failed, no rows affected. Query: " + sql);
         }
         conn.commit();
+        s.close();
     }
 	
 	public void closeConnection() throws SQLException {
