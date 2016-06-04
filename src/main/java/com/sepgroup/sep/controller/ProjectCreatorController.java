@@ -42,7 +42,8 @@ public class ProjectCreatorController extends AbstractController {
 	
 	public String nameFromField = " ";
 	public int budgetFromField = 0;
-	public String description;
+	public String description = " ";
+	
 	
 	/**
 	 * Returns back to projectview.
@@ -59,8 +60,8 @@ public class ProjectCreatorController extends AbstractController {
 		if (nameField.getText() != ""){
             nameFromField = nameField.getText();
 		}
-		Date startDate = null;
-		Date deadline = null;
+		Date startDate = new Date();
+		Date deadline = new Date();
 		if (startDatePicker.getValue() != null && deadlinePicker.getValue() != null){
 			try{
 			startDate = DateUtils.castStringToDate(startDatePicker.getValue().toString());

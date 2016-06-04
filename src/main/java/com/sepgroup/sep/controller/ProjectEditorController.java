@@ -110,24 +110,33 @@ public class ProjectEditorController extends AbstractController {
 	
 		@FXML
 	    public void onEditUpdateClicked()  {
-			System.out.println("test");
 
-
+try{
 			if (editNameField.getText() != ""){
 	            editNameFromField = editNameField.getText();
 	            model.setName(editNameFromField);
 			}
-			System.out.println("test1");
+}
+catch(Exception n){
+	//Catch null
+}
 
 			Date startDate = null;
 			Date deadline = null;
+			try{
 			if (editDeadlinePicker.getValue() != null){
 				try{
 				deadline = DateUtils.castStringToDate(editDeadlinePicker.getValue().toString());
 				}catch(Exception e){
 					e.getMessage();
 				}}
+	
 				model.setDeadline(deadline);
+				}
+				catch(Exception n){
+					//Catch null
+				}
+			try{
 				if (editStartDatePicker.getValue() != null){
 					try{
 					startDate = DateUtils.castStringToDate(editStartDatePicker.getValue().toString());
@@ -135,23 +144,34 @@ public class ProjectEditorController extends AbstractController {
 						e.getMessage();
 					}
 				model.setStartDate(startDate);
+				
 	       }
-				System.out.println("test2");
+			}
+				catch(Exception n){
+					//Catch null
+				}
 
+				try{
 			if (editBudgetField.getText() != ""){
 				editBudgetFromField = Integer.parseInt(editBudgetField.getText());
 				model.setBudget(editBudgetFromField);
 	        }
-			System.out.println("test3");
+				}
+				catch(Exception n){
+					//Catch null
+				}
 
-	
-             if(editManagerField.getText() != ""){
-            	 editManagerFromField = editManagerField.getText();
-            	 model.setManagerUserId(Integer.parseInt(editManagerFromField));
+				try{
+					if(editManagerField.getText() != ""){
+						editManagerFromField = editManagerField.getText();
+						model.setManagerUserId(Integer.parseInt(editManagerFromField));
             	 
-             }
+					}
+				}
+				catch(Exception n){
+					//Catch null
+				}
 
- 			System.out.println("test4");
 try {
 	model.persistData();
 } catch (DBException e) {
