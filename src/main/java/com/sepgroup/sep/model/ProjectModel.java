@@ -209,6 +209,10 @@ public class ProjectModel extends AbstractModel {
         return this.startDate;
     }
 
+    public String getStartDateString() {
+        return DateUtils.castDateToString(this.startDate);
+    }
+
     /**
 	 * Setter for Dead Line of project which is used in update method
 	 * @param deadline updated date of deadline
@@ -231,6 +235,10 @@ public class ProjectModel extends AbstractModel {
      */
     public Date getDeadline() {
         return this.deadline;
+    }
+
+    public String getDeadlineString() {
+        return DateUtils.castDateToString(this.deadline);
     }
 
 	/**

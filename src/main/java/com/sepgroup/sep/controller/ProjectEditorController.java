@@ -5,13 +5,18 @@ import java.io.IOException;
 
 import com.sepgroup.sep.Main;
 
+import com.sepgroup.sep.model.ProjectModel;
 import javafx.fxml.FXML;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
 /**
  * Created by Charles on 2016-05-22.
  */
 public class ProjectEditorController extends AbstractController {
+
+	private ProjectModel model;
 
 	public ProjectEditorController() {
         setFxmlPath("/views/projecteditor.fxml");
@@ -23,25 +28,22 @@ public class ProjectEditorController extends AbstractController {
 	@FXML
 	public TextField editBudgetField;
 	@FXML
-	public TextField editStartDateField;
+	public DatePicker editStartDatePicker;
 	@FXML
-	public TextField editDeadlineField;
+	public DatePicker editDeadlinePicker;
+	@FXML
+	public TextArea editDescText;
 	
 	public String editNameFromField = " ";
 	public int editBudgetFromField = 0;
-	public String editStartDateFromField = "0000-00-00 ";
-	public String editDeadlineFromField = "0000-00-00 ";
+	public String editDescription;
 	
 	/**
 	 * Returns to projectview
 	 */
 	@FXML
     public void onEditCancelClicked() {
-		try {
-			Main.setPrimaryScene(new WelcomeController());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+        Main.getPrimaryStage().setScene(getPreviousScene());
     }
 	
 	@FXML
@@ -51,7 +53,15 @@ public class ProjectEditorController extends AbstractController {
 		}
     }
 
-	@Override
+    /**
+     *
+     * @param model
+     */
+    public void setModel(ProjectModel model) {
+        this.model = model;
+    }
+
+    @Override
 	public void update() {
 		// None needed for this controller
 	}

@@ -1,16 +1,21 @@
 package com.sepgroup.sep;
 
 import com.sepgroup.sep.controller.AbstractController;
+import com.sepgroup.sep.controller.DialogCreator;
 import com.sepgroup.sep.controller.WelcomeController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 public class Main extends Application {
+
+    private static Logger logger = LoggerFactory.getLogger(Main.class);
 
     private static Stage primaryStage;
 
@@ -22,6 +27,7 @@ public class Main extends Application {
 
         primaryStage.setTitle("Project Management Application");
 
+<<<<<<< HEAD
 <<<<<<< Updated upstream
         AbstractController loginController = new WelcomeController();
         setPrimaryScene(loginController);
@@ -33,6 +39,11 @@ public class Main extends Application {
       //  primaryStage.setMaxHeight(420);
       //  primaryStage.setMaxWidth(500);
 >>>>>>> Stashed changes
+=======
+        setPrimaryScene(new WelcomeController());
+        primaryStage.setMaxHeight(800);
+        primaryStage.setMaxWidth(1200);
+>>>>>>> 1b4c5a490256ed707fb320748066712846a60ff6
         
       //  primaryStage.setMinHeight(420);
        // primaryStage.setMinWidth(500);
@@ -45,12 +56,21 @@ public class Main extends Application {
         return primaryStage;
     }
 
-    public static void setPrimaryScene(AbstractController controller) throws IOException {
+    public static AbstractController setPrimaryScene(AbstractController controller) {
         FXMLLoader loader = new FXMLLoader(controller.getClass().getResource(controller.getFxmlPath()));
-        loader.setController(controller);
-        Parent parent = loader.load();
+        Parent parent = null;
+        try {
+            parent = loader.load();
+        } catch (IOException e) {
+            DialogCreator.showExceptionDialog(e);
+            DialogCreator.showErrorDialog("Error", "An error has occurred", e.getMessage());
+        }
+
         primaryStage.setScene(new Scene(parent));
         parent.getStylesheets().add(controller.getClass().getResource(controller.getCssPath()).toExternalForm());
+
+        AbstractController actualController = loader.getController();
+        return actualController;
     }
 
     public static void main(String[] args) {
