@@ -1,5 +1,7 @@
 package TestingTools;
 
+import sun.security.krb5.internal.KDCOptions;
+
 import java.util.Hashtable;
 import java.util.Random;
 
@@ -54,8 +56,7 @@ public final class RandomStringBuilder
 
 	private static void appendCharRange(final StringBuilder sb, final int first, final int last)
 	{
-		for (char c = (char)first; c <= last; c++)
-			sb.append(c);
+		appendCharRange(sb, (char)first, (char)last);
 	}
 
 	/**
@@ -92,7 +93,7 @@ public final class RandomStringBuilder
 
 	/**
 	 * Generates a random string with a specified length.
-	 * @param length
+	 * @param length The length of the String to generate.
 	 * @param withNewline True if and only if the generated string is to produce newline characters.
 	 * @returns A random String.
 	 */
@@ -104,15 +105,25 @@ public final class RandomStringBuilder
 		return builder.nextString(withNewline);
 	}
 
-
-
 	/**
 	 * Generates a random string with a specified length.
-	 * @param length
+	 * @param length The length of the String to generate.
 	 * @returns A random String.
 	 */
 	public static String randomString(final int length)
 	{
 		return randomString(length, false);
+	}
+
+	/**
+	 * Generates a random string with a specified length.
+	 * @param maxLength The length of the String to generate.
+	 * @param withNewline True if and only if the generated string is to produce newline characters.
+	 * @returns A random String.
+	 */
+	public static String randomStringMaxLength(final int maxLength, final boolean withNewline)
+	{
+		final int length = RandomUtility.randomInt(1, maxLength + 1);
+		return randomString(length, withNewline);
 	}
 }

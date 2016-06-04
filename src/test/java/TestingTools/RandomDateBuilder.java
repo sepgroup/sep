@@ -8,7 +8,6 @@ import java.util.Random;
 
 public final class RandomDateBuilder
 {
-	private static final Random random = new Random();
 	public static final int validYearMin = 1900;
 	public static final int validYearMax = 2100;
 
@@ -96,19 +95,19 @@ public final class RandomDateBuilder
 
 	private static int randomMonth(final boolean valid)
 	{
-		return valid ? randomMonth(0) : random.nextInt();
+		return valid ? randomMonth(0) : RandomUtility.nextInt();
 	}
 
 	private static int randomMonth(final int minMonth)
 	{
 		if (minMonth >= 12)
 			throw new IllegalArgumentException("Parameter minMonth must be less than 12. Received " + minMonth + ".");
-		return randomInt(Math.max(0, minMonth), 12);
+		return RandomUtility.randomInt(Math.max(0, minMonth), 12);
 	}
 
 	private static int randomDay(final boolean valid, final int month, final int year)
 	{
-		return valid ? randomDay(0, month, year) : random.nextInt();
+		return valid ? randomDay(0, month, year) : RandomUtility.nextInt();
 	}
 
 	private static int randomDay(final int minDay, final int month, final int year)
@@ -116,7 +115,7 @@ public final class RandomDateBuilder
 		int daysInMonth = daysInMonth(month, year);
 		if (minDay >= daysInMonth)
 			throw new IllegalArgumentException("Parameter minDay must be less than daysInMonth" + daysInMonth + ". Received " + minDay + ".");
-		return randomInt(minDay, daysInMonth);
+		return RandomUtility.randomInt(minDay, daysInMonth);
 	}
 
 	private static int daysInMonth(final int month, final int year)
@@ -149,7 +148,7 @@ public final class RandomDateBuilder
 		if (isValid)
 			year = randomYear(validYearMin);
 		else
-			year = random.nextInt();
+			year = RandomUtility.nextInt();
 		return year;
 	}
 
@@ -157,17 +156,7 @@ public final class RandomDateBuilder
 	{
 		if (minYear >= validYearMax)
 			throw new IllegalArgumentException("Parameter minYear must be before validYearearliest " + validYearMax + ". Received " + minYear + ".");
-		return randomInt(minYear, validYearMax);
+		return RandomUtility.randomInt(minYear, validYearMax);
 	}
 
-	/**
-	 * Produces a random integer from min to max, exclusive.
-	 * @param min The minimum of the random integer.
-	 * @param max The maximum of the random integer.
-	 * @return The random integer.
-	 */
-	private static int randomInt(final int min, final int max)
-	{
-		return random.nextInt(max - min) + min;
-	}
 }
