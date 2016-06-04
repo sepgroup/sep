@@ -8,10 +8,12 @@ import java.util.Date;
 import com.sepgroup.sep.Main;
 import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.model.ProjectModel;
-
 import com.sepgroup.sep.utils.DateUtils;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
 /**
@@ -35,39 +37,19 @@ public class ProjectCreatorController extends AbstractController {
 	public DatePicker startDatePicker;
 	@FXML
 	public DatePicker deadlinePicker;
+	@FXML
+	public TextArea descText;
 	
 	public String nameFromField = " ";
 	public int budgetFromField = 0;
-	public String startDateFromField = "0000-00-00 ";
-	public String deadlineFromField = "0000-00-00 ";
-	
-	
-	/**
-	 * Moves to taskview
-	 */
-	@FXML
-    public void onAddTaskButtonClicked() {
-              
-            try {
-                	
-                  Main.setPrimaryScene(new TaskCreatorController());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-    }
+	public String description;
 	
 	/**
 	 * Returns back to projectview.
 	 */
 	@FXML
     public void onCreateCancelClicked() {
-              
-            try {
-                	
-                  Main.setPrimaryScene(new WelcomeController());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        Main.setPrimaryScene(new WelcomeController());
     }
 	
 	//Test code
@@ -77,49 +59,37 @@ public class ProjectCreatorController extends AbstractController {
 		if (nameField.getText() != ""){
             nameFromField = nameField.getText();
 		}
+		Date startDate = null;
+		Date deadline = null;
+		if (startDatePicker.getValue() != null && deadlinePicker.getValue() != null){
+			try{
+			startDate = DateUtils.castStringToDate(startDatePicker.getValue().toString());
+			deadline = DateUtils.castStringToDate(deadlinePicker.getValue().toString());
+			}catch(Exception e){
+				e.getMessage();
+			}
+       }
 
-        // TODO Get date from date picker
-//        startDatePicker.getValue(). ...
-//		if (startDateField.getText() != ""){
-//			startDateFromField = startDateField.getText();
-//        }
-//
-//		if (deadlineField.getText() != ""){
-//			deadlineFromField = deadlineField.getText();
-//        }
-		
 		if (budgetField.getText() != ""){
 			budgetFromField = Integer.parseInt(budgetField.getText());
         }
-
-		Date startDate = null;
-		Date deadline = null;
-		try {
-			startDate = DateUtils.castStringToDate(startDateFromField);
-			deadline = DateUtils.castStringToDate(deadlineFromField);
-		} catch (ParseException e) {
-			// TODO handle
-			// show popup or something
-		}
 		
-		ProjectModel createdProject = new ProjectModel(nameFromField, startDate, deadline, budgetFromField, false, 0, "");
+		if(descText.getText()!=""){
+			description=descText.getText();
+		}
+
+		
+		ProjectModel createdProject = new ProjectModel(nameFromField, startDate, deadline, budgetFromField, false, 0, description);
 		
 		try {
 		    createdProject.persistData();
 		}
 		catch (DBException e) {
-            // TODO handle
-            // show popup or something
-            System.out.println(e.getLocalizedMessage());
+            DialogCreator.showErrorDialog("Error", "Database error", e.getLocalizedMessage());
 		}
-		
-		System.out.println(createdProject.toString());
-		
-        try {
-            Main.setPrimaryScene(new ProjectViewerController(createdProject));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+        ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(new ProjectViewerController());
+        pvc.setModel(createdProject);
     }
 	
 	@Override

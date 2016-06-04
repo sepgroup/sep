@@ -8,15 +8,23 @@ import com.sepgroup.sep.Main;
 import com.sepgroup.sep.model.ModelNotFoundException;
 import com.sepgroup.sep.model.ProjectModel;
 import com.sun.javafx.collections.ImmutableObservableList;
+import javafx.collections.FXCollections;
+import javafx.collections.ModifiableObservableListBase;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by jeremybrown on 2016-05-17.
  */
 public class WelcomeController extends AbstractController {
+
+    private static Logger logger = LoggerFactory.getLogger(WelcomeController.class);
+
+    private ProjectModel selectedProject;
 
     @FXML
     public ListView<ProjectModel> existingProjectsList;
@@ -26,8 +34,6 @@ public class WelcomeController extends AbstractController {
 
     @FXML
     public Button openSelectedProjectButton;
-
-    ProjectModel selectedProject;
 
 
     public WelcomeController() {
@@ -44,8 +50,7 @@ public class WelcomeController extends AbstractController {
     private void populateExistingProjects() {
         try {
             List<ProjectModel> projects = ProjectModel.getAll();
-            ObservableList<ProjectModel> observableProjectsList = new ImmutableObservableList<>();
-            observableProjectsList.addAll(projects);
+            ObservableList<ProjectModel> observableProjectsList = FXCollections.observableList(projects);
             existingProjectsList.setItems(observableProjectsList);
         }
         catch (ModelNotFoundException e) {
@@ -59,11 +64,7 @@ public class WelcomeController extends AbstractController {
      */
     @FXML
     public void onCreateNewProjectClicked() {
-        try {
-            Main.setPrimaryScene(new ProjectCreatorController());
-        } catch (IOException e) {
-            DialogCreator.showErrorDialog("Error", "An error has occurred", e.getMessage());
-        }
+        Main.setPrimaryScene(new ProjectCreatorController());
     }
 
     @FXML
@@ -82,13 +83,9 @@ public class WelcomeController extends AbstractController {
      */
     @FXML
     public void onOpenSelectedProjectClicked() {
-        ProjectModel selectedProject = existingProjectsList.getSelectionModel().getSelectedItem();
         if (selectedProject != null) {
-            try {
-                Main.setPrimaryScene(new ProjectViewerController(selectedProject));
-            } catch (IOException e) {
-                DialogCreator.showErrorDialog("Error", "An error has occurred", e.getMessage());
-            }
+            ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(new ProjectViewerController());
+            pvc.setModel(selectedProject);
         }
     }
 

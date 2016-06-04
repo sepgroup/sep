@@ -6,7 +6,10 @@ import java.util.Optional;
 
 import com.sepgroup.sep.Main;
 
+import com.sepgroup.sep.model.ProjectModel;
 import javafx.fxml.FXML;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -18,6 +21,8 @@ import javafx.scene.control.DatePicker;
  */
 public class ProjectEditorController extends AbstractController {
 
+	private ProjectModel model;
+
 	public ProjectEditorController() {
         setFxmlPath("/views/projecteditor.fxml");
         setCssPath("/style/stylesheet.css");
@@ -28,27 +33,38 @@ public class ProjectEditorController extends AbstractController {
 	@FXML
 	public TextField editBudgetField;
 	@FXML
+<<<<<<< HEAD
 	public DatePicker editStartDateField;
 	@FXML
 	public DatePicker editDeadlineField;
 	@FXML
 	public TextField editManagerField;
+=======
+	public DatePicker editStartDatePicker;
+	@FXML
+	public DatePicker editDeadlinePicker;
+	@FXML
+	public TextArea editDescText;
+>>>>>>> master
 	
 	public String editNameFromField = " ";
 	public int editBudgetFromField = 0;
-	public String editStartDateFromField = "0000-00-00 ";
-	public String editDeadlineFromField = "0000-00-00 ";
+	public String editDescription;
 	
 	/**
 	 * Returns to projectview
 	 */
 	@FXML
     public void onEditCancelClicked() {
+<<<<<<< HEAD
 		try {
 			Main.setPrimaryScene(new ProjectViewerController(null));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+=======
+        Main.getPrimaryStage().setScene(getPreviousScene());
+>>>>>>> master
     }
 	
 	@FXML
@@ -93,7 +109,15 @@ public class ProjectEditorController extends AbstractController {
 			 */
     }
 
-	@Override
+    /**
+     *
+     * @param model
+     */
+    public void setModel(ProjectModel model) {
+        this.model = model;
+    }
+
+    @Override
 	public void update() {
 		// None needed for this controller
 	}
