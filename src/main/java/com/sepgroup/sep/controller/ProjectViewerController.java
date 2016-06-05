@@ -66,7 +66,7 @@ public class ProjectViewerController extends AbstractController {
             startDateValueLabel.setText(model.getStartDateString());
             deadlineValueLabel.setText(model.getDeadlineString());
             budgetValueLabel.setText(Double.toString(model.getBudget()));
-            budgetValueLabel.setText(model.isDone() ? "Yes" : "No");
+            completeValueLabel.setText(model.isDone() ? "Yes" : "No");
 
             // Populate manager
             String managerName = "";
