@@ -20,12 +20,12 @@ public class ProjectTest {
     static ProjectModel testProject;
     @Test
     public void projectGenerationTest() {
-        int numOfTests = 10000;
+        int numOfTests = 1000;
         System.out.println("\n\nTESTING PROJECT GENERATION\n");
         for (int i = 0; i < numOfTests; i++) {
             Pair<Date>  dates = null;
             try {
-                dates = RandomDateBuilder.randomDatePair(true);
+                dates =RandomDateBuilder.randomDatePair(false);
             }
             catch(Exception e){
                 System.out.println("GENERAL ERROR ");
@@ -43,6 +43,19 @@ public class ProjectTest {
 
 
             testProject = new ProjectModel(name, ds, de, budget, done, id, description);
+            System.out.println("TEST ITERATION : "+i );
+            System.out.println("Name: "+name );
+            System.out.println("Date start: "+dates.first);
+            System.out.println("Date end: "+dates.second);
+            System.out.println("Budget: "+budget);
+            System.out.println("Done: "+done);
+            System.out.println("ID: "+id);
+            System.out.println("Description: "+description+"\n");
+
+
+
+
+
 
             assertEquals("Name test", name, testProject.getName());
             assertEquals("Date start test", dates.first, testProject.getStartDate());
