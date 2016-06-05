@@ -1,17 +1,23 @@
 package TestingTools;
 
-import org.junit.Test;
+import java.text.ParseException;
+import java.util.Date;
 
-import static org.junit.Assert.*;
-
-/**
- * Created by HP on 5/29/2016.
- */
-public class TestClass {
-
-    @Test
-    public void random(){
-
+public class TestClass
+{
+    public static void main(String[] args)
+    {
+        for (int i = 1; ; i++)
+        {
+            try
+            {
+                RandomDateBuilder.Pair<Date> pair = RandomDateBuilder.randomDatePair(true);
+                System.out.println(i + ": " + pair.first + " " + pair.second);
+            }
+            catch (ParseException e)
+            {
+                e.printStackTrace();
+            }
+        }
     }
-
 }

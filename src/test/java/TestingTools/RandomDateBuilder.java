@@ -81,17 +81,24 @@ public final class RandomDateBuilder
 	{
 		final int year1 = randomYear(isValid);
 		final int month1 = randomMonth(isValid);
-		final int day1 = randomDay(isValid, month1, year1);
+		int day1 = randomDay(isValid, month1, year1);
 		final String date1 = dateToString(year1, month1, day1);
 
 		final int year2 = isValid ? randomYear(year1) : randomYear(isValid);
 		final int month2 = isValid ? randomMonth(month1) : randomMonth(isValid);
+
+		day1 = clamp(day1, daysInMonth(month2, year2) - 1);
+
 		final int day2 = isValid ? randomDay(day1, month2, year2) : randomDay(isValid, month2, year2);
 		final String date2 = dateToString(year2, month2, day2);
 
-		return new Pair<String>(date1, date2);
+		return new Pair<>(date1, date2);
 	}
 
+	private static int clamp(final int value, final int max)
+	{
+		return value < max ? value : max;
+	}
 
 	private static int randomMonth(final boolean valid)
 	{
@@ -114,7 +121,7 @@ public final class RandomDateBuilder
 	{
 		int daysInMonth = daysInMonth(month, year);
 		if (minDay >= daysInMonth)
-			throw new IllegalArgumentException("Parameter minDay must be less than daysInMonth" + daysInMonth + ". Received " + minDay + ".");
+			throw new IllegalArgumentException("Parameter minDay must be less than daysInMonth " + daysInMonth + ". Received " + minDay + ".");
 		return RandomUtility.randomInt(minDay, daysInMonth);
 	}
 

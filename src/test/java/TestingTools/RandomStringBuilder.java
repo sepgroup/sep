@@ -37,11 +37,6 @@ public final class RandomStringBuilder
 		symbols = sb.toString().toCharArray();
 	}
 
-	public static void main(String[] args)
-	{
-		System.out.println(randomString(100, true));
-	}
-
 	/**
 	 * Appends a range of characters to a StringBuilder.
 	 * @param sb The StringBuilder to append to.
