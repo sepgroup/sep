@@ -1,7 +1,5 @@
 package TestingTools;
 
-import sun.security.krb5.internal.KDCOptions;
-
 import java.util.Hashtable;
 import java.util.Random;
 

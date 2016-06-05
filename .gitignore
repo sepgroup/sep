@@ -46,6 +46,8 @@ local.properties
 .idea/dynamic.xml
 .idea/uiDesigner.xml
 
+sep.iml
+
 # Gradle:
 .idea/gradle.xml
 .idea/libraries

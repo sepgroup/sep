@@ -84,7 +84,6 @@ public class DatabaseTest {
     public void testDBDelete() throws Exception {
         int insertedKey = insertProject();
 
-        String updatedProjectName = "PPP111";
         db.update("DELETE FROM " + projectTableName + " WHERE " + projectIDColumn + "=" + insertedKey);
 
         ResultSet rs = db.query("SELECT * FROM " + projectTableName + " WHERE " + projectIDColumn + "=" + insertedKey);
