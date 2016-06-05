@@ -11,7 +11,7 @@ public class TestClass
         {
             try
             {
-                RandomDateBuilder.Pair<Date> pair = RandomDateBuilder.randomDatePair(true);
+                Pair<Date> pair = RandomDateBuilder.randomDatePair(true);
                 System.out.println(i + ": " + pair.first + " " + pair.second);
             }
             catch (ParseException e)

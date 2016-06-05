@@ -11,20 +11,7 @@ public final class RandomDateBuilder
 	public static final int validYearMin = 1900;
 	public static final int validYearMax = 2100;
 
-	/**
-	 * Used to store monomorphic pairs of objects.
-	 */
-	public static class Pair<T>
-	{
-		public T first;
-		public T second;
 
-		public Pair(final T first, final T second)
-		{
-			this.first = first;
-			this.second = second;
-		}
-	}
 
 	public static Pair<Date> randomDatePair(final boolean isValid) throws ParseException
 	{
@@ -34,6 +21,10 @@ public final class RandomDateBuilder
 		return new Pair<Date>(date1, date2);
 	}
 
+	public static Pair<Date> randomDatePair() throws ParseException
+	{
+		return randomDatePair(false);
+	}
 	public static Date randomDate(final boolean isValid) throws ParseException
 	{
 		return DateUtils.castStringToDate(randomDateString(isValid));
