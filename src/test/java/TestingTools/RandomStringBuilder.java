@@ -60,7 +60,7 @@ public final class RandomStringBuilder
 	 */
 	private RandomStringBuilder(final int length)
 	{
-		if (length <= 0)
+		if (length < 0)
 			throw new IllegalArgumentException("RandomStringBuilder must have positive length. Received " + length + ".");
 		buffer = new char[length];
 	}
