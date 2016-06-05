@@ -121,8 +121,8 @@ catch(Exception n){
 	//Catch null
 }
 
-			Date startDate = null;
-			Date deadline = null;
+			Date startDate =  new Date();
+			Date deadline = new Date();
 			try{
 			if (editDeadlinePicker.getValue() != null){
 				try{
