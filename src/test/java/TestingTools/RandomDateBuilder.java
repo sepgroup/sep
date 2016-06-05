@@ -20,7 +20,7 @@ public final class RandomDateBuilder
 
 	public static Pair<Date> randomDatePair() throws ParseException
 	{
-		return randomDatePair(false);
+		return randomDatePair(true);
 	}
 	public static Date randomDate(final boolean isValid) throws ParseException
 	{
@@ -67,25 +67,40 @@ public final class RandomDateBuilder
 	 */
 	public static Pair<String> randomDateStringPair(final boolean isValid)
 	{
+		Pair<String> dates = randomDateStringPair();
+		return isValid ? dates : dates.swap();
+	}
+
+	/**
+	 * Returns a pair of random valid dates, in a valid order.
+	 * @return The pair of dates.
+	 */
+	public static Pair<String> randomDateStringPair()
+	{
 		final int year1 = randomYear();
-		final int month1 = randomMonth(true);
-		int day1 = randomDay(true, month1, year1);
+		final int month1 = randomMonth();
+		int day1 = randomDay(month1, year1);
 		final String date1 = dateToString(year1, month1, day1);
 
-		final int year2 = isValid ? randomYear(year1) : randomYear();
-		final int month2 = isValid ? randomMonth(month1) : randomMonth(true);
+		final int year2 = randomYear(year1);
+		final int month2 = randomMonth(month1);
 
 		day1 = clamp(day1, daysInMonth(month2, year2) - 1);
 
-		final int day2 = isValid ? randomDay(day1, month2, year2) : randomDay(true, month2, year2);
+		final int day2 = randomDay(day1, month2, year2);
 		final String date2 = dateToString(year2, month2, day2);
 
-		return isValid ? new Pair<>(date1, date2) : new Pair<>(date2, date1);
+		return new Pair<>(date1, date2);
 	}
 
 	private static int clamp(final int value, final int max)
 	{
 		return value < max ? value : max;
+	}
+
+	private static int randomMonth()
+	{
+		return randomMonth(true);
 	}
 
 	private static int randomMonth(final boolean valid)
@@ -98,6 +113,11 @@ public final class RandomDateBuilder
 		if (minMonth >= 12)
 			throw new IllegalArgumentException("Parameter minMonth must be less than 12. Received " + minMonth + ".");
 		return RandomUtility.randomInt(Math.max(0, minMonth), 12);
+	}
+
+	private static int randomDay(final int month, final int year)
+	{
+		return randomDay(true, month, year);
 	}
 
 	private static int randomDay(final boolean valid, final int month, final int year)
