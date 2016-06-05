@@ -13,4 +13,15 @@ public final class Pair<T>
 		this.first = first;
 		this.second = second;
 	}
+
+	public Pair swap()
+	{
+		return new Pair<>(second, first);
+	}
+
+	public String toString()
+	{
+		return "(" + first + ", " + second + ")";
+	}
+
 }
