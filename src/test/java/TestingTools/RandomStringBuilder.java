@@ -27,7 +27,7 @@ public final class RandomStringBuilder
 		StringBuilder sb = new StringBuilder();
 
 		// Alphanumerics and symbols
-		appendCharRange(sb, 33, 126);
+		appendCharRange(sb, 33, 128);
 
 		// Whitespace
 		sb.append(' ');
