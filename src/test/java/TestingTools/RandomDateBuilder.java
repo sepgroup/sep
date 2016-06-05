@@ -10,14 +10,12 @@ public final class RandomDateBuilder
 	public static final int validYearMin = 1900;
 	public static final int validYearMax = 2100;
 
-
-
 	public static Pair<Date> randomDatePair(final boolean isValid) throws ParseException
 	{
 		Pair<String> stringPair = randomDateStringPair(isValid);
 		Date date1 = DateUtils.castStringToDate(stringPair.first);
 		Date date2 = DateUtils.castStringToDate(stringPair.second);
-		return new Pair<Date>(date1, date2);
+		return new Pair<>(date1, date2);
 	}
 
 	public static Pair<Date> randomDatePair() throws ParseException
@@ -63,26 +61,26 @@ public final class RandomDateBuilder
 	}
 
 	/**
-	 * Returns a pair of random dates.
-	 * @param isValid True if both dates are valid dates and the second date comes strictly after the first.
+	 * Returns a pair of random valid dates.
+	 * @param isValid True if the second date comes strictly after the first.
 	 * @return The pair of dates.
 	 */
 	public static Pair<String> randomDateStringPair(final boolean isValid)
 	{
 		final int year1 = randomYear();
-		final int month1 = randomMonth(isValid);
-		int day1 = randomDay(isValid, month1, year1);
+		final int month1 = randomMonth(true);
+		int day1 = randomDay(true, month1, year1);
 		final String date1 = dateToString(year1, month1, day1);
 
 		final int year2 = isValid ? randomYear(year1) : randomYear();
-		final int month2 = isValid ? randomMonth(month1) : randomMonth(isValid);
+		final int month2 = isValid ? randomMonth(month1) : randomMonth(true);
 
 		day1 = clamp(day1, daysInMonth(month2, year2) - 1);
 
-		final int day2 = isValid ? randomDay(day1, month2, year2) : randomDay(isValid, month2, year2);
+		final int day2 = isValid ? randomDay(day1, month2, year2) : randomDay(true, month2, year2);
 		final String date2 = dateToString(year2, month2, day2);
 
-		return new Pair<>(date1, date2);
+		return isValid ? new Pair<>(date1, date2) : new Pair<>(date2, date1);
 	}
 
 	private static int clamp(final int value, final int max)
@@ -147,7 +145,7 @@ public final class RandomDateBuilder
 	private static int randomYear(final int minYear)
 	{
 		if (minYear >= validYearMax)
-			throw new IllegalArgumentException("Parameter minYear must be before validYearearliest " + validYearMax + ". Received " + minYear + ".");
+			throw new IllegalArgumentException("Parameter minYear must be before validYearMax " + validYearMax + ". Received " + minYear + ".");
 		return RandomUtility.randomInt(minYear, validYearMax);
 	}
 
