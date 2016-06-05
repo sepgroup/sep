@@ -4,7 +4,6 @@ import com.sepgroup.sep.utils.DateUtils;
 
 import java.text.ParseException;
 import java.util.Date;
-import java.util.Random;
 
 public final class RandomDateBuilder
 {
@@ -37,7 +36,7 @@ public final class RandomDateBuilder
 	 */
 	public static String randomDateString(final boolean isValid)
 	{
-		final int year = randomYear(isValid);
+		final int year = randomYear();
 		final int month = randomMonth(isValid);
 		final int day = randomDay(isValid, month, year);
 		return dateToString(year, month, day);
@@ -70,12 +69,12 @@ public final class RandomDateBuilder
 	 */
 	public static Pair<String> randomDateStringPair(final boolean isValid)
 	{
-		final int year1 = randomYear(isValid);
+		final int year1 = randomYear();
 		final int month1 = randomMonth(isValid);
 		int day1 = randomDay(isValid, month1, year1);
 		final String date1 = dateToString(year1, month1, day1);
 
-		final int year2 = isValid ? randomYear(year1) : randomYear(isValid);
+		final int year2 = isValid ? randomYear(year1) : randomYear();
 		final int month2 = isValid ? randomMonth(month1) : randomMonth(isValid);
 
 		day1 = clamp(day1, daysInMonth(month2, year2) - 1);
@@ -140,14 +139,9 @@ public final class RandomDateBuilder
 		return daysInMonth;
 	}
 
-	private static int randomYear(final boolean isValid)
+	private static int randomYear()
 	{
-		int year;
-		if (isValid)
-			year = randomYear(validYearMin);
-		else
-			year = RandomUtility.nextInt();
-		return year;
+		return randomYear(validYearMin);
 	}
 
 	private static int randomYear(final int minYear)

@@ -20,12 +20,12 @@ public class ProjectTest {
     static ProjectModel testProject;
     @Test
     public void projectGenerationTest() {
-        int numOfTests = 1000;
+        int numOfTests = 10000;
         System.out.println("\n\nTESTING PROJECT GENERATION\n");
         for (int i = 0; i < numOfTests; i++) {
-            RandomDateBuilder.Pair<Date>  dates = null;
+            Pair<Date>  dates = null;
             try {
-                dates =RandomDateBuilder.randomDatePair(true);
+                dates = RandomDateBuilder.randomDatePair(true);
             }
             catch(Exception e){
                 System.out.println("GENERAL ERROR ");
