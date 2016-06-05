@@ -27,26 +27,12 @@ public class Main extends Application {
 
         primaryStage.setTitle("Project Management Application");
 
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-        AbstractController loginController = new WelcomeController();
-        setPrimaryScene(loginController);
-        primaryStage.setMaxHeight(420);
-        primaryStage.setMaxWidth(500);
-=======
-        AbstractController loginController = new ProjectController();
-       setPrimaryScene(loginController);
-      //  primaryStage.setMaxHeight(420);
-      //  primaryStage.setMaxWidth(500);
->>>>>>> Stashed changes
-=======
         setPrimaryScene(new WelcomeController());
         primaryStage.setMaxHeight(800);
         primaryStage.setMaxWidth(1200);
->>>>>>> 1b4c5a490256ed707fb320748066712846a60ff6
         
-      //  primaryStage.setMinHeight(420);
-       // primaryStage.setMinWidth(500);
+        primaryStage.setMinHeight(420);
+        primaryStage.setMinWidth(500);
         
 
         primaryStage.show();
