@@ -1,8 +1,6 @@
 package com.sepgroup.sep.controller;
 
-import java.io.IOException;
 import java.text.ParseException;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 import com.sepgroup.sep.Main;
@@ -12,19 +10,17 @@ import com.sepgroup.sep.utils.DateUtils;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.DatePicker;
-import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by Charles on 2016-05-22.
  */
 public class ProjectCreatorController extends AbstractController {
 
-	public ProjectCreatorController() {
-        setFxmlPath("/views/projectcreator.fxml");
-        setCssPath("/style/stylesheet.css");
-    }
+    private static Logger logger = LoggerFactory.getLogger(ProjectCreatorController.class);
 	
 	/**
 	 * TextField for project creation.
@@ -40,11 +36,15 @@ public class ProjectCreatorController extends AbstractController {
 	@FXML
 	public TextArea descText;
 	
-	public String nameFromField = " ";
+	public String nameFromField = "";
 	public int budgetFromField = 0;
-	public String description = " ";
-	
-	
+	public String description = "";
+
+	public ProjectCreatorController() {
+		setFxmlPath("/views/projectcreator.fxml");
+		setCssPath("/style/stylesheet.css");
+	}
+
 	/**
 	 * Returns back to projectview.
 	 */
@@ -52,41 +52,65 @@ public class ProjectCreatorController extends AbstractController {
     public void onCreateCancelClicked() {
         Main.setPrimaryScene(new WelcomeController());
     }
-	
-	//Test code
+
 	@FXML
     public void onSaveProjectClicked() {
-              
-		if (nameField.getText() != ""){
+        // Name
+		if (nameField.getText().length() > 0) {
             nameFromField = nameField.getText();
 		}
-		Date startDate = new Date();
-		Date deadline = new Date();
-		if (startDatePicker.getValue() != null && deadlinePicker.getValue() != null){
-			try{
-			startDate = DateUtils.castStringToDate(startDatePicker.getValue().toString());
-			deadline = DateUtils.castStringToDate(deadlinePicker.getValue().toString());
-			}catch(Exception e){
-				e.getMessage();
-			}
-       }
 
-		if (budgetField.getText() != ""){
-			budgetFromField = Integer.parseInt(budgetField.getText());
+        // Start date
+		Date startDate = null;
+		if (startDatePicker.getValue() != null) {
+            try {
+                startDate = DateUtils.castStringToDate(startDatePicker.getValue().toString());
+            } catch (ParseException e) {
+                String errorContent = "Unable to parse date from DatePicker, this really shouldn't happen";
+                logger.error(errorContent, e);
+                DialogCreator.showErrorDialog("Unable to parse date", errorContent);
+                return;
+            }
+        }
+
+        // Deadline
+        Date deadline = null;
+        if (deadlinePicker.getValue() != null) {
+            try {
+                deadline = DateUtils.castStringToDate(deadlinePicker.getValue().toString());
+            } catch (ParseException e) {
+                String errorContent = "Unable to parse date from DatePicker, this really shouldn't happen";
+                logger.error(errorContent, e);
+                DialogCreator.showErrorDialog("Unable to parse date", errorContent);
+                return;
+            }
+        }
+
+        // Budget
+		if (budgetField.getText() != "") {
+            try {
+                budgetFromField = Integer.parseInt(budgetField.getText());
+            } catch (NumberFormatException e) {
+                logger.info("User entered invalid budget value", e);
+                DialogCreator.showErrorDialog("Budget field invalid", "Invalid budget, please enter a valid number.");
+                return;
+            }
         }
 		
-		if(descText.getText()!=""){
-			description=descText.getText();
+		if (descText.getText().equals("")) {
+			description = descText.getText();
 		}
 
 		
 		ProjectModel createdProject = new ProjectModel(nameFromField, startDate, deadline, budgetFromField, false, 0, description);
-		System.out.println(createdProject.getProjectId());
+        logger.debug("Created project " + createdProject.toString());
+
 		try {
 		    createdProject.persistData();
 		}
 		catch (DBException e) {
-            DialogCreator.showErrorDialog("Error", "Database error", e.getLocalizedMessage());
+            logger.error("DB error", e);
+            DialogCreator.showErrorDialog("Database error", e.getLocalizedMessage());
 		}
 
         ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(new ProjectViewerController());

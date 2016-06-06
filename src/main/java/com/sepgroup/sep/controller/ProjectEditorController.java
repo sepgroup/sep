@@ -1,11 +1,9 @@
 package com.sepgroup.sep.controller;
 
-
-import java.io.IOException;
+import java.text.ParseException;
 import java.util.Date;
-import java.util.List;
-import java.util.Optional;
 
+import javafx.scene.control.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,36 +11,21 @@ import com.sepgroup.sep.Main;
 import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.model.ModelNotFoundException;
 import com.sepgroup.sep.model.ProjectModel;
-import com.sepgroup.sep.model.TaskModel;
 import com.sepgroup.sep.model.UserModel;
 import com.sepgroup.sep.utils.DateUtils;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.text.Text;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.DatePicker;
 
 /**
  * Created by Charles on 2016-05-22.
  */
 public class ProjectEditorController extends AbstractController {
 
+    private static Logger logger = LoggerFactory.getLogger(ProjectEditorController.class);
 
 	private ProjectModel model;
 
-	public ProjectEditorController() {
-        setFxmlPath("/views/projecteditor.fxml");
-        setCssPath("/style/stylesheet.css");
-    }
-	
 	@FXML
 	public TextField editNameField;
 	@FXML
@@ -53,8 +36,6 @@ public class ProjectEditorController extends AbstractController {
 	public DatePicker editDeadlinePicker;
 	@FXML
 	public TextField editManagerField;
-	@FXML
-	public TextArea editDescText;
 	@FXML
 	public Label projectNameLabel;
     @FXML
@@ -70,123 +51,114 @@ public class ProjectEditorController extends AbstractController {
     @FXML
     public TextArea projectDescriptionTextArea;
 
-	
-	public String editNameFromField = " ";
-	public int editBudgetFromField = 0;
-	public String editDescription;
-	public String editManagerFromField = " ";
-	
+    private String editNameFromField = " ";
+    private int editBudgetFromField = 0;
+    private String editManagerFromField = " ";
+
+	public ProjectEditorController() {
+        setFxmlPath("/views/projecteditor.fxml");
+        setCssPath("/style/stylesheet.css");
+    }
+
 	/**
 	 * Returns to projectview
 	 */
 	@FXML
     public void onEditCancelClicked() {
-
-		  ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(new ProjectViewerController());
-	        pvc.setModel(model);
+        try {
+            model.refreshData();
+        } catch (ModelNotFoundException e) {
+            logger.error("Unable to refresh model from DB, model could not be found in DB.");
+            DialogCreator.showExceptionDialog(e);
+        }
+        // Return to project viewer
+        ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(new ProjectViewerController());
+	    pvc.setModel(model);
     }
 	
 	@FXML
     public void onDeleteClicked() {
-		
-		Alert alert = new Alert(AlertType.CONFIRMATION);
-		alert.setTitle("Warning");
-		alert.setHeaderText("This will delete the project named " + model.getName() + ". Action cannot be undone");
-		alert.setContentText("Are you sure?");
+        String title = "Warning!";
+        String header = "This will delete the project named " + model.getName() + ". This action cannot be undone";
+        String content = "Are you sure?";
 
-		Optional<ButtonType> result = alert.showAndWait();
-		if (result.get() == ButtonType.OK){
-			
-			Main.setPrimaryScene(new WelcomeController());
-	    
-		} else {
-		    // ... CANCEL PRESSED, goes back to the same screen
-			
-			  ProjectEditorController pvc = (ProjectEditorController) Main.setPrimaryScene(new ProjectEditorController());
-		        pvc.setModel(model);
-		
-	 	
-		}}
+		if (DialogCreator.showConfirmationDialog(title, header, content).get() == ButtonType.OK) {
+            try {
+                model.deleteData();
+                // Go to welcome screen
+                Main.setPrimaryScene(new WelcomeController());
+            } catch (DBException e) {
+                logger.error("Unable to delete project from DB");
+                DialogCreator.showErrorDialog("Unable to delete project from DB", e.getLocalizedMessage());
+                return;
+            }
+		}
+	}
 	
 		@FXML
 	    public void onEditUpdateClicked()  {
+            // Name
+            if (editNameField.getText() != null && editNameField.getText().length() > 0) {
+                editNameFromField = editNameField.getText();
+                model.setName(editNameFromField);
+            }
 
-			try{
-				if (editNameField.getText() != null & editNameField.getText().length()> 0){
-					editNameFromField = editNameField.getText();
-					model.setName(editNameFromField);
-				}
-			}	
-			catch(Exception n){
-					//Catch null
-			}
+			// Deadline
+            if (editDeadlinePicker.getValue() != null) {
+                try {
+                    Date deadline = DateUtils.castStringToDate(editDeadlinePicker.getValue().toString());
+                    model.setDeadline(deadline);
+                } catch (ParseException e) {
+                    String errorContent = "Unable to parse date from DatePicker, this really shouldn't happen";
+                    logger.error(errorContent, e);
+                    DialogCreator.showErrorDialog("Unable to parse date", errorContent);
+                    return;
+                }
+            }
 
-			Date startDate = null;
-			Date deadline = null;
-			try{
-			if (editDeadlinePicker.getValue() != null){
-				try{
-				deadline = DateUtils.castStringToDate(editDeadlinePicker.getValue().toString());
-				model.setDeadline(deadline);
-				}catch(Exception e){
-					e.getMessage();
-				}
-				
-				}
-	
-				
-				}
-				catch(Exception n){
-					//Catch null
-				}
-			try{
-				if (editStartDatePicker.getValue() != null){
-					try{
-					startDate = DateUtils.castStringToDate(editStartDatePicker.getValue().toString());
-					model.setStartDate(startDate);
-					}catch(Exception e){
-						e.getMessage();
-					}
-				
-				
-	       }
-			}
-				catch(Exception n){
-					//Catch null
-				}
+            if (editStartDatePicker.getValue() != null) {
+                try {
+                    Date startDate = DateUtils.castStringToDate(editStartDatePicker.getValue().toString());
+                    model.setStartDate(startDate);
+                } catch (ParseException e) {
+                    String errorContent = "Unable to parse date from DatePicker, this really shouldn't happen";
+                    logger.error(errorContent, e);
+                    DialogCreator.showErrorDialog("Unable to parse date", errorContent);
+                    return;
+                }
+            }
 
-				try{
-			if (editBudgetField.getText() != ""){
-				editBudgetFromField = Integer.parseInt(editBudgetField.getText());
-				model.setBudget(editBudgetFromField);
-	        }
-				}
-				catch(Exception n){
-					//Catch null
-				}
+            // Budget
+            if (!editBudgetField.getText().equals("")) {
+                try {
+                    editBudgetFromField = Integer.parseInt(editBudgetField.getText());
+                    model.setBudget(editBudgetFromField);
+                } catch (NumberFormatException e) {
+                    logger.info("User entered invalid budget value", e);
+                    DialogCreator.showErrorDialog("Budget field invalid", "Invalid budget, please enter a valid number.");
+                    return;
+                }
+            }
 
-				try{
-					if(editManagerField.getText() != ""){
-						editManagerFromField = editManagerField.getText();
-						model.setManagerUserId(Integer.parseInt(editManagerFromField));
-            	 
-					}
-				}
-				catch(Exception n){
-					//Catch null
-				}
+            // Manager
+            if (!editManagerField.getText().equals("")) {
+                editManagerFromField = editManagerField.getText();
+                // TODO use name instead of user ID
+                model.setManagerUserId(Integer.parseInt(editManagerFromField));
+            }
 
-try {
-	model.persistData();
-} catch (DBException e) {
-	// TODO Auto-generated catch block
-	e.printStackTrace();
-}
-			  ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(new ProjectViewerController());
-		        pvc.setModel(model);
-		
-			
-    }
+            try {
+                model.persistData();
+            } catch (DBException e) {
+                logger.error("Unable to persist model", e);
+                DialogCreator.showExceptionDialog(e);
+                return;
+            }
+
+            // Return to project viewer
+            ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(new ProjectViewerController());
+            pvc.setModel(model);
+        }
 
     /**
      *
@@ -199,34 +171,31 @@ try {
 
     @Override
 	public void update() {
-    	 if (this.model != null) {
-             projectNameText.setText(model.getName());
-             projectNameLabel.setText(model.getName());
-             projectDescriptionTextArea.setText(model.getProjectDescription());
-             startDateValueLabel.setText(model.getStartDateString());
-             deadlineValueLabel.setText(model.getDeadlineString());
-             budgetValueLabel.setText(Double.toString(model.getBudget()));
+        if (this.model != null) {
+            projectNameText.setText(model.getName());
+            projectNameLabel.setText(model.getName());
+            projectDescriptionTextArea.setText(model.getProjectDescription());
+            startDateValueLabel.setText(model.getStartDateString());
+            deadlineValueLabel.setText(model.getDeadlineString());
+            budgetValueLabel.setText(Double.toString(model.getBudget()));
 
-             // Populate manager
-             String managerName = "";
-             int managerUserID = model.getManagerUserId();
-             if (managerUserID == 0) {
-                 managerName = "[ none ]";
-             }
-             else {
-                 try {
-                     UserModel manager = UserModel.getById(managerUserID);
-                     managerName = manager.getFirstName() + " " + manager.getLastName();
-                 } catch (ModelNotFoundException e) {
-                 }
-             }
+            // Populate manager
+            String managerName = "";
+            int managerUserID = model.getManagerUserId();
+            if (managerUserID == 0) {
+                managerName = "[ none ]";
+            } else {
+                try {
+                    UserModel manager = UserModel.getById(managerUserID);
+                    managerName = manager.getFirstName() + " " + manager.getLastName();
+                } catch (ModelNotFoundException e) {
+                    // TODO handle
+                }
+            }
 
-             //fix if we want manager name
-             managerValueLabel.setText(Integer.toString(managerUserID));
-
-
-             }
-         }
-		// None needed for this controller
-	}
+            // TODO fix if we want manager name
+            managerValueLabel.setText(Integer.toString(managerUserID));
+        }
+    }
+}
 

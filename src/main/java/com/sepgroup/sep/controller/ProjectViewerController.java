@@ -1,6 +1,7 @@
 package com.sepgroup.sep.controller;
 
 import com.sepgroup.sep.Main;
+import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.model.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -16,9 +17,7 @@ import javafx.scene.text.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Created by jeremybrown on 2016-06-01.
@@ -31,25 +30,18 @@ public class ProjectViewerController extends AbstractController {
 
     @FXML
     public Text projectNameText;
-
     @FXML
     public TextArea projectDescriptionTextArea;
-
     @FXML
     public Label startDateValueLabel;
-
     @FXML
     public Label deadlineValueLabel;
-
     @FXML
     public Label managerValueLabel;
-
     @FXML
     public Label budgetValueLabel;
-
     @FXML
     public Label completeValueLabel;
-
     @FXML
     public TableView<TaskModel> taskTableView;
 
@@ -59,7 +51,8 @@ public class ProjectViewerController extends AbstractController {
     }
     
     public void onEditClicked() {
-		Main.setPrimaryScene(new ProjectEditorController());
+        ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(new ProjectEditorController());
+        pvc.setModel(model);
     }
 
     public void setModel(ProjectModel p) {
@@ -83,8 +76,7 @@ public class ProjectViewerController extends AbstractController {
             int managerUserID = model.getManagerUserId();
             if (managerUserID == 0) {
                 managerName = "[ none ]";
-            }
-            else {
+            } else {
                 try {
                     UserModel manager = UserModel.getById(managerUserID);
                     managerName = manager.getFirstName() + " " + manager.getLastName();
@@ -92,10 +84,7 @@ public class ProjectViewerController extends AbstractController {
                     logger.error("Error finding user with ID " + managerUserID);
                 }
             }
-            
-            //Change if we want manager name instead of ID
-            
-            managerValueLabel.setText(Integer.toString(managerUserID));
+            managerValueLabel.setText(managerName);
 
             // Populate tasks list
             List<TaskModel> tasksList = null;
@@ -104,7 +93,8 @@ public class ProjectViewerController extends AbstractController {
                 ObservableList<TaskModel> observableTaskList = FXCollections.observableList(tasksList);
                 taskTableView.setItems(observableTaskList);
             } catch (ModelNotFoundException e) {
-                // no tasks found
+                logger.debug("No tasks found for project " + model.toString());
+                // No tasks found
             }
         }
     }
@@ -112,14 +102,11 @@ public class ProjectViewerController extends AbstractController {
     public void onEditProjectClicked() {
         ProjectEditorController pec = (ProjectEditorController) Main.setPrimaryScene(new ProjectEditorController());
         pec.setModel(model);
-        pec.setPreviousScene(Main.getPrimaryStage().getScene());
     }
 
     public void onCreateTaskButtonClicked() {
         TaskCreatorController tcc = (TaskCreatorController) Main.setPrimaryScene(new TaskCreatorController());
-//        tcc.setPreviousScene(Main.getPrimaryStage().getScene());
-        // TODO fix previous scene
-        Main.setPrimaryScene(tcc);
+        tcc.setReturnProject(model);
     }
 
     public void onTaskItemClicked(MouseEvent e) {
@@ -128,7 +115,6 @@ public class ProjectViewerController extends AbstractController {
             if (selectedTask != null) {
                 TaskEditorController tec = (TaskEditorController) Main.setPrimaryScene(new TaskEditorController());
                 tec.setModel(selectedTask);
-                tec.setPreviousScene(Main.getPrimaryStage().getScene());
             }
         }
     }
@@ -144,33 +130,32 @@ public class ProjectViewerController extends AbstractController {
     public void onCloseProjectMenuItemClicked() {
         Main.setPrimaryScene(new WelcomeController());
     }
-    public void onDeleteProjectMenuButtonClicked(){
-    	Alert alert = new Alert(AlertType.CONFIRMATION);
-		alert.setTitle("Warning");
-		alert.setHeaderText("This will delete the project named " + model.getName() + ". Action cannot be undone");
-		alert.setContentText("Are you sure?");
 
-		Optional<ButtonType> result = alert.showAndWait();
-		if (result.get() == ButtonType.OK){
-			
-			Main.setPrimaryScene(new WelcomeController());
-	    
-		} else {
-		    // ... CANCEL PRESSED, goes back to the same screen
-			
-			  ProjectViewerController pvc = (ProjectViewerController)Main.setPrimaryScene(new ProjectViewerController());
-		        pvc.setModel(model);}
+    public void onDeleteProjectMenuButtonClicked(){
+    	String title = "Warning!";
+        String header = "This will delete the project named " + model.getName() + ". This action cannot be undone";
+        String content = "Are you sure?";
+
+        if (DialogCreator.showConfirmationDialog(title, header, content).get() == ButtonType.OK) {
+            try {
+                model.deleteData();
+                // Go to welcome screen
+                Main.setPrimaryScene(new WelcomeController());
+            } catch (DBException e) {
+                logger.error("Unable to delete project from DB");
+                DialogCreator.showErrorDialog("Unable to delete project from DB", e.getLocalizedMessage());
+                return;
+            }
+        }
     }
     
-    public void ShowInfo(){
+    public void showInfo() {
     	Alert alert = new Alert(AlertType.INFORMATION);
     	alert.setTitle("Info");
 		alert.setHeaderText("Version 1.0. Team members:");
 		alert.setContentText("Jeremy Brown \nAli Zoghi \nCharles Tondreau-Alin \nNicola Polesana"
 				+ "\nAndres Gonzales \nDemo Kioussis \nJustin Watley \nMark Chmilar \nVince Fugnitto"
 				+ "\nMichael Deom");
-		
-
-		Optional<ButtonType> result = alert.showAndWait();
-	
-}}
+		alert.showAndWait();
+    }
+}

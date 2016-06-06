@@ -5,10 +5,9 @@ import java.util.Date;
 
 import com.sepgroup.sep.Main;
 import com.sepgroup.sep.db.DBException;
-import com.sepgroup.sep.model.TaskModel;
 import com.sepgroup.sep.model.ProjectModel;
+import com.sepgroup.sep.model.TaskModel;
 
-import java.time.format.DateTimeFormatter;
 import javafx.fxml.FXML;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextArea;
@@ -20,9 +19,15 @@ import com.sepgroup.sep.utils.DateUtils;
  */
 public class TaskCreatorController extends AbstractController {
 
+    private ProjectModel project;
+
 	public TaskCreatorController() {
         setFxmlPath("/views/taskcreator.fxml");
         setCssPath("/style/stylesheet.css");
+    }
+
+    public void setReturnProject(ProjectModel p) {
+        project = p;
     }
 	
 	@FXML
@@ -38,14 +43,11 @@ public class TaskCreatorController extends AbstractController {
 	@FXML
 	public TextArea taskDescriptionArea;
 	
-	
-	
 	public String taskNameFromField = " ";
 	public int taskBudgetFromField = 0;
 	public String taskDescription;
 	public int taskAssigneeNumberFromField;
 	public int taskProjectId = 0;
-	
 	
 	/**
 	 * Returns to createproject
@@ -55,7 +57,6 @@ public class TaskCreatorController extends AbstractController {
 		Main.setPrimaryScene(new ProjectEditorController());
     }
 
-	//FIX WITH PUSH TO MASTER WITH ALI BRANCH
 	@FXML
 	public void onCreateTaskClicked() throws IOException{
 		
@@ -64,28 +65,28 @@ public class TaskCreatorController extends AbstractController {
 		}
 		Date taskStartDate = null;
 		Date taskDeadline = null;
-		if (taskStartDatePicker.getValue() != null && taskDeadlinePicker.getValue() != null){
-			try{
-			taskStartDate = DateUtils.castStringToDate(taskStartDatePicker.getValue().toString());
-			taskDeadline = DateUtils.castStringToDate(taskDeadlinePicker.getValue().toString());
-			}catch(Exception e){
+		if (taskStartDatePicker.getValue() != null && taskDeadlinePicker.getValue() != null) {
+			try {
+			    taskStartDate = DateUtils.castStringToDate(taskStartDatePicker.getValue().toString());
+			    taskDeadline = DateUtils.castStringToDate(taskDeadlinePicker.getValue().toString());
+			} catch(Exception e) {
 				e.getMessage();
 			}
-      }
+        }
 
-		if (taskBudgetField.getText() != ""){
+		if (taskBudgetField.getText() != "") {
 			taskBudgetFromField = Integer.parseInt(taskBudgetField.getText());
         }
 		
-		if (taskAssigneeNumber.getText() != ""){
+		if (taskAssigneeNumber.getText() != "") {
 			taskAssigneeNumberFromField = Integer.parseInt(taskAssigneeNumber.getText());
         }
 		
-		if(taskDescriptionArea.getText()!=""){
+		if (taskDescriptionArea.getText()!="") {
 			taskDescription=taskDescriptionArea.getText();
 		}
 
-		//FIX PROJECT ID
+		// TODO FIX PROJECT ID
 		TaskModel createdTask = new TaskModel(taskNameFromField, taskDescription, taskProjectId, taskBudgetFromField, taskStartDate, taskDeadline,
 	            false, taskAssigneeNumberFromField);
 		
@@ -97,9 +98,9 @@ public class TaskCreatorController extends AbstractController {
             // show popup or something
             System.out.println(e.getLocalizedMessage());
 		}
-		Main.setPrimaryScene(new ProjectEditorController());
-		}
-	
+
+        Main.setPrimaryScene(new ProjectEditorController());
+    }
 	
 	@Override
 	public void update() {

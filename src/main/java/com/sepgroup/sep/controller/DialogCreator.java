@@ -35,27 +35,27 @@ public class DialogCreator {
         return alert.showAndWait();
     }
 
-    public static void showErrorDialog(String title, String headerText, String contentText) {
+    public static void showErrorDialog(String headerText, String contentText) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
+        alert.setTitle("Error");
         alert.setHeaderText(headerText);
         alert.setContentText(contentText);
 
         alert.showAndWait();
     }
 
-    public static void showWarningDialog(String title, String headerText, String contentText) {
+    public static void showWarningDialog(String headerText, String contentText) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle(title);
+        alert.setTitle("Warning");
         alert.setHeaderText(headerText);
         alert.setContentText(contentText);
 
         alert.showAndWait();
     }
 
-    public static void showInfoDialog(String title, String headerText, String contentText) {
+    public static void showInfoDialog(String headerText, String contentText) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
+        alert.setTitle("Info");
         alert.setHeaderText(headerText);
         alert.setContentText(contentText);
 
