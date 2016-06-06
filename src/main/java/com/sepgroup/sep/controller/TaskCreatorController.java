@@ -23,18 +23,9 @@ import org.slf4j.LoggerFactory;
 public class TaskCreatorController extends AbstractController {
 
     private static Logger logger = LoggerFactory.getLogger(TaskCreatorController.class);
-
+    private static final String fxmlPath = "/views/taskcreator.fxml";
     private ProjectModel project;
 
-	public TaskCreatorController() {
-        setFxmlPath("/views/taskcreator.fxml");
-        setCssPath("/style/stylesheet.css");
-    }
-
-    public void setReturnProject(ProjectModel p) {
-        project = p;
-    }
-	
 	@FXML
 	public TextField taskNameField;
 	@FXML
@@ -52,13 +43,25 @@ public class TaskCreatorController extends AbstractController {
     private int taskBudgetFromField = 0;
     private String taskDescription;
     private int taskAssigneeNumberFromField;
-	
-	/**
+
+    public TaskCreatorController() {
+        setCssPath("/style/stylesheet.css");
+    }
+
+    public static String getFxmlPath() {
+        return fxmlPath;
+    }
+
+    public void setReturnProject(ProjectModel p) {
+        project = p;
+    }
+
+    /**
 	 * Returns to createproject
 	 */
 	@FXML
     public void onTaskCancelClicked() throws IOException {
-		ProjectViewerController pec = (ProjectViewerController) Main.setPrimaryScene(new ProjectViewerController());
+		ProjectViewerController pec = (ProjectViewerController) Main.setPrimaryScene(ProjectViewerController.getFxmlPath());
         pec.setModel(project);
     }
 
@@ -123,12 +126,11 @@ public class TaskCreatorController extends AbstractController {
 		try {
 		    createdTask.persistData();
 		} catch (DBException e) {
-            logger.error("DB error", e);
             DialogCreator.showErrorDialog("Database error", e.getLocalizedMessage());
             return;
 		}
 
-        ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(new ProjectViewerController());
+        ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(ProjectViewerController.getFxmlPath());
         pvc.setModel(project);
     }
 	

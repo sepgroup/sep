@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 public class ProjectCreatorController extends AbstractController {
 
     private static Logger logger = LoggerFactory.getLogger(ProjectCreatorController.class);
+	private static final String fxmlPath = "/views/projectcreator.fxml";
 	
 	/**
 	 * TextField for project creation.
@@ -41,16 +42,19 @@ public class ProjectCreatorController extends AbstractController {
 	public String description = "";
 
 	public ProjectCreatorController() {
-		setFxmlPath("/views/projectcreator.fxml");
 		setCssPath("/style/stylesheet.css");
 	}
 
-	/**
+    public static String getFxmlPath() {
+        return fxmlPath;
+    }
+
+    /**
 	 * Returns back to projectview.
 	 */
 	@FXML
     public void onCreateCancelClicked() {
-        Main.setPrimaryScene(new WelcomeController());
+        Main.setPrimaryScene(WelcomeController.getFxmlPath());
     }
 
 	@FXML
@@ -109,11 +113,11 @@ public class ProjectCreatorController extends AbstractController {
 		    createdProject.persistData();
 		}
 		catch (DBException e) {
-            logger.error("DB error", e);
             DialogCreator.showErrorDialog("Database error", e.getLocalizedMessage());
+			return;
 		}
 
-        ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(new ProjectViewerController());
+        ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(ProjectViewerController.getFxmlPath());
         pvc.setModel(createdProject);
     }
 	

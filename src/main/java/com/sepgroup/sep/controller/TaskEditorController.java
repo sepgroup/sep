@@ -11,11 +11,7 @@ import com.sepgroup.sep.model.TaskModel;
 import com.sepgroup.sep.utils.DateUtils;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +21,7 @@ import org.slf4j.LoggerFactory;
 public class TaskEditorController extends AbstractController {
 
     private static Logger logger = LoggerFactory.getLogger(TaskEditorController.class);
-
+    private static final String fxmlPath = "/views/taskeditor.fxml";
     private TaskModel model;
     private ProjectModel project;
 
@@ -50,13 +46,15 @@ public class TaskEditorController extends AbstractController {
 	@FXML
 	public TextField assigneeTaskField;
 	@FXML
-	public Label assigneeTaskLabel;
+	public Label taskAssigneeLabel;
 	@FXML
 	public TextArea taskDescriptionArea;
     @FXML
     public Label taskManagerLabel;
     @FXML
     public ListView dependenciesTaskList;
+    @FXML
+    public CheckBox completeCheckBox;
 
     private String editTaskNameFromField = "";
     private double editTaskBudgetFromField = 0;
@@ -64,8 +62,11 @@ public class TaskEditorController extends AbstractController {
     private String editAssigneeFromField = "";
 
     public TaskEditorController() {
-        setFxmlPath("/views/taskeditor.fxml");
         setCssPath("/style/stylesheet.css");
+    }
+
+    public static String getFxmlPath() {
+        return fxmlPath;
     }
 
     public void setReturnProject(ProjectModel p) {
@@ -81,7 +82,7 @@ public class TaskEditorController extends AbstractController {
             logger.warn("Tried to refresh existing model that did not exist", e);
         }
         // Return to project viewer
-        ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(new ProjectViewerController());
+        ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(ProjectViewerController.getFxmlPath());
         pvc.setModel(project);
     }
     
@@ -94,10 +95,9 @@ public class TaskEditorController extends AbstractController {
         }
 
         // Start date
-        Date startTaskDate = null;
         if (editStartDateTaskField.getValue() != null) {
             try {
-                startTaskDate = DateUtils.castStringToDate(editStartDateTaskField.getValue().toString());
+                Date startTaskDate = DateUtils.castStringToDate(editStartDateTaskField.getValue().toString());
                 model.setStartDate(startTaskDate);;
             } catch (ParseException e) {
                 String errorContent = "Unable to parse date from DatePicker, this really shouldn't happen";
@@ -108,11 +108,10 @@ public class TaskEditorController extends AbstractController {
         }
 
         // Deadline
-        Date taskDeadline = null;
         if (editDeadlineTaskField.getValue() != null) {
             try {
-                taskDeadline = DateUtils.castStringToDate(editDeadlineTaskField.getValue().toString());
-                model.setStartDate(taskDeadline);
+                Date taskDeadline = DateUtils.castStringToDate(editDeadlineTaskField.getValue().toString());
+                model.setDeadline(taskDeadline);
             } catch (ParseException e) {
                 String errorContent = "Unable to parse date from DatePicker, this really shouldn't happen";
                 logger.error(errorContent, e);
@@ -141,8 +140,11 @@ public class TaskEditorController extends AbstractController {
 
         if (!taskDescriptionArea.getText().equals("")) {
             editTaskDescriptionFromField = taskDescriptionArea.getText();
-            model.setDescription( editTaskDescriptionFromField);
+            model.setDescription(editTaskDescriptionFromField);
         }
+
+        // Complete
+        model.setDone(completeCheckBox.isSelected());
 
         try {
             model.persistData();
@@ -152,13 +154,32 @@ public class TaskEditorController extends AbstractController {
             return;
         }
 
-        ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(new ProjectViewerController());
+        ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(ProjectViewerController.getFxmlPath());
         pvc.setModel(project);
     }
 
     public void setModel(TaskModel t) {
         this.model = t;
         update();
+    }
+
+    public void onDeleteTaskClicked() {
+        String title = "Warning!";
+        String header = "This will delete the task " + model.getName() + ". This action cannot be undone";
+        String content = "Are you sure?";
+
+        if (DialogCreator.showConfirmationDialog(title, header, content).get() == ButtonType.OK) {
+            try {
+                model.deleteData();
+            } catch (DBException e) {
+                logger.error("Unable to delete project from DB");
+                DialogCreator.showErrorDialog("Unable to delete project from DB", e.getLocalizedMessage());
+                return;
+            }
+            // Return to project view
+            ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(ProjectViewerController.getFxmlPath());
+            pvc.setModel(project);
+        }
     }
 
     @Override
@@ -169,8 +190,8 @@ public class TaskEditorController extends AbstractController {
    		    taskBudgetValueLabel.setText(String.valueOf(model.getBudget()));
    		    if (model.getStartDate() != null) taskStartDateValueLabel.setText(String.valueOf(model.getStartDate()));
             if (model.getDeadline() != null) taskDeadlineValueLabel.setText(String.valueOf(model.getDeadline()));
-   		    assigneeTaskLabel.setText(String.valueOf(model.getAssigneeUserId()));
-            // TODO complete check mark
+   		    taskAssigneeLabel.setText(String.valueOf(model.getAssigneeUserId()));
+            completeCheckBox.setSelected(model.isDone());
         }
     }
 }

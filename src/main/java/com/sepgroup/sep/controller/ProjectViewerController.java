@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 public class ProjectViewerController extends AbstractController {
 
     private static Logger logger = LoggerFactory.getLogger(ProjectViewerController.class);
-
+    private static final String fxmlPath = "/views/projectviewer.fxml";
     private ProjectModel model;
 
     @FXML
@@ -61,12 +61,15 @@ public class ProjectViewerController extends AbstractController {
     public TableColumn<ListableTaskModel, Boolean> taskCompleteColumn;
 
     public ProjectViewerController() {
-        setFxmlPath("/views/projectviewer.fxml");
         setCssPath("/style/stylesheet.css");
     }
-    
+
+    public static String getFxmlPath() {
+        return fxmlPath;
+    }
+
     public void onEditClicked() {
-        ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(new ProjectEditorController());
+        ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(ProjectEditorController.getFxmlPath());
         pvc.setModel(model);
     }
 
@@ -121,12 +124,12 @@ public class ProjectViewerController extends AbstractController {
     }
 
     public void onEditProjectClicked() {
-        ProjectEditorController pec = (ProjectEditorController) Main.setPrimaryScene(new ProjectEditorController());
+        ProjectEditorController pec = (ProjectEditorController) Main.setPrimaryScene(ProjectEditorController.getFxmlPath());
         pec.setModel(model);
     }
 
     public void onCreateTaskButtonClicked() {
-        TaskCreatorController tcc = (TaskCreatorController) Main.setPrimaryScene(new TaskCreatorController());
+        TaskCreatorController tcc = (TaskCreatorController) Main.setPrimaryScene(TaskCreatorController.getFxmlPath());
         tcc.setReturnProject(model);
     }
 
@@ -134,22 +137,23 @@ public class ProjectViewerController extends AbstractController {
         if (e.getClickCount() == 2) {
             ListableTaskModel selectedListableTask = taskTableView.getSelectionModel().getSelectedItem();
             if (selectedListableTask != null) {
-                TaskEditorController tec = (TaskEditorController) Main.setPrimaryScene(new TaskEditorController());
+                TaskEditorController tec = (TaskEditorController) Main.setPrimaryScene(TaskEditorController.getFxmlPath());
                 tec.setModel(selectedListableTask.getModel());
+                tec.setReturnProject(model);
             }
         }
     }
 
     public void onCreateProjectMenuItemClicked() {
-        Main.setPrimaryScene(new ProjectCreatorController());
+        Main.setPrimaryScene(ProjectCreatorController.getFxmlPath());
     }
 
     public void onOpenProjectMenuItemClicked() {
-        Main.setPrimaryScene(new WelcomeController());
+        Main.setPrimaryScene(WelcomeController.getFxmlPath());
     }
 
     public void onCloseProjectMenuItemClicked() {
-        Main.setPrimaryScene(new WelcomeController());
+        Main.setPrimaryScene(WelcomeController.getFxmlPath());
     }
 
     public void onDeleteProjectMenuButtonClicked(){
@@ -161,7 +165,7 @@ public class ProjectViewerController extends AbstractController {
             try {
                 model.deleteData();
                 // Go to welcome screen
-                Main.setPrimaryScene(new WelcomeController());
+                Main.setPrimaryScene(WelcomeController.getFxmlPath());
             } catch (DBException e) {
                 logger.error("Unable to delete project from DB");
                 DialogCreator.showErrorDialog("Unable to delete project from DB", e.getLocalizedMessage());
