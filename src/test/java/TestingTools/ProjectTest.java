@@ -1,12 +1,8 @@
 package TestingTools;
 
-import com.sepgroup.sep.controller.DialogCreator;
 import com.sepgroup.sep.db.DBException;
-import com.sepgroup.sep.model.ModelNotFoundException;
 import com.sepgroup.sep.model.*;
-import com.sepgroup.sep.utils.DateUtils;
 
-import java.text.ParseException;
 import java.util.Date;
 import java.util.Random;
 

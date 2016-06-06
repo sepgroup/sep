@@ -1,19 +1,12 @@
 package TestingTools;
 
-import com.sepgroup.sep.db.Database;
 import com.sepgroup.sep.tests.ut.db.*;
-import com.sepgroup.sep.controller.DialogCreator;
-import com.sepgroup.sep.db.DBException;
-import com.sepgroup.sep.model.ModelNotFoundException;
 import com.sepgroup.sep.model.*;
-import com.sepgroup.sep.utils.DateUtils;
 
-import java.text.ParseException;
 import java.util.Date;
 import java.util.Random;
 import java.util.ArrayList;
 
-import com.sepgroup.sep.db.DBConfig;
 import org.aeonbits.owner.ConfigFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;

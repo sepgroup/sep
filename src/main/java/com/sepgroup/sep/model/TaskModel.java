@@ -227,6 +227,14 @@ public class TaskModel extends AbstractModel {
         return startDate;
     }
 
+    public String getStartDateString() {
+        if (this.startDate != null) {
+            return DateUtils.castDateToString(this.startDate);
+        } else {
+            return null;
+        }
+    }
+
     public void setStartDate(String input) throws ParseException {
         this.startDate = DateUtils.castStringToDate(input);
     }
@@ -237,6 +245,14 @@ public class TaskModel extends AbstractModel {
 
     public Date getDeadline() {
         return deadline;
+    }
+
+    public String getDeadlineString() {
+        if (this.deadline != null) {
+            return DateUtils.castDateToString(this.deadline);
+        } else {
+            return null;
+        }
     }
 
     public void setDeadline(String input) throws ParseException {

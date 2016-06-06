@@ -93,7 +93,7 @@ public class ProjectModel extends AbstractModel {
 
     @Override
     public void persistData() throws DBException {
-        if (this.name == null) {
+        if (this.name == null || this.name.replaceAll(" ", "").equals("")) {
             logger.error("Project name must be set to persist model to DB");
             throw new DBException("Project name must be set to persist model to DB");
         }
@@ -158,7 +158,7 @@ public class ProjectModel extends AbstractModel {
 	 * @param name updated name of project
 	 */
 	public void setName(String name){
-		this.name=name;
+		this.name = name;
 	}
 
     /**
@@ -210,7 +210,11 @@ public class ProjectModel extends AbstractModel {
     }
 
     public String getStartDateString() {
-        return DateUtils.castDateToString(this.startDate);
+        if (this.startDate != null) {
+            return DateUtils.castDateToString(this.startDate);
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -238,7 +242,11 @@ public class ProjectModel extends AbstractModel {
     }
 
     public String getDeadlineString() {
-        return DateUtils.castDateToString(this.deadline);
+        if (this.deadline != null) {
+            return DateUtils.castDateToString(this.deadline);
+        } else {
+            return null;
+        }
     }
 
 	/**

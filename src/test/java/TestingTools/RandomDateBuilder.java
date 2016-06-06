@@ -5,26 +5,65 @@ import com.sepgroup.sep.utils.DateUtils;
 import java.text.ParseException;
 import java.util.Date;
 
+/**
+ * Creates random dates for instantiating projects, tasks, etc.
+ */
 public final class RandomDateBuilder
 {
+	// Valid range of years
 	public static final int validYearMin = 1900;
 	public static final int validYearMax = 2100;
 
-	public static Pair<Date> randomDatePair(final boolean isValid) throws ParseException
+	/**
+	 * Creates a pair of dates which may or may not be in the proper order.
+	 * @param isValid True if and only if the returned dates are to be in the proper order.
+	 * @return A pair of Date objects.
+	 */
+	public static Pair<Date> randomDatePair(final boolean isValid)
 	{
 		Pair<String> stringPair = randomDateStringPair(isValid);
-		Date date1 = DateUtils.castStringToDate(stringPair.first);
-		Date date2 = DateUtils.castStringToDate(stringPair.second);
+		Date date1 = null, date2 = null;
+		try
+		{
+			date1 = DateUtils.castStringToDate(stringPair.first);
+			date2 = DateUtils.castStringToDate(stringPair.second);
+		}
+		catch (ParseException e)
+		{
+			System.err.println("Something went wrong in generating a random date pair.");
+			e.printStackTrace();
+		}
+
 		return new Pair<>(date1, date2);
 	}
 
-	public static Pair<Date> randomDatePair() throws ParseException
+	/**
+	 * Equivalent to randomDatePair(true).
+	 * @return A pair of Date objects, in proper order.
+	 */
+	public static Pair<Date> randomDatePair()
 	{
 		return randomDatePair(true);
 	}
-	public static Date randomDate(final boolean isValid) throws ParseException
+
+	/**
+	 * Generates a random date, possibly valid.
+	 * @param isValid True if and only if the generated date is to valid.
+	 * @return A random date.
+	 */
+	public static Date randomDate(final boolean isValid)
 	{
-		return DateUtils.castStringToDate(randomDateString(isValid));
+		Date date = null;
+		try
+		{
+			date = DateUtils.castStringToDate(randomDateString(isValid));
+		}
+		catch (ParseException e)
+		{
+			System.err.println("Something went wrong in generating a random date.");
+			e.printStackTrace();
+		}
+		return date;
 	}
 
 	/**
@@ -55,6 +94,13 @@ public final class RandomDateBuilder
 		return dateToString(year, month, day);
 	}
 
+	/**
+	 * Given a year, month, and day, returns a string representation of the date.
+	 * @param year The year of the date.
+	 * @param month The month of the date.
+	 * @param day The day of the date.
+	 * @return A string representation of the date.
+	 */
 	private static String dateToString(final int year, final int month, final int day)
 	{
 		return year + "-" + month + "-" + day;
@@ -85,17 +131,12 @@ public final class RandomDateBuilder
 		final int year2 = randomYear(year1);
 		final int month2 = randomMonth(month1);
 
-		day1 = clamp(day1, daysInMonth(month2, year2) - 1);
+		day1 = Math.min(day1, daysInMonth(month2, year2) - 1);
 
 		final int day2 = randomDay(day1, month2, year2);
 		final String date2 = dateToString(year2, month2, day2);
 
 		return new Pair<>(date1, date2);
-	}
-
-	private static int clamp(final int value, final int max)
-	{
-		return value < max ? value : max;
 	}
 
 	private static int randomMonth()

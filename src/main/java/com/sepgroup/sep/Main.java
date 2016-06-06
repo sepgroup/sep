@@ -49,7 +49,7 @@ public class Main extends Application {
             parent = loader.load();
         } catch (IOException e) {
             DialogCreator.showExceptionDialog(e);
-            DialogCreator.showErrorDialog("Error", "An error has occurred", e.getMessage());
+            DialogCreator.showErrorDialog("An error has occurred", e.getMessage());
         }
 
         primaryStage.setScene(new Scene(parent));
