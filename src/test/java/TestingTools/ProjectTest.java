@@ -4,14 +4,13 @@ import com.sepgroup.sep.controller.DialogCreator;
 import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.model.ModelNotFoundException;
 import com.sepgroup.sep.model.*;
-import com.sepgroup.sep.model.TaskModel;
 import com.sepgroup.sep.utils.DateUtils;
-import org.junit.Test;
 
 import java.text.ParseException;
 import java.util.Date;
 import java.util.Random;
 
+import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
@@ -90,7 +89,6 @@ public class ProjectTest {
                 projectsIn[i].persistData();
             } catch (DBException e) {
                 System.out.println(e.getLocalizedMessage());
-                assert(false);
             }
         }
         for (int i = 0; i < numOfTests; i++) {
@@ -107,7 +105,6 @@ public class ProjectTest {
                 projectsOut[i] = ProjectModel.getById(i + 1);
             }catch(Exception e){
                 System.out.println("COULD NOT PULL FROM DATABASE");
-                assert(false);
             }
 
             // Checks database integrity based on whether it allows creation of projects based upon valid attributes
@@ -134,7 +131,12 @@ public class ProjectTest {
     }
 
     @Test
-    public void projectModificationest() {
+    public void projectUpdate() {
+
+    }
+
+    @Test
+    public void projectDeletion() {
 
     }
 }
