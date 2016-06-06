@@ -5,9 +5,12 @@ import com.sepgroup.sep.model.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
 import org.slf4j.Logger;
@@ -15,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by jeremybrown on 2016-06-01.
@@ -62,6 +66,7 @@ public class ProjectViewerController extends AbstractController {
         this.model = p;
         update();
     }
+    
 
     @Override
     public void update() {
@@ -71,8 +76,7 @@ public class ProjectViewerController extends AbstractController {
             startDateValueLabel.setText(model.getStartDateString());
             deadlineValueLabel.setText(model.getDeadlineString());
             budgetValueLabel.setText(Double.toString(model.getBudget()));
-            managerValueLabel.setText(Integer.toString(model.getManagerUserId()));
-            budgetValueLabel.setText(model.isDone() ? "Yes" : "No");
+            completeValueLabel.setText(model.isDone() ? "Yes" : "No");
 
             // Populate manager
             String managerName = "";
@@ -88,8 +92,10 @@ public class ProjectViewerController extends AbstractController {
                     logger.error("Error finding user with ID " + managerUserID);
                 }
             }
-
-            managerValueLabel.setText(managerName);
+            
+            //Change if we want manager name instead of ID
+            
+            managerValueLabel.setText(Integer.toString(managerUserID));
 
             // Populate tasks list
             List<TaskModel> tasksList = null;
@@ -138,4 +144,33 @@ public class ProjectViewerController extends AbstractController {
     public void onCloseProjectMenuItemClicked() {
         Main.setPrimaryScene(new WelcomeController());
     }
-}
+    public void onDeleteProjectMenuButtonClicked(){
+    	Alert alert = new Alert(AlertType.CONFIRMATION);
+		alert.setTitle("Warning");
+		alert.setHeaderText("This will delete the project named " + model.getName() + ". Action cannot be undone");
+		alert.setContentText("Are you sure?");
+
+		Optional<ButtonType> result = alert.showAndWait();
+		if (result.get() == ButtonType.OK){
+			
+			Main.setPrimaryScene(new WelcomeController());
+	    
+		} else {
+		    // ... CANCEL PRESSED, goes back to the same screen
+			
+			  ProjectViewerController pvc = (ProjectViewerController)Main.setPrimaryScene(new ProjectViewerController());
+		        pvc.setModel(model);}
+    }
+    
+    public void ShowInfo(){
+    	Alert alert = new Alert(AlertType.INFORMATION);
+    	alert.setTitle("Info");
+		alert.setHeaderText("Version 1.0. Team members:");
+		alert.setContentText("Jeremy Brown \nAli Zoghi \nCharles Tondreau-Alin \nNicola Polesana"
+				+ "\nAndres Gonzales \nDemo Kioussis \nJustin Watley \nMark Chmilar \nVince Fugnitto"
+				+ "\nMichael Deom");
+		
+
+		Optional<ButtonType> result = alert.showAndWait();
+	
+}}

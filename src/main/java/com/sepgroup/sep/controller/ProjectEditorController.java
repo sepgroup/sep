@@ -111,27 +111,30 @@ public class ProjectEditorController extends AbstractController {
 		@FXML
 	    public void onEditUpdateClicked()  {
 
-try{
-			if (editNameField.getText() != ""){
-	            editNameFromField = editNameField.getText();
-	            model.setName(editNameFromField);
+			try{
+				if (editNameField.getText() != null & editNameField.getText().length()> 0){
+					editNameFromField = editNameField.getText();
+					model.setName(editNameFromField);
+				}
+			}	
+			catch(Exception n){
+					//Catch null
 			}
-}
-catch(Exception n){
-	//Catch null
-}
 
-			Date startDate =  new Date();
-			Date deadline = new Date();
+			Date startDate = null;
+			Date deadline = null;
 			try{
 			if (editDeadlinePicker.getValue() != null){
 				try{
 				deadline = DateUtils.castStringToDate(editDeadlinePicker.getValue().toString());
+				model.setDeadline(deadline);
 				}catch(Exception e){
 					e.getMessage();
-				}}
+				}
+				
+				}
 	
-				model.setDeadline(deadline);
+				
 				}
 				catch(Exception n){
 					//Catch null
@@ -140,10 +143,11 @@ catch(Exception n){
 				if (editStartDatePicker.getValue() != null){
 					try{
 					startDate = DateUtils.castStringToDate(editStartDatePicker.getValue().toString());
+					model.setStartDate(startDate);
 					}catch(Exception e){
 						e.getMessage();
 					}
-				model.setStartDate(startDate);
+				
 				
 	       }
 			}
@@ -217,7 +221,8 @@ try {
                  }
              }
 
-             managerValueLabel.setText(managerName);
+             //fix if we want manager name
+             managerValueLabel.setText(Integer.toString(managerUserID));
 
 
              }
