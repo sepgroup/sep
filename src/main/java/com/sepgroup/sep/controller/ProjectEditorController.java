@@ -51,9 +51,10 @@ public class ProjectEditorController extends AbstractController {
     @FXML
     public TextArea projectDescriptionTextArea;
 
-    private String editNameFromField = " ";
+    private String editNameFromField = "";
     private int editBudgetFromField = 0;
-    private String editManagerFromField = " ";
+    private String editManagerFromField = "";
+    private String editDescriptionFromField = "";
 
 	public ProjectEditorController() {
         setFxmlPath("/views/projecteditor.fxml");
@@ -145,6 +146,12 @@ public class ProjectEditorController extends AbstractController {
                 editManagerFromField = editManagerField.getText();
                 // TODO use name instead of user ID
                 model.setManagerUserId(Integer.parseInt(editManagerFromField));
+            }
+
+            // Description
+            if (!projectDescriptionTextArea.getText().equals("")) {
+                editDescriptionFromField = projectDescriptionTextArea.getText();
+                model.setProjectDescription(editDescriptionFromField);
             }
 
             try {

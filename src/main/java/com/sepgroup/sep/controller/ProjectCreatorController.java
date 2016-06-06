@@ -87,7 +87,7 @@ public class ProjectCreatorController extends AbstractController {
         }
 
         // Budget
-		if (budgetField.getText() != "") {
+		if (!budgetField.getText().equals("")) {
             try {
                 budgetFromField = Integer.parseInt(budgetField.getText());
             } catch (NumberFormatException e) {
@@ -97,7 +97,7 @@ public class ProjectCreatorController extends AbstractController {
             }
         }
 		
-		if (descText.getText().equals("")) {
+		if (!descText.getText().equals("")) {
 			description = descText.getText();
 		}
 
@@ -119,6 +119,6 @@ public class ProjectCreatorController extends AbstractController {
 	
 	@Override
 	public void update() {
-		// None needed for this class
+		// None needed for this controller
 	}
 }

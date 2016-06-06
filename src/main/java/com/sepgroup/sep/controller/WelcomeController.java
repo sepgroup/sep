@@ -28,10 +28,8 @@ public class WelcomeController extends AbstractController {
 
     @FXML
     public ListView<ProjectModel> existingProjectsList;
-
     @FXML
     public Button createNewProjectButton;
-
     @FXML
     public Button openSelectedProjectButton;
 
@@ -51,9 +49,11 @@ public class WelcomeController extends AbstractController {
         try {
             List<ProjectModel> projects = ProjectModel.getAll();
             ObservableList<ProjectModel> observableProjectsList = FXCollections.observableList(projects);
+            logger.debug("Populating existing projects list");
             existingProjectsList.setItems(observableProjectsList);
         }
         catch (ModelNotFoundException e) {
+            logger.debug("No projects found to populate existing projects list");
             existingProjectsList.setDisable(true);
         }
 

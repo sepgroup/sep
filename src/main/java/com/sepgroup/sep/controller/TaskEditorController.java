@@ -1,12 +1,13 @@
 package com.sepgroup.sep.controller;
 
+import java.text.ParseException;
 import java.util.Date;
 
 import com.sepgroup.sep.Main;
 import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.model.ModelNotFoundException;
+import com.sepgroup.sep.model.ProjectModel;
 import com.sepgroup.sep.model.TaskModel;
-import com.sepgroup.sep.model.UserModel;
 import com.sepgroup.sep.utils.DateUtils;
 
 import javafx.fxml.FXML;
@@ -15,179 +16,146 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.text.Text;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by jeremybrown on 2016-06-01.
  */
 public class TaskEditorController extends AbstractController {
 
+    private static Logger logger = LoggerFactory.getLogger(TaskEditorController.class);
+
     private TaskModel model;
+    private ProjectModel project;
+
+    @FXML
+	public TextField editTaskNameField;
+    @FXML
+  	public Label taskNameLabel;
+    @FXML
+  	public Label taskIdLabel;
+	@FXML
+	public TextField editTaskBudgetField;
+	@FXML
+	public Label taskBudgetValueLabel;
+	@FXML
+	public DatePicker editStartDateTaskField;
+	@FXML
+	public Label taskStartDateValueLabel;
+	@FXML
+	public DatePicker editDeadlineTaskField;
+	@FXML
+	public Label taskDeadlineValueLabel;
+	@FXML
+	public TextField assigneeTaskField;
+	@FXML
+	public Label assigneeTaskLabel;
+	@FXML
+	public TextArea taskDescriptionArea;
+    @FXML
+    public Label taskManagerLabel;
+    @FXML
+    public ListView dependenciesTaskList;
+
+    private String editTaskNameFromField = "";
+    private double editTaskBudgetFromField = 0;
+    private String editTaskDescriptionFromField = "";
+    private String editAssigneeFromField = "";
 
     public TaskEditorController() {
         setFxmlPath("/views/welcome.fxml");
         setCssPath("/style/stylesheet.css");
     }
-    @FXML
-	public TextField editTaskNameField;
-    @FXML
-  	public Label taskNameLabel;   
-    
-    @FXML
-  	public Label taskIdLabel;  
-    
-	@FXML
-	public TextField editTaskBudgetField;
-	
-	@FXML
-	public Label taskBudgetValueLabel;
-	
-	
-	@FXML
-	public DatePicker editStartDateTaskField;
-	
-	@FXML
-	public Label taskStartDateValueLabel;
-	
-	@FXML
-	public DatePicker editDeadlineTaskField;
-	
-	@FXML
-	public Label taskDeadlineValueLabel;
-	
-	@FXML
-	public TextField assigneeTaskField;
-	
-	@FXML
-	public Label assigneeTaskLabel;
-	
 
-	@FXML
-	public TextArea editDescText;
-	@FXML
-	public Label projectNameLabel;
-    @FXML
-    public Label budgetValueLabel;
-    @FXML
-    public Label startDateValueLabel;
-    @FXML
-    public Label deadlineValueLabel;
-    @FXML
-    public Label taskManagerLabel;
-    @FXML
-    public Label ManagerTaskField;
-
-    @FXML
-    public TextArea projectDescriptionTextArea;
-    
-    @FXML
-    public ListView dependenciesTaskList;
-    
-    
-	public String editTaskNameFromField = " ";
-	public double editTaskBudgetFromField = 0;
-	public String editTaskDescriptionFromField;
-	public String editAssigneeFromField = " ";
-	public int editTaskManagerFromField;
-
+    public void setReturnProject(ProjectModel p) {
+        project = p;
+    }
     
     @FXML
     public void onEditTaskCancelClicked() {
-
-		  ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(new ProjectViewerController());
-	    
+        // Ignore all changes made to task
+        try {
+            model.refreshData();
+        } catch (ModelNotFoundException e) {
+            logger.warn("Tried to refresh existing model that did not exist", e);
+        }
+        // Return to project viewer
+        ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(new ProjectViewerController());
+        pvc.setModel(project);
     }
     
     @FXML
     public void onEditTaskUpdateClicked() {
+        // Name
+        if (!editTaskNameField.getText().equals("")) {
+            editTaskNameFromField = editTaskNameField.getText();
+            model.setName(editTaskNameFromField);
+        }
 
-    	try{
-			if (editTaskNameField.getText() != ""){
-	            editTaskNameFromField = editTaskNameField.getText();
-	            model.setName(editTaskNameFromField);
-			}
-}
-catch(Exception n){
-	//Catch null
-}
+        // Start date
+        Date startTaskDate = null;
+        if (editStartDateTaskField.getValue() != null) {
+            try {
+                startTaskDate = DateUtils.castStringToDate(editStartDateTaskField.getValue().toString());
+                model.setStartDate(startTaskDate);;
+            } catch (ParseException e) {
+                String errorContent = "Unable to parse date from DatePicker, this really shouldn't happen";
+                logger.error(errorContent, e);
+                DialogCreator.showErrorDialog("Unable to parse date", errorContent);
+                return;
+            }
+        }
 
-			Date startTaskDate = new Date();
-			Date taskDeadline = new Date();
-			try{
-			if (editStartDateTaskField.getValue() != null){
-				try{
-				startTaskDate = DateUtils.castStringToDate(editStartDateTaskField.getValue().toString());
-				}catch(Exception e){
-					e.getMessage();
-				}}
-	
-				model.setStartDate(startTaskDate);;
-				}
-				catch(Exception n){
-					//Catch null
-				}
-			try{
-				if (editDeadlineTaskField.getValue() != null){
-					try{
-					taskDeadline = DateUtils.castStringToDate(editDeadlineTaskField.getValue().toString());
-					}catch(Exception e){
-						e.getMessage();
-					}
-				model.setStartDate(taskDeadline);
-				
-	       }
-			}
-				catch(Exception n){
-					//Catch null
-				}
+        // Deadline
+        Date taskDeadline = null;
+        if (editDeadlineTaskField.getValue() != null) {
+            try {
+                taskDeadline = DateUtils.castStringToDate(editDeadlineTaskField.getValue().toString());
+                model.setStartDate(taskDeadline);
+            } catch (ParseException e) {
+                String errorContent = "Unable to parse date from DatePicker, this really shouldn't happen";
+                logger.error(errorContent, e);
+                DialogCreator.showErrorDialog("Unable to parse date", errorContent);
+                return;
+            }
+        }
 
-				try{
-			if (editTaskBudgetField.getText() != ""){
-				editTaskBudgetFromField = Integer.parseInt(editTaskBudgetField.getText());
-				model.setBudget(editTaskBudgetFromField);
-	        }
-				}
-				catch(Exception n){
-					//Catch null
-				}
+        // Budget
+        if (!editTaskBudgetField.getText().equals("")) {
+            try {
+                editTaskBudgetFromField = Integer.parseInt(editTaskBudgetField.getText());
+            } catch (NumberFormatException e) {
+                logger.info("User entered invalid budget value", e);
+                DialogCreator.showErrorDialog("Budget field invalid", "Invalid budget, please enter a valid number.");
+                return;
+            }
+            model.setBudget(editTaskBudgetFromField);
+        }
 
-				try{
-					if(assigneeTaskField.getText() != ""){
-						editAssigneeFromField = assigneeTaskField.getText();
-						model.setAssigneeUserId(Integer.parseInt(editAssigneeFromField));
-            	 
-					}
-				}
-				catch(Exception n){
-					//Catch null
-				}
-				
-				try{
-					if (ManagerTaskField.getText() != ""){
-						editTaskManagerFromField = Integer.parseInt(editTaskBudgetField.getText());
-					
-			        }
-						}
-						catch(Exception n){
-							//Catch null
-						}
+        if (!assigneeTaskField.getText().equals("")) {
+            // TODO user name instead of ID
+            editAssigneeFromField = assigneeTaskField.getText();
+            model.setAssigneeUserId(Integer.parseInt(editAssigneeFromField));
+        }
 
-				try {
-					model.persistData();
-				} catch (DBException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-}
-			  ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(new ProjectViewerController());
-		       
+        if (!taskDescriptionArea.getText().equals("")) {
+            editTaskDescriptionFromField = taskDescriptionArea.getText();
+            model.setDescription( editTaskDescriptionFromField);
+        }
+
+        try {
+            model.persistData();
+        } catch (DBException e) {
+            logger.error("DB error", e);
+            DialogCreator.showErrorDialog("Database error", e.getLocalizedMessage());
+            return;
+        }
+
+        ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(new ProjectViewerController());
+        pvc.setModel(project);
     }
-	
-    
-    
-    
-    
-    
-    
+
     public void setModel(TaskModel t) {
         this.model = t;
         update();
@@ -202,6 +170,6 @@ catch(Exception n){
    		taskStartDateValueLabel.setText(String.valueOf(model.getStartDate()));
    		taskDeadlineValueLabel.setText(String.valueOf(model.getDeadline()));
    		assigneeTaskLabel.setText(String.valueOf(model.getAssigneeUserId()));
-   		
         }
-    }}
+    }
+}
