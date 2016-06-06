@@ -58,7 +58,7 @@ public class TaskCreatorController extends AbstractController {
 	 */
 	@FXML
     public void onTaskCancelClicked() throws IOException {
-		ProjectEditorController pec = (ProjectEditorController) Main.setPrimaryScene(new ProjectEditorController());
+		ProjectViewerController pec = (ProjectViewerController) Main.setPrimaryScene(new ProjectViewerController());
         pec.setModel(project);
     }
 
@@ -73,6 +73,7 @@ public class TaskCreatorController extends AbstractController {
 		Date taskStartDate = null;
 		if (taskStartDatePicker.getValue() != null) {
             try {
+                // TODO bug here? inputted null/ empty date
                 taskStartDate = DateUtils.castStringToDate(taskStartDatePicker.getValue().toString());
             } catch (ParseException e) {
                 String errorContent = "Unable to parse date from DatePicker, this really shouldn't happen";
@@ -86,7 +87,8 @@ public class TaskCreatorController extends AbstractController {
         Date taskDeadline = null;
         if (taskDeadlinePicker.getValue() != null) {
             try {
-                taskStartDate = DateUtils.castStringToDate(taskDeadlinePicker.getValue().toString());
+                // TODO bug here? inputted null/ empty date
+                taskDeadline = DateUtils.castStringToDate(taskDeadlinePicker.getValue().toString());
             } catch (ParseException e) {
                 String errorContent = "Unable to parse date from DatePicker, this really shouldn't happen";
                 logger.error(errorContent, e);

@@ -1,16 +1,17 @@
 package com.sepgroup.sep.controller;
 
 import com.sepgroup.sep.Main;
+import com.sepgroup.sep.Observer;
 import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.model.*;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
@@ -18,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by jeremybrown on 2016-06-01.
@@ -43,7 +45,20 @@ public class ProjectViewerController extends AbstractController {
     @FXML
     public Label completeValueLabel;
     @FXML
-    public TableView<TaskModel> taskTableView;
+    public TableView<ListableTaskModel> taskTableView;
+
+    @FXML
+    public TableColumn<ListableTaskModel, Integer> taskIdColumn;
+    @FXML
+    public TableColumn<ListableTaskModel, String> taskNameColumn;
+    @FXML
+    public TableColumn<ListableTaskModel, Double> taskBudgetColumn;
+    @FXML
+    public TableColumn<ListableTaskModel, String> startDateColumn;
+    @FXML
+    public TableColumn<ListableTaskModel, String> deadlineColumn;
+    @FXML
+    public TableColumn<ListableTaskModel, Boolean> taskCompleteColumn;
 
     public ProjectViewerController() {
         setFxmlPath("/views/projectviewer.fxml");
@@ -65,9 +80,9 @@ public class ProjectViewerController extends AbstractController {
     public void update() {
         if (this.model != null) {
             projectNameText.setText(model.getName());
-            projectDescriptionTextArea.setText(model.getProjectDescription());
-            startDateValueLabel.setText(model.getStartDateString());
-            deadlineValueLabel.setText(model.getDeadlineString());
+            if (model.getProjectDescription() != null) projectDescriptionTextArea.setText(model.getProjectDescription());
+            if (model.getStartDate() != null) startDateValueLabel.setText(model.getStartDateString());
+            if (model.getDeadline() != null) deadlineValueLabel.setText(model.getDeadlineString());
             budgetValueLabel.setText(Double.toString(model.getBudget()));
             completeValueLabel.setText(model.isDone() ? "Yes" : "No");
 
@@ -87,15 +102,21 @@ public class ProjectViewerController extends AbstractController {
             managerValueLabel.setText(managerName);
 
             // Populate tasks list
-            List<TaskModel> tasksList = null;
             try {
-                tasksList = TaskModel.getAllByProject(model.getProjectId());
-                ObservableList<TaskModel> observableTaskList = FXCollections.observableList(tasksList);
+                logger.debug("Populating tasks list");
+                List<ListableTaskModel> tasksList = TaskModel.getAllByProject(model.getProjectId()).stream()
+                        .map(taskModel -> new ListableTaskModel(taskModel)).collect(Collectors.toList());
+                ObservableList<ListableTaskModel> observableTaskList = FXCollections.observableList(tasksList);
                 taskTableView.setItems(observableTaskList);
             } catch (ModelNotFoundException e) {
                 logger.debug("No tasks found for project " + model.toString());
-                // No tasks found
             }
+            taskIdColumn.setCellValueFactory(cellData -> cellData.getValue().taskIdProperty().asObject());
+            taskNameColumn.setCellValueFactory(cellData -> cellData.getValue().taskNameProperty());
+            taskBudgetColumn.setCellValueFactory(cellData -> cellData.getValue().taskBudgetProperty().asObject());
+            startDateColumn.setCellValueFactory(cellData -> cellData.getValue().startDateProperty());
+            deadlineColumn.setCellValueFactory(cellData -> cellData.getValue().deadlineProperty());
+            taskCompleteColumn.setCellValueFactory(cellData -> cellData.getValue().completedProperty());
         }
     }
 
@@ -111,10 +132,10 @@ public class ProjectViewerController extends AbstractController {
 
     public void onTaskItemClicked(MouseEvent e) {
         if (e.getClickCount() == 2) {
-            TaskModel selectedTask = taskTableView.getSelectionModel().getSelectedItem();
-            if (selectedTask != null) {
+            ListableTaskModel selectedListableTask = taskTableView.getSelectionModel().getSelectedItem();
+            if (selectedListableTask != null) {
                 TaskEditorController tec = (TaskEditorController) Main.setPrimaryScene(new TaskEditorController());
-                tec.setModel(selectedTask);
+                tec.setModel(selectedListableTask.getModel());
             }
         }
     }
@@ -157,5 +178,64 @@ public class ProjectViewerController extends AbstractController {
 				+ "\nAndres Gonzales \nDemo Kioussis \nJustin Watley \nMark Chmilar \nVince Fugnitto"
 				+ "\nMichael Deom");
 		alert.showAndWait();
+    }
+
+    static class ListableTaskModel implements Observer {
+
+        private TaskModel model;
+
+        private SimpleIntegerProperty taskId;
+        private SimpleStringProperty taskName;
+        private SimpleDoubleProperty taskBudget;
+        private SimpleStringProperty startDate;
+        private SimpleStringProperty deadline;
+        private SimpleBooleanProperty completed;
+
+        public ListableTaskModel(TaskModel m) {
+            this.model = m;
+            this.model.registerObserver(this);
+            taskId = new SimpleIntegerProperty();
+            taskName = new SimpleStringProperty();
+            taskBudget = new SimpleDoubleProperty();
+            startDate = new SimpleStringProperty();
+            deadline = new SimpleStringProperty();
+            completed = new SimpleBooleanProperty();
+            update();
+        }
+
+        public TaskModel getModel() {
+            return model;
+        }
+
+        public SimpleIntegerProperty taskIdProperty() {
+            return taskId;
+        }
+        public SimpleStringProperty taskNameProperty() {
+            return taskName;
+        }
+        public SimpleDoubleProperty taskBudgetProperty() {
+            return taskBudget;
+        }
+        public SimpleStringProperty startDateProperty() {
+            return startDate;
+        }
+        public SimpleStringProperty deadlineProperty() {
+            return deadline;
+        }
+        public SimpleBooleanProperty completedProperty() {
+            return completed;
+        }
+
+        @Override
+        public void update() {
+            if (model != null) {
+                taskId.set(model.getTaskId());
+                taskName.set(model.getName());
+                completed.set(model.isDone());
+                startDate.set(model.getStartDateString());
+                deadline.set(model.getDeadlineString());
+                taskBudget.set(model.getBudget());
+            }
+        }
     }
 }

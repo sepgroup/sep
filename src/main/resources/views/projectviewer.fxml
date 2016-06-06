@@ -95,6 +95,9 @@
               <columns>
                 <TableColumn fx:id="taskIdColumn" prefWidth="75.0" text="Task ID" />
                 <TableColumn fx:id="taskNameColumn" prefWidth="110.0" text="Task Name" />
+                  <TableColumn fx:id="taskBudgetColumn" prefWidth="75.0" text="Budget" />
+                  <TableColumn fx:id="startDateColumn" prefWidth="75.0" text="Start Date" />
+                  <TableColumn fx:id="deadlineColumn" prefWidth="75.0" text="Deadline" />
                   <TableColumn fx:id="taskCompleteColumn" prefWidth="91.0" text="Complete?" />
               </columns>
                <BorderPane.margin>

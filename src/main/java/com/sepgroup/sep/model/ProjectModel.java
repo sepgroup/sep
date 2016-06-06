@@ -210,7 +210,11 @@ public class ProjectModel extends AbstractModel {
     }
 
     public String getStartDateString() {
-        return DateUtils.castDateToString(this.startDate);
+        if (this.startDate != null) {
+            return DateUtils.castDateToString(this.startDate);
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -238,7 +242,11 @@ public class ProjectModel extends AbstractModel {
     }
 
     public String getDeadlineString() {
-        return DateUtils.castDateToString(this.deadline);
+        if (this.deadline != null) {
+            return DateUtils.castDateToString(this.deadline);
+        } else {
+            return null;
+        }
     }
 
 	/**

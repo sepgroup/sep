@@ -9,15 +9,15 @@ public class TestClass
     {
         for (int i = 1; ; i++)
         {
-            try
-            {
+//            try
+//            {
                 Pair<Date> pair = RandomDateBuilder.randomDatePair(true);
                 System.out.println(i + ": " + pair.first + " " + pair.second);
-            }
-            catch (ParseException e)
-            {
-                e.printStackTrace();
-            }
+//            }
+//            catch (ParseException e)
+//            {
+//                e.printStackTrace();
+//            }
         }
     }
 }

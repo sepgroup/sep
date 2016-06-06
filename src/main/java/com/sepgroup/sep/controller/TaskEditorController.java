@@ -64,7 +64,7 @@ public class TaskEditorController extends AbstractController {
     private String editAssigneeFromField = "";
 
     public TaskEditorController() {
-        setFxmlPath("/views/welcome.fxml");
+        setFxmlPath("/views/taskeditor.fxml");
         setCssPath("/style/stylesheet.css");
     }
 
@@ -163,13 +163,14 @@ public class TaskEditorController extends AbstractController {
 
     @Override
     public void update() {
-   	 if (this.model != null) {
-   		taskIdLabel.setText(String.valueOf(model.getTaskId()));
-   		taskNameLabel.setText(model.getName());
-   		taskBudgetValueLabel.setText(String.valueOf(model.getBudget()));
-   		taskStartDateValueLabel.setText(String.valueOf(model.getStartDate()));
-   		taskDeadlineValueLabel.setText(String.valueOf(model.getDeadline()));
-   		assigneeTaskLabel.setText(String.valueOf(model.getAssigneeUserId()));
+   	    if (this.model != null) {
+   		    taskIdLabel.setText(String.valueOf(model.getTaskId()));
+   		    if (model.getName() != null) taskNameLabel.setText(model.getName());
+   		    taskBudgetValueLabel.setText(String.valueOf(model.getBudget()));
+   		    if (model.getStartDate() != null) taskStartDateValueLabel.setText(String.valueOf(model.getStartDate()));
+            if (model.getDeadline() != null) taskDeadlineValueLabel.setText(String.valueOf(model.getDeadline()));
+   		    assigneeTaskLabel.setText(String.valueOf(model.getAssigneeUserId()));
+            // TODO complete check mark
         }
     }
 }
