@@ -2,14 +2,20 @@ package com.sepgroup.sep.controller;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import com.sepgroup.sep.Main;
 import com.sepgroup.sep.db.DBException;
+import com.sepgroup.sep.model.ListableTaskModel;
 import com.sepgroup.sep.model.ModelNotFoundException;
 import com.sepgroup.sep.model.ProjectModel;
 import com.sepgroup.sep.model.TaskModel;
 import com.sepgroup.sep.utils.DateUtils;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import org.slf4j.Logger;
@@ -52,16 +58,20 @@ public class TaskEditorController extends AbstractController {
     @FXML
     public Label taskManagerLabel;
     @FXML
-    public ListView dependenciesTaskList;
+    public ListView<ListableTaskModel> dependenciesTaskList;
     @FXML
     public CheckBox completeCheckBox;
+    @FXML
+    public ComboBox<ListableTaskModel> dependenciesComboBox;
 
     private String editTaskNameFromField = "";
     private double editTaskBudgetFromField = 0;
     private String editTaskDescriptionFromField = "";
     private String editAssigneeFromField = "";
+    List<ListableTaskModel> dependenciesObservableList;
 
     public TaskEditorController() {
+        dependenciesObservableList = new LinkedList<>();
         setCssPath("/style/stylesheet.css");
     }
 
@@ -182,6 +192,14 @@ public class TaskEditorController extends AbstractController {
         }
     }
 
+    public void onAddDependencyClicked() {
+        ListableTaskModel selectedListableTask = dependenciesComboBox.getSelectionModel().getSelectedItem();
+        if (selectedListableTask != null) {
+            model.addDependency(selectedListableTask.getModel());
+            update();
+        }
+    }
+
     @Override
     public void update() {
    	    if (this.model != null) {
@@ -192,6 +210,30 @@ public class TaskEditorController extends AbstractController {
             if (model.getDeadline() != null) taskDeadlineValueLabel.setText(String.valueOf(model.getDeadline()));
    		    taskAssigneeLabel.setText(String.valueOf(model.getAssigneeUserId()));
             completeCheckBox.setSelected(model.isDone());
+
+            // Current dependencies
+            dependenciesObservableList.addAll(model.getDependencies().stream()
+                    .map(taskModel -> new ListableTaskModel(taskModel))
+                    .collect(Collectors.toList()));
+            ObservableList<ListableTaskModel> dependencies = FXCollections.observableList(dependenciesObservableList);
+            dependenciesTaskList.setItems(dependencies);
+
+            // Populate add potential dependencies list
+            try {
+                logger.debug("Populating tasks list");
+                List<ListableTaskModel> allTasksList = TaskModel.getAllByProject(model.getProjectId()).stream()
+//                        .filter(taskModel -> !taskModel.equals(model))
+//                        .filter(taskModel -> !model.getDependencies().forEach(dep -> !dep.equals(taskModel)))
+                        .map(taskModel -> new ListableTaskModel(taskModel))
+                        .collect(Collectors.toList());
+                allTasksList.remove(model); // until figure out how to do with lambdas
+                model.getDependencies().forEach(dep -> allTasksList.remove(dep));
+
+                ObservableList<ListableTaskModel> observableTaskList = FXCollections.observableList(allTasksList);
+                dependenciesComboBox.setItems(observableTaskList);
+            } catch (ModelNotFoundException e) {
+                logger.debug("No tasks found for project " + model.toString());
+            }
         }
     }
 }

@@ -187,7 +187,7 @@ public class ProjectModel extends AbstractModel {
 
 	/**
 	 * Setter for Start date of project which is used in update method
-	 * @param date updated date of project
+	 * @param startDate updated date of project
 	 */
 	public void setStartDate(String startDate) throws ParseException {
 		this.startDate = DateUtils.castStringToDate(startDate);
@@ -195,7 +195,7 @@ public class ProjectModel extends AbstractModel {
 
     /**
      * Setter for Start date of project which is used in update method
-     * @param date updated date of project
+     * @param startDate updated date of project
      */
     public void setStartDate(Date startDate) {
         this.startDate = DateUtils.filterDateToMidnight(startDate);
@@ -615,5 +615,4 @@ public class ProjectModel extends AbstractModel {
             }
         }
     }
-
 }

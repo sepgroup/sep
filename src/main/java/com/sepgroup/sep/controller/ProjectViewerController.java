@@ -1,13 +1,8 @@
 package com.sepgroup.sep.controller;
 
 import com.sepgroup.sep.Main;
-import com.sepgroup.sep.Observer;
 import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.model.*;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -184,62 +179,4 @@ public class ProjectViewerController extends AbstractController {
 		alert.showAndWait();
     }
 
-    static class ListableTaskModel implements Observer {
-
-        private TaskModel model;
-
-        private SimpleIntegerProperty taskId;
-        private SimpleStringProperty taskName;
-        private SimpleDoubleProperty taskBudget;
-        private SimpleStringProperty startDate;
-        private SimpleStringProperty deadline;
-        private SimpleBooleanProperty completed;
-
-        public ListableTaskModel(TaskModel m) {
-            this.model = m;
-            this.model.registerObserver(this);
-            taskId = new SimpleIntegerProperty();
-            taskName = new SimpleStringProperty();
-            taskBudget = new SimpleDoubleProperty();
-            startDate = new SimpleStringProperty();
-            deadline = new SimpleStringProperty();
-            completed = new SimpleBooleanProperty();
-            update();
-        }
-
-        public TaskModel getModel() {
-            return model;
-        }
-
-        public SimpleIntegerProperty taskIdProperty() {
-            return taskId;
-        }
-        public SimpleStringProperty taskNameProperty() {
-            return taskName;
-        }
-        public SimpleDoubleProperty taskBudgetProperty() {
-            return taskBudget;
-        }
-        public SimpleStringProperty startDateProperty() {
-            return startDate;
-        }
-        public SimpleStringProperty deadlineProperty() {
-            return deadline;
-        }
-        public SimpleBooleanProperty completedProperty() {
-            return completed;
-        }
-
-        @Override
-        public void update() {
-            if (model != null) {
-                taskId.set(model.getTaskId());
-                taskName.set(model.getName());
-                completed.set(model.isDone());
-                startDate.set(model.getStartDateString());
-                deadline.set(model.getDeadlineString());
-                taskBudget.set(model.getBudget());
-            }
-        }
-    }
 }

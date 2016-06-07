@@ -48,6 +48,25 @@ public class TaskModelTest {
     }
 
     @Test
+    public void testPersistDataWithTaskDependencies() throws Exception {
+        TaskModel createdTask1 = new TaskModel("T1", "Description of\n T1", 1, 10000, defaultStartDate, defaultDeadline, false, 0);
+        createdTask1.persistData();
+
+        TaskModel createdTask2 = new TaskModel("T2", "Description of\n TX2", 1, 10000, defaultStartDate, defaultDeadline, false, 0);
+        createdTask2.addDependency(createdTask1);
+        createdTask2.persistData();
+        int t2Id = createdTask2.getTaskId();
+
+        TaskModel fetchedTask2 = null;
+        try {
+            fetchedTask2 = TaskModel.getById(t2Id);
+        } catch (ModelNotFoundException e) {
+            fail(e.getMessage());
+        }
+        assertThat(fetchedTask2, equalTo(createdTask2));
+    }
+
+    @Test
     public void testRefreshData() throws Exception {
         // Create user
         TaskModel createdTask = new TaskModel("TTDD", "Description of\n TTDD", 1, 10000, defaultStartDate, defaultDeadline, false, 0);
