@@ -33,8 +33,8 @@ public class Main extends Application {
         primaryStage.setMaxHeight(800);
         primaryStage.setMaxWidth(1000);
         
-        primaryStage.setMinHeight(500);
-        primaryStage.setMinWidth(900);
+        primaryStage.setMinHeight(560);
+        primaryStage.setMinWidth(810);
         
 
         primaryStage.show();
