@@ -1,15 +1,12 @@
 package com.sepgroup.sep.controller;
 
-import java.io.IOException;
 import java.util.List;
 
 import com.sepgroup.sep.Main;
 
 import com.sepgroup.sep.model.ModelNotFoundException;
 import com.sepgroup.sep.model.ProjectModel;
-import com.sun.javafx.collections.ImmutableObservableList;
 import javafx.collections.FXCollections;
-import javafx.collections.ModifiableObservableListBase;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -23,7 +20,7 @@ import org.slf4j.LoggerFactory;
 public class WelcomeController extends AbstractController {
 
     private static Logger logger = LoggerFactory.getLogger(WelcomeController.class);
-
+    private static final String fxmlPath = "/views/welcome.fxml";
     private ProjectModel selectedProject;
 
     @FXML
@@ -33,10 +30,12 @@ public class WelcomeController extends AbstractController {
     @FXML
     public Button openSelectedProjectButton;
 
-
     public WelcomeController() {
-        setFxmlPath("/views/welcome.fxml");
         setCssPath("/style/stylesheet.css");
+    }
+
+    public static String getFxmlPath() {
+        return fxmlPath;
     }
 
     @FXML
@@ -64,7 +63,7 @@ public class WelcomeController extends AbstractController {
      */
     @FXML
     public void onCreateNewProjectClicked() {
-        Main.setPrimaryScene(new ProjectCreatorController());
+        Main.setPrimaryScene(ProjectCreatorController.getFxmlPath());
     }
 
     @FXML
@@ -84,7 +83,7 @@ public class WelcomeController extends AbstractController {
     @FXML
     public void onOpenSelectedProjectClicked() {
         if (selectedProject != null) {
-            ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(new ProjectViewerController());
+            ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(ProjectViewerController.getFxmlPath());
             pvc.setModel(selectedProject);
         }
     }

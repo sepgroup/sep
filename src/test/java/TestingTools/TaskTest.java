@@ -25,7 +25,13 @@ public class TaskTest {
     }
 
     @Test
-    public void creationTest() {
+    public void test() {
+        populateDB(true);
+        updateTest();
+        deletionTest();
+    }
+
+    public void populateDB(boolean checkCreation) {
         Random random = new Random();
         int numOfTests = 100;
         tasksIn = new TaskModel[numOfTests];
@@ -94,10 +100,9 @@ public class TaskTest {
 
             }
 
-            assertionCriteria(i);
+            if(checkCreation)
+                assertionCriteria(i);
         }
-
-        deletionTest();
     }
 
     public void assertionCriteria(int i){
@@ -143,6 +148,13 @@ public class TaskTest {
         assertEquals("Budget test", tasksIn[i].getBudget(), tasksOut[i].getBudget(), 0.005);
         assertEquals("Manager ID test", tasksIn[i].getAssigneeUserId(), tasksOut[i].getAssigneeUserId());
         assertEquals("Done test", tasksIn[i].isDone(), tasksOut[i].isDone());
+    }
+
+    public void updateTest(){
+        for(int i = 0; i < tasksIn.length; i++)
+        {
+
+        }
     }
 
     public void deletionTest() {

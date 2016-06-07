@@ -23,7 +23,7 @@ import javafx.scene.text.Text;
 public class ProjectEditorController extends AbstractController {
 
     private static Logger logger = LoggerFactory.getLogger(ProjectEditorController.class);
-
+    private static final String fxmlPath = "/views/projecteditor.fxml";
 	private ProjectModel model;
 
 	@FXML
@@ -57,8 +57,11 @@ public class ProjectEditorController extends AbstractController {
     private String editDescriptionFromField = "";
 
 	public ProjectEditorController() {
-        setFxmlPath("/views/projecteditor.fxml");
         setCssPath("/style/stylesheet.css");
+    }
+
+    public static String getFxmlPath() {
+        return fxmlPath;
     }
 
 	/**
@@ -73,7 +76,7 @@ public class ProjectEditorController extends AbstractController {
             DialogCreator.showExceptionDialog(e);
         }
         // Return to project viewer
-        ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(new ProjectViewerController());
+        ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(ProjectViewerController.getFxmlPath());
 	    pvc.setModel(model);
     }
 	
@@ -87,7 +90,7 @@ public class ProjectEditorController extends AbstractController {
             try {
                 model.deleteData();
                 // Go to welcome screen
-                Main.setPrimaryScene(new WelcomeController());
+                Main.setPrimaryScene(WelcomeController.getFxmlPath());
             } catch (DBException e) {
                 logger.error("Unable to delete project from DB");
                 DialogCreator.showErrorDialog("Unable to delete project from DB", e.getLocalizedMessage());
@@ -163,7 +166,7 @@ public class ProjectEditorController extends AbstractController {
             }
 
             // Return to project viewer
-            ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(new ProjectViewerController());
+            ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(ProjectViewerController.getFxmlPath());
             pvc.setModel(model);
         }
 

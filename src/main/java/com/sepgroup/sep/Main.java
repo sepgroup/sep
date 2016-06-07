@@ -21,18 +21,20 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        // Create main scene
         Main.primaryStage = primaryStage;
+
 
        // Window size
 
         primaryStage.setTitle("Project Management Application");
 
-        setPrimaryScene(new WelcomeController());
+        setPrimaryScene(WelcomeController.getFxmlPath());
         primaryStage.setMaxHeight(800);
-        primaryStage.setMaxWidth(1200);
+        primaryStage.setMaxWidth(1000);
         
-        primaryStage.setMinHeight(420);
-        primaryStage.setMinWidth(500);
+        primaryStage.setMinHeight(500);
+        primaryStage.setMinWidth(900);
         
 
         primaryStage.show();
@@ -42,8 +44,8 @@ public class Main extends Application {
         return primaryStage;
     }
 
-    public static AbstractController setPrimaryScene(AbstractController controller) {
-        FXMLLoader loader = new FXMLLoader(controller.getClass().getResource(controller.getFxmlPath()));
+    public static AbstractController setPrimaryScene(String fxmlPath) {
+        FXMLLoader loader = new FXMLLoader(Main.class.getResource(fxmlPath));
         Parent parent = null;
         try {
             parent = loader.load();
@@ -51,11 +53,14 @@ public class Main extends Application {
             DialogCreator.showExceptionDialog(e);
             DialogCreator.showErrorDialog("An error has occurred", e.getMessage());
         }
-
-        primaryStage.setScene(new Scene(parent));
-        parent.getStylesheets().add(controller.getClass().getResource(controller.getCssPath()).toExternalForm());
-
+        if (primaryStage.getScene() == null) {
+            primaryStage.setScene(new Scene(parent));
+        } else {
+            primaryStage.getScene().setRoot(parent);
+        }
         AbstractController actualController = loader.getController();
+        parent.getStylesheets().add(actualController.getClass().getResource(actualController.getCssPath()).toExternalForm());
+
         return actualController;
     }
 
