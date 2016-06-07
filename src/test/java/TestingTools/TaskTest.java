@@ -25,7 +25,13 @@ public class TaskTest {
     }
 
     @Test
-    public void creationTest() {
+    public void test() {
+        populateDB(true);
+        updateTest();
+        deletionTest();
+    }
+
+    public void populateDB(boolean checkCreation) {
         Random random = new Random();
         int numOfTests = 100;
         tasksIn = new TaskModel[numOfTests];
@@ -94,12 +100,9 @@ public class TaskTest {
 
             }
 
-            assertionCriteria(i);
+            if(checkCreation)
+                assertionCriteria(i);
         }
-
-        updateTest();
-
-        deletionTest();
     }
 
     public void assertionCriteria(int i){
