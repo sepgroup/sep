@@ -97,6 +97,8 @@ public class TaskTest {
             assertionCriteria(i);
         }
 
+        updateTest();
+
         deletionTest();
     }
 
@@ -143,6 +145,13 @@ public class TaskTest {
         assertEquals("Budget test", tasksIn[i].getBudget(), tasksOut[i].getBudget(), 0.005);
         assertEquals("Manager ID test", tasksIn[i].getAssigneeUserId(), tasksOut[i].getAssigneeUserId());
         assertEquals("Done test", tasksIn[i].isDone(), tasksOut[i].isDone());
+    }
+
+    public void updateTest(){
+        for(int i = 0; i < tasksIn.length; i++)
+        {
+
+        }
     }
 
     public void deletionTest() {
