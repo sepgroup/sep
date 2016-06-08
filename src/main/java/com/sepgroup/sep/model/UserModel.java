@@ -3,6 +3,7 @@ package com.sepgroup.sep.model;
 import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.db.DBObject;
 import com.sepgroup.sep.db.Database;
+import com.sun.javafx.sg.prism.NGShape;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,15 +35,16 @@ public class UserModel extends AbstractModel {
 
     /**
      * Constructor for use when creating a new user that hasn't been saved to the database yet.
-     * The instance's userId field will be set to 0 until it is saved to the DB, when it will be set to the generated DB PK.
+     * The instance's userId field will be set to 0 until it is saved to the DB, when it will be set to the generated
+     * DB PK.
      * @param firstName the user's first name
      * @param lastName the user's last name
      */
-    public UserModel(String firstName, String lastName, double salaryPerHour) {
+    public UserModel(String firstName, String lastName, double salaryPerHour) throws InvalidInputException {
         this();
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.salaryPerHour = salaryPerHour;
+        setFirstName(firstName);
+        setLastName(lastName);
+        setSalaryPerHour(salaryPerHour);
     }
 
     /**
@@ -51,19 +53,18 @@ public class UserModel extends AbstractModel {
      * @param firstName the user's first name
      * @param lastName the user's last name
      */
-    public UserModel(int userId, String firstName, String lastName, double salaryPerHour) {
+    public UserModel(int userId, String firstName, String lastName, double salaryPerHour) throws InvalidInputException {
         this(firstName, lastName, salaryPerHour);
         this.userId = userId;
     }
 
     @Override
-    public void refreshData() throws ModelNotFoundException {
+    public void refreshData() throws ModelNotFoundException, InvalidInputException {
         UserModel refreshed = getById(getUserId());
-
-        setFirstName(refreshed.getFirstName());
-        setLastName(refreshed.getLastName());
-        setUserId(refreshed.getUserId());
-        setSalaryPerHour(refreshed.getSalaryPerHour());
+        this.firstName = refreshed.getFirstName();
+        this.lastName = refreshed.getLastName();
+        this.userId = refreshed.getUserId();
+        this.salaryPerHour = refreshed.getSalaryPerHour();
 
         updateObservers();
     }
@@ -77,7 +78,7 @@ public class UserModel extends AbstractModel {
         if (this.userId == 0) {
             // User is new, not already in DB
             int userId = this.dbo.create();
-            setUserId(userId);
+            this.userId = userId;
         }
         else {
             // User is already in DB
@@ -97,7 +98,7 @@ public class UserModel extends AbstractModel {
      * @param userId the ID of the user to search for
      * @return the UserModel representing the user of the specified user ID
      */
-    public static UserModel getById(int userId) throws ModelNotFoundException {
+    public static UserModel getById(int userId) throws ModelNotFoundException, InvalidInputException {
         return new UserModel().dbo.findById(userId);
     }
 
@@ -106,7 +107,7 @@ public class UserModel extends AbstractModel {
      * of user objects and return it.
      * @return LinkedList of UserModel objects containing all users present in the DB
      */
-    public static List<UserModel> getAll() throws ModelNotFoundException {
+    public static List<UserModel> getAll() throws ModelNotFoundException, InvalidInputException {
         return new UserModel().dbo.findAll();
     }
 
@@ -119,10 +120,14 @@ public class UserModel extends AbstractModel {
     }
 
     /**
-     *
-     * @param userId
+     * Set the user's User ID
+     * @param userId the user's User ID
+     * @throws InvalidInputException if the user ID is not a positive integer
      */
-    private void setUserId(int userId) {
+    private void setUserId(int userId) throws InvalidInputException {
+        if (userId < 0) {
+            throw new InvalidInputException("User ID must be a positive integer.");
+        }
         this.userId = userId;
     }
 
@@ -135,10 +140,14 @@ public class UserModel extends AbstractModel {
     }
 
     /**
-     *
-     * @param firstName
+     * Set the user's first name
+     * @param firstName the user's first name
+     * @throws InvalidInputException if the first name is greater than 50 characters in length
      */
-    public void setFirstName(String firstName) {
+    public void setFirstName(String firstName) throws InvalidInputException {
+        if (firstName.length() > 50) {
+            throw new InvalidInputException("First name must be 50 characters or less.");
+        }
         this.firstName = firstName;
     }
 
@@ -151,10 +160,14 @@ public class UserModel extends AbstractModel {
     }
 
     /**
-     *
-     * @param lastName
+     * Set the user's first name
+     * @param lastName the user's first name
+     * @throws InvalidInputException if the last name is greater than 50 characters in length
      */
-    public void setLastName(String lastName) {
+    public void setLastName(String lastName) throws InvalidInputException {
+        if (lastName.length() > 50) {
+            throw new InvalidInputException("First name must be 50 characters or less.");
+        }
         this.lastName = lastName;
     }
 
@@ -170,8 +183,12 @@ public class UserModel extends AbstractModel {
      *
      * @param salaryPerHour
      */
-    public void setSalaryPerHour(double salaryPerHour) {
-        this.salaryPerHour = salaryPerHour;
+    public void setSalaryPerHour(double salaryPerHour) throws InvalidInputException {
+        if (salaryPerHour < 0) {
+            throw new InvalidInputException("Salary must be positive.");
+        } else {
+            this.salaryPerHour = salaryPerHour;
+        }
     }
 
     @Override
@@ -181,7 +198,6 @@ public class UserModel extends AbstractModel {
 
     @Override
     public boolean equals(Object obj) {
-        // TODO fixed upstream
         if (!(obj instanceof UserModel)) {
             return false;
         }
@@ -240,15 +256,39 @@ public class UserModel extends AbstractModel {
             }
         }
 
-        @Override
-        public List<UserModel> findAll() throws ModelNotFoundException {
-            StringBuilder sql = new StringBuilder();
-            sql.append("SELECT * ");
-            sql.append("FROM " + getTableName() + ";");
+        private UserModel runSingleResultQuery(String sql) throws ModelNotFoundException, InvalidInputException {
+            UserModel u = null;
+            try {
+                ResultSet rs = db.query(sql);
+                if (rs.next()) {
+                    logger.debug("Constructing ProjectModel with DB fields");
+                    String firstNameTemp = rs.getString(FIRST_NAME_COLUMN);
+                    String lastNameTemp = rs.getString(LAST_NAME_COLUMN);
+                    double salaryPerHourTemp = rs.getFloat(SALARY_PER_HOUR_COLUMN);
+                    u = new UserModel(userId, firstNameTemp, lastNameTemp, salaryPerHourTemp);
+                }
+                else {
+                    logger.info("DB query returned zero results");
+                    throw new ModelNotFoundException("DB query for user ID " + userId + " returned no results");
+                }
+            }
+            catch (SQLException e) {
+                logger.error("Unable to fetch user with user ID " + userId + ". Query: " + sql, e);
+                throw new ModelNotFoundException(e);
+            } finally {
+                try {
+                    db.closeConnection();
+                } catch (SQLException e) {
+                    logger.debug("Unable to close connection to " + db.getDbPath(), e);
+                }
+            }
+            return u;
+        }
 
+        private List<UserModel> runMultiResultQuery(String sql) throws ModelNotFoundException, InvalidInputException {
             List<UserModel> userList = new LinkedList<>();
             try {
-                ResultSet rs =  db.query(sql.toString());
+                ResultSet rs =  db.query(sql);
 
                 while (rs.next()) {
                     // Extract values
@@ -278,7 +318,16 @@ public class UserModel extends AbstractModel {
         }
 
         @Override
-        public UserModel findById(int userId) throws ModelNotFoundException {
+        public List<UserModel> findAll() throws ModelNotFoundException, InvalidInputException {
+            StringBuilder sql = new StringBuilder();
+            sql.append("SELECT * ");
+            sql.append("FROM " + getTableName() + ";");
+
+            return runMultiResultQuery(sql.toString());
+        }
+
+        @Override
+        public UserModel findById(int userId) throws ModelNotFoundException, InvalidInputException {
             logger.debug("Building query for user ID " + userId);
             StringBuilder sql = new StringBuilder();
             sql.append("SELECT * ");
@@ -286,38 +335,12 @@ public class UserModel extends AbstractModel {
             sql.append("WHERE " + USER_ID_COLUMN + "=" + userId + ";");
             logger.debug("Query: " + sql.toString());
 
-            UserModel u = null;
-            try {
-                ResultSet rs = db.query(sql.toString());
-                if (rs.next()) {
-                    logger.debug("Constructing ProjectModel with DB fields");
-                    String firstNameTemp = rs.getString(FIRST_NAME_COLUMN);
-                    String lastNameTemp = rs.getString(LAST_NAME_COLUMN);
-                    double salaryPerHourTemp = rs.getFloat(SALARY_PER_HOUR_COLUMN);
-                    u = new UserModel(userId, firstNameTemp, lastNameTemp, salaryPerHourTemp);
-                }
-                else {
-                    logger.info("DB query returned zero results");
-                    throw new ModelNotFoundException("DB query for user ID " + userId + " returned no results");
-                }
-            }
-            catch (SQLException e) {
-                logger.error("Unable to fetch user with user ID " + userId + ". Query: " + sql, e);
-                throw new ModelNotFoundException(e);
-            } finally {
-                try {
-                    db.closeConnection();
-                } catch (SQLException e) {
-                    logger.debug("Unable to close connection to " + db.getDbPath(), e);
-                }
-            }
-            return u;
+            return runSingleResultQuery(sql.toString());
         }
 
         @Override
-        public List<UserModel> findBySql(String s) throws ModelNotFoundException {
-            // TODO
-            return null;
+        public List<UserModel> findBySql(String sql) throws ModelNotFoundException, InvalidInputException {
+            return runMultiResultQuery(sql);
         }
 
         @Override

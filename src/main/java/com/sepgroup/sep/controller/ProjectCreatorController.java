@@ -1,12 +1,11 @@
 package com.sepgroup.sep.controller;
 
-import java.text.ParseException;
 import java.util.Date;
 
 import com.sepgroup.sep.Main;
 import com.sepgroup.sep.db.DBException;
+import com.sepgroup.sep.model.InvalidInputException;
 import com.sepgroup.sep.model.ProjectModel;
-import com.sepgroup.sep.utils.DateUtils;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.DatePicker;
@@ -22,7 +21,7 @@ public class ProjectCreatorController extends AbstractController {
 
     private static Logger logger = LoggerFactory.getLogger(ProjectCreatorController.class);
 	private static final String fxmlPath = "/views/projectcreator.fxml";
-	
+
 	/**
 	 * TextField for project creation.
 	 */
@@ -36,7 +35,7 @@ public class ProjectCreatorController extends AbstractController {
 	public DatePicker deadlinePicker;
 	@FXML
 	public TextArea descText;
-	
+
 	public String nameFromField = "";
 	public int budgetFromField = 0;
 	public String description = "";
@@ -59,17 +58,22 @@ public class ProjectCreatorController extends AbstractController {
 
 	@FXML
     public void onSaveProjectClicked() {
+        ProjectModel createdProject = new ProjectModel();
+
         // Name
-		if (nameField.getText().length() > 0) {
-            nameFromField = nameField.getText();
-		}
+        try {
+            createdProject.setName(nameField.getText());
+        } catch (InvalidInputException e) {
+            DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
+            return;
+        }
 
         // Start date
 		Date startDate = null;
 		if (startDatePicker.getValue() != null) {
             try {
-                startDate = DateUtils.castStringToDate(startDatePicker.getValue().toString());
-            } catch (ParseException e) {
+                createdProject.setStartDate(startDatePicker.getValue().toString());
+            } catch (InvalidInputException e) {
                 String errorContent = "Unable to parse date from DatePicker, this really shouldn't happen";
                 logger.error(errorContent, e);
                 DialogCreator.showErrorDialog("Unable to parse date", errorContent);
@@ -81,8 +85,8 @@ public class ProjectCreatorController extends AbstractController {
         Date deadline = null;
         if (deadlinePicker.getValue() != null) {
             try {
-                deadline = DateUtils.castStringToDate(deadlinePicker.getValue().toString());
-            } catch (ParseException e) {
+                createdProject.setDeadline(deadlinePicker.getValue().toString());
+            } catch (InvalidInputException e) {
                 String errorContent = "Unable to parse date from DatePicker, this really shouldn't happen";
                 logger.error(errorContent, e);
                 DialogCreator.showErrorDialog("Unable to parse date", errorContent);
@@ -92,21 +96,26 @@ public class ProjectCreatorController extends AbstractController {
 
         // Budget
 		if (!budgetField.getText().equals("")) {
+            int budgetInt = 0;
             try {
-                budgetFromField = Integer.parseInt(budgetField.getText());
+                budgetInt = Integer.parseInt(budgetField.getText());
             } catch (NumberFormatException e) {
                 logger.info("User entered invalid budget value", e);
                 DialogCreator.showErrorDialog("Budget field invalid", "Invalid budget, please enter a valid number.");
                 return;
             }
+            try {
+                createdProject.setBudget(budgetInt);
+            } catch (InvalidInputException e) {
+                DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
+                return;
+            }
         }
-		
+
 		if (!descText.getText().equals("")) {
-			description = descText.getText();
+            createdProject.setProjectDescription(descText.getText());
 		}
 
-		
-		ProjectModel createdProject = new ProjectModel(nameFromField, startDate, deadline, budgetFromField, false, 0, description);
         logger.debug("Created project " + createdProject.toString());
 
 		try {
@@ -120,7 +129,7 @@ public class ProjectCreatorController extends AbstractController {
         ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(ProjectViewerController.getFxmlPath());
         pvc.setModel(createdProject);
     }
-	
+
 	@Override
 	public void update() {
 		// None needed for this controller
