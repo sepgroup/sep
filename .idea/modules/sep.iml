@@ -21,7 +21,7 @@
     <orderEntry type="module-library" scope="PROVIDED">
       <library name="Gradle: jfxrt">
         <CLASSES>
-          <root url="jar://$PATH_TO_JFXRT%!/" />
+          <root url="jar://$PATH_TO_JFXRT$!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

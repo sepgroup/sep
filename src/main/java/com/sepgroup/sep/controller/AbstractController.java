@@ -19,8 +19,6 @@ public abstract class AbstractController implements Observer {
 
     private String CssPath;
 
-    protected AbstractModel model;
-
     private Scene previousScene;
 
     /**
@@ -39,13 +37,4 @@ public abstract class AbstractController implements Observer {
     public void setCssPath(String css) {
         this.CssPath = css;
     }
-
-    /**
-     *
-     * @return
-     */
-    public Scene getPreviousScene() {
-        return previousScene;
-    }
-
 }

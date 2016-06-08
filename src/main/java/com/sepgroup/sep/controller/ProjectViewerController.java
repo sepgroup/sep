@@ -100,6 +100,8 @@ public class ProjectViewerController extends AbstractController {
                     managerName = manager.getFirstName() + " " + manager.getLastName();
                 } catch (ModelNotFoundException e) {
                     logger.error("Error finding user with ID " + managerUserID);
+                } catch (InvalidInputException e) {
+                    logger.error("Errored data in DB");
                 }
             }
             managerValueLabel.setText(managerName);
@@ -113,6 +115,8 @@ public class ProjectViewerController extends AbstractController {
                 taskTableView.setItems(observableTaskList);
             } catch (ModelNotFoundException e) {
                 logger.debug("No tasks found for project " + model.toString());
+            } catch (InvalidInputException e) {
+                logger.error("Invalid data in DB");
             }
             taskIdColumn.setCellValueFactory(cellData -> cellData.getValue().taskIdProperty().asObject());
             taskNameColumn.setCellValueFactory(cellData -> cellData.getValue().taskNameProperty());

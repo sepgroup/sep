@@ -201,7 +201,7 @@ public class ProjectModel extends AbstractModel {
 
 	/**
 	 * Setter for Start date of project which is used in update method
-	 * @param date updated date of project
+	 * @param startDate updated date of project
 	 */
 	public void setStartDate(String startDate) throws InvalidInputException {
         try {
@@ -332,7 +332,7 @@ public class ProjectModel extends AbstractModel {
             try {
                 UserModel.getById(managerUserId);
             } catch (ModelNotFoundException e) {
-                throw new InvalidInputException("No manager exists with user ID " + managerUserId + ".");
+                throw new InvalidInputException("No user exists with user ID " + managerUserId + ".");
             }
             this.managerUserId = managerUserId;
         }
@@ -342,7 +342,7 @@ public class ProjectModel extends AbstractModel {
      * Get a list of tasks associated to this project
      * @return a list of tasks associated to this project
      */
-    public List<TaskModel> getTasks() throws ModelNotFoundException {
+    public List<TaskModel> getTasks() throws ModelNotFoundException, InvalidInputException {
         return TaskModel.getAllByProject(getProjectId());
     }
 
@@ -386,6 +386,8 @@ public class ProjectModel extends AbstractModel {
             }
         } catch (ModelNotFoundException e) {
             logger.debug("Hacky, ignoring for now.");
+        } catch (InvalidInputException e) {
+            logger.error("I was lazy...");
         }
 
         return true;
@@ -476,11 +478,11 @@ public class ProjectModel extends AbstractModel {
                 }
                 else {
                     logger.info("DB query returned zero results");
-                    throw new ModelNotFoundException("DB query for project ID " + projectId+ " returned no results");
+                    throw new ModelNotFoundException("DB query for returned no results.");
                 }
             }
             catch (SQLException e) {
-                logger.error("Unable to fetch project with project ID " + projectId + ". Query: " + sql, e);
+                logger.error("Unable to fetch project. Query: " + sql, e);
                 throw new ModelNotFoundException(e);
             } finally {
                 try {

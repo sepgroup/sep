@@ -262,10 +262,11 @@ public class UserModel extends AbstractModel {
                 ResultSet rs = db.query(sql);
                 if (rs.next()) {
                     logger.debug("Constructing ProjectModel with DB fields");
+                    int userIdTemp = rs.getInt(USER_ID_COLUMN);
                     String firstNameTemp = rs.getString(FIRST_NAME_COLUMN);
                     String lastNameTemp = rs.getString(LAST_NAME_COLUMN);
                     double salaryPerHourTemp = rs.getFloat(SALARY_PER_HOUR_COLUMN);
-                    u = new UserModel(userId, firstNameTemp, lastNameTemp, salaryPerHourTemp);
+                    u = new UserModel(userIdTemp, firstNameTemp, lastNameTemp, salaryPerHourTemp);
                 }
                 else {
                     logger.info("DB query returned zero results");

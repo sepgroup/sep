@@ -75,7 +75,7 @@ public class ProjectCreatorController extends AbstractController {
                 createdProject.setStartDate(startDatePicker.getValue().toString());
             } catch (InvalidInputException e) {
                 String errorContent = "Unable to parse date from DatePicker, this really shouldn't happen";
-                logger.error(errorContent, e);
+                logger.error(errorContent);
                 DialogCreator.showErrorDialog("Unable to parse date", errorContent);
                 return;
             }
@@ -88,7 +88,7 @@ public class ProjectCreatorController extends AbstractController {
                 createdProject.setDeadline(deadlinePicker.getValue().toString());
             } catch (InvalidInputException e) {
                 String errorContent = "Unable to parse date from DatePicker, this really shouldn't happen";
-                logger.error(errorContent, e);
+                logger.error(errorContent);
                 DialogCreator.showErrorDialog("Unable to parse date", errorContent);
                 return;
             }
@@ -96,28 +96,30 @@ public class ProjectCreatorController extends AbstractController {
 
         // Budget
 		if (!budgetField.getText().equals("")) {
-            int budgetInt = 0;
+            double budgetDouble = 0;
             try {
-                budgetInt = Integer.parseInt(budgetField.getText());
+                budgetDouble = Double.parseDouble(budgetField.getText());
             } catch (NumberFormatException e) {
-                logger.info("User entered invalid budget value", e);
+                logger.info("User entered invalid budget value");
                 DialogCreator.showErrorDialog("Budget field invalid", "Invalid budget, please enter a valid number.");
                 return;
             }
             try {
-                createdProject.setBudget(budgetInt);
+                createdProject.setBudget(budgetDouble);
             } catch (InvalidInputException e) {
                 DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
                 return;
             }
         }
 
+        // Description
 		if (!descText.getText().equals("")) {
             createdProject.setProjectDescription(descText.getText());
 		}
 
         logger.debug("Created project " + createdProject.toString());
 
+        // Persist created Project
 		try {
 		    createdProject.persistData();
 		}
