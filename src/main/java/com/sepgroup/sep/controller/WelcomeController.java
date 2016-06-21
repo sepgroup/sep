@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.sepgroup.sep.Main;
 
+import com.sepgroup.sep.model.InvalidInputException;
 import com.sepgroup.sep.model.ModelNotFoundException;
 import com.sepgroup.sep.model.ProjectModel;
 import javafx.collections.FXCollections;
@@ -54,6 +55,9 @@ public class WelcomeController extends AbstractController {
         catch (ModelNotFoundException e) {
             logger.debug("No projects found to populate existing projects list");
             existingProjectsList.setDisable(true);
+        }
+        catch (InvalidInputException e) {
+            logger.error("Invalid data in DB");
         }
 
     }

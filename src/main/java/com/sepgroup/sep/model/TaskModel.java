@@ -4,6 +4,7 @@ import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.db.DBObject;
 import com.sepgroup.sep.db.Database;
 import com.sepgroup.sep.utils.DateUtils;
+import com.sun.javafx.sg.prism.NGShape;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,32 +53,55 @@ public class TaskModel extends AbstractModel {
      * @param description
      * @param projectId
      */
-    public TaskModel(String name, String description, int projectId) {
+    public TaskModel(String name, String description, int projectId) throws InvalidInputException {
+        this();
+        setName(name);
+        setDescription(description);
+        setProjectId(projectId);
+    }
+
+    public TaskModel(String name, String description, int projectId, double budget, Date startDate, Date deadline,
+            boolean done, int assigneeUserId) throws InvalidInputException {
+        this(name, description, projectId);
+        setBudget(budget);
+        setStartDate(startDate);
+        setDeadline(deadline);
+        setDone(done);
+        setAssigneeUserId(assigneeUserId);
+    }
+
+    public TaskModel(String name, String description, int projectId, double budget, Date startDate, Date deadline,
+            boolean done, int assigneeUserId, List<String> tags) throws InvalidInputException {
+        this(name, description, projectId, budget, startDate, deadline, done, assigneeUserId);
+        if (tags != null) setTags(tags);
+    }
+
+    /**
+     * Constructor for internal use, skips validation
+     * @param taskId
+     * @param name
+     * @param description
+     * @param projectId
+     * @param budget
+     * @param startDate
+     * @param deadline
+     * @param done
+     * @param assigneeUserId
+     * @param tags
+     * @throws InvalidInputException
+     */
+    private TaskModel(int taskId, String name, String description, int projectId, double budget, Date startDate,
+            Date deadline, boolean done, int assigneeUserId, List<String> tags) {
         this();
         this.name = name;
         this.description = description;
         this.projectId = projectId;
-    }
-
-    public TaskModel(String name, String description, int projectId, double budget, Date startDate, Date deadline,
-            boolean done, int assigneeUserId) {
-        this(name, description, projectId);
         this.budget = budget;
-        setStartDate(startDate);
-        setDeadline(deadline);
+        this.startDate = startDate;
+        this.deadline = deadline;
         this.done = done;
         this.assigneeUserId = assigneeUserId;
-    }
-
-    public TaskModel(String name, String description, int projectId, double budget, Date startDate, Date deadline,
-            boolean done, int assigneeUserId, List<String> tags) {
-        this(name, description, projectId, budget, startDate, deadline, done, assigneeUserId);
-        if (tags != null) this.tags = tags;
-    }
-
-    public TaskModel(int taskId, String name, String description, int projectId, double budget, Date startDate,
-            Date deadline, boolean done, int assigneeUserId, List<String> tags) {
-        this(name, description, projectId, budget, startDate, deadline, done, assigneeUserId, tags);
+        this.tags = tags;
         this.taskId = taskId;
     }
 
@@ -117,7 +141,7 @@ public class TaskModel extends AbstractModel {
     }
 
     @Override
-    public void refreshData() throws ModelNotFoundException {
+    public void refreshData() throws ModelNotFoundException, InvalidInputException {
         TaskModel refreshed = getById(getTaskId());
 
         setTaskId(refreshed.getTaskId());
@@ -147,7 +171,7 @@ public class TaskModel extends AbstractModel {
         else {
             // Task is new, will set task id once it is saved to DB
             int taskId = this.dbo.create();
-            setTaskId(taskId);
+            this.taskId = taskId;
         }
         updateObservers();
     }
@@ -158,68 +182,131 @@ public class TaskModel extends AbstractModel {
 
     }
 
-    public static List<TaskModel> getAll() throws ModelNotFoundException {
+    public static List<TaskModel> getAll() throws ModelNotFoundException, InvalidInputException {
         return new TaskModel().dbo.findAll();
     }
 
-    public static TaskModel getById(int taskId) throws ModelNotFoundException {
+    public static TaskModel getById(int taskId) throws ModelNotFoundException, InvalidInputException {
         return new TaskModel().dbo.findById(taskId);
     }
 
-    public static List<TaskModel> getAllByProject(int projectId) throws ModelNotFoundException {
+    public static List<TaskModel> getAllByProject(int projectId) throws ModelNotFoundException, InvalidInputException {
         return new TaskModel().dbo.findAllByProject(projectId);
     }
 
-    public static List<TaskModel> getAllByProject(ProjectModel project) throws ModelNotFoundException {
+    public static List<TaskModel> getAllByProject(ProjectModel project) throws ModelNotFoundException,
+            InvalidInputException{
         return getAllByProject(project.getProjectId());
     }
 
-    public static List<TaskModel> getAllByAssignee(int userId) throws ModelNotFoundException {
+    public static List<TaskModel> getAllByAssignee(int userId) throws ModelNotFoundException, InvalidInputException {
         return new TaskModel().dbo.findAllByAssignee(userId);
     }
 
-    public static List<TaskModel> getAllByAssignee(UserModel assignee) throws ModelNotFoundException {
+    public static List<TaskModel> getAllByAssignee(UserModel assignee) throws ModelNotFoundException,
+            InvalidInputException {
         return getAllByAssignee(assignee.getUserId());
     }
 
-
+    /**
+     *
+     * @return
+     */
     public int getTaskId() {
         return taskId;
     }
 
-    private void setTaskId(int taskId) {
+    /**
+     *
+     * @param taskId
+     * @throws InvalidInputException
+     */
+    private void setTaskId(int taskId) throws InvalidInputException {
+        if (taskId < 0) {
+            throw new InvalidInputException("Task ID must be a positive integer.");
+        }
         this.taskId = taskId;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    /**
+     *
+     * @param name
+     * @throws InvalidInputException
+     */
+    public void setName(String name) throws InvalidInputException {
+        name = name.replaceAll("\\n", " "); // Replace newlines with spaces
+        if (name.length() > 50) {
+            throw new InvalidInputException("Name cannot be longer than 50 characters.");
+        }
         this.name = name;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getDescription() {
         return description;
     }
 
+    /**
+     *
+     * @param description
+     */
     public void setDescription(String description) {
         this.description = description;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getProjectId() {
         return projectId;
     }
 
-    private void setProjectId(int projectId) {
+    /**
+     *
+     * @param projectId
+     */
+    public void setProjectId(int projectId) throws InvalidInputException {
+        if (projectId < 0) {
+            throw new InvalidInputException("Project ID must be a positive integer.");
+        }
+        else if (projectId > 0) {
+            try {
+                ProjectModel.getById(projectId);
+            } catch (ModelNotFoundException e) {
+                throw new InvalidInputException("No project exists with ID " + projectId + ".");
+            }
+        }
         this.projectId = projectId;
     }
 
+    /**
+     *
+     * @return
+     */
     public double getBudget() {
         return budget;
     }
 
-    public void setBudget(double budget) {
+    /**
+     *
+     * @param budget
+     */
+    public void setBudget(double budget) throws InvalidInputException {
+        if (budget < 0) {
+            throw new InvalidInputException("Budget must be a positive number");
+        }
         this.budget = budget;
     }
 
@@ -235,11 +322,27 @@ public class TaskModel extends AbstractModel {
         }
     }
 
-    public void setStartDate(String input) throws ParseException {
-        this.startDate = DateUtils.castStringToDate(input);
+    /**
+     * Setter for Start date of project which is used in update method
+     * @param startDate updated date of project
+     */
+    public void setStartDate(String startDate) throws InvalidInputException {
+        try {
+            setStartDate(DateUtils.castStringToDate(startDate));
+        } catch (ParseException e) {
+            throw new InvalidInputException("Invalid start date string " + startDate);
+        }
     }
 
-    public void setStartDate(Date startDate) {
+    /**
+     * Setter for Start date of project which is used in update method
+     * @param startDate updated date of project
+     * @throws InvalidInputException if the start date is after the deadline
+     */
+    public void setStartDate(Date startDate) throws InvalidInputException{
+        if (deadline != null && startDate.after(deadline)) {
+            throw new InvalidInputException("Start date must be before deadline.");
+        }
         this.startDate = DateUtils.filterDateToMidnight(startDate);
     }
 
@@ -255,12 +358,29 @@ public class TaskModel extends AbstractModel {
         }
     }
 
-    public void setDeadline(String input) throws ParseException {
-        this.deadline = DateUtils.castStringToDate(input);
+    /**
+     * Setter for Dead Line of project which is used in update method
+     * @param deadline updated date of deadline
+     * @throws InvalidInputException if the deadline is before the start date
+     */
+    public void setDeadline(Date deadline) throws InvalidInputException {
+        if (startDate != null && deadline.before(startDate)) {
+            throw new InvalidInputException("Deadline must be after start date.");
+        }
+        this.deadline = DateUtils.filterDateToMidnight(deadline);
     }
 
-    public void setDeadline(Date deadline) {
-        this.deadline= DateUtils.filterDateToMidnight(deadline);
+    /**
+     * Setter for Dead Line of project which is used in update method
+     * @param deadline updated date of deadline
+     * @throws InvalidInputException if the
+     */
+    public void setDeadline(String deadline) throws InvalidInputException {
+        try {
+            setDeadline(DateUtils.castStringToDate(deadline));
+        } catch (ParseException e) {
+            throw new InvalidInputException("Invalid deadline string.");
+        }
     }
 
     public boolean isDone() {
@@ -275,7 +395,17 @@ public class TaskModel extends AbstractModel {
         return assigneeUserId;
     }
 
-    public void setAssigneeUserId(int assigneeUserId) {
+    public void setAssigneeUserId(int assigneeUserId) throws InvalidInputException {
+        if (assigneeUserId < 0) {
+            throw new InvalidInputException("User ID must be a positive integer");
+        }
+        else if (assigneeUserId > 0) {
+            try {
+                UserModel.getById(assigneeUserId);
+            } catch (ModelNotFoundException e) {
+                throw new InvalidInputException("No user exists with ID " + assigneeUserId + ".");
+            }
+        }
         this.assigneeUserId = assigneeUserId;
     }
 
@@ -284,6 +414,7 @@ public class TaskModel extends AbstractModel {
     }
 
     public void setTags(List<String> tags) {
+        // TODO filter tags 50 chars
         this.tags = tags;
     }
 
@@ -292,6 +423,7 @@ public class TaskModel extends AbstractModel {
     }
 
     public boolean addTag(String tag) {
+        // TODO check validity 50 chars
         if (tags.stream().noneMatch(t -> t.equals(tag))) {
             tags.add(tag);
             return true;
@@ -300,6 +432,7 @@ public class TaskModel extends AbstractModel {
     }
 
     public void addTagsFromString(String tagsString) {
+        // TODO filter chars
         getTagsListFromString(tagsString).forEach(t -> addTag(t));
     }
 
@@ -452,11 +585,11 @@ public class TaskModel extends AbstractModel {
                 }
                 else {
                     logger.info("DB query returned zero results");
-                    throw new ModelNotFoundException("DB query for task with ID " + taskId + " returned no results");
+                    throw new ModelNotFoundException("DB query for task returned no results");
                 }
             }
             catch (SQLException e) {
-                logger.error("Unable to fetch all entries in Project table" + ". Query: " + sql, e);
+                logger.error("Unable to fetch task. Query: " + sql, e);
                 throw new ModelNotFoundException(e);
             } finally {
                 try {
@@ -468,7 +601,7 @@ public class TaskModel extends AbstractModel {
             return m;
         }
 
-        private List<TaskModel> runMultiResultQuery(String sql) throws ModelNotFoundException {
+        private List<TaskModel> runMultiResultQuery(String sql) throws ModelNotFoundException, InvalidInputException {
             List<TaskModel> taskList = new LinkedList<>();
             try {
                 ResultSet rs =  db.query(sql);
@@ -488,7 +621,8 @@ public class TaskModel extends AbstractModel {
                         dlDateTempDate = DateUtils.castStringToDate(dlDateTemp);
                     } catch (ParseException e) {
                         logger.error("Unable to parse Date from DB, this really shouldn't happen.");
-                        throw new ModelNotFoundException("Unable to parse Date from DB, this really shouldn't happen.", e);
+                        throw new ModelNotFoundException("Unable to parse Date from DB, this really shouldn't happen.",
+                                e);
                     }
                     double budgetTemp = rs.getInt(BUDGET_COLUMN);
                     boolean doneTemp = rs.getBoolean(DONE_COLUMN);
@@ -501,8 +635,8 @@ public class TaskModel extends AbstractModel {
                     else {
                         tagsListTemp = new LinkedList<>();
                     }
-                    taskList.add(new TaskModel(idTemp, nameTemp, descriptionTemp, projectIdTemp, budgetTemp, stDateTempDate,
-                            dlDateTempDate, doneTemp, userIdTemp, tagsListTemp));
+                    taskList.add(new TaskModel(idTemp, nameTemp, descriptionTemp, projectIdTemp, budgetTemp,
+                            stDateTempDate, dlDateTempDate, doneTemp, userIdTemp, tagsListTemp));
                 }
 
                 if (taskList.isEmpty()) {
@@ -524,7 +658,7 @@ public class TaskModel extends AbstractModel {
         }
 
         @Override
-        public List<TaskModel> findAll() throws ModelNotFoundException  {
+        public List<TaskModel> findAll() throws ModelNotFoundException, InvalidInputException {
             StringBuilder sql = new StringBuilder();
             sql.append("SELECT * ");
             sql.append("FROM " + getTableName() + ";");
@@ -533,7 +667,7 @@ public class TaskModel extends AbstractModel {
         }
 
         @Override
-        public TaskModel findById(int taskId) throws ModelNotFoundException {
+        public TaskModel findById(int taskId) throws ModelNotFoundException, InvalidInputException {
             StringBuilder sql = new StringBuilder();
             sql.append("SELECT * ");
             sql.append("FROM " + getTableName() + " ");
@@ -543,7 +677,8 @@ public class TaskModel extends AbstractModel {
             return runSingleResultQuery(sql.toString());
         }
 
-        public List<TaskModel> findAllByAssignee(int assigneeUserId) throws ModelNotFoundException  {
+        public List<TaskModel> findAllByAssignee(int assigneeUserId) throws ModelNotFoundException,
+                InvalidInputException {
             StringBuilder sql = new StringBuilder();
             sql.append("SELECT * ");
             sql.append("FROM " + getTableName() + " ");
@@ -552,7 +687,7 @@ public class TaskModel extends AbstractModel {
             return runMultiResultQuery(sql.toString());
         }
 
-        public List<TaskModel> findAllByProject(int projectId) throws ModelNotFoundException {
+        public List<TaskModel> findAllByProject(int projectId) throws ModelNotFoundException, InvalidInputException {
             StringBuilder sql = new StringBuilder();
             sql.append("SELECT * ");
             sql.append("FROM " + getTableName() + " ");
@@ -562,7 +697,7 @@ public class TaskModel extends AbstractModel {
         }
 
         @Override
-        public List<TaskModel> findBySql(String sql) throws ModelNotFoundException {
+        public List<TaskModel> findBySql(String sql) throws ModelNotFoundException, InvalidInputException {
             return runMultiResultQuery(sql);
         }
 
@@ -624,8 +759,10 @@ public class TaskModel extends AbstractModel {
             if (getDescription() != null) sql.append(", " + DESCRIPTION_COLUMN + "='" + getDescription() + "' ");
             sql.append(", " + PROJECT_ID_COLUMN + "=" + getProjectId() + " ");
             sql.append(", " + BUDGET_COLUMN + "=" + getBudget() + " ");
-            if (getStartDate() != null) sql.append(", " + START_DATE_COLUMN + "='" + DateUtils.castDateToString(getStartDate()) + "' ");
-            if (getDeadline() != null) sql.append(", " + DEADLINE_COLUMN + "='" + DateUtils.castDateToString(getDeadline()) + "' ");
+            if (getStartDate() != null) sql.append(", " + START_DATE_COLUMN + "='" +
+                    DateUtils.castDateToString(getStartDate()) + "' ");
+            if (getDeadline() != null) sql.append(", " + DEADLINE_COLUMN + "='" +
+                    DateUtils.castDateToString(getDeadline()) + "' ");
             sql.append(", " + DONE_COLUMN + "=" + (isDone() ? 1 : 0) + " ");
             sql.append(", " + ASSIGNEE_USER_ID_COLUMN + "=" + getAssigneeUserId() + " ");
             if (getTags().size() > 0) sql.append(", " + TAGS_COLUMN + "='" + getTagsString() + "' ");
