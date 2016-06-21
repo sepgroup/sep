@@ -4,7 +4,6 @@ import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.db.DBObject;
 import com.sepgroup.sep.db.Database;
 import com.sepgroup.sep.utils.DateUtils;
-import com.sun.javafx.tk.Toolkit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -138,7 +137,7 @@ public class TaskModel extends AbstractModel {
 
     @Override
     public void persistData() throws DBException {
-        if (getName() == null || getName() == "" || getProjectId() == 0) {
+        if (getName() == null || getName().equals("") || getProjectId() == 0) {
             logger.error("Name & project ID must be set to persist model to DB");
             throw new DBException("Name & project ID must be set to persist model to DB");
         }
@@ -406,7 +405,7 @@ public class TaskModel extends AbstractModel {
          * This method finds the last inserted id in the table.
          * ID in the table is auto increment
          * @return if there is no error last inserted id
-         * @throws SQLException if there is an error
+         * @throws DBException if there is an error
          */
         @Override
         public int getLastInsertedId() throws DBException {
@@ -420,6 +419,12 @@ public class TaskModel extends AbstractModel {
             }
         }
 
+        /**
+         *
+         * @param sql
+         * @return
+         * @throws ModelNotFoundException
+         */
         private TaskModel runSingleResultQuery(String sql) throws ModelNotFoundException {
             TaskModel m = null;
             try {
@@ -462,7 +467,7 @@ public class TaskModel extends AbstractModel {
                 }
             }
             catch (SQLException e) {
-                logger.error("Unable to fetch all entries in Project table" + ". Query: " + sql, e);
+                logger.error("Unable to fetch all entries in Task table" + ". Query: " + sql, e);
                 throw new ModelNotFoundException(e);
             } finally {
                 try {
@@ -474,6 +479,12 @@ public class TaskModel extends AbstractModel {
             return m;
         }
 
+        /**
+         *
+         * @param sql
+         * @return
+         * @throws ModelNotFoundException
+         */
         private List<TaskModel> runMultiResultQuery(String sql) throws ModelNotFoundException {
             List<TaskModel> taskList = new LinkedList<>();
             try {
@@ -513,11 +524,11 @@ public class TaskModel extends AbstractModel {
 
                 if (taskList.isEmpty()) {
                     logger.info("DB query returned zero results");
-                    throw new ModelNotFoundException("DB query for all projects returned no results");
+                    throw new ModelNotFoundException("DB query for tasks returned no results");
                 }
             }
             catch (SQLException e) {
-                logger.error("Unable to fetch all entries in Project table" + ". Query: " + sql, e);
+                logger.error("Unable to fetch all entries in Task table" + ". Query: " + sql, e);
                 throw new ModelNotFoundException(e);
             } finally {
                 try {
@@ -531,33 +542,45 @@ public class TaskModel extends AbstractModel {
 
         @Override
         public List<TaskModel> findAll() throws ModelNotFoundException  {
-            StringBuilder sql = new StringBuilder();
-            sql.append("SELECT * ");
-            sql.append("FROM " + getTableName() + ";");
+            String sql = "SELECT * " + "FROM " + getTableName() + ";";
 
-            List<TaskModel> tasks = runMultiResultQuery(sql.toString());
+            List<TaskModel> tasks = runMultiResultQuery(sql);
             for (TaskModel t : tasks) {
-                try {
-                    List<TaskModel> dependencies = findTaskDependencies(t);
-                    dependencies.forEach(dep -> t.addDependency(dep));
-                } catch (ModelNotFoundException e) {
-                    // no dependencies, oh well
-                }
+                List<TaskModel> dependencies = findTaskDependencies(t);
+                dependencies.forEach(t::addDependency);
             }
             return tasks;
         }
 
-        public List<TaskModel> findTaskDependencies(TaskModel m) throws ModelNotFoundException{
+        /**
+         * Get a list of TaskModel objects that are the dependencies of the specified TaskModel
+         * @param m the TaskModel to find dependencies
+         * @return the dependencies of the taskModel
+         */
+        public List<TaskModel> findTaskDependencies(TaskModel m) {
             return findTaskDependencies(m.getTaskId());
         }
 
-        public List<TaskModel> findTaskDependencies(int taskId) throws ModelNotFoundException {
+        /**
+         * Get a list of TaskModel objects that are the dependencies of the task with the specified task ID
+         * @param taskId the ID of the task to find dependencies for
+         * @return the dependencies of the taskModel
+         */
+        public List<TaskModel> findTaskDependencies(int taskId) {
             StringBuilder sql = new StringBuilder();
-            sql.append("SELECT * ");
-            sql.append("FROM " + DEPENDENCIES_TABLE_NAME + " ");
-            sql.append("WHERE " + DEPENDENCIES_MAIN_TASK_COLUMN + "=" + taskId + ";");
+            sql.append("SELECT * FROM " + TABLE_NAME + " ");
+            sql.append("INNER JOIN " + DEPENDENCIES_TABLE_NAME + " ");
+            sql.append("ON " + TABLE_NAME + "." + TASK_ID_COLUMN + "=" + DEPENDENCIES_TABLE_NAME + "." +
+                    DEPENDENCIES_DEPENDS_ON_TASK_COLUMN + " ");
+            sql.append("WHERE " + DEPENDENCIES_TABLE_NAME + "." + DEPENDENCIES_MAIN_TASK_COLUMN + "=" + taskId + ";");
+            logger.debug("Query: " + sql.toString());
 
-            return runMultiResultQuery(sql.toString());
+            try {
+                return runMultiResultQuery(sql.toString());
+            } catch (ModelNotFoundException e) {
+                logger.debug("No task dependencies found for task with ID " + taskId);
+            }
+            return new LinkedList<>();
         }
 
         @Override
@@ -569,7 +592,7 @@ public class TaskModel extends AbstractModel {
             logger.debug("Query: " + sql.toString());
 
             TaskModel t = runSingleResultQuery(sql.toString());
-            findTaskDependencies(t).forEach(dep -> t.addDependency(dep));
+            findTaskDependencies(t).forEach(t::addDependency);
 
             return t;
         }
@@ -582,12 +605,8 @@ public class TaskModel extends AbstractModel {
 
             List<TaskModel> tasks = runMultiResultQuery(sql.toString());
             for (TaskModel t : tasks) {
-                try {
-                    List<TaskModel> dependencies = findTaskDependencies(t);
-                    dependencies.forEach(dep -> t.addDependency(dep));
-                } catch (ModelNotFoundException e) {
-                    // no dependencies, oh well
-                }
+                List<TaskModel> dependencies = findTaskDependencies(t);
+                dependencies.forEach(t::addDependency);
             }
             return tasks;
         }
@@ -600,26 +619,18 @@ public class TaskModel extends AbstractModel {
 
             List<TaskModel> tasks = runMultiResultQuery(sql.toString());
             for (TaskModel t : tasks) {
-                try {
-                    List<TaskModel> dependencies = findTaskDependencies(t);
-                    dependencies.forEach(dep -> t.addDependency(dep));
-                } catch (ModelNotFoundException e) {
-                    // no dependencies, oh well
-                }
+                List<TaskModel> dependencies = findTaskDependencies(t);
+                dependencies.forEach(t::addDependency);
             }
             return tasks;
         }
 
         @Override
         public List<TaskModel> findBySql(String sql) throws ModelNotFoundException {
-            List<TaskModel> tasks = runMultiResultQuery(sql.toString());
+            List<TaskModel> tasks = runMultiResultQuery(sql);
             for (TaskModel t : tasks) {
-                try {
-                    List<TaskModel> dependencies = findTaskDependencies(t);
-                    dependencies.forEach(dep -> t.addDependency(dep));
-                } catch (ModelNotFoundException e) {
-                    // no dependencies, oh well
-                }
+                List<TaskModel> dependencies = findTaskDependencies(t);
+                dependencies.forEach(t::addDependency);
             }
             return tasks;
         }
@@ -673,10 +684,10 @@ public class TaskModel extends AbstractModel {
                 StringBuilder depSql = new StringBuilder();
                 depSql.append("INSERT INTO " + DEPENDENCIES_TABLE_NAME + " ");
                 depSql.append("( " + DEPENDENCIES_MAIN_TASK_COLUMN + ", " + DEPENDENCIES_DEPENDS_ON_TASK_COLUMN + ") ");
-                depSql.append("VALUES (" + getTaskId() + "," + t.getTaskId() + ");");
+                depSql.append("VALUES (" + insertedKey + "," + t.getTaskId() + ");");
 
                 try {
-                    insertedKey = db.insert(sql.toString());
+                    db.insert(depSql.toString());
                 } catch (SQLException e) {
                     logger.error("Unable to create task dependency. Query: " + sql, e);
                     throw new DBException(e);

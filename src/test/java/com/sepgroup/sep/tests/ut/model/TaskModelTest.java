@@ -2,6 +2,8 @@ package com.sepgroup.sep.tests.ut.model;
 
 import com.sepgroup.sep.model.ModelNotFoundException;
 import com.sepgroup.sep.model.TaskModel;
+import org.aeonbits.owner.ConfigFactory;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -23,6 +25,11 @@ public class TaskModelTest {
 
     private static Date defaultStartDate = new Date();
     private static Date defaultDeadline = new Date();
+
+    @BeforeClass
+    public static void setUp() throws Exception {
+        ConfigFactory.setProperty("configPath", ProjectModelTest.class.getResource("/test-db.properties").getFile());
+    }
 
     @Test
     public void testEquals() throws Exception {
@@ -130,6 +137,43 @@ public class TaskModelTest {
 
         assertThat(fetchedTask, equalTo(createdTask));
     }
+
+    @Test
+    public void testCreateWithDependencies() throws Exception {
+        // Create tasks
+        TaskModel t1 = new TaskModel("T1", "D1", 1);
+        TaskModel t2 = new TaskModel("T2", "D2", 1);
+        TaskModel t3Created = new TaskModel("T3", "D3", 1);
+        t3Created.addDependency(t1);
+        t3Created.addDependency(t2);
+        t1.persistData();
+        t2.persistData();
+        t3Created.persistData();
+        int t3Id = t3Created.getTaskId();
+
+        // Fetch
+        TaskModel t3Fetched = TaskModel.getById(t3Id);
+
+        // Check dependencies
+        List<TaskModel> t3Dependencies = t3Fetched.getDependencies();
+        assertTrue(t3Dependencies.contains(t1));
+        assertTrue(t3Dependencies.contains(t2));
+    }
+
+    @Ignore
+    @Test
+    public void testUpdateWithDependencies() throws Exception {
+        // TODO
+        assertTrue(false);
+    }
+
+    @Ignore
+    @Test
+    public void testDeleteWithDependencies() throws Exception {
+        // TODO
+        assertTrue(false);
+    }
+
 
     @Ignore
     @Test
