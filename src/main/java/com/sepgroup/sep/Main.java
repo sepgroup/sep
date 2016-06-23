@@ -2,12 +2,16 @@ package com.sepgroup.sep;
 
 import com.sepgroup.sep.controller.AbstractController;
 import com.sepgroup.sep.controller.DialogCreator;
+import com.sepgroup.sep.controller.GanttController;
 import com.sepgroup.sep.controller.WelcomeController;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+
+import org.jfree.ui.RefineryUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,8 +37,8 @@ public class Main extends Application {
         primaryStage.setMaxHeight(800);
         primaryStage.setMaxWidth(1000);
         
-        primaryStage.setMinHeight(500);
-        primaryStage.setMinWidth(900);
+        primaryStage.setMinHeight(560);
+        primaryStage.setMinWidth(810);
         
 
         primaryStage.show();
@@ -66,5 +70,7 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         launch(args);
+
+      
     }
 }
