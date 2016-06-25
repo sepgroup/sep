@@ -635,6 +635,46 @@ public class TaskModel extends AbstractModel {
             return tasks;
         }
 
+        private void addDependencyToDb(int baseTaskId, TaskModel dependsOnTask) {
+            logger.debug("Building SQL query for task dependencies");
+            StringBuilder depSql = new StringBuilder();
+            depSql.append("INSERT INTO " + DEPENDENCIES_TABLE_NAME + " ");
+            depSql.append("( " + DEPENDENCIES_MAIN_TASK_COLUMN + ", " + DEPENDENCIES_DEPENDS_ON_TASK_COLUMN + ") ");
+            depSql.append("VALUES (" + baseTaskId + "," + dependsOnTask.getTaskId() + ");");
+
+            try {
+                db.insert(depSql.toString());
+            } catch (SQLException e) {
+                logger.error("Unable to create task dependency. Query: " + depSql, e);
+            } finally {
+                try {
+                    db.closeConnection();
+                } catch (SQLException e) {
+                    logger.error("Unable to close DB connection", e);
+                }
+            }
+        }
+
+        private void deleteDependencyFromDb(int baseTaskId, TaskModel dependsOnTask) {
+            logger.debug("Building SQL query for task dependencies");
+            StringBuilder depSql = new StringBuilder();
+            depSql.append("DELETE FROM " + DEPENDENCIES_TABLE_NAME + " ");
+            depSql.append("WHERE " + DEPENDENCIES_MAIN_TASK_COLUMN + "=" + baseTaskId + " ");
+            depSql.append("AND " + DEPENDENCIES_DEPENDS_ON_TASK_COLUMN + "=" + dependsOnTask.getTaskId() + ";");
+
+            try {
+                db.insert(depSql.toString());
+            } catch (SQLException e) {
+                logger.error("Unable to delete task dependency. Query: " + depSql, e);
+            } finally {
+                try {
+                    db.closeConnection();
+                } catch (SQLException e) {
+                    logger.error("Unable to close DB connection", e);
+                }
+            }
+        }
+
         @Override
         public int create() throws DBException {
             logger.debug("Building SQL query for task model");
@@ -679,26 +719,7 @@ public class TaskModel extends AbstractModel {
             }
 
             // Add dependencies
-            for (TaskModel t : getDependencies()) {
-                logger.debug("Building SQL query for task dependencies");
-                StringBuilder depSql = new StringBuilder();
-                depSql.append("INSERT INTO " + DEPENDENCIES_TABLE_NAME + " ");
-                depSql.append("( " + DEPENDENCIES_MAIN_TASK_COLUMN + ", " + DEPENDENCIES_DEPENDS_ON_TASK_COLUMN + ") ");
-                depSql.append("VALUES (" + insertedKey + "," + t.getTaskId() + ");");
-
-                try {
-                    db.insert(depSql.toString());
-                } catch (SQLException e) {
-                    logger.error("Unable to create task dependency. Query: " + sql, e);
-                    throw new DBException(e);
-                } finally {
-                    try {
-                        db.closeConnection();
-                    } catch (SQLException e) {
-                        throw new DBException(e);
-                    }
-                }
-            }
+            getDependencies().forEach(t -> addDependencyToDb(insertedKey, t));
 
             return insertedKey;
         }
@@ -733,7 +754,26 @@ public class TaskModel extends AbstractModel {
                 }
             }
 
-            // TODO dependencies
+            List<TaskModel> previousDependencies = findTaskDependencies(getTaskId());
+
+            // Remove deleted dependencies from DB
+            List<TaskModel> dependenciesToRemove = new LinkedList<>();
+            previousDependencies.forEach(d -> {
+                if (!getDependencies().contains(d)) {
+                    dependenciesToRemove.add(d);
+                }
+            });
+            dependenciesToRemove.forEach(d -> deleteDependencyFromDb(getTaskId(), d));
+
+            // Add created dependencies to DB
+            List<TaskModel> dependenciesToAdd = new LinkedList<>();
+            getDependencies().forEach(d -> {
+                if (!previousDependencies.contains(d)) {
+                    dependenciesToAdd.add(d);
+                }
+            });
+            dependenciesToAdd.forEach(d -> addDependencyToDb(getTaskId(), d));
+
         }
 
         @Override

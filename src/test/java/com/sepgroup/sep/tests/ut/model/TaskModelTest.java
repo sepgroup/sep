@@ -14,6 +14,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.isA;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -160,11 +161,33 @@ public class TaskModelTest {
         assertTrue(t3Dependencies.contains(t2));
     }
 
-    @Ignore
     @Test
     public void testUpdateWithDependencies() throws Exception {
-        // TODO
-        assertTrue(false);
+        // Create tasks
+        TaskModel t1 = new TaskModel("T1", "D1", 1);
+        TaskModel t2 = new TaskModel("T2", "D2", 1);
+        TaskModel t3 = new TaskModel("T3", "D3", 1);
+        TaskModel t4Created = new TaskModel("T4", "D4", 1);
+        t4Created.addDependency(t1);
+        t4Created.addDependency(t2);
+        t1.persistData();
+        t2.persistData();
+        t3.persistData();
+        t4Created.persistData();
+        int t4Id = t4Created.getTaskId();
+
+        t4Created.addDependency(t3);
+        t4Created.removeDependency(t1);
+        t4Created.persistData();
+
+        // Fetch
+        TaskModel t4Fetched = TaskModel.getById(t4Id);
+
+        // Check dependencies
+        List<TaskModel> t4Dependencies = t4Fetched.getDependencies();
+        assertTrue(t4Dependencies.contains(t2));
+        assertTrue(t4Dependencies.contains(t3));
+        assertFalse(t4Dependencies.contains(t1));
     }
 
     @Ignore
