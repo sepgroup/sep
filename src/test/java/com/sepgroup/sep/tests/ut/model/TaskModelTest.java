@@ -190,11 +190,52 @@ public class TaskModelTest {
         assertFalse(t4Dependencies.contains(t1));
     }
 
-    @Ignore
     @Test
-    public void testDeleteWithDependencies() throws Exception {
-        // TODO
-        assertTrue(false);
+    public void testDeleteWithDependenciesRefreshData() throws Exception {
+        // Create tasks
+        TaskModel t1 = new TaskModel("T1", "D1", 1);
+        TaskModel t2 = new TaskModel("T2", "D2", 1);
+        TaskModel t3Created = new TaskModel("T3", "D3", 1);
+        t1.persistData();
+        t2.persistData();
+        t3Created.persistData();
+        int t3Id = t3Created.getTaskId();
+        t3Created.addDependency(t1);
+        t3Created.addDependency(t2);
+        t3Created.persistData();
+
+        // Delete task depended on
+        t1.deleteData();
+
+        // Refresh & check
+        t3Created.refreshData();
+        List<TaskModel> t3Dependencies = t3Created.getDependencies();
+        assertTrue(t3Dependencies.contains(t2));
+        assertTrue(!t3Dependencies.contains(t1));
+    }
+
+    @Test
+    public void testDeleteWithDependenciesFetchData() throws Exception {
+        // Create tasks
+        TaskModel t1 = new TaskModel("T1", "D1", 1);
+        TaskModel t2 = new TaskModel("T2", "D2", 1);
+        TaskModel t3Created = new TaskModel("T3", "D3", 1);
+        t1.persistData();
+        t2.persistData();
+        t3Created.persistData();
+        int t3Id = t3Created.getTaskId();
+        t3Created.addDependency(t1);
+        t3Created.addDependency(t2);
+        t3Created.persistData();
+
+        // Delete task depended on
+        t1.deleteData();
+
+        // Fetch & check
+        TaskModel t3Fetched = TaskModel.getById(t3Id);
+        List<TaskModel> t3Dependencies = t3Fetched.getDependencies();
+        assertTrue(t3Dependencies.contains(t2));
+        assertTrue(!t3Dependencies.contains(t1));
     }
 
 

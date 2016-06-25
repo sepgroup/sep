@@ -94,6 +94,10 @@ public class TaskModel extends AbstractModel {
         return dependencies;
     }
 
+    private void setDependencies(List<TaskModel> dependencies) {
+        this.dependencies = dependencies;
+    }
+
     /**
      * Add a task dependency to this task
      * @param task task on which this task is dependent
@@ -131,6 +135,7 @@ public class TaskModel extends AbstractModel {
         setDone(refreshed.isDone());
         setAssigneeUserId(refreshed.getAssigneeUserId());
         setTags(refreshed.getTags());
+        setDependencies(refreshed.getDependencies());
 
         updateObservers();
     }
@@ -773,7 +778,6 @@ public class TaskModel extends AbstractModel {
                 }
             });
             dependenciesToAdd.forEach(d -> addDependencyToDb(getTaskId(), d));
-
         }
 
         @Override
@@ -795,9 +799,6 @@ public class TaskModel extends AbstractModel {
                     throw new DBException("Unable to close connection to " + db.getDbPath(), e);
                 }
             }
-
-            // TODO dependencies
         }
     }
-
 }
