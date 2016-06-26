@@ -38,14 +38,15 @@ public class TaskCreatorController extends AbstractController {
 	public TextField taskAssigneeNumber; 	
 	@FXML
 	public TextArea taskDescriptionArea;
-	
-	private String taskNameFromField = "";
-    private int taskBudgetFromField = 0;
-    private String taskDescription;
-    private int taskAssigneeNumberFromField;
 
     public TaskCreatorController() {
         setCssPath("/style/stylesheet.css");
+    }
+
+    @FXML
+    public void initialize() {
+        // TODO doesn't actually focus?
+        taskNameField.requestFocus();
     }
 
     public static String getFxmlPath() {
@@ -67,6 +68,11 @@ public class TaskCreatorController extends AbstractController {
 
 	@FXML
 	public void onCreateTaskClicked() throws IOException {
+        String taskNameFromField = "";
+        int taskBudgetFromField = 0;
+        String taskDescription = "";
+        int taskAssigneeNumberFromField = 0;
+
         // Name
 		if (taskNameField.getText().length() > 0){
             taskNameFromField = taskNameField.getText();
@@ -76,7 +82,6 @@ public class TaskCreatorController extends AbstractController {
 		Date taskStartDate = null;
 		if (taskStartDatePicker.getValue() != null) {
             try {
-                // TODO bug here? inputted null/ empty date
                 taskStartDate = DateUtils.castStringToDate(taskStartDatePicker.getValue().toString());
             } catch (ParseException e) {
                 String errorContent = "Unable to parse date from DatePicker, this really shouldn't happen";
@@ -90,7 +95,6 @@ public class TaskCreatorController extends AbstractController {
         Date taskDeadline = null;
         if (taskDeadlinePicker.getValue() != null) {
             try {
-                // TODO bug here? inputted null/ empty date
                 taskDeadline = DateUtils.castStringToDate(taskDeadlinePicker.getValue().toString());
             } catch (ParseException e) {
                 String errorContent = "Unable to parse date from DatePicker, this really shouldn't happen";

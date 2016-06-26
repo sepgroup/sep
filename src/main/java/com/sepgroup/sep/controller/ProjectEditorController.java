@@ -51,17 +51,18 @@ public class ProjectEditorController extends AbstractController {
     @FXML
     public TextArea projectDescriptionTextArea;
 
-    private String editNameFromField = "";
-    private int editBudgetFromField = 0;
-    private String editManagerFromField = "";
-    private String editDescriptionFromField = "";
-
 	public ProjectEditorController() {
         setCssPath("/style/stylesheet.css");
     }
 
     public static String getFxmlPath() {
         return fxmlPath;
+    }
+
+    @FXML
+    public void initialize() {
+        // TODO doesn't actually focus?
+        editNameField.requestFocus();
     }
 
 	/**
@@ -103,7 +104,7 @@ public class ProjectEditorController extends AbstractController {
 	    public void onEditUpdateClicked()  {
             // Name
             if (editNameField.getText() != null && editNameField.getText().length() > 0) {
-                editNameFromField = editNameField.getText();
+                String editNameFromField = editNameField.getText();
                 model.setName(editNameFromField);
             }
 
@@ -135,7 +136,7 @@ public class ProjectEditorController extends AbstractController {
             // Budget
             if (!editBudgetField.getText().equals("")) {
                 try {
-                    editBudgetFromField = Integer.parseInt(editBudgetField.getText());
+                    int editBudgetFromField = Integer.parseInt(editBudgetField.getText());
                     model.setBudget(editBudgetFromField);
                 } catch (NumberFormatException e) {
                     logger.info("User entered invalid budget value", e);
@@ -146,14 +147,14 @@ public class ProjectEditorController extends AbstractController {
 
             // Manager
             if (!editManagerField.getText().equals("")) {
-                editManagerFromField = editManagerField.getText();
+                String editManagerFromField = editManagerField.getText();
                 // TODO use name instead of user ID
                 model.setManagerUserId(Integer.parseInt(editManagerFromField));
             }
 
             // Description
             if (!projectDescriptionTextArea.getText().equals("")) {
-                editDescriptionFromField = projectDescriptionTextArea.getText();
+                String editDescriptionFromField = projectDescriptionTextArea.getText();
                 model.setProjectDescription(editDescriptionFromField);
             }
 

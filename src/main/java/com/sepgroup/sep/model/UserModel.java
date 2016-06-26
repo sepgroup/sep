@@ -260,7 +260,7 @@ public class UserModel extends AbstractModel {
                 }
 
                 if (userList.isEmpty()) {
-                    logger.info("DB query returned zero results");
+                    logger.debug("DB query returned zero results");
                     throw new ModelNotFoundException("DB query for all projects returned no results");
                 }
             }
@@ -297,7 +297,7 @@ public class UserModel extends AbstractModel {
                     u = new UserModel(userId, firstNameTemp, lastNameTemp, salaryPerHourTemp);
                 }
                 else {
-                    logger.info("DB query returned zero results");
+                    logger.debug("DB query returned zero results");
                     throw new ModelNotFoundException("DB query for user ID " + userId + " returned no results");
                 }
             }

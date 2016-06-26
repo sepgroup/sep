@@ -49,6 +49,11 @@ public class ProjectCreatorController extends AbstractController {
         return fxmlPath;
     }
 
+    @FXML
+    public void initialize() {
+        nameField.requestFocus();
+    }
+
     /**
 	 * Returns back to projectview.
 	 */

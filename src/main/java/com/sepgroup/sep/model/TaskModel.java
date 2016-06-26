@@ -467,7 +467,7 @@ public class TaskModel extends AbstractModel {
                             dlDateTempDate, doneTemp, userIdTemp, tagsListTemp);
                 }
                 else {
-                    logger.info("DB query returned zero results");
+                    logger.debug("DB query returned zero results");
                     throw new ModelNotFoundException("DB query for task with ID " + taskId + " returned no results");
                 }
             }
@@ -528,7 +528,7 @@ public class TaskModel extends AbstractModel {
                 }
 
                 if (taskList.isEmpty()) {
-                    logger.info("DB query returned zero results");
+                    logger.debug("DB query returned zero results");
                     throw new ModelNotFoundException("DB query for tasks returned no results");
                 }
             }
@@ -641,6 +641,9 @@ public class TaskModel extends AbstractModel {
         }
 
         private void addDependencyToDb(int baseTaskId, TaskModel dependsOnTask) {
+            if (baseTaskId == dependsOnTask.getTaskId()) {
+                logger.error("A task cannot depend on itself! Aborting save to DB.");
+            }
             logger.debug("Building SQL query for task dependencies");
             StringBuilder depSql = new StringBuilder();
             depSql.append("INSERT INTO " + DEPENDENCIES_TABLE_NAME + " ");
@@ -698,7 +701,7 @@ public class TaskModel extends AbstractModel {
 
             sql.append("VALUES ('" + getName() + "'");
             if (getDescription() != null) sql.append(",'" + getDescription() + "'");
-            sql.append(",'" + getProjectId() + "'");
+            sql.append("," + getProjectId() + "");
             sql.append(",'" + getBudget() + "'");
             if (getStartDate() != null) sql.append(",'" + DateUtils.castDateToString(getStartDate()) + "'");
             if (getDeadline() != null) sql.append(",'" + DateUtils.castDateToString(getDeadline()) + "'");

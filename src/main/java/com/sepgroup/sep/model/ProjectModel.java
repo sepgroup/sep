@@ -412,7 +412,7 @@ public class ProjectModel extends AbstractModel {
                             managerUserIdTemp, projectDescriptionTemp);
                 }
                 else {
-                    logger.info("DB query returned zero results");
+                    logger.debug("DB query returned zero results");
                     throw new ModelNotFoundException("DB query for project ID " + projectId+ " returned no results");
                 }
             }
@@ -457,7 +457,7 @@ public class ProjectModel extends AbstractModel {
                 }
 
                 if (projectList.isEmpty()) {
-                    logger.info("DB query returned zero results");
+                    logger.debug("DB query returned zero results");
                     throw new ModelNotFoundException("DB query for all projects returned no results");
                 }
             }
