@@ -2,15 +2,18 @@ package com.sepgroup.sep.controller;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.sepgroup.sep.Main;
 import com.sepgroup.sep.db.DBException;
-import com.sepgroup.sep.model.InvalidInputException;
-import com.sepgroup.sep.model.ModelNotFoundException;
-import com.sepgroup.sep.model.ProjectModel;
-import com.sepgroup.sep.model.TaskModel;
+import com.sepgroup.sep.model.*;
 import com.sepgroup.sep.utils.DateUtils;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import org.slf4j.Logger;
@@ -51,16 +54,18 @@ public class TaskEditorController extends AbstractController {
 	@FXML
 	public TextArea taskDescriptionArea;
     @FXML
-    public Label taskManagerLabel;
-    @FXML
-    public ListView dependenciesTaskList;
+    public ListView<ListableTaskModel> dependenciesTaskList;
     @FXML
     public CheckBox completeCheckBox;
+    @FXML
+    public ComboBox<ListableTaskModel> dependenciesComboBox;
+    @FXML
+    public Button addSelectedDependencyButton;
+    @FXML
+    public Button deleteSelectedDependencyButton;
 
-    private String editTaskNameFromField = "";
-    private double editTaskBudgetFromField = 0;
-    private String editTaskDescriptionFromField = "";
-    private String editAssigneeFromField = "";
+    private ListableTaskModel selectedDependency;
+    private ListableTaskModel selectedPotentialDependency;
 
     public TaskEditorController() {
         setCssPath("/style/stylesheet.css");
@@ -88,7 +93,7 @@ public class TaskEditorController extends AbstractController {
         ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(ProjectViewerController.getFxmlPath());
         pvc.setModel(project);
     }
-    
+
     @FXML
     public void onEditTaskUpdateClicked() {
         // Name
@@ -141,6 +146,7 @@ public class TaskEditorController extends AbstractController {
 
         // Budget
         if (!editTaskBudgetField.getText().equals("")) {
+            double editTaskBudgetFromField;
             try {
                 editTaskBudgetFromField = Double.parseDouble(editTaskBudgetField.getText());
             } catch (NumberFormatException e) {
@@ -195,17 +201,26 @@ public class TaskEditorController extends AbstractController {
         pvc.setModel(project);
     }
 
+    /**
+     *
+     * @param t
+     */
     public void setModel(TaskModel t) {
         this.model = t;
         update();
+        editTaskNameField.requestFocus();  // set focus to name field
     }
 
+    /**
+     *
+     */
     public void onDeleteTaskClicked() {
         String title = "Warning!";
         String header = "This will delete the task " + model.getName() + ". This action cannot be undone";
         String content = "Are you sure?";
 
-        if (DialogCreator.showConfirmationDialog(title, header, content).get() == ButtonType.OK) {
+        Optional<ButtonType> dialogResult = DialogCreator.showConfirmationDialog(title, header, content);
+        if (dialogResult.isPresent() && dialogResult.get() == ButtonType.OK) {
             try {
                 model.deleteData();
             } catch (DBException e) {
@@ -219,6 +234,57 @@ public class TaskEditorController extends AbstractController {
         }
     }
 
+    /**
+     * Handle click on dependency list
+     */
+    @FXML
+    public void onDependencyTaskListSelected() {
+        selectedDependency = dependenciesTaskList.getSelectionModel().getSelectedItem();
+        if (selectedDependency != null) {
+            deleteSelectedDependencyButton.setDisable(false);
+        }
+        else {
+            deleteSelectedDependencyButton.setDisable(true);
+        }
+    }
+
+    /**
+     * Handle selection of potential dependency
+     */
+    public void onDependenciesComboBoxSelected() {
+        selectedPotentialDependency = dependenciesComboBox.getSelectionModel().getSelectedItem();
+        if (selectedPotentialDependency != null) {
+            addSelectedDependencyButton.setDisable(false);
+        }
+        else {
+            addSelectedDependencyButton.setDisable(true);
+        }
+    }
+
+    /**
+     * Handle click on add dependency button
+     */
+    public void onAddDependencyClicked() {
+        if (selectedPotentialDependency != null) {
+            model.addDependency(selectedPotentialDependency.getModel());
+            refreshCurrentDependenciesList();
+            refreshPotentialDependenciesList();
+            addSelectedDependencyButton.setDisable(true);
+        }
+    }
+
+    /**
+     * Handle click on delete dependency button
+     */
+    public void onDeleteSelectedDependencyClicked() {
+        if (selectedDependency != null) {
+            model.removeDependency(selectedDependency.getModel());
+            refreshCurrentDependenciesList();
+            refreshPotentialDependenciesList();
+            deleteSelectedDependencyButton.setDisable(true);
+        }
+    }
+
     @Override
     public void update() {
    	    if (this.model != null) {
@@ -229,6 +295,35 @@ public class TaskEditorController extends AbstractController {
             if (model.getDeadline() != null) taskDeadlineValueLabel.setText(String.valueOf(model.getDeadline()));
    		    taskAssigneeLabel.setText(String.valueOf(model.getAssigneeUserId()));
             completeCheckBox.setSelected(model.isDone());
+
+            refreshCurrentDependenciesList();
+            refreshPotentialDependenciesList();
+        }
+    }
+
+    private void refreshCurrentDependenciesList() {
+        List<ListableTaskModel> dependenciesObservableList = new LinkedList<>();
+        dependenciesObservableList.addAll(model.getDependencies().stream()
+                .map(ListableTaskModel::new)
+                .collect(Collectors.toList()));
+        ObservableList<ListableTaskModel> dependencies = FXCollections.observableList(dependenciesObservableList);
+        dependenciesTaskList.setItems(dependencies);
+    }
+
+    private void refreshPotentialDependenciesList() {
+        try {
+            logger.debug("Populating tasks list");
+            List<ListableTaskModel> allTasksList = TaskModel.getAllByProject(model.getProjectId()).stream()
+                    // compare ID instead of using equals b/c newly added dependency isn't persisted yet
+                    .filter(taskModel -> taskModel.getTaskId() != model.getTaskId())
+                    .filter(taskModel -> !model.getDependencies().contains(taskModel))
+                    .map(ListableTaskModel::new)
+                    .collect(Collectors.toList());
+
+            ObservableList<ListableTaskModel> observableTaskList = FXCollections.observableList(allTasksList);
+            dependenciesComboBox.setItems(observableTaskList);
+        } catch (ModelNotFoundException e) {
+            logger.debug("No tasks found for project " + model.toString());
         }
     }
 }

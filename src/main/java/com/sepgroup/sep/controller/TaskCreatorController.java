@@ -44,6 +44,12 @@ public class TaskCreatorController extends AbstractController {
         setCssPath("/style/stylesheet.css");
     }
 
+    @FXML
+    public void initialize() {
+        // TODO doesn't actually focus?
+        taskNameField.requestFocus();
+    }
+
     public static String getFxmlPath() {
         return fxmlPath;
     }

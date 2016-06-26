@@ -15,6 +15,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.isA;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -62,6 +63,27 @@ public class TaskModelTest {
             fail(e.getMessage());
         }
         assertThat(fetchedTask, equalTo(createdTask));
+    }
+
+    @Test
+    public void testPersistDataWithTaskDependencies() throws Exception {
+        TaskModel createdTask1 = new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 10000,
+                defaultStartDate, defaultDeadline, false, 0);
+        createdTask1.persistData();
+
+        TaskModel createdTask2 = new TaskModel("T2", "Description of\n TX2", createdProject.getProjectId(), 10000,
+                defaultStartDate, defaultDeadline, false, 0);
+        createdTask2.addDependency(createdTask1);
+        createdTask2.persistData();
+        int t2Id = createdTask2.getTaskId();
+
+        TaskModel fetchedTask2 = null;
+        try {
+            fetchedTask2 = TaskModel.getById(t2Id);
+        } catch (ModelNotFoundException e) {
+            fail(e.getMessage());
+        }
+        assertThat(fetchedTask2, equalTo(createdTask2));
     }
 
     @Test
@@ -133,6 +155,106 @@ public class TaskModelTest {
 
         assertThat(fetchedTask, equalTo(createdTask));
     }
+
+    @Test
+    public void testCreateWithDependencies() throws Exception {
+        // Create tasks
+        TaskModel t1 = new TaskModel("T1", "D1", createdProject.getProjectId());
+        TaskModel t2 = new TaskModel("T2", "D2", createdProject.getProjectId());
+        TaskModel t3Created = new TaskModel("T3", "D3", createdProject.getProjectId());
+        t3Created.addDependency(t1);
+        t3Created.addDependency(t2);
+        t1.persistData();
+        t2.persistData();
+        t3Created.persistData();
+        int t3Id = t3Created.getTaskId();
+
+        // Fetch
+        TaskModel t3Fetched = TaskModel.getById(t3Id);
+
+        // Check dependencies
+        List<TaskModel> t3Dependencies = t3Fetched.getDependencies();
+        assertTrue(t3Dependencies.contains(t1));
+        assertTrue(t3Dependencies.contains(t2));
+    }
+
+    @Test
+    public void testUpdateWithDependencies() throws Exception {
+        // Create tasks
+        TaskModel t1 = new TaskModel("T1", "D1", createdProject.getProjectId());
+        TaskModel t2 = new TaskModel("T2", "D2", createdProject.getProjectId());
+        TaskModel t3 = new TaskModel("T3", "D3", createdProject.getProjectId());
+        TaskModel t4Created = new TaskModel("T4", "D4", createdProject.getProjectId());
+        t4Created.addDependency(t1);
+        t4Created.addDependency(t2);
+        t1.persistData();
+        t2.persistData();
+        t3.persistData();
+        t4Created.persistData();
+        int t4Id = t4Created.getTaskId();
+
+        t4Created.addDependency(t3);
+        t4Created.removeDependency(t1);
+        t4Created.persistData();
+
+        // Fetch
+        TaskModel t4Fetched = TaskModel.getById(t4Id);
+
+        // Check dependencies
+        List<TaskModel> t4Dependencies = t4Fetched.getDependencies();
+        assertTrue(t4Dependencies.contains(t2));
+        assertTrue(t4Dependencies.contains(t3));
+        assertFalse(t4Dependencies.contains(t1));
+    }
+
+    @Test
+    public void testDeleteWithDependenciesRefreshData() throws Exception {
+        // Create tasks
+        TaskModel t1 = new TaskModel("T1", "D1", createdProject.getProjectId());
+        TaskModel t2 = new TaskModel("T2", "D2", createdProject.getProjectId());
+        TaskModel t3Created = new TaskModel("T3", "D3", createdProject.getProjectId());
+        t1.persistData();
+        t2.persistData();
+        t3Created.persistData();
+        int t3Id = t3Created.getTaskId();
+        t3Created.addDependency(t1);
+        t3Created.addDependency(t2);
+        t3Created.persistData();
+
+        // Delete task depended on
+        t1.deleteData();
+
+        // Refresh & check
+        t3Created.refreshData();
+        List<TaskModel> t3Dependencies = t3Created.getDependencies();
+        assertTrue(t3Dependencies.contains(t2));
+        assertTrue(!t3Dependencies.contains(t1));
+    }
+
+    @Test
+    public void testDeleteWithDependenciesFetchData() throws Exception {
+        // Create tasks
+        TaskModel t1 = new TaskModel("T1", "D1", createdProject.getProjectId());
+        TaskModel t2 = new TaskModel("T2", "D2", createdProject.getProjectId());
+        TaskModel t3Created = new TaskModel("T3", "D3", createdProject.getProjectId());
+        t1.persistData();
+        t2.persistData();
+        t3Created.persistData();
+        int t3Id = t3Created.getTaskId();
+        t3Created.addDependency(t1);
+        t3Created.addDependency(t2);
+        t3Created.persistData();
+
+        // Delete task depended on
+        t1.deleteData();
+
+        // Fetch & check
+        TaskModel t3Fetched = TaskModel.getById(t3Id);
+        List<TaskModel> t3Dependencies = t3Fetched.getDependencies();
+        assertTrue(t3Dependencies.contains(t2));
+        assertTrue(!t3Dependencies.contains(t1));
+    }
+
 
     @Ignore
     @Test

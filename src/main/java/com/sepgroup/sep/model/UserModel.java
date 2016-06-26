@@ -3,7 +3,6 @@ package com.sepgroup.sep.model;
 import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.db.DBObject;
 import com.sepgroup.sep.db.Database;
-import com.sun.javafx.sg.prism.NGShape;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,10 +60,11 @@ public class UserModel extends AbstractModel {
     @Override
     public void refreshData() throws ModelNotFoundException, InvalidInputException {
         UserModel refreshed = getById(getUserId());
-        this.firstName = refreshed.getFirstName();
-        this.lastName = refreshed.getLastName();
-        this.userId = refreshed.getUserId();
-        this.salaryPerHour = refreshed.getSalaryPerHour();
+
+        setFirstName(refreshed.getFirstName());
+        setLastName(refreshed.getLastName());
+        setUserId(refreshed.getUserId());
+        setSalaryPerHour(refreshed.getSalaryPerHour());
 
         updateObservers();
     }
@@ -301,7 +301,7 @@ public class UserModel extends AbstractModel {
                 }
 
                 if (userList.isEmpty()) {
-                    logger.info("DB query returned zero results");
+                    logger.debug("DB query returned zero results");
                     throw new ModelNotFoundException("DB query for all projects returned no results");
                 }
             }

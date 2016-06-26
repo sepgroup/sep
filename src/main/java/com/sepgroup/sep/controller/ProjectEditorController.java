@@ -60,6 +60,12 @@ public class ProjectEditorController extends AbstractController {
         return fxmlPath;
     }
 
+    @FXML
+    public void initialize() {
+        // TODO doesn't actually focus?
+        editNameField.requestFocus();
+    }
+
 	/**
 	 * Returns to projectview
 	 */
