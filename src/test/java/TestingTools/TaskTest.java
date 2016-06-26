@@ -44,16 +44,18 @@ public class TaskTest {
         hasValidDatePair = new boolean[numOfTests];
         hasValidUserID = new boolean[numOfTests];
 
-        UserModel user = new UserModel("Coco", "Gonzalez", 20.04);
+        UserModel user = null;
         try{
+            user = new UserModel("Coco", "Gonzalez", 20.04);
             user.persistData();
         }
         catch(Exception e) {
             assert(false);
         }
 
-        ProjectModel project = new ProjectModel("Chinchilla Project", new Date(118, 2, 19), new Date(118, 2, 27), 17496.45, false, user.getUserId(), "Chinchilla stuff");
+        ProjectModel project = null;
         try{
+            project = new ProjectModel("Chinchilla Project", new Date(118, 2, 19), new Date(118, 2, 27), 17496.45, false, user.getUserId(), "Chinchilla stuff");
             project.persistData();
         }
         catch(Exception e) {

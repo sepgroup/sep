@@ -29,7 +29,12 @@ public class ProjectTest {
         int numOfTests = 10;
         int passCount = 0;
 
-        UserModel manager = new UserModel("Coco", "Gonzalez", 100);
+        UserModel manager = null;
+        try {
+            manager = new UserModel("Coco", "Gonzalez", 100);
+        } catch (InvalidInputException e) {
+            System.err.println(e.getLocalizedMessage());
+        }
         try {
             manager.persistData();
             System.out.println(UserModel.getById(manager.getUserId()));
@@ -80,11 +85,14 @@ public class ProjectTest {
 
             String description = RandomStringBuilder.randomString(hasValidDescription[i]? random.nextInt(999) + 1 : 0);
 
-            projectsIn[i] = new ProjectModel(name, ds, de, budget, done, managerID, description);
+
             try {
+                projectsIn[i] = new ProjectModel(name, ds, de, budget, done, managerID, description);
                 projectsIn[i].persistData();
             } catch (DBException e) {
                 System.out.println(e.getLocalizedMessage());
+            } catch (InvalidInputException e) {
+                System.err.println(e.getLocalizedMessage());
             }
         }
         for (int i = 0; i < numOfTests; i++) {

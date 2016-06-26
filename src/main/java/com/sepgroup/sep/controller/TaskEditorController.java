@@ -9,10 +9,7 @@ import java.util.stream.Collectors;
 
 import com.sepgroup.sep.Main;
 import com.sepgroup.sep.db.DBException;
-import com.sepgroup.sep.model.ListableTaskModel;
-import com.sepgroup.sep.model.ModelNotFoundException;
-import com.sepgroup.sep.model.ProjectModel;
-import com.sepgroup.sep.model.TaskModel;
+import com.sepgroup.sep.model.*;
 import com.sepgroup.sep.utils.DateUtils;
 
 import javafx.collections.FXCollections;
@@ -88,7 +85,9 @@ public class TaskEditorController extends AbstractController {
         try {
             model.refreshData();
         } catch (ModelNotFoundException e) {
-            logger.warn("Tried to refresh existing model that did not exist", e);
+            logger.warn("Tried to refresh existing model that did not exist, this should never happen.");
+        } catch (InvalidInputException e) {
+            logger.error("Invalid data in DB.");
         }
         // Return to project viewer
         ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(ProjectViewerController.getFxmlPath());
@@ -98,33 +97,49 @@ public class TaskEditorController extends AbstractController {
     @FXML
     public void onEditTaskUpdateClicked() {
         // Name
-        if (!editTaskNameField.getText().equals("")) {
-            String editTaskNameFromField = editTaskNameField.getText();
-            model.setName(editTaskNameFromField);
+        if (editTaskNameField.getText() != null && editTaskNameField.getText().length() > 0) {
+            try {
+                model.setName(editTaskNameField.getText());
+            } catch (InvalidInputException e) {
+                DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
+                return;
+            }
         }
 
         // Start date
         if (editStartDateTaskField.getValue() != null) {
+            Date startTaskDate;
             try {
-                Date startTaskDate = DateUtils.castStringToDate(editStartDateTaskField.getValue().toString());
-                model.setStartDate(startTaskDate);
+                startTaskDate = DateUtils.castStringToDate(editStartDateTaskField.getValue().toString());
             } catch (ParseException e) {
-                String errorContent = "Unable to parse date from DatePicker, this really shouldn't happen";
-                logger.error(errorContent, e);
+                String errorContent = "Unable to parse date from DatePicker, this really shouldn't happen.";
+                logger.error(errorContent);
                 DialogCreator.showErrorDialog("Unable to parse date", errorContent);
+                return;
+            }
+            try {
+                model.setStartDate(startTaskDate);;
+            } catch (InvalidInputException e) {
+                DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
                 return;
             }
         }
 
         // Deadline
         if (editDeadlineTaskField.getValue() != null) {
+            Date taskDeadline;
             try {
-                Date taskDeadline = DateUtils.castStringToDate(editDeadlineTaskField.getValue().toString());
-                model.setDeadline(taskDeadline);
+                taskDeadline = DateUtils.castStringToDate(editDeadlineTaskField.getValue().toString());
             } catch (ParseException e) {
-                String errorContent = "Unable to parse date from DatePicker, this really shouldn't happen";
-                logger.error(errorContent, e);
+                String errorContent = "Unable to parse date from DatePicker, this really shouldn't happen.";
+                logger.error(errorContent);
                 DialogCreator.showErrorDialog("Unable to parse date", errorContent);
+                return;
+            }
+            try {
+                model.setDeadline(taskDeadline);;
+            } catch (InvalidInputException e) {
+                DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
                 return;
             }
         }
@@ -133,29 +148,46 @@ public class TaskEditorController extends AbstractController {
         if (!editTaskBudgetField.getText().equals("")) {
             double editTaskBudgetFromField;
             try {
-                editTaskBudgetFromField = Integer.parseInt(editTaskBudgetField.getText());
+                editTaskBudgetFromField = Double.parseDouble(editTaskBudgetField.getText());
             } catch (NumberFormatException e) {
-                logger.info("User entered invalid budget value", e);
+                logger.info("User entered invalid budget value");
                 DialogCreator.showErrorDialog("Budget field invalid", "Invalid budget, please enter a valid number.");
                 return;
             }
-            model.setBudget(editTaskBudgetFromField);
+            try {
+                model.setBudget(editTaskBudgetFromField);
+            } catch (InvalidInputException e) {
+                DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
+                return;
+            }
         }
 
+        // Assignee
+        // TODO user name instead of ID
         if (!assigneeTaskField.getText().equals("")) {
-            // TODO user name instead of ID
-            String editAssigneeFromField = assigneeTaskField.getText();
-            model.setAssigneeUserId(Integer.parseInt(editAssigneeFromField));
+            int assigneeId;
+            try {
+                assigneeId = Integer.parseInt(assigneeTaskField.getText());
+            } catch (NumberFormatException e) {
+                DialogCreator.showErrorDialog("Invalid user ID", "Enter a valid manager user ID.");
+                return;
+            }
+            try {
+                model.setAssigneeUserId(assigneeId);
+            } catch (InvalidInputException e) {
+                DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
+                return;
+            }
         }
 
         if (!taskDescriptionArea.getText().equals("")) {
-            String editTaskDescriptionFromField = taskDescriptionArea.getText();
-            model.setDescription(editTaskDescriptionFromField);
+            model.setDescription(taskDescriptionArea.getText());
         }
 
         // Complete
         model.setDone(completeCheckBox.isSelected());
 
+        // Persist updated model
         try {
             model.persistData();
         } catch (DBException e) {
@@ -164,6 +196,7 @@ public class TaskEditorController extends AbstractController {
             return;
         }
 
+        // Return to project viewer
         ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(ProjectViewerController.getFxmlPath());
         pvc.setModel(project);
     }

@@ -8,7 +8,7 @@ import com.sepgroup.sep.db.DBException;
  */
 public abstract class AbstractModel extends Observable {
 
-    public abstract void refreshData() throws ModelNotFoundException;
+    public abstract void refreshData() throws ModelNotFoundException, InvalidInputException;
 
     public abstract void persistData() throws DBException;
 

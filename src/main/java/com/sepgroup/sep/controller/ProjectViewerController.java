@@ -95,6 +95,8 @@ public class ProjectViewerController extends AbstractController {
                     managerName = manager.getFirstName() + " " + manager.getLastName();
                 } catch (ModelNotFoundException e) {
                     logger.error("Error finding user with ID " + managerUserID);
+                } catch (InvalidInputException e) {
+                    logger.error("Errored data in DB");
                 }
             }
             managerValueLabel.setText(managerName);

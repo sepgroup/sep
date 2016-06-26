@@ -1,6 +1,7 @@
 package com.sepgroup.sep.db;
 
 import com.sepgroup.sep.model.AbstractModel;
+import com.sepgroup.sep.model.InvalidInputException;
 import com.sepgroup.sep.model.ModelNotFoundException;
 
 import java.util.List;
@@ -18,9 +19,9 @@ public interface DBObject {
 
     int getLastInsertedId() throws DBException;
 
-    List<? extends AbstractModel> findAll() throws ModelNotFoundException;
+    List<? extends AbstractModel> findAll() throws ModelNotFoundException, InvalidInputException;
 
-    AbstractModel findById(int i) throws ModelNotFoundException;
+    AbstractModel findById(int i) throws ModelNotFoundException, InvalidInputException;
 
     /**
      * Gets the result for the specified SQL query from the database
@@ -28,7 +29,7 @@ public interface DBObject {
      * @return
      * @throws DBException
      */
-    List<? extends AbstractModel> findBySql(String s) throws ModelNotFoundException;
+    List<? extends AbstractModel> findBySql(String s) throws ModelNotFoundException, InvalidInputException;
 
     /**
      * Creates the entity in the database

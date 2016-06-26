@@ -3,6 +3,7 @@ package com.sepgroup.sep.controller;
 import java.text.ParseException;
 import java.util.Date;
 
+import com.sepgroup.sep.model.InvalidInputException;
 import javafx.scene.control.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,8 +74,9 @@ public class ProjectEditorController extends AbstractController {
         try {
             model.refreshData();
         } catch (ModelNotFoundException e) {
-            logger.error("Unable to refresh model from DB, model could not be found in DB.");
-            DialogCreator.showExceptionDialog(e);
+            logger.warn("Tried to refresh existing model that did not exist, this should never happen.");
+        } catch (InvalidInputException e) {
+            logger.error("Invalid data in DB.");
         }
         // Return to project viewer
         ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(ProjectViewerController.getFxmlPath());
@@ -104,60 +106,94 @@ public class ProjectEditorController extends AbstractController {
 	    public void onEditUpdateClicked()  {
             // Name
             if (editNameField.getText() != null && editNameField.getText().length() > 0) {
-                String editNameFromField = editNameField.getText();
-                model.setName(editNameFromField);
-            }
-
-			// Deadline
-            if (editDeadlinePicker.getValue() != null) {
                 try {
-                    Date deadline = DateUtils.castStringToDate(editDeadlinePicker.getValue().toString());
-                    model.setDeadline(deadline);
-                } catch (ParseException e) {
-                    String errorContent = "Unable to parse date from DatePicker, this really shouldn't happen";
-                    logger.error(errorContent, e);
-                    DialogCreator.showErrorDialog("Unable to parse date", errorContent);
+                    model.setName(editNameField.getText());
+                } catch (InvalidInputException e) {
+                    DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
                     return;
                 }
             }
 
+            // Start date
             if (editStartDatePicker.getValue() != null) {
+                Date startDate;
                 try {
-                    Date startDate = DateUtils.castStringToDate(editStartDatePicker.getValue().toString());
-                    model.setStartDate(startDate);
+                    startDate = DateUtils.castStringToDate(editStartDatePicker.getValue().toString());
                 } catch (ParseException e) {
                     String errorContent = "Unable to parse date from DatePicker, this really shouldn't happen";
-                    logger.error(errorContent, e);
+                    logger.error(errorContent);
                     DialogCreator.showErrorDialog("Unable to parse date", errorContent);
+                    return;
+                }
+                try {
+                    model.setStartDate(startDate);
+                } catch (InvalidInputException e) {
+                    DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
+                    return;
+                }
+            }
+
+			// Deadline
+            if (editDeadlinePicker.getValue() != null) {
+                Date deadline;
+                try {
+                    deadline = DateUtils.castStringToDate(editDeadlinePicker.getValue().toString());
+                } catch (ParseException e) {
+                    String errorContent = "Unable to parse date from DatePicker, this really shouldn't happen";
+                    logger.error(errorContent);
+                    DialogCreator.showErrorDialog("Unable to parse date", errorContent);
+                    return;
+                }
+                try {
+                    model.setDeadline(deadline);
+                } catch (InvalidInputException e) {
+                    DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
                     return;
                 }
             }
 
             // Budget
             if (!editBudgetField.getText().equals("")) {
+                double budgetValue = 0;
                 try {
-                    int editBudgetFromField = Integer.parseInt(editBudgetField.getText());
-                    model.setBudget(editBudgetFromField);
+                    budgetValue = Double.parseDouble(editBudgetField.getText());
                 } catch (NumberFormatException e) {
                     logger.info("User entered invalid budget value", e);
                     DialogCreator.showErrorDialog("Budget field invalid", "Invalid budget, please enter a valid number.");
                     return;
                 }
+                try {
+                    model.setBudget(budgetValue);
+                } catch (InvalidInputException e) {
+                    DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
+                    return;
+                }
             }
 
             // Manager
+            // TODO use name instead of user ID
             if (!editManagerField.getText().equals("")) {
-                String editManagerFromField = editManagerField.getText();
-                // TODO use name instead of user ID
-                model.setManagerUserId(Integer.parseInt(editManagerFromField));
+                int managerID;
+                try {
+                    managerID = Integer.parseInt(editManagerField.getText());
+                } catch (NumberFormatException e) {
+                    DialogCreator.showErrorDialog("Invalid user ID", "Enter a valid manager user ID.");
+                    return;
+                }
+                try {
+                    model.setManagerUserId(managerID);
+                } catch (InvalidInputException e) {
+                    DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
+                    return;
+                }
             }
 
             // Description
             if (!projectDescriptionTextArea.getText().equals("")) {
-                String editDescriptionFromField = projectDescriptionTextArea.getText();
-                model.setProjectDescription(editDescriptionFromField);
+                model.setProjectDescription(projectDescriptionTextArea.getText());
             }
 
+            // Persist updated model
             try {
                 model.persistData();
             } catch (DBException e) {
@@ -200,6 +236,8 @@ public class ProjectEditorController extends AbstractController {
                     UserModel manager = UserModel.getById(managerUserID);
                     managerName = manager.getFirstName() + " " + manager.getLastName();
                 } catch (ModelNotFoundException e) {
+                    // TODO handle
+                } catch (InvalidInputException e) {
                     // TODO handle
                 }
             }

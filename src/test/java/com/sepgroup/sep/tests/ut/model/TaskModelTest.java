@@ -1,6 +1,7 @@
 package com.sepgroup.sep.tests.ut.model;
 
 import com.sepgroup.sep.model.ModelNotFoundException;
+import com.sepgroup.sep.model.ProjectModel;
 import com.sepgroup.sep.model.TaskModel;
 import org.aeonbits.owner.ConfigFactory;
 import org.junit.BeforeClass;
@@ -27,22 +28,31 @@ public class TaskModelTest {
     private static Date defaultStartDate = new Date();
     private static Date defaultDeadline = new Date();
 
+    private static ProjectModel createdProject;
+
     @BeforeClass
-    public static void setUp() throws Exception {
+    public static void setUpBeforeClass() throws Exception {
         ConfigFactory.setProperty("configPath", ProjectModelTest.class.getResource("/test-db.properties").getFile());
+
+        createdProject = new ProjectModel();
+        createdProject.setName("Project 1");
+        createdProject.persistData();
     }
 
     @Test
     public void testEquals() throws Exception {
-        TaskModel t1 = new TaskModel("T1", "Description of\n T1", 1, 10000, defaultStartDate, defaultDeadline, false, 0);
-        TaskModel t2 = new TaskModel("T1", "Description of\n T1", 1, 10000, defaultStartDate, defaultDeadline, false, 0);
+        TaskModel t1 = new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 10000,
+                defaultStartDate, defaultDeadline, false, 0);
+        TaskModel t2 = new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 10000,
+                defaultStartDate, defaultDeadline, false, 0);
 
         assertThat(t1, equalTo(t2));
     }
 
     @Test
     public void testPersistData() throws Exception {
-        TaskModel createdTask = new TaskModel("TX", "Description of\n TX", 1, 10000, defaultStartDate, defaultDeadline, false, 0);
+        TaskModel createdTask = new TaskModel("TX", "Description of\n TX", createdProject.getProjectId(), 10000,
+                defaultStartDate, defaultDeadline, false, 0);
         createdTask.persistData();
         int tId = createdTask.getTaskId();
 
@@ -57,10 +67,12 @@ public class TaskModelTest {
 
     @Test
     public void testPersistDataWithTaskDependencies() throws Exception {
-        TaskModel createdTask1 = new TaskModel("T1", "Description of\n T1", 1, 10000, defaultStartDate, defaultDeadline, false, 0);
+        TaskModel createdTask1 = new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 10000,
+                defaultStartDate, defaultDeadline, false, 0);
         createdTask1.persistData();
 
-        TaskModel createdTask2 = new TaskModel("T2", "Description of\n TX2", 1, 10000, defaultStartDate, defaultDeadline, false, 0);
+        TaskModel createdTask2 = new TaskModel("T2", "Description of\n TX2", createdProject.getProjectId(), 10000,
+                defaultStartDate, defaultDeadline, false, 0);
         createdTask2.addDependency(createdTask1);
         createdTask2.persistData();
         int t2Id = createdTask2.getTaskId();
@@ -77,7 +89,8 @@ public class TaskModelTest {
     @Test
     public void testRefreshData() throws Exception {
         // Create user
-        TaskModel createdTask = new TaskModel("TTDD", "Description of\n TTDD", 1, 10000, defaultStartDate, defaultDeadline, false, 0);
+        TaskModel createdTask = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId(), 10000,
+                defaultStartDate, defaultDeadline, false, 0);
         createdTask.persistData();
         int tId = createdTask.getTaskId();
 
@@ -91,8 +104,8 @@ public class TaskModelTest {
 
         // Modify & persist project
         fetchedTask.setName("Task Task D :D");
-        fetchedTask.setDescription(".. budget was cut...");
         fetchedTask.setBudget(0);
+        fetchedTask.setDescription(".. budget was cut...");
         fetchedTask.setDone(true);
         fetchedTask.persistData();
 
@@ -105,7 +118,8 @@ public class TaskModelTest {
     @Test(expected = ModelNotFoundException.class)
     public void testDeleteData() throws Exception {
         // Create user
-        TaskModel t = new TaskModel("TTDD", "Description of\n TTDD", 1, 10000, defaultStartDate, defaultDeadline, false, 0);
+        TaskModel t = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId(), 10000,
+                defaultStartDate, defaultDeadline, false, 0);
         t.persistData();
         int tId = t.getTaskId();
 
@@ -118,8 +132,10 @@ public class TaskModelTest {
 
     @Test
     public void testGetAll() throws Exception {
-        new TaskModel("T1", "Description of\n T1", 1, 10000, defaultStartDate, defaultDeadline, false, 0).persistData();
-        new TaskModel("T2", "Description of\n T2", 1, 20000, defaultStartDate, defaultDeadline, false, 0).persistData();
+        new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 10000, defaultStartDate,
+                defaultDeadline, false, 0).persistData();
+        new TaskModel("T2", "Description of\n T2", createdProject.getProjectId(), 20000, defaultStartDate,
+                defaultDeadline, false, 0).persistData();
         List<TaskModel> taskList = TaskModel.getAll();
 
         assertThat(taskList.size(), isA(Integer.class));
@@ -129,7 +145,8 @@ public class TaskModelTest {
     @Test
     public void testGetById() throws Exception {
         // Create task
-        TaskModel createdTask  = new TaskModel("T1", "Description of\n T1", 1, 10000, defaultStartDate, defaultDeadline, false, 0);
+        TaskModel createdTask  = new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 10000,
+                defaultStartDate, defaultDeadline, false, 0);
         createdTask.persistData();
         int tId = createdTask.getTaskId();
 
@@ -142,9 +159,9 @@ public class TaskModelTest {
     @Test
     public void testCreateWithDependencies() throws Exception {
         // Create tasks
-        TaskModel t1 = new TaskModel("T1", "D1", 1);
-        TaskModel t2 = new TaskModel("T2", "D2", 1);
-        TaskModel t3Created = new TaskModel("T3", "D3", 1);
+        TaskModel t1 = new TaskModel("T1", "D1", createdProject.getProjectId());
+        TaskModel t2 = new TaskModel("T2", "D2", createdProject.getProjectId());
+        TaskModel t3Created = new TaskModel("T3", "D3", createdProject.getProjectId());
         t3Created.addDependency(t1);
         t3Created.addDependency(t2);
         t1.persistData();
@@ -164,10 +181,10 @@ public class TaskModelTest {
     @Test
     public void testUpdateWithDependencies() throws Exception {
         // Create tasks
-        TaskModel t1 = new TaskModel("T1", "D1", 1);
-        TaskModel t2 = new TaskModel("T2", "D2", 1);
-        TaskModel t3 = new TaskModel("T3", "D3", 1);
-        TaskModel t4Created = new TaskModel("T4", "D4", 1);
+        TaskModel t1 = new TaskModel("T1", "D1", createdProject.getProjectId());
+        TaskModel t2 = new TaskModel("T2", "D2", createdProject.getProjectId());
+        TaskModel t3 = new TaskModel("T3", "D3", createdProject.getProjectId());
+        TaskModel t4Created = new TaskModel("T4", "D4", createdProject.getProjectId());
         t4Created.addDependency(t1);
         t4Created.addDependency(t2);
         t1.persistData();
@@ -193,9 +210,9 @@ public class TaskModelTest {
     @Test
     public void testDeleteWithDependenciesRefreshData() throws Exception {
         // Create tasks
-        TaskModel t1 = new TaskModel("T1", "D1", 1);
-        TaskModel t2 = new TaskModel("T2", "D2", 1);
-        TaskModel t3Created = new TaskModel("T3", "D3", 1);
+        TaskModel t1 = new TaskModel("T1", "D1", createdProject.getProjectId());
+        TaskModel t2 = new TaskModel("T2", "D2", createdProject.getProjectId());
+        TaskModel t3Created = new TaskModel("T3", "D3", createdProject.getProjectId());
         t1.persistData();
         t2.persistData();
         t3Created.persistData();
@@ -217,9 +234,9 @@ public class TaskModelTest {
     @Test
     public void testDeleteWithDependenciesFetchData() throws Exception {
         // Create tasks
-        TaskModel t1 = new TaskModel("T1", "D1", 1);
-        TaskModel t2 = new TaskModel("T2", "D2", 1);
-        TaskModel t3Created = new TaskModel("T3", "D3", 1);
+        TaskModel t1 = new TaskModel("T1", "D1", createdProject.getProjectId());
+        TaskModel t2 = new TaskModel("T2", "D2", createdProject.getProjectId());
+        TaskModel t3Created = new TaskModel("T3", "D3", createdProject.getProjectId());
         t1.persistData();
         t2.persistData();
         t3Created.persistData();

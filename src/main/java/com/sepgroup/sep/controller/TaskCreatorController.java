@@ -6,6 +6,7 @@ import java.util.Date;
 
 import com.sepgroup.sep.Main;
 import com.sepgroup.sep.db.DBException;
+import com.sepgroup.sep.model.InvalidInputException;
 import com.sepgroup.sep.model.ProjectModel;
 import com.sepgroup.sep.model.TaskModel;
 
@@ -68,37 +69,45 @@ public class TaskCreatorController extends AbstractController {
 
 	@FXML
 	public void onCreateTaskClicked() throws IOException {
-        String taskNameFromField = "";
-        int taskBudgetFromField = 0;
-        String taskDescription = "";
-        int taskAssigneeNumberFromField = 0;
+        TaskModel createdTask = new TaskModel();
+
+        // Project
+        try {
+            createdTask.setProjectId(project.getProjectId());
+        } catch (InvalidInputException e) {
+            logger.error("Trying to set project ID for a project that doesn't exist, this shouldn't happen.");
+            return;
+        }
 
         // Name
-		if (taskNameField.getText().length() > 0){
-            taskNameFromField = taskNameField.getText();
-		}
+        try {
+            createdTask.setName(taskNameField.getText());
+        } catch (InvalidInputException e) {
+            DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
+            return;
+        }
 
         // Start date
-		Date taskStartDate = null;
-		if (taskStartDatePicker.getValue() != null) {
+        Date startDate = null;
+        if (taskStartDatePicker.getValue() != null) {
             try {
-                taskStartDate = DateUtils.castStringToDate(taskStartDatePicker.getValue().toString());
-            } catch (ParseException e) {
+                createdTask.setStartDate(taskStartDatePicker.getValue().toString());
+            } catch (InvalidInputException e) {
                 String errorContent = "Unable to parse date from DatePicker, this really shouldn't happen";
-                logger.error(errorContent, e);
+                logger.error(errorContent);
                 DialogCreator.showErrorDialog("Unable to parse date", errorContent);
                 return;
             }
         }
 
         // Deadline
-        Date taskDeadline = null;
+        Date deadline = null;
         if (taskDeadlinePicker.getValue() != null) {
             try {
-                taskDeadline = DateUtils.castStringToDate(taskDeadlinePicker.getValue().toString());
-            } catch (ParseException e) {
+                createdTask.setDeadline(taskDeadlinePicker.getValue().toString());
+            } catch (InvalidInputException e) {
                 String errorContent = "Unable to parse date from DatePicker, this really shouldn't happen";
-                logger.error(errorContent, e);
+                logger.error(errorContent);
                 DialogCreator.showErrorDialog("Unable to parse date", errorContent);
                 return;
             }
@@ -106,27 +115,46 @@ public class TaskCreatorController extends AbstractController {
 
         // Budget
         if (!taskBudgetField.getText().equals("")) {
+            double budgetDouble = 0;
             try {
-			    taskBudgetFromField = Integer.parseInt(taskBudgetField.getText());
+                budgetDouble = Double.parseDouble(taskBudgetField.getText());
             } catch (NumberFormatException e) {
-                logger.info("User entered invalid budget value", e);
+                logger.info("User entered invalid budget value");
                 DialogCreator.showErrorDialog("Budget field invalid", "Invalid budget, please enter a valid number.");
                 return;
             }
+            try {
+                createdTask.setBudget(budgetDouble);
+            } catch (InvalidInputException e) {
+                DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
+                return;
+            }
         }
-		
-		if (!taskAssigneeNumber.getText().equals("")) {
-            // TODO get user ID field
-			taskAssigneeNumberFromField = Integer.parseInt(taskAssigneeNumber.getText());
+
+        // Assignee
+        // TODO get user ID field
+        if (!taskAssigneeNumber.getText().equals("")) {
+            int assigneeID;
+            try {
+                assigneeID = Integer.parseInt(taskAssigneeNumber.getText());
+            } catch (NumberFormatException e) {
+                DialogCreator.showErrorDialog("Invalid user ID", "Enter a valid manager user ID.");
+                return;
+            }
+            try {
+                createdTask.setAssigneeUserId(assigneeID);
+            } catch (InvalidInputException e) {
+                DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
+                return;
+            }
         }
-		
+
+        // Description
 		if (!taskDescriptionArea.getText().equals("")) {
-			taskDescription = taskDescriptionArea.getText();
+            createdTask.setDescription(taskDescriptionArea.getText());
 		}
 
-		TaskModel createdTask = new TaskModel(taskNameFromField, taskDescription, project.getProjectId(),
-                taskBudgetFromField, taskStartDate, taskDeadline, false, taskAssigneeNumberFromField);
-		
+        // Persist created Project
 		try {
 		    createdTask.persistData();
 		} catch (DBException e) {
@@ -134,6 +162,7 @@ public class TaskCreatorController extends AbstractController {
             return;
 		}
 
+        // Return to project viewer
         ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(ProjectViewerController.getFxmlPath());
         pvc.setModel(project);
     }
