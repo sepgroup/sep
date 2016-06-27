@@ -72,8 +72,15 @@ public class ProjectModel extends AbstractModel {
 	 */
 	private ProjectModel(int id, String name, Date sd, Date dl, double budget, boolean done, int managerUserId,
                          String projectDescription) throws InvalidInputException {
-        this(name, sd, dl, budget, done, managerUserId, projectDescription);
-		this.projectId = id;
+        this();
+        setName(name);
+        setBudget(budget);
+        setStartDate(sd);
+        setDeadline(dl);
+        setDone(done);
+        setProjectDescription(projectDescription);
+        this.managerUserId = managerUserId;
+        this.projectId = id;
 	}
 
     @Override

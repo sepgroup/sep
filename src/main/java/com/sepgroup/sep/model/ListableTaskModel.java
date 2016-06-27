@@ -19,6 +19,7 @@ public class ListableTaskModel implements Observer {
     private SimpleStringProperty startDate;
     private SimpleStringProperty deadline;
     private SimpleBooleanProperty completed;
+    private SimpleStringProperty assignee;
 
     public ListableTaskModel(TaskModel m) {
         this.model = m;
@@ -29,6 +30,7 @@ public class ListableTaskModel implements Observer {
         startDate = new SimpleStringProperty();
         deadline = new SimpleStringProperty();
         completed = new SimpleBooleanProperty();
+        assignee = new SimpleStringProperty();
         update();
     }
 
@@ -60,15 +62,20 @@ public class ListableTaskModel implements Observer {
         return completed;
     }
 
+    public SimpleStringProperty assigneeProperty() {
+        return assignee;
+    }
+
     @Override
     public void update() {
         if (model != null) {
             taskId.set(model.getTaskId());
             taskName.set(model.getName());
-            completed.set(model.isDone());
+            taskBudget.set(model.getBudget());
             startDate.set(model.getStartDateString());
             deadline.set(model.getDeadlineString());
-            taskBudget.set(model.getBudget());
+            completed.set(model.isDone());
+            assignee.set(Integer.toString(model.getAssigneeUserId()));
         }
     }
 

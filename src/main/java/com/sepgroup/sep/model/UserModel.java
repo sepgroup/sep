@@ -47,13 +47,16 @@ public class UserModel extends AbstractModel {
     }
 
     /**
-     * Constructor for use when fetching & instantiating user model from DB, with userId already set
+     * Constructor for internal use only, skips data validation
      * @param userId
      * @param firstName the user's first name
      * @param lastName the user's last name
      */
-    public UserModel(int userId, String firstName, String lastName, double salaryPerHour) throws InvalidInputException {
-        this(firstName, lastName, salaryPerHour);
+    private UserModel(int userId, String firstName, String lastName, double salaryPerHour) {
+        this();
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.salaryPerHour = salaryPerHour;
         this.userId = userId;
     }
 
@@ -98,7 +101,7 @@ public class UserModel extends AbstractModel {
      * @param userId the ID of the user to search for
      * @return the UserModel representing the user of the specified user ID
      */
-    public static UserModel getById(int userId) throws ModelNotFoundException, InvalidInputException {
+    public static UserModel getById(int userId) throws ModelNotFoundException {
         return new UserModel().dbo.findById(userId);
     }
 
@@ -107,7 +110,7 @@ public class UserModel extends AbstractModel {
      * of user objects and return it.
      * @return LinkedList of UserModel objects containing all users present in the DB
      */
-    public static List<UserModel> getAll() throws ModelNotFoundException, InvalidInputException {
+    public static List<UserModel> getAll() throws ModelNotFoundException {
         return new UserModel().dbo.findAll();
     }
 
@@ -256,7 +259,7 @@ public class UserModel extends AbstractModel {
             }
         }
 
-        private UserModel runSingleResultQuery(String sql) throws ModelNotFoundException, InvalidInputException {
+        private UserModel runSingleResultQuery(String sql) throws ModelNotFoundException {
             UserModel u = null;
             try {
                 ResultSet rs = db.query(sql);
@@ -286,7 +289,7 @@ public class UserModel extends AbstractModel {
             return u;
         }
 
-        private List<UserModel> runMultiResultQuery(String sql) throws ModelNotFoundException, InvalidInputException {
+        private List<UserModel> runMultiResultQuery(String sql) throws ModelNotFoundException {
             List<UserModel> userList = new LinkedList<>();
             try {
                 ResultSet rs =  db.query(sql);
@@ -319,7 +322,7 @@ public class UserModel extends AbstractModel {
         }
 
         @Override
-        public List<UserModel> findAll() throws ModelNotFoundException, InvalidInputException {
+        public List<UserModel> findAll() throws ModelNotFoundException {
             StringBuilder sql = new StringBuilder();
             sql.append("SELECT * ");
             sql.append("FROM " + getTableName() + ";");
@@ -328,7 +331,7 @@ public class UserModel extends AbstractModel {
         }
 
         @Override
-        public UserModel findById(int userId) throws ModelNotFoundException, InvalidInputException {
+        public UserModel findById(int userId) throws ModelNotFoundException {
             logger.debug("Building query for user ID " + userId);
             StringBuilder sql = new StringBuilder();
             sql.append("SELECT * ");

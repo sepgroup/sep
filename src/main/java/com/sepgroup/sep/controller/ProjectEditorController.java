@@ -237,8 +237,6 @@ public class ProjectEditorController extends AbstractController {
                     managerName = manager.getFirstName() + " " + manager.getLastName();
                 } catch (ModelNotFoundException e) {
                     // TODO handle
-                } catch (InvalidInputException e) {
-                    // TODO handle
                 }
             }
 

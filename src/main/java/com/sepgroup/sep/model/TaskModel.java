@@ -59,6 +59,18 @@ public class TaskModel extends AbstractModel {
         setProjectId(projectId);
     }
 
+    /**
+     *
+     * @param name
+     * @param description
+     * @param projectId
+     * @param budget
+     * @param startDate
+     * @param deadline
+     * @param done
+     * @param assigneeUserId
+     * @throws InvalidInputException
+     */
     public TaskModel(String name, String description, int projectId, double budget, Date startDate, Date deadline,
             boolean done, int assigneeUserId) throws InvalidInputException {
         this(name, description, projectId);
@@ -69,6 +81,19 @@ public class TaskModel extends AbstractModel {
         setAssigneeUserId(assigneeUserId);
     }
 
+    /**
+     *
+     * @param name
+     * @param description
+     * @param projectId
+     * @param budget
+     * @param startDate
+     * @param deadline
+     * @param done
+     * @param assigneeUserId
+     * @param tags
+     * @throws InvalidInputException
+     */
     public TaskModel(String name, String description, int projectId, double budget, Date startDate, Date deadline,
             boolean done, int assigneeUserId, List<String> tags) throws InvalidInputException {
         this(name, description, projectId, budget, startDate, deadline, done, assigneeUserId);
