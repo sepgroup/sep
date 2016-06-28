@@ -141,6 +141,14 @@ public class ProjectModel extends AbstractModel {
         return new ProjectModel().dbo.findAllByManager(managerUserId);
     }
 
+    public static void cleanData()throws DBException{
+        new ProjectModel().dbo.clean();
+    }
+
+    public static void createTable() throws DBException{
+        new ProjectModel().dbo.createTable();
+    }
+
     /**
      *
      * @param projectId
@@ -187,7 +195,7 @@ public class ProjectModel extends AbstractModel {
 
 	/**
 	 * Setter for Start date of project which is used in update method
-	 * @param date updated date of project
+	 * @param startDate updated date of project
 	 */
 	public void setStartDate(String startDate) throws ParseException {
 		this.startDate = DateUtils.castStringToDate(startDate);
@@ -195,7 +203,7 @@ public class ProjectModel extends AbstractModel {
 
     /**
      * Setter for Start date of project which is used in update method
-     * @param date updated date of project
+     * @param startDate updated date of project
      */
     public void setStartDate(Date startDate) {
         this.startDate = DateUtils.filterDateToMidnight(startDate);
@@ -476,6 +484,7 @@ public class ProjectModel extends AbstractModel {
             return runMultiResultQuery(sql.toString());
         }
 
+
         @Override
         public ProjectModel findById(int projectId) throws ModelNotFoundException {
             logger.debug("Building query for project ID " + projectId);
@@ -597,6 +606,62 @@ public class ProjectModel extends AbstractModel {
                 db.update(sql.toString());
             } catch (SQLException e) {
                 logger.error("Unable to delete project with ID " + getProjectId() + ". Query: " + sql, e);
+                throw new DBException(e);
+            } finally {
+                try {
+                    db.closeConnection();
+                } catch (SQLException e) {
+                    throw new DBException("Unable to close connection to " + db.getDbPath(), e);
+                }
+            }
+        }
+
+        @Override
+        public void clean() throws DBException{
+            StringBuilder sql = new StringBuilder();
+            sql.append("DELETE FROM "+ getTableName()+";");
+            try{
+                if(this.findAll()!=null){
+                    try {
+                        db.update(sql.toString());
+                    } catch (SQLException e) {
+                        logger.error("Unable to delete data from table "+ getTableName(), e);
+                        throw new DBException(e);
+                    } finally {
+                        try {
+                            db.closeConnection();
+                        } catch (SQLException e) {
+                            throw new DBException("Unable to close connection to " + db.getDbPath(), e);
+                        }
+                    }
+                }
+            }catch(ModelNotFoundException e){
+                System.out.print(e.getCause());
+            }
+
+
+
+        }
+
+        @Override
+        public void createTable() throws DBException{
+            StringBuilder sql = new StringBuilder();
+            sql.append("CREATE TABLE IF NOT EXISTS "+ getTableName()+" (");
+            sql.append(PROJECT_ID_COLUMN+ " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT"+",");
+            sql.append(PROJECT_NAME_COLUMN+" VARCHAR(50) NOT NULL"+",");
+            sql.append(START_DATE_COLUMN+" DATE"+",");
+            sql.append(DEADLINE_COLUMN+" DATE"+",");
+            sql.append(BUDGET_COLUMN+" FLOAT CHECK("+BUDGET_COLUMN+" >= 0)"+",");
+            sql.append(DONE_COLUMN+" BOOLEAN"+",");
+            sql.append(MANAGER_USER_ID_COLUMN+" INT"+",");
+            sql.append(PROJECT_DESCRIPTION_COLUMN+" TEXT"+",");
+            sql.append("CONSTRAINT chk_date CHECK("+DEADLINE_COLUMN+" >= "+START_DATE_COLUMN+"));");
+
+            try {
+                System.out.print(sql.toString());
+                db.create(sql.toString());
+            } catch (SQLException e) {
+                logger.error("Unable to create table "+ getTableName(), e);
                 throw new DBException(e);
             } finally {
                 try {

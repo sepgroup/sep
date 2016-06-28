@@ -111,6 +111,17 @@ public class UserModel extends AbstractModel {
     }
 
     /**
+     * It removes all tuples from User table
+     * @throws DBException
+     */
+    public static void cleanData()throws DBException{
+        new UserModel().dbo.clean();
+    }
+
+    public static void createTable() throws DBException{
+        new UserModel().dbo.createTable();
+    }
+    /**
      *
      * @return
      */
@@ -386,6 +397,54 @@ public class UserModel extends AbstractModel {
             } catch (SQLException e) {
                 logger.error("Unable to delete user with ID " + getUserId() + ". Query: " + sql, e);
                 throw new DBException("Unable to delete user with ID " + getUserId() + ". Query: " + sql, e);
+            } finally {
+                try {
+                    db.closeConnection();
+                } catch (SQLException e) {
+                    throw new DBException("Unable to close connection to " + db.getDbPath(), e);
+                }
+            }
+        }
+
+        @Override
+        public void clean() throws DBException {
+            StringBuilder sql = new StringBuilder();
+            sql.append("DELETE FROM " + getTableName() + ";");
+            try {
+                if (this.findAll() != null) {
+                    try {
+                        db.update(sql.toString());
+                    } catch (SQLException e) {
+                        logger.error("Unable to delete data from table " + getTableName(), e);
+                        throw new DBException(e);
+                    } finally {
+                        try {
+                            db.closeConnection();
+                        } catch (SQLException e) {
+                            throw new DBException("Unable to close connection to " + db.getDbPath(), e);
+                        }
+                    }
+                }
+            }catch(ModelNotFoundException e){
+
+                System.out.print(e.getCause());
+            }
+        }
+
+        @Override
+        public void createTable() throws DBException{
+            StringBuilder sql = new StringBuilder();
+            sql.append("CREATE TABLE IF NOT EXISTS "+ getTableName()+" (");
+            sql.append(USER_ID_COLUMN+ " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT"+",");
+            sql.append(FIRST_NAME_COLUMN+" VARCHAR(50)"+",");
+            sql.append(LAST_NAME_COLUMN+" VARCHAR(50)"+",");
+            sql.append(SALARY_PER_HOUR_COLUMN+" FLOAT"+");");
+
+            try {
+                db.create(sql.toString());
+            } catch (SQLException e) {
+                logger.error("Unable to create table "+ getTableName(), e);
+                throw new DBException(e);
             } finally {
                 try {
                     db.closeConnection();

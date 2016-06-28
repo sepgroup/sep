@@ -49,4 +49,15 @@ public interface DBObject {
      */
     void delete() throws DBException;
 
+    /**
+     * Clean the table (remove all tuples from table)
+     * @throws DBException
+     */
+    void clean() throws DBException;
+
+    /**
+     * Create the table (it is used to create a table when it is not exist)
+     * @throws DBException
+     */
+    void createTable() throws DBException;
 }

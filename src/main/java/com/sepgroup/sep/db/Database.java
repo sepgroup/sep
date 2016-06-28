@@ -1,6 +1,11 @@
 package com.sepgroup.sep.db;
 
+import com.sepgroup.sep.model.ModelNotFoundException;
+import com.sepgroup.sep.model.ProjectModel;
+import com.sepgroup.sep.model.TaskModel;
+import com.sepgroup.sep.model.UserModel;
 import org.aeonbits.owner.ConfigFactory;
+import org.jcp.xml.dsig.internal.MacOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,7 +113,15 @@ public class Database {
         conn.commit();
         s.close();
     }
-	
+
+    public void create(String sql) throws SQLException {
+        openConnection();
+        sql.replaceAll("[a-zA-Z0-9_!@#$%^&*()-=+~.;:,\\Q[\\E\\Q]\\E<>{}\\/? ]","");
+        Statement s = conn.createStatement();
+        s.setQueryTimeout(5);
+        conn.commit();
+        s.close();
+    }
 	public void closeConnection() throws SQLException {
         if (conn != null && !conn.isClosed()) {
             logger.debug("Closing DB connection to " + getDbPath());
@@ -153,5 +166,28 @@ public class Database {
         logger.debug("Checking if DB " + dbPath + " is active");
         Database activeDB = activeDBs.get(dbPath);
         return activeDB != null;
+    }
+    public void clean()throws DBException, ModelNotFoundException{
+        ProjectModel.cleanData();
+        TaskModel.cleanData();
+        UserModel.cleanData();
+    }
+
+    public void createTables() throws DBException{
+        ProjectModel.createTable();
+        TaskModel.createTable();
+        UserModel.createTable();
+
+    }
+
+    public void dropTable(String TableName) throws SQLException{
+        openConnection();
+        String sql="DROP TABLE IF EXISTS "+TableName+";";
+        Statement s = conn.createStatement();
+        s.setQueryTimeout(5);
+        s.executeUpdate(sql);
+        conn.commit();
+        s.close();
+
     }
 }

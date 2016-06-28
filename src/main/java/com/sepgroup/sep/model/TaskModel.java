@@ -4,6 +4,7 @@ import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.db.DBObject;
 import com.sepgroup.sep.db.Database;
 import com.sepgroup.sep.utils.DateUtils;
+import com.sun.javafx.sg.prism.NGShape;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -158,6 +159,7 @@ public class TaskModel extends AbstractModel {
 
     }
 
+
     public static List<TaskModel> getAll() throws ModelNotFoundException {
         return new TaskModel().dbo.findAll();
     }
@@ -182,6 +184,13 @@ public class TaskModel extends AbstractModel {
         return getAllByAssignee(assignee.getUserId());
     }
 
+    public static void cleanData()throws DBException{
+        new TaskModel().dbo.clean();
+    }
+
+    public static void createTable() throws DBException{
+        new TaskModel().dbo.createTable();
+    }
 
     public int getTaskId() {
         return taskId;
@@ -652,6 +661,65 @@ public class TaskModel extends AbstractModel {
             }
 
             // TODO dependencies
+        }
+
+        @Override
+        public void clean() throws DBException{
+            StringBuilder sql = new StringBuilder();
+            sql.append("DELETE FROM "+ getTableName()+";");
+            try{
+                if(this.findAll()!=null){
+                    try {
+                        db.update(sql.toString());
+                    } catch (SQLException e) {
+                        logger.error("Unable to delete data from table "+ getTableName(), e);
+                        throw new DBException(e);
+                    } finally {
+                        try {
+                            db.closeConnection();
+                        } catch (SQLException e) {
+                            throw new DBException("Unable to close connection to " + db.getDbPath(), e);
+                        }
+                    }
+                }
+
+            }catch(ModelNotFoundException e){
+
+                System.out.print(e.getCause());
+            }
+
+
+        }
+
+        @Override
+        public void createTable() throws DBException{
+            StringBuilder sql = new StringBuilder();
+            sql.append("CREATE TABLE IF NOT EXISTS "+ getTableName()+" (");
+            sql.append(TASK_ID_COLUMN+ " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT"+",");
+            sql.append(PROJECT_ID_COLUMN+" INTEGER NOT NULL"+",");
+            sql.append(TASK_NAME_COLUMN+" VARCHAR(50) NOT NULL"+",");
+            sql.append(START_DATE_COLUMN+" DATE"+",");
+            sql.append(DEADLINE_COLUMN+" DATE"+",");
+            sql.append(BUDGET_COLUMN+" FLOAT CHECK("+BUDGET_COLUMN+" >= 0)"+",");
+            sql.append(DONE_COLUMN+" BOOLEAN"+",");
+            sql.append(TAGS_COLUMN+" TEXT"+",");
+            sql.append(DESCRIPTION_COLUMN+" TEXT"+",");
+            sql.append(ASSIGNEE_USER_ID_COLUMN+" INT"+",");
+            sql.append("FOREIGN KEY ("+PROJECT_ID_COLUMN+") REFERENCES Project(ProjectID) ON DELETE CASCADE"+",");
+            sql.append("CONSTRAINT chk_date CHECK(" + DEADLINE_COLUMN + " >= "+START_DATE_COLUMN+"));");
+
+            try {
+                db.create(sql.toString());
+            } catch (SQLException e) {
+                logger.error("Unable to create table "+ getTableName(), e);
+                throw new DBException(e);
+            } finally {
+                try {
+                    db.closeConnection();
+                } catch (SQLException e) {
+                    throw new DBException("Unable to close connection to " + db.getDbPath(), e);
+                }
+            }
         }
     }
 

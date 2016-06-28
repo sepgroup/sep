@@ -2,10 +2,12 @@ package com.sepgroup.sep.tests.ut.db;
 
 import com.sepgroup.sep.db.Database;
 import com.sepgroup.sep.model.ProjectModel;
+import com.sun.istack.internal.NotNull;
 import org.aeonbits.owner.ConfigFactory;
 import org.junit.*;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import static junit.framework.TestCase.assertNotNull;
 import static org.hamcrest.CoreMatchers.endsWith;
@@ -31,6 +33,7 @@ public class DatabaseTest {
     @BeforeClass
     public static void setUpBeforeMethod() throws Exception {
         ConfigFactory.setProperty("configPath", DatabaseTest.class.getResource("/test-db.properties").getFile());
+
     }
 
     @After
@@ -92,6 +95,26 @@ public class DatabaseTest {
         assertThat(rs.next(), equalTo(false));
     }
 
+    @Test
+    public void testDBClean() throws Exception{
+        int insertedKey=insertProject();
+        db.clean();
+        ResultSet rs = db.query("SELECT * FROM " + projectTableName + " WHERE " + projectIDColumn + "=" + insertedKey);
+        assertThat(rs.next(), equalTo(false));
+    }
+
+    /*@Test
+    public void testDBCreateTable() throws Exception{
+        db = Database.getDB(dbPath);
+        db.dropTable(projectTableName);
+        db.createTables();
+        String sql = "INSERT INTO Project (" + projectNameColumn + ") VALUES ('" + expectedProjectName + "');";
+        db.closeConnection();
+        int insertedKey=db.insert(sql);
+        ResultSet rs = db.query("SELECT * FROM " + projectTableName + " WHERE " + projectIDColumn + "=" + insertedKey);
+        assertThat(rs.next(), equalTo(true));
+    }
+    */
     private int insertProject() throws Exception {
         db = Database.getDB(dbPath);
         String sql = "INSERT INTO Project (" + projectNameColumn + ") VALUES ('" + expectedProjectName + "');";
