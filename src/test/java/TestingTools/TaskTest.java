@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 import org.aeonbits.owner.ConfigFactory;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -24,6 +25,7 @@ public class TaskTest {
         ConfigFactory.setProperty("configPath", DatabaseTest.class.getResource("/test-db.properties").getFile());
     }
 
+    @Ignore
     @Test
     public void test() {
         populateDB(true);
