@@ -57,9 +57,6 @@ public class WelcomeController extends AbstractController {
             logger.debug("No projects found to populate existing projects list");
             existingProjectsList.setDisable(true);
         }
-        catch (InvalidInputException e) {
-            logger.error("Invalid data in DB");
-        }
 
     }
 

@@ -1,9 +1,11 @@
 package com.sepgroup.sep.tests.ut.model;
 
+import com.sepgroup.sep.db.Database;
 import com.sepgroup.sep.model.ModelNotFoundException;
 import com.sepgroup.sep.model.ProjectModel;
 import com.sepgroup.sep.model.TaskModel;
 import org.aeonbits.owner.ConfigFactory;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -33,10 +35,18 @@ public class TaskModelTest {
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
         ConfigFactory.setProperty("configPath", ProjectModelTest.class.getResource("/test-db.properties").getFile());
+        Database db = Database.getActiveDB();
+        db.createTables();
 
         createdProject = new ProjectModel();
         createdProject.setName("Project 1");
         createdProject.persistData();
+    }
+
+    @AfterClass
+    public static void tearDownAfterClass() throws Exception {
+        Database db = Database.getActiveDB();
+        db.dropAllTables();
     }
 
     @Test

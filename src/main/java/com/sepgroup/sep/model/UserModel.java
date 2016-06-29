@@ -233,7 +233,7 @@ public class UserModel extends AbstractModel {
         return true;
     }
 
-    class UserModelDBObject implements DBObject {
+    public class UserModelDBObject implements DBObject {
 
         private final Logger logger = LoggerFactory.getLogger(UserModel.UserModelDBObject.class);
 
@@ -241,7 +241,7 @@ public class UserModel extends AbstractModel {
         private static final String FIRST_NAME_COLUMN = "FirstName";
         private static final String LAST_NAME_COLUMN = "LastName";
         private static final String SALARY_PER_HOUR_COLUMN = "SalaryPerHour";
-        private static final String TABLE_NAME = "User";
+        public static final String TABLE_NAME = "User";
 
         private Database db;
 
@@ -283,7 +283,7 @@ public class UserModel extends AbstractModel {
                     u = new UserModel(userIdTemp, firstNameTemp, lastNameTemp, salaryPerHourTemp);
                 }
                 else {
-                    logger.info("DB query returned zero results");
+                    logger.debug("DB query returned zero results");
                     throw new ModelNotFoundException("DB query for user ID " + userId + " returned no results");
                 }
             }
@@ -452,9 +452,8 @@ public class UserModel extends AbstractModel {
                         }
                     }
                 }
-            }catch(ModelNotFoundException e){
-
-                System.out.print(e.getCause());
+            } catch(ModelNotFoundException e) {
+                logger.debug(e.getLocalizedMessage());
             }
         }
 

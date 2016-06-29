@@ -71,14 +71,14 @@ public class ProjectModel extends AbstractModel {
 	 * @param budget Dedicated Budget to the project
 	 */
 	private ProjectModel(int id, String name, Date sd, Date dl, double budget, boolean done, int managerUserId,
-                         String projectDescription) throws InvalidInputException {
+                         String projectDescription) {
         this();
-        setName(name);
-        setBudget(budget);
-        setStartDate(sd);
-        setDeadline(dl);
-        setDone(done);
-        setProjectDescription(projectDescription);
+        this.name = name;
+        this.budget = budget;
+        this.startDate = sd;
+        this.deadline = dl;
+        this.done = done;
+        this.projectDescription = projectDescription;
         this.managerUserId = managerUserId;
         this.projectId = id;
 	}
@@ -127,7 +127,7 @@ public class ProjectModel extends AbstractModel {
      * @param projectId is the ID that we search for that
      * @return the data inside the row of selected table
      */
-    public static ProjectModel getById(int projectId) throws ModelNotFoundException, InvalidInputException {
+    public static ProjectModel getById(int projectId) throws ModelNotFoundException {
         return new ProjectModel().dbo.findById(projectId);
     }
 
@@ -136,17 +136,15 @@ public class ProjectModel extends AbstractModel {
      * of project objects and return it
      * @return LinkedList of Project Objects
      */
-    public static List<ProjectModel> getAll() throws ModelNotFoundException, InvalidInputException {
+    public static List<ProjectModel> getAll() throws ModelNotFoundException {
         return new ProjectModel().dbo.findAll();
     }
 
-    public static List<ProjectModel> getAllByManager(UserModel userModel) throws ModelNotFoundException,
-            InvalidInputException {
+    public static List<ProjectModel> getAllByManager(UserModel userModel) throws ModelNotFoundException {
         return getAllByManager(userModel.getUserId());
     }
 
-    public static List<ProjectModel> getAllByManager(int managerUserId) throws ModelNotFoundException,
-            InvalidInputException {
+    public static List<ProjectModel> getAllByManager(int managerUserId) throws ModelNotFoundException {
         return new ProjectModel().dbo.findAllByManager(managerUserId);
     }
 
@@ -464,7 +462,7 @@ public class ProjectModel extends AbstractModel {
             return id;
         }
 
-        private ProjectModel runSingleResultQuery(String sql) throws ModelNotFoundException, InvalidInputException {
+        private ProjectModel runSingleResultQuery(String sql) throws ModelNotFoundException {
             ProjectModel p = null;
             try {
                 ResultSet rs = db.query(sql);
@@ -509,8 +507,7 @@ public class ProjectModel extends AbstractModel {
             return p;
         }
 
-        private List<ProjectModel> runMultiResultQuery(String sql) throws ModelNotFoundException,
-                InvalidInputException {
+        private List<ProjectModel> runMultiResultQuery(String sql) throws ModelNotFoundException {
             List<ProjectModel> projectList = new LinkedList<>();
             try {
                 ResultSet rs =  db.query(sql);
@@ -558,7 +555,7 @@ public class ProjectModel extends AbstractModel {
         }
 
         @Override
-        public List<ProjectModel> findAll() throws ModelNotFoundException, InvalidInputException {
+        public List<ProjectModel> findAll() throws ModelNotFoundException {
             StringBuilder sql = new StringBuilder();
             sql.append("SELECT * ");
             sql.append("FROM " + getTableName() + ";");
@@ -568,7 +565,7 @@ public class ProjectModel extends AbstractModel {
         }
 
         @Override
-        public ProjectModel findById(int projectId) throws ModelNotFoundException, InvalidInputException {
+        public ProjectModel findById(int projectId) throws ModelNotFoundException {
             logger.debug("Building query for project ID " + projectId);
             StringBuilder sql = new StringBuilder();
             sql.append("SELECT * ");
@@ -579,8 +576,7 @@ public class ProjectModel extends AbstractModel {
             return runSingleResultQuery(sql.toString());
         }
 
-        public List<ProjectModel> findAllByManager(int managerUserId) throws ModelNotFoundException,
-                InvalidInputException {
+        public List<ProjectModel> findAllByManager(int managerUserId) throws ModelNotFoundException {
             logger.debug("Building query for projects with manager user ID " + managerUserId);
             StringBuilder sql = new StringBuilder();
             sql.append("SELECT * ");
@@ -706,8 +702,8 @@ public class ProjectModel extends AbstractModel {
         public void clean() throws DBException{
             StringBuilder sql = new StringBuilder();
             sql.append("DELETE FROM "+ getTableName()+";");
-            try{
-                if(this.findAll()!=null){
+            try {
+                if (this.findAll() != null) {
                     try {
                         db.update(sql.toString());
                     } catch (SQLException e) {
@@ -721,27 +717,24 @@ public class ProjectModel extends AbstractModel {
                         }
                     }
                 }
-            }catch(ModelNotFoundException e){
-                System.out.print(e.getCause());
+            } catch(ModelNotFoundException e) {
+                logger.debug(e.getLocalizedMessage());
             }
-
-
-
         }
 
         @Override
-        public void createTable() throws DBException{
+        public void createTable() throws DBException {
             StringBuilder sql = new StringBuilder();
-            sql.append("CREATE TABLE IF NOT EXISTS "+ getTableName()+" (");
-            sql.append(PROJECT_ID_COLUMN+ " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT"+",");
-            sql.append(PROJECT_NAME_COLUMN+" VARCHAR(50) NOT NULL"+",");
-            sql.append(START_DATE_COLUMN+" DATE"+",");
-            sql.append(DEADLINE_COLUMN+" DATE"+",");
-            sql.append(BUDGET_COLUMN+" FLOAT CHECK("+BUDGET_COLUMN+" >= 0)"+",");
-            sql.append(DONE_COLUMN+" BOOLEAN"+",");
-            sql.append(MANAGER_USER_ID_COLUMN+" INT"+",");
-            sql.append(PROJECT_DESCRIPTION_COLUMN+" TEXT"+",");
-            sql.append("CONSTRAINT chk_date CHECK("+DEADLINE_COLUMN+" >= "+START_DATE_COLUMN+"));");
+            sql.append("CREATE TABLE IF NOT EXISTS "+ getTableName() + " (");
+            sql.append(PROJECT_ID_COLUMN + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT" + ",");
+            sql.append(PROJECT_NAME_COLUMN +" VARCHAR(50) NOT NULL" + ",");
+            sql.append(START_DATE_COLUMN +" DATE" + ",");
+            sql.append(DEADLINE_COLUMN +" DATE" + ",");
+            sql.append(BUDGET_COLUMN +" FLOAT CHECK("+ BUDGET_COLUMN+" >= 0)" + ",");
+            sql.append(DONE_COLUMN +" BOOLEAN" + ",");
+            sql.append(MANAGER_USER_ID_COLUMN + " INT" + ",");
+            sql.append(PROJECT_DESCRIPTION_COLUMN + " TEXT" + ",");
+            sql.append("CONSTRAINT chk_date CHECK(" + DEADLINE_COLUMN + " >= " + START_DATE_COLUMN + "));");
 
             try {
                 System.out.print(sql.toString());

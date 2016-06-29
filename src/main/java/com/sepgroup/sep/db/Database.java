@@ -1,15 +1,17 @@
 package com.sepgroup.sep.db;
 
+import com.sepgroup.sep.Main;
+import com.sepgroup.sep.SepUserStorage;
 import com.sepgroup.sep.model.ModelNotFoundException;
 import com.sepgroup.sep.model.ProjectModel;
 import com.sepgroup.sep.model.TaskModel;
 import com.sepgroup.sep.model.UserModel;
 import org.aeonbits.owner.ConfigFactory;
-import org.jcp.xml.dsig.internal.MacOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,9 +33,9 @@ public class Database {
 
     /**
      *
-     * @param dbPath path to the DB file
+     * @param dbPathString path to the DB file
      */
-	public Database(String dbPath) throws DBException {
+	public Database(String dbPathString) throws DBException {
         try {
             Class.forName("org.sqlite.JDBC");
         } catch (ClassNotFoundException e) {
@@ -41,9 +43,8 @@ public class Database {
             throw new DBException(e);
         }
 
-        URL dbUrl = Thread.currentThread().getContextClassLoader().getResource(dbPath);
-        String dbFullPath = dbUrl.getFile();
-        this.dbPath = dbFullPath;
+        Path dbPath = SepUserStorage.getPath().resolve(dbPathString);
+        this.dbPath = dbPath.toAbsolutePath().toString();
     }
 
     private void openConnection() throws SQLException {
@@ -78,7 +79,6 @@ public class Database {
     public int insert(String sql) throws SQLException {
         openConnection();
         sql.replaceAll("[a-zA-Z0-9_!@#$%^&*()-=+~.;:,\\Q[\\E\\Q]\\E<>{}\\/? ]","");
-        System.out.println(sql);
         PreparedStatement s = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
         s.setQueryTimeout(5);
 
@@ -116,9 +116,10 @@ public class Database {
 
     public void create(String sql) throws SQLException {
         openConnection();
-        sql.replaceAll("[a-zA-Z0-9_!@#$%^&*()-=+~.;:,\\Q[\\E\\Q]\\E<>{}\\/? ]","");
+        sql.replaceAll("[a-zA-Z0-9_!@#$%^&*()-=+~.;:,\\Q[\\E\\Q]\\E<>{}\\/? ]",""); // this is never used
         Statement s = conn.createStatement();
         s.setQueryTimeout(5);
+        s.execute(sql);
         conn.commit();
         s.close();
     }
@@ -188,6 +189,16 @@ public class Database {
         s.executeUpdate(sql);
         conn.commit();
         s.close();
+    }
 
+    /**
+     * USE WITH CAUTION!
+     * @throws SQLException
+     */
+    public void dropAllTables() throws SQLException {
+        dropTable(ProjectModel.ProjectModelDBObject.TABLE_NAME);
+        dropTable(TaskModel.TaskModelDBObject.TABLE_NAME);
+        dropTable(TaskModel.TaskModelDBObject.DEPENDENCIES_TABLE_NAME);
+        dropTable(UserModel.UserModelDBObject.TABLE_NAME);
     }
 }

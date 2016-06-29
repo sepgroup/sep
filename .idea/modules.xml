@@ -3,9 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/sep.iml" filepath="$PROJECT_DIR$/.idea/modules/sep.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/sep_main.iml" filepath="$PROJECT_DIR$/.idea/modules/sep_main.iml" group="sep" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/sep_package.iml" filepath="$PROJECT_DIR$/.idea/modules/sep_package.iml" group="sep" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/sep_test.iml" filepath="$PROJECT_DIR$/.idea/modules/sep_test.iml" group="sep" />
     </modules>
   </component>
 </project>

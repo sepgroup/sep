@@ -112,7 +112,6 @@ public class TaskModel extends AbstractModel {
      * @param done
      * @param assigneeUserId
      * @param tags
-     * @throws InvalidInputException
      */
     private TaskModel(int taskId, String name, String description, int projectId, double budget, Date startDate,
             Date deadline, boolean done, int assigneeUserId, List<String> tags) {
@@ -236,6 +235,14 @@ public class TaskModel extends AbstractModel {
     public static List<TaskModel> getAllByAssignee(UserModel assignee) throws ModelNotFoundException,
             InvalidInputException {
         return getAllByAssignee(assignee.getUserId());
+    }
+
+    public static void cleanData()throws DBException{
+        new TaskModel().dbo.clean();
+    }
+
+    public static void createTable() throws DBException{
+        new TaskModel().dbo.createTable();
     }
 
     /**
@@ -528,7 +535,7 @@ public class TaskModel extends AbstractModel {
         return true;
     }
 
-    class TaskModelDBObject implements DBObject {
+    public class TaskModelDBObject implements DBObject {
 
         private final Logger logger = LoggerFactory.getLogger(TaskModelDBObject.class);
 
@@ -960,11 +967,11 @@ public class TaskModel extends AbstractModel {
         }
 
         @Override
-        public void clean() throws DBException{
+        public void clean() throws DBException {
             StringBuilder sql = new StringBuilder();
             sql.append("DELETE FROM "+ getTableName()+";");
-            try{
-                if(this.findAll()!=null){
+            try {
+                if (this.findAll() != null) {
                     try {
                         db.update(sql.toString());
                     } catch (SQLException e) {
@@ -979,12 +986,9 @@ public class TaskModel extends AbstractModel {
                     }
                 }
 
-            }catch(ModelNotFoundException e){
-
-                System.out.print(e.getCause());
+            } catch(ModelNotFoundException e) {
+                logger.debug(e.getLocalizedMessage());
             }
-
-
         }
 
         @Override
