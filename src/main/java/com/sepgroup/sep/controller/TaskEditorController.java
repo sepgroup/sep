@@ -172,12 +172,12 @@ public class TaskEditorController extends AbstractController {
                 DialogCreator.showErrorDialog("Invalid user ID", "Enter a valid manager user ID.");
                 return;
             }
-            try {
-                model.setAssigneeUserId(assigneeId);
-            } catch (InvalidInputException e) {
-                DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
-                return;
-            }
+//            try {
+//                model.setAssigneeUserId(assigneeId);
+//            } catch (InvalidInputException e) {
+//                DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
+//                return;
+//            }
         }
 
         if (!taskDescriptionArea.getText().equals("")) {
@@ -293,7 +293,7 @@ public class TaskEditorController extends AbstractController {
    		    taskBudgetValueLabel.setText(String.valueOf(model.getBudget()));
    		    if (model.getStartDate() != null) taskStartDateValueLabel.setText(String.valueOf(model.getStartDate()));
             if (model.getDeadline() != null) taskDeadlineValueLabel.setText(String.valueOf(model.getDeadline()));
-   		    taskAssigneeLabel.setText(String.valueOf(model.getAssigneeUserId()));
+   		    if (model.getAssignee() != null) taskAssigneeLabel.setText(model.getAssignee().getFullName());
             completeCheckBox.setSelected(model.isDone());
 
             refreshCurrentDependenciesList();

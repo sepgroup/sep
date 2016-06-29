@@ -109,7 +109,7 @@
                         <Font size="22.0" />
                     </font>
                 </Text>
-               <ComboBox fx:id="userFilterComboBox" layoutX="400.0" layoutY="3.0" onAction="#onUserFilterComboBoxClicked" prefWidth="150.0" />
+               <ComboBox fx:id="userFilterComboBox" layoutX="400.0" layoutY="3.0" onAction="#onUserFilterComboBoxClicked" prefHeight="27.0" prefWidth="200.0" />
                <Label layoutX="305.0" layoutY="6.0" text="Filter by user:" />
             </AnchorPane>
          </top>

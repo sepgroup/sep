@@ -13,6 +13,7 @@ import javafx.scene.text.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,6 +26,7 @@ public class ProjectViewerController extends AbstractController {
     private static Logger logger = LoggerFactory.getLogger(ProjectViewerController.class);
     private static final String fxmlPath = "/views/projectviewer.fxml";
     private ProjectModel model;
+    private List<ListableTaskModel> tasksList;
 
     @FXML
     public Text projectNameText;
@@ -102,7 +104,7 @@ public class ProjectViewerController extends AbstractController {
             // Populate tasks list
             try {
                 logger.debug("Populating tasks list");
-                List<ListableTaskModel> tasksList = TaskModel.getAllByProject(model.getProjectId()).stream()
+                tasksList = TaskModel.getAllByProject(model.getProjectId()).stream()
                         .map(ListableTaskModel::new).collect(Collectors.toList());
                 ObservableList<ListableTaskModel> observableTaskList = FXCollections.observableList(tasksList);
                 taskTableView.setItems(observableTaskList);
@@ -118,14 +120,16 @@ public class ProjectViewerController extends AbstractController {
             assigneeColumn.setCellValueFactory(cellData -> cellData.getValue().assigneeProperty());
 
             // Populate user filter combo box
-            // TODO
+            List<UserModel> userList;
             try {
-                List<UserModel> userList = UserModel.getAll();
-                ObservableList<UserModel> observableUserList = FXCollections.observableList(userList);
-                userFilterComboBox.setItems(observableUserList);
+                userList = UserModel.getAll();
             } catch (ModelNotFoundException e) {
                 logger.debug("No users found.");
+                userList = new LinkedList<>();
             }
+            userList.add(0, UserModel.getEmptyUser());
+            ObservableList<UserModel> observableUserList = FXCollections.observableList(userList);
+            userFilterComboBox.setItems(observableUserList);
         }
     }
 
@@ -183,7 +187,16 @@ public class ProjectViewerController extends AbstractController {
     public void onUserFilterComboBoxClicked() {
         UserModel selectedUser = userFilterComboBox.getSelectionModel().getSelectedItem();
         if (selectedUser != null) {
-            // TODO filter
+            ObservableList<ListableTaskModel> newTaskList;
+            if (selectedUser.equals(UserModel.getEmptyUser())) {
+                // "Empty" user selected, remove assignee filter
+                newTaskList = FXCollections.observableList(tasksList);
+            }
+            else {
+                newTaskList = FXCollections.observableList(tasksList)
+                        .filtered(t -> t.getModel().getAssignee().equals(selectedUser));
+            }
+            taskTableView.setItems(newTaskList);
         }
     }
 

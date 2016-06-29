@@ -139,12 +139,12 @@ public class TaskCreatorController extends AbstractController {
                 DialogCreator.showErrorDialog("Invalid user ID", "Enter a valid manager user ID.");
                 return;
             }
-            try {
-                createdTask.setAssigneeUserId(assigneeID);
-            } catch (InvalidInputException e) {
-                DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
-                return;
-            }
+//            try {
+//                createdTask.setAssigneeUserId(assigneeID);
+//            } catch (InvalidInputException e) {
+//                DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
+//                return;
+//            }
         }
 
         // Description
