@@ -1,6 +1,7 @@
 package com.sepgroup.sep.controller;
 
 import com.sepgroup.sep.Main;
+import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.model.InvalidInputException;
 import com.sepgroup.sep.model.ProjectModel;
 import com.sepgroup.sep.model.UserModel;
@@ -35,7 +36,7 @@ public class UserCreatorController extends AbstractController {
 
     @FXML
     public void initialize() {
-        // TODO doesn't actually focus?
+        // Set initial focus to first name field
         firstNameField.requestFocus();
     }
 
@@ -50,7 +51,7 @@ public class UserCreatorController extends AbstractController {
         if (!lastNameField.getText().isEmpty()) {
             String firstName = firstNameField.getText();
             try {
-                createdUser.setLastName(firstName);
+                createdUser.setFirstName(firstName);
             } catch (InvalidInputException e) {
                 DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
                 return;
@@ -86,6 +87,14 @@ public class UserCreatorController extends AbstractController {
             }
         }
 
+        // Persist created User
+        try {
+            createdUser.persistData();
+        } catch (DBException e) {
+            DialogCreator.showErrorDialog("Database error", e.getLocalizedMessage());
+            return;
+        }
+
         returnToProject();
     }
 
@@ -104,6 +113,6 @@ public class UserCreatorController extends AbstractController {
 
     @Override
     public void update() {
-
+        // None for this view / controller
     }
 }

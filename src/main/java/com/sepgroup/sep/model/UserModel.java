@@ -196,7 +196,7 @@ public class UserModel extends AbstractModel {
 
     @Override
     public String toString() {
-        return "User ID " + getUserId() + ", First name: " + getFirstName() + ", Last name: " + getLastName();
+        return "[" + getUserId() + "] " + getFirstName() + " " + getLastName();
     }
 
     @Override

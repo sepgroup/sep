@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
@@ -27,6 +26,9 @@
                 <Font name="System Bold" size="12.0" />
             </font>
         </Label>
+        <TextField fx:id="firstNameField" layoutX="203.0" layoutY="95.0" />
+        <TextField fx:id="lastNameField" layoutX="203.0" layoutY="142.0" />
+        <TextField fx:id="salaryPerHourField" layoutX="203.0" layoutY="187.0" />
         <Button layoutX="108.0" layoutY="325.0" mnemonicParsing="false" onAction="#onCreateUserClicked" prefHeight="40.0" prefWidth="129.0" text="Create User" textFill="WHITE">
             <font>
                 <Font name="System Bold" size="12.0" />
@@ -35,8 +37,6 @@
             <font>
                 <Font name="System Bold" size="12.0" />
             </font></Button>
-        <TextField fx:id="lastNameField" layoutX="203.0" layoutY="142.0" />
-        <TextField fx:id="firstNameField" layoutX="203.0" layoutY="95.0" />
-        <TextField fx:id="salaryPerHourField" layoutX="203.0" layoutY="187.0" />
+
     </children>
 </AnchorPane>
