@@ -17,14 +17,15 @@
               <MenuItem fx:id="closeProjectMenuButton" mnemonicParsing="false" onAction="#onCloseProjectMenuItemClicked" text="Close Project" />
             </items>
           </Menu>
-          <Menu mnemonicParsing="false" text="Edit">
+          <Menu mnemonicParsing="false" text="Project">
             <items>
+                  <MenuItem mnemonicParsing="false" onAction="#onEditProjectClicked" text="Edit Project..." />
               <MenuItem fx:id="deleteProjectMenuButton" mnemonicParsing="false" onAction="#onDeleteProjectMenuButtonClicked" text="Delete Project..." />
             </items>
           </Menu>
             <Menu mnemonicParsing="false" text="Users">
               <items>
-                <MenuItem mnemonicParsing="false" onAction="#onAddUserClicked" text="Add user..." />
+                <MenuItem mnemonicParsing="false" onAction="#onAddUserMenuItemClicked" text="Add user..." />
               </items>
             </Menu>
           <Menu mnemonicParsing="false" text="Help">

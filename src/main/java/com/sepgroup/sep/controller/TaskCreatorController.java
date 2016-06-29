@@ -61,13 +61,11 @@ public class TaskCreatorController extends AbstractController {
     /**
 	 * Returns to createproject
 	 */
-	@FXML
     public void onTaskCancelClicked() throws IOException {
 		ProjectViewerController pec = (ProjectViewerController) Main.setPrimaryScene(ProjectViewerController.getFxmlPath());
         pec.setModel(project);
     }
 
-	@FXML
 	public void onCreateTaskClicked() throws IOException {
         TaskModel createdTask = new TaskModel();
 

@@ -187,8 +187,9 @@ public class ProjectViewerController extends AbstractController {
         }
     }
 
-    public void onAddUserClicked() {
-        // TODO add user
+    public void onAddUserMenuItemClicked() {
+        UserCreatorController ucc = (UserCreatorController) Main.setPrimaryScene(UserCreatorController.getFxmlPath());
+        ucc.setReturnProject(model);
     }
     
     public void showInfo() {
