@@ -1,31 +1,27 @@
 package com.sepgroup.sep.controller;
 
-import java.io.IOException;
-import java.text.ParseException;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 import com.sepgroup.sep.Main;
 import com.sepgroup.sep.db.DBException;
+import com.sepgroup.sep.model.InvalidInputException;
 import com.sepgroup.sep.model.ProjectModel;
-import com.sepgroup.sep.utils.DateUtils;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.DatePicker;
-import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by Charles on 2016-05-22.
  */
 public class ProjectCreatorController extends AbstractController {
 
-	public ProjectCreatorController() {
-        setFxmlPath("/views/projectcreator.fxml");
-        setCssPath("/style/stylesheet.css");
-    }
-	
+    private static Logger logger = LoggerFactory.getLogger(ProjectCreatorController.class);
+	private static final String fxmlPath = "/views/projectcreator.fxml";
+
 	/**
 	 * TextField for project creation.
 	 */
@@ -39,61 +35,110 @@ public class ProjectCreatorController extends AbstractController {
 	public DatePicker deadlinePicker;
 	@FXML
 	public TextArea descText;
-	
-	public String nameFromField = " ";
+
+	public String nameFromField = "";
 	public int budgetFromField = 0;
-	public String description;
-	
-	/**
+	public String description = "";
+
+	public ProjectCreatorController() {
+		setCssPath("/style/stylesheet.css");
+	}
+
+    public static String getFxmlPath() {
+        return fxmlPath;
+    }
+
+    @FXML
+    public void initialize() {
+        nameField.requestFocus();
+    }
+
+    /**
 	 * Returns back to projectview.
 	 */
 	@FXML
     public void onCreateCancelClicked() {
-        Main.setPrimaryScene(new WelcomeController());
+        Main.setPrimaryScene(WelcomeController.getFxmlPath());
     }
-	
-	//Test code
+
 	@FXML
     public void onSaveProjectClicked() {
-              
-		if (nameField.getText() != ""){
-            nameFromField = nameField.getText();
-		}
-		Date startDate = null;
-		Date deadline = null;
-		if (startDatePicker.getValue() != null && deadlinePicker.getValue() != null){
-			try{
-			startDate = DateUtils.castStringToDate(startDatePicker.getValue().toString());
-			deadline = DateUtils.castStringToDate(deadlinePicker.getValue().toString());
-			}catch(Exception e){
-				e.getMessage();
-			}
-       }
+        ProjectModel createdProject = new ProjectModel();
 
-		if (budgetField.getText() != ""){
-			budgetFromField = Integer.parseInt(budgetField.getText());
+        // Name
+        try {
+            createdProject.setName(nameField.getText());
+        } catch (InvalidInputException e) {
+            DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
+            return;
         }
-		
-		if(descText.getText()!=""){
-			description=descText.getText();
+
+        // Start date
+		Date startDate = null;
+		if (startDatePicker.getValue() != null) {
+            try {
+                createdProject.setStartDate(startDatePicker.getValue().toString());
+            } catch (InvalidInputException e) {
+                String errorContent = "Unable to parse date from DatePicker, this really shouldn't happen";
+                logger.error(errorContent);
+                DialogCreator.showErrorDialog("Unable to parse date", errorContent);
+                return;
+            }
+        }
+
+        // Deadline
+        Date deadline = null;
+        if (deadlinePicker.getValue() != null) {
+            try {
+                createdProject.setDeadline(deadlinePicker.getValue().toString());
+            } catch (InvalidInputException e) {
+                String errorContent = "Unable to parse date from DatePicker, this really shouldn't happen";
+                logger.error(errorContent);
+                DialogCreator.showErrorDialog("Unable to parse date", errorContent);
+                return;
+            }
+        }
+
+        // Budget
+		if (!budgetField.getText().equals("")) {
+            double budgetDouble = 0;
+            try {
+                budgetDouble = Double.parseDouble(budgetField.getText());
+            } catch (NumberFormatException e) {
+                logger.info("User entered invalid budget value");
+                DialogCreator.showErrorDialog("Budget field invalid", "Invalid budget, please enter a valid number.");
+                return;
+            }
+            try {
+                createdProject.setBudget(budgetDouble);
+            } catch (InvalidInputException e) {
+                DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
+                return;
+            }
+        }
+
+        // Description
+		if (!descText.getText().equals("")) {
+            createdProject.setProjectDescription(descText.getText());
 		}
 
-		
-		ProjectModel createdProject = new ProjectModel(nameFromField, startDate, deadline, budgetFromField, false, 0, description);
-		
+        logger.debug("Created project " + createdProject.toString());
+
+        // Persist created Project
 		try {
 		    createdProject.persistData();
 		}
 		catch (DBException e) {
-            DialogCreator.showErrorDialog("Error", "Database error", e.getLocalizedMessage());
+            DialogCreator.showErrorDialog("Database error", e.getLocalizedMessage());
+			return;
 		}
 
-        ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(new ProjectViewerController());
+        ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(ProjectViewerController.getFxmlPath());
         pvc.setModel(createdProject);
     }
-	
+
 	@Override
 	public void update() {
-		// None needed for this class
+		// None needed for this controller
 	}
 }
