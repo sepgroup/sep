@@ -42,6 +42,11 @@ public class SepUserStorage {
 
     public static void createDBTablesIfNotExisting() throws DBException {
         Database db = Database.getActiveDB();
-        db.createTables();
+        try{
+            db.createTables();
+        }catch(Exception e){
+            e.getCause();
+        }
+
     }
 }
