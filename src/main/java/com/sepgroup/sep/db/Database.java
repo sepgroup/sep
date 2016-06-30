@@ -167,17 +167,29 @@ public class Database {
         Database activeDB = activeDBs.get(dbPath);
         return activeDB != null;
     }
-    public void clean()throws DBException, ModelNotFoundException{
+    public void clean()throws DBException, ModelNotFoundException, SQLException{
         ProjectModel.cleanData();
         TaskModel.cleanData();
         UserModel.cleanData();
+        String fetchDependency="SELECT * FROM TaskDependency;";
+        ResultSet rs=this.query(fetchDependency);
+        if(rs.next()){
+            String sql="DELETE FROM TaskDependency;";
+            this.update(sql);
+        }
     }
 
-    public void createTables() throws DBException{
+    public void createTables() throws DBException, SQLException{
         ProjectModel.createTable();
         TaskModel.createTable();
         UserModel.createTable();
-
+        StringBuilder sql = new StringBuilder();
+        sql.append("CREATE TABLE IF NOT EXISTS TaskDependency(");
+        sql.append("FKTaskID INT NOT NULL,");
+        sql.append("DependOnTaskID INT NOT NULL,");
+        sql.append("FOREIGN KEY (FKTaskID) REFERENCES Task(TaskID) ON DELETE CASCADE,");
+        sql.append("FOREIGN KEY (DependOnTaskID) REFERENCES Task(TaskID) ON DELETE CASCADE);");
+        this.create(sql.toString());
     }
 
     public void dropTable(String TableName) throws SQLException{

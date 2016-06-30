@@ -691,6 +691,7 @@ public class TaskModel extends AbstractModel {
 
         }
 
+
         @Override
         public void createTable() throws DBException{
             StringBuilder sql = new StringBuilder();
@@ -721,6 +722,7 @@ public class TaskModel extends AbstractModel {
                 }
             }
         }
+
     }
 
 }
