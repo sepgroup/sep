@@ -2,14 +2,11 @@ package com.sepgroup.sep.tests.ut.db;
 
 import com.sepgroup.sep.db.Database;
 import com.sepgroup.sep.model.ProjectModel;
-import com.sun.istack.internal.NotNull;
 import org.aeonbits.owner.ConfigFactory;
 import org.junit.*;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
 
-import static junit.framework.TestCase.assertNotNull;
 import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -31,7 +28,7 @@ public class DatabaseTest {
     private static String projectNameColumn = ProjectModel.ProjectModelDBObject.PROJECT_NAME_COLUMN;
 
     @BeforeClass
-    public static void setUpBeforeMethod() throws Exception {
+    public static void setUpBeforeClass() throws Exception {
         ConfigFactory.setProperty("configPath", DatabaseTest.class.getResource("/test-db.properties").getFile());
 
     }
@@ -54,6 +51,7 @@ public class DatabaseTest {
     @Test
     public void testGetActiveDB() throws Exception {
         db = Database.getActiveDB();
+
         assertThat(db, notNullValue());
         assertThat(db.getDbPath(), endsWith("/test.db"));
     }
@@ -70,7 +68,7 @@ public class DatabaseTest {
     }
 
     @Test
-    public void testDBUpdate() throws Exception{
+    public void testDBUpdate() throws Exception {
         int insertedKey = insertProject();
 
         String updatedProjectName = "PPP111";
@@ -85,36 +83,43 @@ public class DatabaseTest {
 
     @Test
     public void testDBDelete() throws Exception {
+        createTables();
         int insertedKey = insertProject();
 
-        String updatedProjectName = "PPP111";
         db.update("DELETE FROM " + projectTableName + " WHERE " + projectIDColumn + "=" + insertedKey);
 
         ResultSet rs = db.query("SELECT * FROM " + projectTableName + " WHERE " + projectIDColumn + "=" + insertedKey);
-
         assertThat(rs.next(), equalTo(false));
     }
 
     @Test
-    public void testDBClean() throws Exception{
-        int insertedKey=insertProject();
+    public void testDBClean() throws Exception {
+        createTables();
+        int insertedKey = insertProject();
+
         db.clean();
+
         ResultSet rs = db.query("SELECT * FROM " + projectTableName + " WHERE " + projectIDColumn + "=" + insertedKey);
         assertThat(rs.next(), equalTo(false));
     }
 
-    /*@Test
-    public void testDBCreateTable() throws Exception{
+    @Test
+    public void testDBCreate() throws Exception {
         db = Database.getDB(dbPath);
         db.dropTable(projectTableName);
         db.createTables();
-        String sql = "INSERT INTO Project (" + projectNameColumn + ") VALUES ('" + expectedProjectName + "');";
-        db.closeConnection();
-        int insertedKey=db.insert(sql);
+
+        int insertedKey = insertProject();
+
         ResultSet rs = db.query("SELECT * FROM " + projectTableName + " WHERE " + projectIDColumn + "=" + insertedKey);
         assertThat(rs.next(), equalTo(true));
     }
-    */
+
+    private void createTables() throws Exception {
+        db = Database.getDB(dbPath);
+        db.createTables();
+    }
+
     private int insertProject() throws Exception {
         db = Database.getDB(dbPath);
         String sql = "INSERT INTO Project (" + projectNameColumn + ") VALUES ('" + expectedProjectName + "');";

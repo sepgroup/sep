@@ -1,19 +1,21 @@
 package com.sepgroup.sep.controller;
 
 import com.sepgroup.sep.Main;
+import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.model.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Created by jeremybrown on 2016-06-01.
@@ -21,50 +23,64 @@ import java.util.List;
 public class ProjectViewerController extends AbstractController {
 
     private static Logger logger = LoggerFactory.getLogger(ProjectViewerController.class);
-
+    private static final String fxmlPath = "/views/projectviewer.fxml";
     private ProjectModel model;
 
     @FXML
     public Text projectNameText;
-
     @FXML
     public TextArea projectDescriptionTextArea;
-
     @FXML
     public Label startDateValueLabel;
-
     @FXML
     public Label deadlineValueLabel;
-
     @FXML
     public Label managerValueLabel;
-
     @FXML
     public Label budgetValueLabel;
-
     @FXML
     public Label completeValueLabel;
+    @FXML
+    public TableView<ListableTaskModel> taskTableView;
 
     @FXML
-    public TableView<TaskModel> taskTableView;
+    public TableColumn<ListableTaskModel, Integer> taskIdColumn;
+    @FXML
+    public TableColumn<ListableTaskModel, String> taskNameColumn;
+    @FXML
+    public TableColumn<ListableTaskModel, Double> taskBudgetColumn;
+    @FXML
+    public TableColumn<ListableTaskModel, String> startDateColumn;
+    @FXML
+    public TableColumn<ListableTaskModel, String> deadlineColumn;
+    @FXML
+    public TableColumn<ListableTaskModel, Boolean> taskCompleteColumn;
+    @FXML
+    public TableColumn<ListableTaskModel, String> assigneeColumn;
+    @FXML
+    public ComboBox<UserModel> userFilterComboBox;
 
     public ProjectViewerController() {
-        setFxmlPath("/views/projectviewer.fxml");
         setCssPath("/style/stylesheet.css");
+    }
+
+    public static String getFxmlPath() {
+        return fxmlPath;
     }
 
     public void setModel(ProjectModel p) {
         this.model = p;
         update();
     }
+    
 
     @Override
     public void update() {
         if (this.model != null) {
             projectNameText.setText(model.getName());
-            projectDescriptionTextArea.setText(model.getProjectDescription());
-            startDateValueLabel.setText(model.getStartDateString());
-            deadlineValueLabel.setText(model.getDeadlineString());
+            if (model.getProjectDescription() != null) projectDescriptionTextArea.setText(model.getProjectDescription());
+            if (model.getStartDate() != null) startDateValueLabel.setText(model.getStartDateString());
+            if (model.getDeadline() != null) deadlineValueLabel.setText(model.getDeadlineString());
             budgetValueLabel.setText(Double.toString(model.getBudget()));
             completeValueLabel.setText(model.isDone() ? "Yes" : "No");
 
@@ -73,8 +89,7 @@ public class ProjectViewerController extends AbstractController {
             int managerUserID = model.getManagerUserId();
             if (managerUserID == 0) {
                 managerName = "[ none ]";
-            }
-            else {
+            } else {
                 try {
                     UserModel manager = UserModel.getById(managerUserID);
                     managerName = manager.getFirstName() + " " + manager.getLastName();
@@ -82,54 +97,108 @@ public class ProjectViewerController extends AbstractController {
                     logger.error("Error finding user with ID " + managerUserID);
                 }
             }
-
             managerValueLabel.setText(managerName);
 
             // Populate tasks list
-            List<TaskModel> tasksList = null;
             try {
-                tasksList = TaskModel.getAllByProject(model.getProjectId());
-                ObservableList<TaskModel> observableTaskList = FXCollections.observableList(tasksList);
+                logger.debug("Populating tasks list");
+                List<ListableTaskModel> tasksList = TaskModel.getAllByProject(model.getProjectId()).stream()
+                        .map(ListableTaskModel::new).collect(Collectors.toList());
+                ObservableList<ListableTaskModel> observableTaskList = FXCollections.observableList(tasksList);
                 taskTableView.setItems(observableTaskList);
             } catch (ModelNotFoundException e) {
-                // no tasks found
+                logger.debug("No tasks found for project " + model.toString());
+            }
+            taskIdColumn.setCellValueFactory(cellData -> cellData.getValue().taskIdProperty().asObject());
+            taskNameColumn.setCellValueFactory(cellData -> cellData.getValue().taskNameProperty());
+            taskBudgetColumn.setCellValueFactory(cellData -> cellData.getValue().taskBudgetProperty().asObject());
+            startDateColumn.setCellValueFactory(cellData -> cellData.getValue().startDateProperty());
+            deadlineColumn.setCellValueFactory(cellData -> cellData.getValue().deadlineProperty());
+            taskCompleteColumn.setCellValueFactory(cellData -> cellData.getValue().completedProperty());
+            assigneeColumn.setCellValueFactory(cellData -> cellData.getValue().assigneeProperty());
+
+            // Populate user filter combo box
+            // TODO
+            try {
+                List<UserModel> userList = UserModel.getAll();
+                ObservableList<UserModel> observableUserList = FXCollections.observableList(userList);
+                userFilterComboBox.setItems(observableUserList);
+            } catch (ModelNotFoundException e) {
+                logger.debug("No users found.");
             }
         }
     }
 
     public void onEditProjectClicked() {
-        ProjectEditorController pec = (ProjectEditorController) Main.setPrimaryScene(new ProjectEditorController());
+        ProjectEditorController pec = (ProjectEditorController) Main.setPrimaryScene(ProjectEditorController.getFxmlPath());
         pec.setModel(model);
-        pec.setPreviousScene(Main.getPrimaryStage().getScene());
     }
 
     public void onCreateTaskButtonClicked() {
-        TaskCreatorController tcc = (TaskCreatorController) Main.setPrimaryScene(new TaskCreatorController());
-//        tcc.setPreviousScene(Main.getPrimaryStage().getScene());
-        // TODO fix previous scene
-        Main.setPrimaryScene(tcc);
+        TaskCreatorController tcc = (TaskCreatorController) Main.setPrimaryScene(TaskCreatorController.getFxmlPath());
+        tcc.setReturnProject(model);
     }
 
     public void onTaskItemClicked(MouseEvent e) {
         if (e.getClickCount() == 2) {
-            TaskModel selectedTask = taskTableView.getSelectionModel().getSelectedItem();
-            if (selectedTask != null) {
-                TaskEditorController tec = (TaskEditorController) Main.setPrimaryScene(new TaskEditorController());
-                tec.setModel(selectedTask);
-                tec.setPreviousScene(Main.getPrimaryStage().getScene());
+            ListableTaskModel selectedListableTask = taskTableView.getSelectionModel().getSelectedItem();
+            if (selectedListableTask != null) {
+                TaskEditorController tec = (TaskEditorController) Main.setPrimaryScene(TaskEditorController.getFxmlPath());
+                tec.setModel(selectedListableTask.getModel());
+                tec.setReturnProject(model);
             }
         }
     }
 
     public void onCreateProjectMenuItemClicked() {
-        Main.setPrimaryScene(new ProjectCreatorController());
+        Main.setPrimaryScene(ProjectCreatorController.getFxmlPath());
     }
 
     public void onOpenProjectMenuItemClicked() {
-        Main.setPrimaryScene(new WelcomeController());
+        Main.setPrimaryScene(WelcomeController.getFxmlPath());
     }
 
     public void onCloseProjectMenuItemClicked() {
-        Main.setPrimaryScene(new WelcomeController());
+        Main.setPrimaryScene(WelcomeController.getFxmlPath());
     }
+
+    public void onDeleteProjectMenuButtonClicked() {
+    	String title = "Warning!";
+        String header = "This will delete the project named " + model.getName() + ". This action cannot be undone";
+        String content = "Are you sure?";
+
+        Optional<ButtonType> dialogResult = DialogCreator.showConfirmationDialog(title, header, content);
+        if (dialogResult.isPresent() && dialogResult.get() == ButtonType.OK) {
+            try {
+                model.deleteData();
+                // Go to welcome screen
+                Main.setPrimaryScene(WelcomeController.getFxmlPath());
+            } catch (DBException e) {
+                logger.error("Unable to delete project from DB");
+                DialogCreator.showErrorDialog("Unable to delete project from DB", e.getLocalizedMessage());
+            }
+        }
+    }
+
+    public void onUserFilterComboBoxClicked() {
+        UserModel selectedUser = userFilterComboBox.getSelectionModel().getSelectedItem();
+        if (selectedUser != null) {
+            // TODO filter
+        }
+    }
+
+    public void onAddUserClicked() {
+        // TODO add user
+    }
+    
+    public void showInfo() {
+    	Alert alert = new Alert(AlertType.INFORMATION);
+    	alert.setTitle("Info");
+		alert.setHeaderText("Version 1.0. Team members:");
+		alert.setContentText("Jeremy Brown \nAli Zoghi \nCharles Tondreau-Alin \nNicola Polesana"
+				+ "\nAndres Gonzales \nDemo Kioussis \nJustin Watley \nMark Chmilar \nVince Fugnitto"
+				+ "\nMichael Deom");
+		alert.showAndWait();
+    }
+
 }

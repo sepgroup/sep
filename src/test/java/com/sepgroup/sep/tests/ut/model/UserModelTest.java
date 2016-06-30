@@ -1,8 +1,10 @@
 package com.sepgroup.sep.tests.ut.model;
 
+import com.sepgroup.sep.db.Database;
 import com.sepgroup.sep.model.ModelNotFoundException;
 import com.sepgroup.sep.model.UserModel;
 import org.aeonbits.owner.ConfigFactory;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -21,8 +23,16 @@ import static org.junit.Assert.fail;
 public class UserModelTest {
 
     @BeforeClass
-    public static void setUp() throws Exception {
+    public static void setUpBeforeClass() throws Exception {
         ConfigFactory.setProperty("configPath", ProjectModelTest.class.getResource("/test-db.properties").getFile());
+        Database db = Database.getActiveDB();
+        db.createTables();
+    }
+
+    @AfterClass
+    public static void tearDownAfterClass() throws Exception {
+        Database db = Database.getActiveDB();
+        db.dropAllTables();
     }
 
     @Test

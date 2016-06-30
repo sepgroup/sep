@@ -3,6 +3,7 @@ package com.sepgroup.sep;
 import com.sepgroup.sep.controller.AbstractController;
 import com.sepgroup.sep.controller.DialogCreator;
 import com.sepgroup.sep.controller.WelcomeController;
+import com.sepgroup.sep.db.DBException;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -12,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class Main extends Application {
 
@@ -21,19 +24,28 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Main.primaryStage = primaryStage;
+        // Create Db tables if needed
+        try {
+            SepUserStorage.createDBTablesIfNotExisting();
+        } catch (DBException e) {
+            logger.error("Unable to create database", e);
+            DialogCreator.showErrorDialog("Error creating database", "Unable to create database, ensure you have " +
+                    "access to your home folder.");
+        }
 
-       // Window size
+        // Create main scene
+        Main.primaryStage = primaryStage;
 
         primaryStage.setTitle("Project Management Application");
 
-        setPrimaryScene(new WelcomeController());
-        primaryStage.setMaxHeight(800);
-        primaryStage.setMaxWidth(1200);
-        
-        primaryStage.setMinHeight(420);
-        primaryStage.setMinWidth(500);
-        
+        setPrimaryScene(WelcomeController.getFxmlPath());
+
+       // Window size
+        primaryStage.setMaxHeight(900);
+        primaryStage.setMaxWidth(900);
+
+        primaryStage.setMinHeight(600);
+        primaryStage.setMinWidth(800);
 
         primaryStage.show();
     }
@@ -42,20 +54,23 @@ public class Main extends Application {
         return primaryStage;
     }
 
-    public static AbstractController setPrimaryScene(AbstractController controller) {
-        FXMLLoader loader = new FXMLLoader(controller.getClass().getResource(controller.getFxmlPath()));
+    public static AbstractController setPrimaryScene(String fxmlPath) {
+        FXMLLoader loader = new FXMLLoader(Main.class.getResource(fxmlPath));
         Parent parent = null;
         try {
             parent = loader.load();
         } catch (IOException e) {
             DialogCreator.showExceptionDialog(e);
-            DialogCreator.showErrorDialog("Error", "An error has occurred", e.getMessage());
+            DialogCreator.showErrorDialog("An error has occurred", e.getMessage());
         }
-
-        primaryStage.setScene(new Scene(parent));
-        parent.getStylesheets().add(controller.getClass().getResource(controller.getCssPath()).toExternalForm());
-
+        if (primaryStage.getScene() == null) {
+            primaryStage.setScene(new Scene(parent));
+        } else {
+            primaryStage.getScene().setRoot(parent);
+        }
         AbstractController actualController = loader.getController();
+        parent.getStylesheets().add(actualController.getClass().getResource(actualController.getCssPath()).toExternalForm());
+
         return actualController;
     }
 

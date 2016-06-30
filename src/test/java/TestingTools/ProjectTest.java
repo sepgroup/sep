@@ -1,17 +1,12 @@
 package TestingTools;
 
-import com.sepgroup.sep.controller.DialogCreator;
 import com.sepgroup.sep.db.DBException;
-import com.sepgroup.sep.model.ModelNotFoundException;
 import com.sepgroup.sep.model.*;
-import com.sepgroup.sep.model.TaskModel;
-import com.sepgroup.sep.utils.DateUtils;
-import org.junit.Test;
 
-import java.text.ParseException;
 import java.util.Date;
 import java.util.Random;
 
+import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
@@ -34,7 +29,12 @@ public class ProjectTest {
         int numOfTests = 10;
         int passCount = 0;
 
-        UserModel manager = new UserModel("Coco", "Gonzalez", 100);
+        UserModel manager = null;
+        try {
+            manager = new UserModel("Coco", "Gonzalez", 100);
+        } catch (InvalidInputException e) {
+            System.err.println(e.getLocalizedMessage());
+        }
         try {
             manager.persistData();
             System.out.println(UserModel.getById(manager.getUserId()));
@@ -85,12 +85,14 @@ public class ProjectTest {
 
             String description = RandomStringBuilder.randomString(hasValidDescription[i]? random.nextInt(999) + 1 : 0);
 
-            projectsIn[i] = new ProjectModel(name, ds, de, budget, done, managerID, description);
+
             try {
+                projectsIn[i] = new ProjectModel(name, ds, de, budget, done, managerID, description);
                 projectsIn[i].persistData();
             } catch (DBException e) {
                 System.out.println(e.getLocalizedMessage());
-                assert(false);
+            } catch (InvalidInputException e) {
+                System.err.println(e.getLocalizedMessage());
             }
         }
         for (int i = 0; i < numOfTests; i++) {
@@ -107,7 +109,6 @@ public class ProjectTest {
                 projectsOut[i] = ProjectModel.getById(i + 1);
             }catch(Exception e){
                 System.out.println("COULD NOT PULL FROM DATABASE");
-                assert(false);
             }
 
             // Checks database integrity based on whether it allows creation of projects based upon valid attributes
@@ -134,7 +135,12 @@ public class ProjectTest {
     }
 
     @Test
-    public void projectModificationest() {
+    public void projectUpdate() {
+
+    }
+
+    @Test
+    public void projectDeletion() {
 
     }
 }
