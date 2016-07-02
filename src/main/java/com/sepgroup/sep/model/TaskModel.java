@@ -1007,6 +1007,7 @@ public class TaskModel extends AbstractModel {
             sql.append(DESCRIPTION_COLUMN+" TEXT"+",");
             sql.append(ASSIGNEE_USER_ID_COLUMN+" INT"+",");
             sql.append("FOREIGN KEY ("+PROJECT_ID_COLUMN+") REFERENCES Project(ProjectID) ON DELETE CASCADE"+",");
+            sql.append("FOREIGN KEY ("+ASSIGNEE_USER_ID_COLUMN+") REFERENCES User(UserID) ON DELETE CASCADE"+",");
             sql.append("CONSTRAINT chk_date CHECK(" + DEADLINE_COLUMN + " >= "+START_DATE_COLUMN+"));");
 
             try {

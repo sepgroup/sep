@@ -29,7 +29,7 @@ public class DatabaseTest {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        ConfigFactory.setProperty("configPath", DatabaseTest.class.getResource("/test-db.properties").getFile());
+        ConfigFactory.setProperty("configPath", DatabaseTest.class.getResource("\\test-db.properties").getFile());
 
     }
 
@@ -45,7 +45,7 @@ public class DatabaseTest {
         db = Database.getDB(dbPath);
 
         assertThat(db, notNullValue());
-        assertThat(db.getDbPath(), endsWith("/test.db"));
+        assertThat(db.getDbPath(), endsWith("\\test.db"));
     }
 
     @Test

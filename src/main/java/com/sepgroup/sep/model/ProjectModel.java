@@ -734,10 +734,11 @@ public class ProjectModel extends AbstractModel {
             sql.append(DONE_COLUMN +" BOOLEAN" + ",");
             sql.append(MANAGER_USER_ID_COLUMN + " INT" + ",");
             sql.append(PROJECT_DESCRIPTION_COLUMN + " TEXT" + ",");
+            sql.append("FOREIGN KEY ("+MANAGER_USER_ID_COLUMN+") REFERENCES User(UserID) ON DELETE CASCADE" + ",");
             sql.append("CONSTRAINT chk_date CHECK(" + DEADLINE_COLUMN + " >= " + START_DATE_COLUMN + "));");
 
             try {
-                System.out.print(sql.toString());
+                System.out.print(System.getProperty("user.home"));
                 db.create(sql.toString());
             } catch (SQLException e) {
                 logger.error("Unable to create table "+ getTableName(), e);
