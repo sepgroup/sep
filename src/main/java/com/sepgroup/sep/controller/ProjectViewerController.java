@@ -206,13 +206,11 @@ public class ProjectViewerController extends AbstractController {
     }
     
     public void showInfo() {
-    	Alert alert = new Alert(AlertType.INFORMATION);
-    	alert.setTitle("Info");
-		alert.setHeaderText("Version 1.0. Team members:");
-		alert.setContentText("Jeremy Brown \nAli Zoghi \nCharles Tondreau-Alin \nNicola Polesana"
+        String headerText = "SEP Version 0.1.";
+		String contentText = "Team Members: \nJeremy Brown \nAli Zoghi \nCharles Tondreau-Alin \nNicola Polesana"
 				+ "\nAndres Gonzales \nDemo Kioussis \nJustin Watley \nMark Chmilar \nVince Fugnitto"
-				+ "\nMichael Deom");
-		alert.showAndWait();
-    }
+				+ "\nMichael Deom";
 
+        DialogCreator.showInfoDialog(headerText, contentText);
+    }
 }

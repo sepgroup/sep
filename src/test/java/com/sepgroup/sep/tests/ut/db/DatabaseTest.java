@@ -18,7 +18,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
  */
 public class DatabaseTest {
 
-    private static String dbPath = "test.db";
+    private static String dbPath = "/test.db";
 
     private static Database db;
 
