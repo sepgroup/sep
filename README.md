@@ -3,6 +3,8 @@ COMP 354 Software Engineering Project
 
 ![circleci build](https://circleci.com/gh/sepgroup/sep.svg?style=shield&circle-token=d385fd0d02f477f4d43e017b70f88964b600578d)
 
+[![Travis-CI Build Status](https://travis-ci.org/sepgroup/sep.svg?branch=master)](https://travis-ci.org/sepgroup/sep)
+
 ## Description
 
 This is the repository for the project code.
