@@ -13,7 +13,9 @@ import javafx.scene.text.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -24,6 +26,7 @@ public class ProjectViewerController extends AbstractController {
     private static Logger logger = LoggerFactory.getLogger(ProjectViewerController.class);
     private static final String fxmlPath = "/views/projectviewer.fxml";
     private ProjectModel model;
+    private List<ListableTaskModel> tasksList;
 
     @FXML
     public Text projectNameText;
@@ -54,6 +57,10 @@ public class ProjectViewerController extends AbstractController {
     public TableColumn<ListableTaskModel, String> deadlineColumn;
     @FXML
     public TableColumn<ListableTaskModel, Boolean> taskCompleteColumn;
+    @FXML
+    public TableColumn<ListableTaskModel, String> assigneeColumn;
+    @FXML
+    public ComboBox<UserModel> userFilterComboBox;
 
     public ProjectViewerController() {
         setCssPath("/style/stylesheet.css");
@@ -61,11 +68,6 @@ public class ProjectViewerController extends AbstractController {
 
     public static String getFxmlPath() {
         return fxmlPath;
-    }
-
-    public void onEditClicked() {
-        ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(ProjectEditorController.getFxmlPath());
-        pvc.setModel(model);
     }
 
     public void setModel(ProjectModel p) {
@@ -95,8 +97,6 @@ public class ProjectViewerController extends AbstractController {
                     managerName = manager.getFirstName() + " " + manager.getLastName();
                 } catch (ModelNotFoundException e) {
                     logger.error("Error finding user with ID " + managerUserID);
-                } catch (InvalidInputException e) {
-                    logger.error("Errored data in DB");
                 }
             }
             managerValueLabel.setText(managerName);
@@ -104,8 +104,8 @@ public class ProjectViewerController extends AbstractController {
             // Populate tasks list
             try {
                 logger.debug("Populating tasks list");
-                List<ListableTaskModel> tasksList = TaskModel.getAllByProject(model.getProjectId()).stream()
-                        .map(taskModel -> new ListableTaskModel(taskModel)).collect(Collectors.toList());
+                tasksList = TaskModel.getAllByProject(model.getProjectId()).stream()
+                        .map(ListableTaskModel::new).collect(Collectors.toList());
                 ObservableList<ListableTaskModel> observableTaskList = FXCollections.observableList(tasksList);
                 taskTableView.setItems(observableTaskList);
             } catch (ModelNotFoundException e) {
@@ -117,6 +117,19 @@ public class ProjectViewerController extends AbstractController {
             startDateColumn.setCellValueFactory(cellData -> cellData.getValue().startDateProperty());
             deadlineColumn.setCellValueFactory(cellData -> cellData.getValue().deadlineProperty());
             taskCompleteColumn.setCellValueFactory(cellData -> cellData.getValue().completedProperty());
+            assigneeColumn.setCellValueFactory(cellData -> cellData.getValue().assigneeProperty());
+
+            // Populate user filter combo box
+            List<UserModel> userList;
+            try {
+                userList = UserModel.getAll();
+            } catch (ModelNotFoundException e) {
+                logger.debug("No users found.");
+                userList = new LinkedList<>();
+            }
+            userList.add(0, UserModel.getEmptyUser());
+            ObservableList<UserModel> observableUserList = FXCollections.observableList(userList);
+            userFilterComboBox.setItems(observableUserList);
         }
     }
 
@@ -153,12 +166,13 @@ public class ProjectViewerController extends AbstractController {
         Main.setPrimaryScene(WelcomeController.getFxmlPath());
     }
 
-    public void onDeleteProjectMenuButtonClicked(){
+    public void onDeleteProjectMenuButtonClicked() {
     	String title = "Warning!";
         String header = "This will delete the project named " + model.getName() + ". This action cannot be undone";
         String content = "Are you sure?";
 
-        if (DialogCreator.showConfirmationDialog(title, header, content).get() == ButtonType.OK) {
+        Optional<ButtonType> dialogResult = DialogCreator.showConfirmationDialog(title, header, content);
+        if (dialogResult.isPresent() && dialogResult.get() == ButtonType.OK) {
             try {
                 model.deleteData();
                 // Go to welcome screen
@@ -166,9 +180,29 @@ public class ProjectViewerController extends AbstractController {
             } catch (DBException e) {
                 logger.error("Unable to delete project from DB");
                 DialogCreator.showErrorDialog("Unable to delete project from DB", e.getLocalizedMessage());
-                return;
             }
         }
+    }
+
+    public void onUserFilterComboBoxClicked() {
+        UserModel selectedUser = userFilterComboBox.getSelectionModel().getSelectedItem();
+        if (selectedUser != null) {
+            ObservableList<ListableTaskModel> newTaskList;
+            if (selectedUser.equals(UserModel.getEmptyUser())) {
+                // "Empty" user selected, remove assignee filter
+                newTaskList = FXCollections.observableList(tasksList);
+            }
+            else {
+                newTaskList = FXCollections.observableList(tasksList)
+                        .filtered(t -> t.getModel().getAssignee().equals(selectedUser));
+            }
+            taskTableView.setItems(newTaskList);
+        }
+    }
+
+    public void onAddUserMenuItemClicked() {
+        UserCreatorController ucc = (UserCreatorController) Main.setPrimaryScene(UserCreatorController.getFxmlPath());
+        ucc.setReturnProject(model);
     }
     
     public void showInfo() {

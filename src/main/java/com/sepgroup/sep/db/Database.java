@@ -73,7 +73,6 @@ public class Database {
     public int insert(String sql) throws SQLException {
         openConnection();
         sql.replaceAll("[a-zA-Z0-9_!@#$%^&*()-=+~.;:,\\Q[\\E\\Q]\\E<>{}\\/? ]","");
-        System.out.println(sql);
         PreparedStatement s = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
         s.setQueryTimeout(5);
 

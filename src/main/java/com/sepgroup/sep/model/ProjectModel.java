@@ -62,7 +62,7 @@ public class ProjectModel extends AbstractModel {
         setProjectDescription(projectDescription);
 	}
 	/**
-	 * This constructor is for internal use to fetch data from database
+	 * This constructor is for package use to fetch data from database
 	 * this is private because we do not want the user assigned id to the project
 	 * @param id the unique value for project
 	 * @param name Name of project
@@ -70,10 +70,17 @@ public class ProjectModel extends AbstractModel {
 	 * @param dl Deadline of project
 	 * @param budget Dedicated Budget to the project
 	 */
-	private ProjectModel(int id, String name, Date sd, Date dl, double budget, boolean done, int managerUserId,
+	protected ProjectModel(int id, String name, Date sd, Date dl, double budget, boolean done, int managerUserId,
                          String projectDescription) throws InvalidInputException {
-        this(name, sd, dl, budget, done, managerUserId, projectDescription);
-		this.projectId = id;
+        this();
+        setName(name);
+        setBudget(budget);
+        setStartDate(sd);
+        setDeadline(dl);
+        setDone(done);
+        setProjectDescription(projectDescription);
+        this.managerUserId = managerUserId;
+        this.projectId = id;
 	}
 
     @Override

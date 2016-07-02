@@ -12,17 +12,7 @@ import java.io.StringWriter;
 import java.util.Optional;
 
 /**
- * COPYRIGHT Ericsson 2016
- * <p>
- * The copyright to the computer program(s) herein is the property of
- * Ericsson Inc. The programs may be used and/or copied only with written
- * permission from Ericsson Inc. or in accordance with the terms and
- * conditions stipulated in the agreement/contract under which the
- * program(s) have been supplied.
- * <p>
- * DialogCreator.java
- * <p>
- * Created by ebrjere on 6/2/16.
+ * Created by jeremybrown on 6/2/16.
  */
 public class DialogCreator {
 
