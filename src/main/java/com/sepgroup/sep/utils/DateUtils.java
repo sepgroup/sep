@@ -38,7 +38,7 @@ public class DateUtils {
             date = temp.parse(input);
         }
         else {
-            logger.warn("Inputed null or empty date, leaving as null");
+            logger.debug("Inputed null or empty date, leaving as null");
         }
         return date;
     }

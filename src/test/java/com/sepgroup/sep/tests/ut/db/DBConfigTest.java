@@ -13,7 +13,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
  */
 public class DBConfigTest {
 
-    private static String expectedActiveDBPath = "test.db";
+    private static String expectedActiveDBPath = "/test.db";
 
     @Before
     public void setUpBeforeMethod() throws Exception {

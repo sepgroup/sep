@@ -1,5 +1,6 @@
 package com.sepgroup.sep.tests.ut.model;
 
+import com.sepgroup.sep.model.InvalidInputException;
 import com.sepgroup.sep.model.ModelNotFoundException;
 import com.sepgroup.sep.model.ProjectModel;
 import org.aeonbits.owner.ConfigFactory;
@@ -20,6 +21,10 @@ import static org.junit.Assert.fail;
  * Created by jeremybrown on 2016-05-22.
  */
 public class ProjectModelTest {
+
+    private static Date defaultStartDate = new Date();
+    private static Date defaultDeadline = new Date(System.currentTimeMillis() + 9999*9999);
+
 
     @BeforeClass
     public static void setUp() throws Exception {
@@ -112,6 +117,35 @@ public class ProjectModelTest {
         assertThat(fetchedProject, equalTo(createdProject));
     }
 
+    @Test(expected = InvalidInputException.class)
+    public void testSetDeadlineNotBeforeStartDate() throws Exception {
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setStartDate(defaultDeadline);
+        createdProject.setDeadline(defaultStartDate);
+    }
+
+    @Test(expected = InvalidInputException.class)
+    public void testSetStartDateNotAfterDeadline() throws Exception {
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setDeadline(defaultStartDate);
+        createdProject.setStartDate(defaultDeadline);
+    }
+
+    @Test(expected = InvalidInputException.class)
+    public void testSetNegativeBudget() throws Exception {
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setBudget(-100.0);
+    }
+
+    @Test
+    public void testSetBudget() throws Exception {
+        double budget = 100034.44;
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setBudget(budget);
+
+        assertThat(createdProject.getBudget(), equalTo(budget));
+    }
+
     @Test
     public void testGetAllByManager() throws Exception {
         // TODO
@@ -120,10 +154,10 @@ public class ProjectModelTest {
     @Test
     public void testEquals() throws Exception {
         // Create two projects with same data
-        //ProjectModel p1 = new ProjectModel("Proj", "2016-10-10", "2016-10-20", 1000, false, 0, "P Desc.");
-        //ProjectModel p2 = new ProjectModel("Proj", "2016-10-10", "2016-10-20", 1000, false, 0, "P Desc.");
+        ProjectModel p1 = new ProjectModel("Proj", defaultStartDate, defaultDeadline, 1000, false, 0, "P Desc.");
+        ProjectModel p2 = new ProjectModel("Proj", defaultStartDate, defaultDeadline, 1000, false, 0, "P Desc.");
 
-        //assertTrue(p1.equals(p2));
+        assertTrue(p1.equals(p2));
 
     }
 }

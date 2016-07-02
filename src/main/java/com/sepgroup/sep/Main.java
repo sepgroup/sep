@@ -21,19 +21,19 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        // Create main scene
         Main.primaryStage = primaryStage;
-
-       // Window size
 
         primaryStage.setTitle("Project Management Application");
 
-        setPrimaryScene(new WelcomeController());
-        primaryStage.setMaxHeight(800);
-        primaryStage.setMaxWidth(1200);
-        
-        primaryStage.setMinHeight(420);
-        primaryStage.setMinWidth(500);
-        
+        setPrimaryScene(WelcomeController.getFxmlPath());
+
+       // Window size
+        primaryStage.setMaxHeight(900);
+        primaryStage.setMaxWidth(900);
+
+        primaryStage.setMinHeight(600);
+        primaryStage.setMinWidth(800);
 
         primaryStage.show();
     }
@@ -42,20 +42,23 @@ public class Main extends Application {
         return primaryStage;
     }
 
-    public static AbstractController setPrimaryScene(AbstractController controller) {
-        FXMLLoader loader = new FXMLLoader(controller.getClass().getResource(controller.getFxmlPath()));
+    public static AbstractController setPrimaryScene(String fxmlPath) {
+        FXMLLoader loader = new FXMLLoader(Main.class.getResource(fxmlPath));
         Parent parent = null;
         try {
             parent = loader.load();
         } catch (IOException e) {
             DialogCreator.showExceptionDialog(e);
-            DialogCreator.showErrorDialog("Error", "An error has occurred", e.getMessage());
+            DialogCreator.showErrorDialog("An error has occurred", e.getMessage());
         }
-
-        primaryStage.setScene(new Scene(parent));
-        parent.getStylesheets().add(controller.getClass().getResource(controller.getCssPath()).toExternalForm());
-
+        if (primaryStage.getScene() == null) {
+            primaryStage.setScene(new Scene(parent));
+        } else {
+            primaryStage.getScene().setRoot(parent);
+        }
         AbstractController actualController = loader.getController();
+        parent.getStylesheets().add(actualController.getClass().getResource(actualController.getCssPath()).toExternalForm());
+
         return actualController;
     }
 

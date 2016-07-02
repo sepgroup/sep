@@ -36,9 +36,11 @@ public class Database {
             throw new DBException(e);
         }
 
-        URL dbUrl = Thread.currentThread().getContextClassLoader().getResource(dbPath);
-        String dbFullPath = dbUrl.getFile();
-        this.dbPath = dbFullPath;
+        URL dbUrl = Database.class.getResource(dbPath);
+        if (dbUrl == null) {
+            throw new DBException("Unable to load DB at " + dbPath);
+        }
+        this.dbPath = dbUrl.getFile();
     }
 
     private void openConnection() throws SQLException {
@@ -62,6 +64,7 @@ public class Database {
 
     public ResultSet query(String sql) throws SQLException {
         openConnection();
+        sql.replaceAll("[a-zA-Z0-9_!@#$%^&*()-=+~.;:,\\Q[\\E\\Q]\\E<>{}\\/? ]","");
         Statement s = conn.createStatement();
         s.setQueryTimeout(5);
         ResultSet rs = s.executeQuery(sql);
@@ -71,6 +74,7 @@ public class Database {
 
     public int insert(String sql) throws SQLException {
         openConnection();
+        sql.replaceAll("[a-zA-Z0-9_!@#$%^&*()-=+~.;:,\\Q[\\E\\Q]\\E<>{}\\/? ]","");
         PreparedStatement s = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
         s.setQueryTimeout(5);
 
@@ -94,6 +98,7 @@ public class Database {
 
     public void update(String sql) throws SQLException {
         openConnection();
+        sql.replaceAll("[a-zA-Z0-9_!@#$%^&*()-=+~.;:,\\Q[\\E\\Q]\\E<>{}\\/? ]","");
         Statement s = conn.createStatement();
         s.setQueryTimeout(5);
 
