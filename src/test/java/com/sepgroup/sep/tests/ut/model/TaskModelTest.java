@@ -281,6 +281,21 @@ public class TaskModelTest {
         createdTask.setStartDate(defaultDeadline);
     }
 
+    @Test(expected = InvalidInputException.class)
+    public void testSetNegativeBudget() throws Exception {
+        TaskModel createdTask = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId());
+        createdTask.setBudget(-100.0);
+    }
+
+    @Test
+    public void testSetBudget() throws Exception {
+        double budget = 100034.44;
+        TaskModel createdTask = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId());
+        createdTask.setBudget(budget);
+
+        assertThat(createdTask.getBudget(), equalTo(budget));
+    }
+
     @Ignore
     @Test
     public void testGetAllByProject() throws Exception {

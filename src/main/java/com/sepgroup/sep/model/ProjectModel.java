@@ -3,6 +3,7 @@ package com.sepgroup.sep.model;
 import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.db.DBObject;
 import com.sepgroup.sep.db.Database;
+import com.sepgroup.sep.utils.CurrencyUtils;
 import com.sepgroup.sep.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -195,7 +196,7 @@ public class ProjectModel extends AbstractModel {
         if (budget < 0) {
             throw new InvalidInputException("Budget must be a positive number.");
         }
-		this.budget = budget;
+		this.budget = CurrencyUtils.roundToTwoDecimals(budget);
 	}
 
     /**

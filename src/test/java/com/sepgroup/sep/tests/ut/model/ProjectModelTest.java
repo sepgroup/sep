@@ -131,6 +131,21 @@ public class ProjectModelTest {
         createdProject.setStartDate(defaultDeadline);
     }
 
+    @Test(expected = InvalidInputException.class)
+    public void testSetNegativeBudget() throws Exception {
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setBudget(-100.0);
+    }
+
+    @Test
+    public void testSetBudget() throws Exception {
+        double budget = 100034.44;
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setBudget(budget);
+
+        assertThat(createdProject.getBudget(), equalTo(budget));
+    }
+
     @Test
     public void testGetAllByManager() throws Exception {
         // TODO
