@@ -370,7 +370,7 @@ public class TaskModel extends AbstractModel {
      * @throws InvalidInputException if the start date is after the deadline
      */
     public void setStartDate(Date startDate) throws InvalidInputException{
-        if (deadline != null && startDate.after(deadline)) {
+        if (deadline != null && startDate != null && startDate.after(deadline)) {
             throw new InvalidInputException("Start date must be before deadline.");
         }
         this.startDate = DateUtils.filterDateToMidnight(startDate);
@@ -394,7 +394,7 @@ public class TaskModel extends AbstractModel {
      * @throws InvalidInputException if the deadline is before the start date
      */
     public void setDeadline(Date deadline) throws InvalidInputException {
-        if (startDate != null && deadline.before(startDate)) {
+        if (startDate != null && deadline != null && deadline.before(startDate)) {
             throw new InvalidInputException("Deadline must be after start date.");
         }
         this.deadline = DateUtils.filterDateToMidnight(deadline);

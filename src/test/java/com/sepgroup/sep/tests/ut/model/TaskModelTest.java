@@ -1,9 +1,6 @@
 package com.sepgroup.sep.tests.ut.model;
 
-import com.sepgroup.sep.model.ModelNotFoundException;
-import com.sepgroup.sep.model.ProjectModel;
-import com.sepgroup.sep.model.TaskModel;
-import com.sepgroup.sep.model.UserModel;
+import com.sepgroup.sep.model.*;
 import org.aeonbits.owner.ConfigFactory;
 import org.junit.*;
 
@@ -24,7 +21,7 @@ import static org.junit.Assert.fail;
 public class TaskModelTest {
 
     private static Date defaultStartDate = new Date();
-    private static Date defaultDeadline = new Date();
+    private static Date defaultDeadline = new Date(System.currentTimeMillis() + 9999*9999);
 
     private ProjectModel createdProject;
     private UserModel createdUser;
@@ -270,6 +267,19 @@ public class TaskModelTest {
         assertTrue(!t3Dependencies.contains(t1));
     }
 
+    @Test(expected = InvalidInputException.class)
+    public void testSetDeadlineNotBeforeStartDate() throws Exception {
+        TaskModel createdTask = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId());
+        createdTask.setStartDate(defaultDeadline);
+        createdTask.setDeadline(defaultStartDate);
+    }
+
+    @Test(expected = InvalidInputException.class)
+    public void testSetStartDateNotAfterDeadline() throws Exception {
+        TaskModel createdTask = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId());
+        createdTask.setDeadline(defaultStartDate);
+        createdTask.setStartDate(defaultDeadline);
+    }
 
     @Ignore
     @Test

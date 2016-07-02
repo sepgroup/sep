@@ -1,5 +1,6 @@
 package com.sepgroup.sep.tests.ut.model;
 
+import com.sepgroup.sep.model.InvalidInputException;
 import com.sepgroup.sep.model.ModelNotFoundException;
 import com.sepgroup.sep.model.ProjectModel;
 import org.aeonbits.owner.ConfigFactory;
@@ -22,7 +23,7 @@ import static org.junit.Assert.fail;
 public class ProjectModelTest {
 
     private static Date defaultStartDate = new Date();
-    private static Date defaultDeadline = new Date();
+    private static Date defaultDeadline = new Date(System.currentTimeMillis() + 9999*9999);
 
 
     @BeforeClass
@@ -114,6 +115,20 @@ public class ProjectModelTest {
         ProjectModel fetchedProject = ProjectModel.getById(pId);
 
         assertThat(fetchedProject, equalTo(createdProject));
+    }
+
+    @Test(expected = InvalidInputException.class)
+    public void testSetDeadlineNotBeforeStartDate() throws Exception {
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setStartDate(defaultDeadline);
+        createdProject.setDeadline(defaultStartDate);
+    }
+
+    @Test(expected = InvalidInputException.class)
+    public void testSetStartDateNotAfterDeadline() throws Exception {
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setDeadline(defaultStartDate);
+        createdProject.setStartDate(defaultDeadline);
     }
 
     @Test
