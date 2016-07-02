@@ -1,6 +1,8 @@
 package com.sepgroup.sep.controller;
 
 import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,25 +34,15 @@ public class TaskEditorController extends AbstractController {
     @FXML
 	public TextField editTaskNameField;
     @FXML
-  	public Label taskNameLabel;
-    @FXML
   	public Label taskIdLabel;
 	@FXML
 	public TextField editTaskBudgetField;
 	@FXML
-	public Label taskBudgetValueLabel;
-	@FXML
 	public DatePicker editStartDateTaskField;
-	@FXML
-	public Label taskStartDateValueLabel;
 	@FXML
 	public DatePicker editDeadlineTaskField;
 	@FXML
-	public Label taskDeadlineValueLabel;
-	@FXML
 	public TextField assigneeTaskField;
-	@FXML
-	public Label taskAssigneeLabel;
 	@FXML
 	public TextArea taskDescriptionArea;
     @FXML
@@ -289,11 +281,25 @@ public class TaskEditorController extends AbstractController {
     public void update() {
    	    if (this.model != null) {
    		    taskIdLabel.setText(String.valueOf(model.getTaskId()));
-   		    if (model.getName() != null) taskNameLabel.setText(model.getName());
-   		    taskBudgetValueLabel.setText(String.valueOf(model.getBudget()));
-   		    if (model.getStartDate() != null) taskStartDateValueLabel.setText(String.valueOf(model.getStartDate()));
-            if (model.getDeadline() != null) taskDeadlineValueLabel.setText(String.valueOf(model.getDeadline()));
-   		    if (model.getAssignee() != null) taskAssigneeLabel.setText(model.getAssignee().getFullName());
+   		    if (model.getName() != null) editTaskNameField.setText(model.getName());
+            editTaskBudgetField.setText(String.valueOf(model.getBudget()));
+   		    if (model.getStartDate() != null) {
+                try {
+                    LocalDate startDate = LocalDate.parse(model.getStartDateString());
+                    editStartDateTaskField.setValue(startDate);
+                } catch (DateTimeParseException e) {
+                    DialogCreator.showExceptionDialog(e);
+                }
+            }
+            if (model.getDeadline() != null) {
+                try {
+                    LocalDate deadline = LocalDate.parse(model.getDeadlineString());
+                    editDeadlineTaskField.setValue(deadline);
+                } catch (DateTimeParseException e) {
+                    DialogCreator.showExceptionDialog(e);
+                }
+            }
+   		    if (model.getAssignee() != null) assigneeTaskField.setText(model.getAssignee().getFullName());
             completeCheckBox.setSelected(model.isDone());
 
             refreshCurrentDependenciesList();

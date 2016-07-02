@@ -56,7 +56,6 @@
          <center>
             <Pane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
                <children>
-                  <Button fx:id="editProjectButton" layoutY="2.0" mnemonicParsing="false" onAction="#onEditProjectClicked" text="Edit Project" />
                   <Label fx:id="startDateLabel" layoutX="14.0" layoutY="41.0" text="Start date:" />
                   <Label fx:id="deadlineLabel" layoutX="16.0" layoutY="67.0" text="Deadline:" />
                   <Label fx:id="startDateValueLabel" layoutX="111.0" layoutY="41.0" text="[ start date ]" />

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
@@ -41,39 +40,34 @@
             </font></Button>
         <TextField fx:id="editTaskNameField" layoutX="105.0" layoutY="55.0" />
         <TextField fx:id="editTaskBudgetField" layoutX="105.0" layoutY="88.0" />
-      <DatePicker fx:id="editStartDateTaskField" layoutX="104.0" layoutY="120.0" prefHeight="25.0" prefWidth="149.0" />
-      <DatePicker fx:id="editDeadlineTaskField" layoutX="105.0" layoutY="152.0" prefHeight="25.0" prefWidth="149.0" />
-      <CheckBox fx:id="completeCheckBox" layoutX="348.0" layoutY="23.0" mnemonicParsing="false" text="Complete?">
-         <font>
-            <Font name="System Bold" size="12.0" />
-         </font>
-      </CheckBox>
-      <TextField fx:id="assigneeTaskField" layoutX="105.0" layoutY="188.0" />
-      <Label layoutX="22.0" layoutY="184.0" prefHeight="32.0" prefWidth="74.0" text="Assignee">
-         <font>
-            <Font name="System Bold" size="12.0" />
-         </font>
-      </Label>
-      <Label fx:id="taskIdLabel" layoutX="285.0" layoutY="23.0" text="[Task id]" />
-      <TextArea fx:id="taskDescriptionArea" layoutX="104.0" layoutY="232.0" prefHeight="51.0" prefWidth="149.0" />
-      <Label layoutX="22.0" layoutY="242.0" prefHeight="32.0" prefWidth="74.0" text="Description">
-         <font>
-            <Font name="System Bold" size="12.0" />
-         </font>
-      </Label>
-      <ListView fx:id="dependenciesTaskList" layoutX="383.0" layoutY="96.0" onMouseClicked="#onDependencyTaskListSelected" prefHeight="74.0" prefWidth="156.0" />
-      <Label layoutX="409.0" layoutY="60.0" prefHeight="32.0" prefWidth="105.0" text="Dependencies">
-         <font>
-            <Font name="System Bold" size="12.0" />
-         </font>
-      </Label>
-      <Label fx:id="taskNameLabel" layoutX="274.0" layoutY="59.0" text="[Task Name]" />
-      <Label fx:id="taskBudgetValueLabel" layoutX="273.0" layoutY="92.0" text="[ budget ]" />
-      <Label fx:id="taskStartDateValueLabel" layoutX="272.0" layoutY="125.0" text="[ start date ]" />
-      <Label fx:id="taskDeadlineValueLabel" layoutX="274.0" layoutY="157.0" text="[ end date ]" />
-      <Label fx:id="taskAssigneeLabel" layoutX="277.0" layoutY="192.0" text="[Assignee]" />
-      <ComboBox fx:id="dependenciesComboBox" layoutX="386.0" layoutY="235.0" onAction="#onDependenciesComboBoxSelected" prefWidth="150.0" />
-      <Button fx:id="addSelectedDependencyButton" disable="true" layoutX="400.0" layoutY="270.0" mnemonicParsing="false" onAction="#onAddDependencyClicked" text="Add Dependency" />
-      <Button fx:id="deleteSelectedDependencyButton" disable="true" layoutX="399.0" layoutY="179.0" mnemonicParsing="false" onAction="#onDeleteSelectedDependencyClicked" prefHeight="27.0" prefWidth="124.0" text="Delete Selected" />
+        <DatePicker fx:id="editStartDateTaskField" layoutX="104.0" layoutY="120.0" prefHeight="25.0" prefWidth="149.0" />
+        <DatePicker fx:id="editDeadlineTaskField" layoutX="105.0" layoutY="152.0" prefHeight="25.0" prefWidth="149.0" />
+        <TextField fx:id="assigneeTaskField" layoutX="105.0" layoutY="188.0" />
+        <Label layoutX="22.0" layoutY="184.0" prefHeight="32.0" prefWidth="74.0" text="Assignee">
+            <font>
+                <Font name="System Bold" size="12.0" />
+            </font>
+        </Label>
+        <TextArea fx:id="taskDescriptionArea" layoutX="104.0" layoutY="232.0" prefHeight="51.0" prefWidth="149.0" />
+        <Label layoutX="22.0" layoutY="242.0" prefHeight="32.0" prefWidth="74.0" text="Description">
+            <font>
+                <Font name="System Bold" size="12.0" />
+            </font>
+        </Label>
+        <CheckBox fx:id="completeCheckBox" layoutX="348.0" layoutY="23.0" mnemonicParsing="false" text="Complete?">
+            <font>
+              <Font name="System Bold" size="12.0" />
+          </font>
+        </CheckBox>
+        <Label fx:id="taskIdLabel" layoutX="285.0" layoutY="23.0" text="[Task id]" />
+        <ListView fx:id="dependenciesTaskList" layoutX="383.0" layoutY="96.0" onMouseClicked="#onDependencyTaskListSelected" prefHeight="74.0" prefWidth="156.0" />
+        <Label layoutX="409.0" layoutY="60.0" prefHeight="32.0" prefWidth="105.0" text="Dependencies">
+            <font>
+                <Font name="System Bold" size="12.0" />
+            </font>
+        </Label>
+        <ComboBox fx:id="dependenciesComboBox" layoutX="386.0" layoutY="235.0" onAction="#onDependenciesComboBoxSelected" prefWidth="150.0" />
+        <Button fx:id="addSelectedDependencyButton" disable="true" layoutX="400.0" layoutY="270.0" mnemonicParsing="false" onAction="#onAddDependencyClicked" text="Add Dependency" />
+        <Button fx:id="deleteSelectedDependencyButton" disable="true" layoutX="399.0" layoutY="179.0" mnemonicParsing="false" onAction="#onDeleteSelectedDependencyClicked" prefHeight="27.0" prefWidth="124.0" text="Delete Selected" />
     </children>
 </AnchorPane>

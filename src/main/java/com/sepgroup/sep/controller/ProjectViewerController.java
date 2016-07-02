@@ -44,7 +44,6 @@ public class ProjectViewerController extends AbstractController {
     public Label completeValueLabel;
     @FXML
     public TableView<ListableTaskModel> taskTableView;
-
     @FXML
     public TableColumn<ListableTaskModel, Integer> taskIdColumn;
     @FXML
@@ -87,7 +86,7 @@ public class ProjectViewerController extends AbstractController {
             completeValueLabel.setText(model.isDone() ? "Yes" : "No");
 
             // Populate manager
-            String managerName = "";
+            String managerName;
             int managerUserID = model.getManagerUserId();
             if (managerUserID == 0) {
                 managerName = "[ none ]";
@@ -97,6 +96,7 @@ public class ProjectViewerController extends AbstractController {
                     managerName = manager.getFirstName() + " " + manager.getLastName();
                 } catch (ModelNotFoundException e) {
                     logger.error("Error finding user with ID " + managerUserID);
+                    managerName = "[ none ]";
                 }
             }
             managerValueLabel.setText(managerName);
