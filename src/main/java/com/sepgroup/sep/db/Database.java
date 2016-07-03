@@ -1,6 +1,5 @@
 package com.sepgroup.sep.db;
 
-import com.sepgroup.sep.Main;
 import com.sepgroup.sep.SepUserStorage;
 import com.sepgroup.sep.model.ModelNotFoundException;
 import com.sepgroup.sep.model.ProjectModel;
@@ -11,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -68,7 +66,7 @@ public class Database {
 
     public ResultSet query(String sql) throws SQLException {
         openConnection();
-        sql.replaceAll("[a-zA-Z0-9_!@#$%^&*()-=+~.;:,\\Q[\\E\\Q]\\E<>{}\\/? ]","");
+//        sql.replaceAll("[a-zA-Z0-9_!@#$%^&*()-=+~.;:,\\Q[\\E\\Q]\\E<>{}\\/? ]","");
         Statement s = conn.createStatement();
         s.setQueryTimeout(5);
         ResultSet rs = s.executeQuery(sql);
@@ -78,7 +76,7 @@ public class Database {
 
     public int insert(String sql) throws SQLException {
         openConnection();
-        sql.replaceAll("[a-zA-Z0-9_!@#$%^&*()-=+~.;:,\\Q[\\E\\Q]\\E<>{}\\/? ]","");
+//        sql.replaceAll("[a-zA-Z0-9_!@#$%^&*()-=+~.;:,\\Q[\\E\\Q]\\E<>{}\\/? ]","");
         PreparedStatement s = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
         s.setQueryTimeout(5);
 
@@ -102,7 +100,7 @@ public class Database {
 
     public void update(String sql) throws SQLException {
         openConnection();
-        sql.replaceAll("[a-zA-Z0-9_!@#$%^&*()-=+~.;:,\\Q[\\E\\Q]\\E<>{}\\/? ]","");
+//        sql.replaceAll("[a-zA-Z0-9_!@#$%^&*()-=+~.;:,\\Q[\\E\\Q]\\E<>{}\\/? ]","");
         Statement s = conn.createStatement();
         s.setQueryTimeout(5);
 
@@ -134,7 +132,8 @@ public class Database {
 	}
 
     /**
-     * Get the instance of the DB from the specified path
+     * Get the instance of the DB from the path specified in the properties file (db.properties for main code,
+     * db-test.properties for testing code)
      */
     public static Database getActiveDB() throws DBException {
         if (ConfigFactory.getProperty("configPath") == null) {
@@ -159,7 +158,9 @@ public class Database {
         }
         else {
             logger.debug("DB " + dbPath + " was not already active, creating instance");
-            return new Database(dbPath);
+            Database newDb = new Database(dbPath);
+            activeDBs.put(dbPath, newDb);
+            return newDb;
         }
     }
 

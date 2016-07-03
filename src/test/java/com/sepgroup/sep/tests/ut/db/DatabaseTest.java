@@ -5,6 +5,8 @@ import com.sepgroup.sep.model.ProjectModel;
 import org.aeonbits.owner.ConfigFactory;
 import org.junit.*;
 
+import java.io.File;
+import java.nio.file.Paths;
 import java.sql.ResultSet;
 
 import static org.hamcrest.CoreMatchers.endsWith;
@@ -29,7 +31,7 @@ public class DatabaseTest {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        ConfigFactory.setProperty("configPath", DatabaseTest.class.getResource("\\test-db.properties").getFile());
+        ConfigFactory.setProperty("configPath", DatabaseTest.class.getResource(File.separator + "test-db.properties").getFile());
 
     }
 
@@ -45,7 +47,7 @@ public class DatabaseTest {
         db = Database.getDB(dbPath);
 
         assertThat(db, notNullValue());
-        assertThat(db.getDbPath(), endsWith("\\test.db"));
+        assertThat(db.getDbPath(), endsWith(dbPath));
     }
 
     @Test
@@ -53,7 +55,7 @@ public class DatabaseTest {
         db = Database.getActiveDB();
 
         assertThat(db, notNullValue());
-        assertThat(db.getDbPath(), endsWith("/test.db"));
+        assertThat(db.getDbPath(), endsWith(dbPath));
     }
 
     @Test
