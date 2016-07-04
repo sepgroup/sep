@@ -120,7 +120,7 @@ public class TaskModel extends AbstractModel {
         this.name = name;
         this.description = description;
         this.projectId = projectId;
-        this.budget = budget;
+        this.budget = CurrencyUtils.roundToTwoDecimals(budget);
         this.startDate = startDate;
         this.deadline = deadline;
         this.done = done;

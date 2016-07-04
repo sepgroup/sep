@@ -3,11 +3,13 @@ package com.sepgroup.sep.model;
 import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.db.DBObject;
 import com.sepgroup.sep.db.Database;
+import com.sepgroup.sep.utils.CurrencyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Currency;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -68,7 +70,7 @@ public class UserModel extends AbstractModel {
         this();
         this.firstName = firstName;
         this.lastName = lastName;
-        this.salaryPerHour = salaryPerHour;
+        this.salaryPerHour = CurrencyUtils.roundToTwoDecimals(salaryPerHour);
         this.userId = userId;
     }
 
@@ -228,7 +230,7 @@ public class UserModel extends AbstractModel {
         if (salaryPerHour < 0) {
             throw new InvalidInputException("Salary must be positive.");
         } else {
-            this.salaryPerHour = salaryPerHour;
+            this.salaryPerHour = CurrencyUtils.roundToTwoDecimals(salaryPerHour);
         }
     }
 
