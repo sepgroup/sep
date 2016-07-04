@@ -119,7 +119,7 @@ public class UserModel extends AbstractModel {
 
     public static UserModel getEmptyUser() {
         if (emptyUser == null) {
-            emptyUser = new UserModel("No", "user");
+            emptyUser = new UserModel("None", "");
         }
         return emptyUser;
     }
@@ -134,8 +134,19 @@ public class UserModel extends AbstractModel {
     }
 
     /**
-     * Get the user ID
-     * @return the user ID
+     * It removes all tuples from User table
+     * @throws DBException
+     */
+    public static void cleanData()throws DBException{
+        new UserModel().dbo.clean();
+    }
+
+    public static void createTable() throws DBException{
+        new UserModel().dbo.createTable();
+    }
+    /**
+     *
+     * @return
      */
     public int getUserId() {
         return userId;
@@ -261,7 +272,7 @@ public class UserModel extends AbstractModel {
 
     // TODO cascade to task assignee & project manager when user deleted
 
-    class UserModelDBObject implements DBObject {
+    public class UserModelDBObject implements DBObject {
 
         private final Logger logger = LoggerFactory.getLogger(UserModel.UserModelDBObject.class);
 
@@ -311,7 +322,7 @@ public class UserModel extends AbstractModel {
                     u = new UserModel(userIdTemp, firstNameTemp, lastNameTemp, salaryPerHourTemp);
                 }
                 else {
-                    logger.info("DB query returned zero results");
+                    logger.debug("DB query returned zero results");
                     throw new ModelNotFoundException("DB query for user ID " + userId + " returned no results");
                 }
             }
@@ -452,6 +463,53 @@ public class UserModel extends AbstractModel {
             } catch (SQLException e) {
                 logger.error("Unable to delete user with ID " + getUserId() + ". Query: " + sql, e);
                 throw new DBException("Unable to delete user with ID " + getUserId() + ". Query: " + sql, e);
+            } finally {
+                try {
+                    db.closeConnection();
+                } catch (SQLException e) {
+                    throw new DBException("Unable to close connection to " + db.getDbPath(), e);
+                }
+            }
+        }
+
+        @Override
+        public void clean() throws DBException {
+            StringBuilder sql = new StringBuilder();
+            sql.append("DELETE FROM " + getTableName() + ";");
+            try {
+                if (this.findAll() != null) {
+                    try {
+                        db.update(sql.toString());
+                    } catch (SQLException e) {
+                        logger.error("Unable to delete data from table " + getTableName(), e);
+                        throw new DBException(e);
+                    } finally {
+                        try {
+                            db.closeConnection();
+                        } catch (SQLException e) {
+                            throw new DBException("Unable to close connection to " + db.getDbPath(), e);
+                        }
+                    }
+                }
+            } catch(ModelNotFoundException e) {
+                logger.debug(e.getLocalizedMessage());
+            }
+        }
+
+        @Override
+        public void createTable() throws DBException{
+            StringBuilder sql = new StringBuilder();
+            sql.append("CREATE TABLE IF NOT EXISTS "+ getTableName()+" (");
+            sql.append(USER_ID_COLUMN+ " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT"+",");
+            sql.append(FIRST_NAME_COLUMN+" VARCHAR(50)"+",");
+            sql.append(LAST_NAME_COLUMN+" VARCHAR(50)"+",");
+            sql.append(SALARY_PER_HOUR_COLUMN+" FLOAT"+");");
+
+            try {
+                db.create(sql.toString());
+            } catch (SQLException e) {
+                logger.error("Unable to create table "+ getTableName(), e);
+                throw new DBException(e);
             } finally {
                 try {
                     db.closeConnection();

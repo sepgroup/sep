@@ -181,7 +181,7 @@ public class ProjectEditorController extends AbstractController {
             }
 
             // Description
-            if (!projectDescriptionTextArea.getText().equals("")) {
+            if (projectDescriptionTextArea.getText() != null) {
                 model.setProjectDescription(projectDescriptionTextArea.getText());
             }
 
@@ -215,11 +215,15 @@ public class ProjectEditorController extends AbstractController {
             editNameField.setText(model.getName());
             projectDescriptionTextArea.setText(model.getProjectDescription());
             try {
-                LocalDate startDate = LocalDate.parse(model.getStartDateString());
-                editStartDatePicker.setValue(startDate);
+                if (model.getStartDate() != null) {
+                    LocalDate startDate = LocalDate.parse(model.getStartDateString());
+                    editStartDatePicker.setValue(startDate);
+                }
 
-                LocalDate deadline = LocalDate.parse(model.getDeadlineString());
-                editDeadlinePicker.setValue(deadline);
+                if (model.getDeadline() != null) {
+                    LocalDate deadline = LocalDate.parse(model.getDeadlineString());
+                    editDeadlinePicker.setValue(deadline);
+                }
             } catch (DateTimeParseException e) {
                 DialogCreator.showExceptionDialog(e);
             }
