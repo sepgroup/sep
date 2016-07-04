@@ -42,7 +42,7 @@ public class TaskEditorController extends AbstractController {
 	@FXML
 	public DatePicker editDeadlineTaskField;
 	@FXML
-	public TextField assigneeTaskField;
+	public ComboBox<UserModel> assigneeComboBox;
 	@FXML
 	public TextArea taskDescriptionArea;
     @FXML
@@ -72,7 +72,7 @@ public class TaskEditorController extends AbstractController {
     }
     
     @FXML
-    public void onEditTaskCancelClicked() {
+    public void onCancelClicked() {
         // Ignore all changes made to task
         try {
             model.refreshData();
@@ -87,7 +87,7 @@ public class TaskEditorController extends AbstractController {
     }
 
     @FXML
-    public void onEditTaskUpdateClicked() {
+    public void onUpdateClicked() {
         // Name
         if (editTaskNameField.getText() != null && editTaskNameField.getText().length() > 0) {
             try {
@@ -115,6 +115,8 @@ public class TaskEditorController extends AbstractController {
                 DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
                 return;
             }
+        } else {
+            model.removeStartDate();
         }
 
         // Deadline
@@ -135,6 +137,9 @@ public class TaskEditorController extends AbstractController {
                 return;
             }
         }
+        else {
+            model.removeDeadline();
+        }
 
         // Budget
         if (!editTaskBudgetField.getText().equals("")) {
@@ -152,29 +157,32 @@ public class TaskEditorController extends AbstractController {
                 DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
                 return;
             }
+        } else {
+            try {
+                model.setBudget(0);
+            } catch (InvalidInputException e) {
+                logger.error("Error setting task budget to 0 when user left field blank", e);
+                DialogCreator.showExceptionDialog(e);
+                return;
+            }
         }
 
         // Assignee
-        // TODO user name instead of ID
-        if (!assigneeTaskField.getText().equals("")) {
-            int assigneeId;
+        UserModel selectedAssignee = assigneeComboBox.getSelectionModel().getSelectedItem();
+        if (selectedAssignee == null || selectedAssignee == UserModel.getEmptyUser()) {
+            model.removeAssignee();
+        }
+        else {
             try {
-                assigneeId = Integer.parseInt(assigneeTaskField.getText());
-            } catch (NumberFormatException e) {
-                DialogCreator.showErrorDialog("Invalid user ID", "Enter a valid manager user ID.");
-                return;
+                model.setAssignee(selectedAssignee);
+            } catch (InvalidInputException e) {
+                logger.error("User being assigned to task is invalid", e);
+                DialogCreator.showExceptionDialog(e);
             }
-//            try {
-//                model.setAssigneeUserId(assigneeId);
-//            } catch (InvalidInputException e) {
-//                DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
-//                return;
-//            }
         }
 
-        if (!taskDescriptionArea.getText().equals("")) {
-            model.setDescription(taskDescriptionArea.getText());
-        }
+        // Description
+        model.setDescription(taskDescriptionArea.getText());
 
         // Complete
         model.setDone(completeCheckBox.isSelected());
@@ -299,7 +307,20 @@ public class TaskEditorController extends AbstractController {
                     DialogCreator.showExceptionDialog(e);
                 }
             }
-   		    if (model.getAssignee() != null) assigneeTaskField.setText(model.getAssignee().getFullName());
+
+            // Populate assignee list
+            List<UserModel> userList;
+            try {
+                userList = UserModel.getAll();
+            } catch (ModelNotFoundException e) {
+                logger.debug("No users found.");
+                userList = new LinkedList<>();
+            }
+            userList.add(0, UserModel.getEmptyUser());
+            ObservableList<UserModel> observableUserList = FXCollections.observableList(userList);
+            assigneeComboBox.setItems(observableUserList);
+   		    if (model.getAssignee() != null) assigneeComboBox.getSelectionModel().select(model.getAssignee());
+
             completeCheckBox.setSelected(model.isDone());
 
             refreshCurrentDependenciesList();

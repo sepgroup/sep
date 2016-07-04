@@ -1,20 +1,21 @@
 package com.sepgroup.sep.controller;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 import com.sepgroup.sep.Main;
 import com.sepgroup.sep.db.DBException;
-import com.sepgroup.sep.model.InvalidInputException;
-import com.sepgroup.sep.model.ProjectModel;
-import com.sepgroup.sep.model.TaskModel;
+import com.sepgroup.sep.model.*;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import com.sepgroup.sep.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +37,7 @@ public class TaskCreatorController extends AbstractController {
 	@FXML
 	public DatePicker taskDeadlinePicker;
 	@FXML
-	public TextField taskAssigneeNumber; 	
+	public ComboBox<UserModel> assigneeComboBox;
 	@FXML
 	public TextArea taskDescriptionArea;
 
@@ -48,6 +49,7 @@ public class TaskCreatorController extends AbstractController {
     public void initialize() {
         // TODO doesn't actually focus?
         taskNameField.requestFocus();
+        update();
     }
 
     public static String getFxmlPath() {
@@ -130,21 +132,14 @@ public class TaskCreatorController extends AbstractController {
         }
 
         // Assignee
-        // TODO get user ID field
-        if (!taskAssigneeNumber.getText().equals("")) {
-            int assigneeID;
+        UserModel selectedAssignee = assigneeComboBox.getSelectionModel().getSelectedItem();
+        if (selectedAssignee != null && selectedAssignee != UserModel.getEmptyUser()) {
             try {
-                assigneeID = Integer.parseInt(taskAssigneeNumber.getText());
-            } catch (NumberFormatException e) {
-                DialogCreator.showErrorDialog("Invalid user ID", "Enter a valid manager user ID.");
-                return;
+                createdTask.setAssignee(selectedAssignee);
+            } catch (InvalidInputException e) {
+                logger.error("User being assigned to task is invalid", e);
+                DialogCreator.showExceptionDialog(e);
             }
-//            try {
-//                createdTask.setAssigneeUserId(assigneeID);
-//            } catch (InvalidInputException e) {
-//                DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
-//                return;
-//            }
         }
 
         // Description
@@ -167,6 +162,16 @@ public class TaskCreatorController extends AbstractController {
 	
 	@Override
 	public void update() {
-		// None needed for this controller
+        // Populate assignee list
+        List<UserModel> userList;
+        try {
+            userList = UserModel.getAll();
+        } catch (ModelNotFoundException e) {
+            logger.debug("No users found.");
+            userList = new LinkedList<>();
+        }
+        userList.add(0, UserModel.getEmptyUser());
+        ObservableList<UserModel> observableUserList = FXCollections.observableList(userList);
+        assigneeComboBox.setItems(observableUserList);
 	}
 }

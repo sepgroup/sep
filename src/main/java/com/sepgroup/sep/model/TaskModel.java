@@ -377,6 +377,10 @@ public class TaskModel extends AbstractModel {
         this.startDate = DateUtils.filterDateToMidnight(startDate);
     }
 
+    public void removeStartDate() {
+        this.startDate = null;
+    }
+
     public Date getDeadline() {
         return deadline;
     }
@@ -395,8 +399,16 @@ public class TaskModel extends AbstractModel {
      * @throws InvalidInputException if the deadline is before the start date
      */
     public void setDeadline(Date deadline) throws InvalidInputException {
-        if (startDate != null && deadline != null && deadline.before(startDate)) {
-            throw new InvalidInputException("Deadline must be after start date.");
+        if (deadline != null) {
+            if (startDate != null) {
+                if (deadline.before(startDate)) {
+                    throw new InvalidInputException("Deadline must be after start date.");
+                } else {
+                    this.deadline = DateUtils.filterDateToMidnight(deadline);
+                }
+            } else {
+                throw new InvalidInputException("Cannot set actual deadline on task w/o start date");
+            }
         }
         this.deadline = DateUtils.filterDateToMidnight(deadline);
     }
@@ -412,6 +424,10 @@ public class TaskModel extends AbstractModel {
         } catch (ParseException e) {
             throw new InvalidInputException("Invalid deadline string.");
         }
+    }
+
+    public void removeDeadline() {
+        this.deadline = null;
     }
 
     public boolean isDone() {
@@ -439,6 +455,10 @@ public class TaskModel extends AbstractModel {
         }
 
         this.assignee = assignee;
+    }
+
+    public void removeAssignee() {
+        this.assignee = null;
     }
 
     public void setAssignee(int assigneeUserId) throws InvalidInputException, ModelNotFoundException {
@@ -641,7 +661,7 @@ public class TaskModel extends AbstractModel {
                     }
 
                     String tagsTemp = rs.getString(TAGS_COLUMN);
-                    List<String> tagsListTemp = null;
+                    List<String> tagsListTemp;
                     if (tagsTemp != null) {
                         tagsListTemp = getTagsListFromString(tagsTemp);
                     }
@@ -955,15 +975,16 @@ public class TaskModel extends AbstractModel {
             sql.append("UPDATE "+ getTableName() + " ");
             sql.append("SET ");
             sql.append(TASK_NAME_COLUMN + "='" + getName() + "'");
-            if (getDescription() != null) sql.append(", " + DESCRIPTION_COLUMN + "='" + getDescription() + "' ");
+            sql.append(", " + DESCRIPTION_COLUMN + "='" + (getDescription() != null ? getDescription() : "") + "' ");
             sql.append(", " + PROJECT_ID_COLUMN + "=" + getProjectId() + " ");
             sql.append(", " + BUDGET_COLUMN + "=" + getBudget() + " ");
-            if (getStartDate() != null) sql.append(", " + START_DATE_COLUMN + "='" +
-                    DateUtils.castDateToString(getStartDate()) + "' ");
-            if (getDeadline() != null) sql.append(", " + DEADLINE_COLUMN + "='" +
-                    DateUtils.castDateToString(getDeadline()) + "' ");
+            sql.append(", " + START_DATE_COLUMN + "='" +
+                    (getStartDate() != null ? DateUtils.castDateToString(getStartDate()) : "NULL") + "' ");
+            sql.append(", " + DEADLINE_COLUMN + "='" +
+                    (getDeadline() != null ? DateUtils.castDateToString(getDeadline()) : "NULL") + "' ");
             sql.append(", " + DONE_COLUMN + "=" + (isDone() ? 1 : 0) + " ");
-            if (getAssignee() != null) sql.append(", " + ASSIGNEE_USER_ID_COLUMN + "=" + getAssignee().getUserId() + " ");
+            sql.append(", " + ASSIGNEE_USER_ID_COLUMN + "=" +
+                    (getAssignee() != null ? getAssignee().getUserId() : "0") + " ");
             if (getTags().size() > 0) sql.append(", " + TAGS_COLUMN + "='" + getTagsString() + "' ");
             sql.append("WHERE " + TASK_ID_COLUMN + "=" + getTaskId() + ";");
 

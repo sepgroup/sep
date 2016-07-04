@@ -18,9 +18,12 @@ public class DateUtils {
     /**
      * Makes Date object to the String format which is easier to put in database
      * @param input Date object that we want to cast to String
-     * @return String format of Date
+     * @return String format of Date, null if input is null
      */
     public static String castDateToString(Date input) {
+        if (input == null) {
+            return null;
+        }
         SimpleDateFormat temp = new SimpleDateFormat("yyyy-MM-dd");
         String date = temp.format(input);
         return date;
@@ -29,16 +32,16 @@ public class DateUtils {
     /**
      * Makes String to Date object
      * @param input this is a String format variable
-     * @return Date object
+     * @return Date object represented by the input string, null if the input is null or "NULL"
      */
     public static Date castStringToDate(String input) throws ParseException {
         Date date = null;
-        if (input != null && input != "") {
+        if (input != null && !input.equals("NULL") && input != "") {
             SimpleDateFormat temp = new SimpleDateFormat("yyyy-MM-dd");
             date = temp.parse(input);
         }
         else {
-            logger.debug("Inputed null or empty date, leaving as null");
+            logger.debug("Inputed null or empty date, returning null");
         }
         return date;
     }

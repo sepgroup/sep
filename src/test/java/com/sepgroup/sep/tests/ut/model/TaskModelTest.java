@@ -145,9 +145,9 @@ public class TaskModelTest {
     @Test
     public void testGetAll() throws Exception {
         new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 10000, defaultStartDate,
-                defaultDeadline, false, null).persistData();
+                defaultDeadline, false, createdUser).persistData();
         new TaskModel("T2", "Description of\n T2", createdProject.getProjectId(), 20000, defaultStartDate,
-                defaultDeadline, false, null).persistData();
+                defaultDeadline, false, createdUser).persistData();
         List<TaskModel> taskList = TaskModel.getAll();
 
         assertThat(taskList.size(), isA(Integer.class));
