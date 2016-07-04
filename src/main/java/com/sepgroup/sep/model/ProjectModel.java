@@ -3,6 +3,7 @@ package com.sepgroup.sep.model;
 import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.db.DBObject;
 import com.sepgroup.sep.db.Database;
+import com.sepgroup.sep.utils.CurrencyUtils;
 import com.sepgroup.sep.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +63,7 @@ public class ProjectModel extends AbstractModel {
         setProjectDescription(projectDescription);
 	}
 	/**
-	 * This constructor is for internal use to fetch data from database
+	 * This constructor is for package use to fetch data from database
 	 * this is private because we do not want the user assigned id to the project
 	 * @param id the unique value for project
 	 * @param name Name of project
@@ -70,7 +71,7 @@ public class ProjectModel extends AbstractModel {
 	 * @param dl Deadline of project
 	 * @param budget Dedicated Budget to the project
 	 */
-	private ProjectModel(int id, String name, Date sd, Date dl, double budget, boolean done, int managerUserId,
+	protected ProjectModel(int id, String name, Date sd, Date dl, double budget, boolean done, int managerUserId,
                          String projectDescription) {
         this();
         this.name = name;
@@ -201,7 +202,7 @@ public class ProjectModel extends AbstractModel {
         if (budget < 0) {
             throw new InvalidInputException("Budget must be a positive number.");
         }
-		this.budget = budget;
+		this.budget = CurrencyUtils.roundToTwoDecimals(budget);
 	}
 
     /**
@@ -230,7 +231,7 @@ public class ProjectModel extends AbstractModel {
      * @throws InvalidInputException if the start date is after the deadline
      */
     public void setStartDate(Date startDate) throws InvalidInputException{
-        if (deadline != null && startDate.after(deadline)) {
+        if (deadline != null && startDate != null && startDate.after(deadline)) {
             throw new InvalidInputException("Start date must be before deadline.");
         }
         this.startDate = DateUtils.filterDateToMidnight(startDate);
@@ -258,7 +259,7 @@ public class ProjectModel extends AbstractModel {
      * @throws InvalidInputException if the deadline is before the start date
 	 */
 	public void setDeadline(Date deadline) throws InvalidInputException {
-        if (startDate != null && deadline.before(startDate)) {
+        if (startDate != null && deadline != null && deadline.before(startDate)) {
             throw new InvalidInputException("Deadline must be after start date.");
         }
         this.deadline = DateUtils.filterDateToMidnight(deadline);

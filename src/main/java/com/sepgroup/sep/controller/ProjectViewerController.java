@@ -7,12 +7,12 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,6 +25,7 @@ public class ProjectViewerController extends AbstractController {
     private static Logger logger = LoggerFactory.getLogger(ProjectViewerController.class);
     private static final String fxmlPath = "/views/projectviewer.fxml";
     private ProjectModel model;
+    private List<ListableTaskModel> tasksList;
 
     @FXML
     public Text projectNameText;
@@ -42,7 +43,6 @@ public class ProjectViewerController extends AbstractController {
     public Label completeValueLabel;
     @FXML
     public TableView<ListableTaskModel> taskTableView;
-
     @FXML
     public TableColumn<ListableTaskModel, Integer> taskIdColumn;
     @FXML
@@ -85,7 +85,7 @@ public class ProjectViewerController extends AbstractController {
             completeValueLabel.setText(model.isDone() ? "Yes" : "No");
 
             // Populate manager
-            String managerName = "";
+            String managerName;
             int managerUserID = model.getManagerUserId();
             if (managerUserID == 0) {
                 managerName = "[ none ]";
@@ -95,6 +95,7 @@ public class ProjectViewerController extends AbstractController {
                     managerName = manager.getFirstName() + " " + manager.getLastName();
                 } catch (ModelNotFoundException e) {
                     logger.error("Error finding user with ID " + managerUserID);
+                    managerName = "[ none ]";
                 }
             }
             managerValueLabel.setText(managerName);
@@ -102,12 +103,13 @@ public class ProjectViewerController extends AbstractController {
             // Populate tasks list
             try {
                 logger.debug("Populating tasks list");
-                List<ListableTaskModel> tasksList = TaskModel.getAllByProject(model.getProjectId()).stream()
+                tasksList = TaskModel.getAllByProject(model.getProjectId()).stream()
                         .map(ListableTaskModel::new).collect(Collectors.toList());
                 ObservableList<ListableTaskModel> observableTaskList = FXCollections.observableList(tasksList);
                 taskTableView.setItems(observableTaskList);
             } catch (ModelNotFoundException e) {
                 logger.debug("No tasks found for project " + model.toString());
+                tasksList = new LinkedList<>();
             }
             taskIdColumn.setCellValueFactory(cellData -> cellData.getValue().taskIdProperty().asObject());
             taskNameColumn.setCellValueFactory(cellData -> cellData.getValue().taskNameProperty());
@@ -118,14 +120,16 @@ public class ProjectViewerController extends AbstractController {
             assigneeColumn.setCellValueFactory(cellData -> cellData.getValue().assigneeProperty());
 
             // Populate user filter combo box
-            // TODO
+            List<UserModel> userList;
             try {
-                List<UserModel> userList = UserModel.getAll();
-                ObservableList<UserModel> observableUserList = FXCollections.observableList(userList);
-                userFilterComboBox.setItems(observableUserList);
+                userList = UserModel.getAll();
             } catch (ModelNotFoundException e) {
                 logger.debug("No users found.");
+                userList = new LinkedList<>();
             }
+            userList.add(0, UserModel.getEmptyUser());
+            ObservableList<UserModel> observableUserList = FXCollections.observableList(userList);
+            userFilterComboBox.setItems(observableUserList);
         }
     }
 
@@ -183,22 +187,30 @@ public class ProjectViewerController extends AbstractController {
     public void onUserFilterComboBoxClicked() {
         UserModel selectedUser = userFilterComboBox.getSelectionModel().getSelectedItem();
         if (selectedUser != null) {
-            // TODO filter
+            ObservableList<ListableTaskModel> newTaskList;
+            if (selectedUser.equals(UserModel.getEmptyUser())) {
+                // "Empty" user selected, remove assignee filter
+                newTaskList = FXCollections.observableList(tasksList);
+            }
+            else {
+                newTaskList = FXCollections.observableList(tasksList)
+                        .filtered(t -> selectedUser.equals(t.getModel().getAssignee()));
+            }
+            taskTableView.setItems(newTaskList);
         }
     }
 
-    public void onAddUserClicked() {
-        // TODO add user
+    public void onAddUserMenuItemClicked() {
+        UserCreatorController ucc = (UserCreatorController) Main.setPrimaryScene(UserCreatorController.getFxmlPath());
+        ucc.setReturnProject(model);
     }
     
     public void showInfo() {
-    	Alert alert = new Alert(AlertType.INFORMATION);
-    	alert.setTitle("Info");
-		alert.setHeaderText("Version 1.0. Team members:");
-		alert.setContentText("Jeremy Brown \nAli Zoghi \nCharles Tondreau-Alin \nNicola Polesana"
+        String headerText = "SEP Version 0.1.";
+		String contentText = "Team Members: \nJeremy Brown \nAli Zoghi \nCharles Tondreau-Alin \nNicola Polesana"
 				+ "\nAndres Gonzales \nDemo Kioussis \nJustin Watley \nMark Chmilar \nVince Fugnitto"
-				+ "\nMichael Deom");
-		alert.showAndWait();
-    }
+				+ "\nMichael Deom";
 
+        DialogCreator.showInfoDialog(headerText, contentText);
+    }
 }

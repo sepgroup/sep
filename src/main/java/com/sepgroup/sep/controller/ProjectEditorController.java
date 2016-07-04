@@ -1,6 +1,8 @@
 package com.sepgroup.sep.controller;
 
 import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 
 import com.sepgroup.sep.model.InvalidInputException;
@@ -37,16 +39,6 @@ public class ProjectEditorController extends AbstractController {
 	public DatePicker editDeadlinePicker;
 	@FXML
 	public TextField editManagerField;
-	@FXML
-	public Label projectNameLabel;
-    @FXML
-    public Label budgetValueLabel;
-    @FXML
-    public Label startDateValueLabel;
-    @FXML
-    public Label deadlineValueLabel;
-    @FXML
-    public Label managerValueLabel;
     @FXML
     public Text projectNameText;
     @FXML
@@ -189,7 +181,7 @@ public class ProjectEditorController extends AbstractController {
             }
 
             // Description
-            if (!projectDescriptionTextArea.getText().equals("")) {
+            if (projectDescriptionTextArea.getText() != null) {
                 model.setProjectDescription(projectDescriptionTextArea.getText());
             }
 
@@ -220,11 +212,23 @@ public class ProjectEditorController extends AbstractController {
 	public void update() {
         if (this.model != null) {
             projectNameText.setText(model.getName());
-            projectNameLabel.setText(model.getName());
+            editNameField.setText(model.getName());
             projectDescriptionTextArea.setText(model.getProjectDescription());
-            startDateValueLabel.setText(model.getStartDateString());
-            deadlineValueLabel.setText(model.getDeadlineString());
-            budgetValueLabel.setText(Double.toString(model.getBudget()));
+            try {
+                if (model.getStartDate() != null) {
+                    LocalDate startDate = LocalDate.parse(model.getStartDateString());
+                    editStartDatePicker.setValue(startDate);
+                }
+
+                if (model.getDeadline() != null) {
+                    LocalDate deadline = LocalDate.parse(model.getDeadlineString());
+                    editDeadlinePicker.setValue(deadline);
+                }
+            } catch (DateTimeParseException e) {
+                DialogCreator.showExceptionDialog(e);
+            }
+
+            editBudgetField.setText(Double.toString(model.getBudget()));
 
             // Populate manager
             String managerName = "";
@@ -234,14 +238,14 @@ public class ProjectEditorController extends AbstractController {
             } else {
                 try {
                     UserModel manager = UserModel.getById(managerUserID);
-                    managerName = manager.getFirstName() + " " + manager.getLastName();
+                    managerName = manager.getFullName();
                 } catch (ModelNotFoundException e) {
                     // TODO handle
                 }
             }
 
             // TODO fix if we want manager name
-            managerValueLabel.setText(Integer.toString(managerUserID));
+            editManagerField.setText(Integer.toString(managerUserID));
         }
     }
 }

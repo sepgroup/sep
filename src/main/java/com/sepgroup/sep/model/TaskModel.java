@@ -3,6 +3,7 @@ package com.sepgroup.sep.model;
 import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.db.DBObject;
 import com.sepgroup.sep.db.Database;
+import com.sepgroup.sep.utils.CurrencyUtils;
 import com.sepgroup.sep.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,7 @@ public class TaskModel extends AbstractModel {
     private Date startDate;
     private Date deadline;
     private boolean done;
-    private int assigneeUserId;
+    private UserModel assignee;
     private List<String> tags;
     private List<TaskModel> dependencies;
 
@@ -68,17 +69,17 @@ public class TaskModel extends AbstractModel {
      * @param startDate
      * @param deadline
      * @param done
-     * @param assigneeUserId
+     * @param assignee
      * @throws InvalidInputException
      */
     public TaskModel(String name, String description, int projectId, double budget, Date startDate, Date deadline,
-            boolean done, int assigneeUserId) throws InvalidInputException {
+            boolean done, UserModel assignee) throws InvalidInputException {
         this(name, description, projectId);
         setBudget(budget);
         setStartDate(startDate);
         setDeadline(deadline);
         setDone(done);
-        setAssigneeUserId(assigneeUserId);
+        setAssignee(assignee);
     }
 
     /**
@@ -90,18 +91,18 @@ public class TaskModel extends AbstractModel {
      * @param startDate
      * @param deadline
      * @param done
-     * @param assigneeUserId
+     * @param assignee
      * @param tags
      * @throws InvalidInputException
      */
     public TaskModel(String name, String description, int projectId, double budget, Date startDate, Date deadline,
-            boolean done, int assigneeUserId, List<String> tags) throws InvalidInputException {
-        this(name, description, projectId, budget, startDate, deadline, done, assigneeUserId);
+            boolean done, UserModel assignee, List<String> tags) throws InvalidInputException {
+        this(name, description, projectId, budget, startDate, deadline, done, assignee);
         if (tags != null) setTags(tags);
     }
 
     /**
-     * Constructor for internal use, skips validation
+     * Constructor for package use, skips validation
      * @param taskId
      * @param name
      * @param description
@@ -110,11 +111,11 @@ public class TaskModel extends AbstractModel {
      * @param startDate
      * @param deadline
      * @param done
-     * @param assigneeUserId
+     * @param assignee
      * @param tags
      */
-    private TaskModel(int taskId, String name, String description, int projectId, double budget, Date startDate,
-            Date deadline, boolean done, int assigneeUserId, List<String> tags) {
+    protected TaskModel(int taskId, String name, String description, int projectId, double budget, Date startDate,
+            Date deadline, boolean done, UserModel assignee, List<String> tags) {
         this();
         this.name = name;
         this.description = description;
@@ -123,7 +124,7 @@ public class TaskModel extends AbstractModel {
         this.startDate = startDate;
         this.deadline = deadline;
         this.done = done;
-        this.assigneeUserId = assigneeUserId;
+        this.assignee = assignee;
         this.tags = tags;
         this.taskId = taskId;
     }
@@ -180,7 +181,7 @@ public class TaskModel extends AbstractModel {
         setStartDate(refreshed.getStartDate());
         setDeadline(refreshed.getDeadline());
         setDone(refreshed.isDone());
-        setAssigneeUserId(refreshed.getAssigneeUserId());
+        setAssignee(refreshed.getAssignee());
         setTags(refreshed.getTags());
         setDependencies(refreshed.getDependencies());
 
@@ -344,7 +345,7 @@ public class TaskModel extends AbstractModel {
         if (budget < 0) {
             throw new InvalidInputException("Budget must be a positive number");
         }
-        this.budget = budget;
+        this.budget = CurrencyUtils.roundToTwoDecimals(budget);
     }
 
     public Date getStartDate() {
@@ -377,10 +378,14 @@ public class TaskModel extends AbstractModel {
      * @throws InvalidInputException if the start date is after the deadline
      */
     public void setStartDate(Date startDate) throws InvalidInputException{
-        if (deadline != null && startDate.after(deadline)) {
+        if (deadline != null && startDate != null && startDate.after(deadline)) {
             throw new InvalidInputException("Start date must be before deadline.");
         }
         this.startDate = DateUtils.filterDateToMidnight(startDate);
+    }
+
+    public void removeStartDate() {
+        this.startDate = null;
     }
 
     public Date getDeadline() {
@@ -401,8 +406,16 @@ public class TaskModel extends AbstractModel {
      * @throws InvalidInputException if the deadline is before the start date
      */
     public void setDeadline(Date deadline) throws InvalidInputException {
-        if (startDate != null && deadline.before(startDate)) {
-            throw new InvalidInputException("Deadline must be after start date.");
+        if (deadline != null) {
+            if (startDate != null) {
+                if (deadline.before(startDate)) {
+                    throw new InvalidInputException("Deadline must be after start date.");
+                } else {
+                    this.deadline = DateUtils.filterDateToMidnight(deadline);
+                }
+            } else {
+                throw new InvalidInputException("Cannot set actual deadline on task w/o start date");
+            }
         }
         this.deadline = DateUtils.filterDateToMidnight(deadline);
     }
@@ -420,6 +433,10 @@ public class TaskModel extends AbstractModel {
         }
     }
 
+    public void removeDeadline() {
+        this.deadline = null;
+    }
+
     public boolean isDone() {
         return done;
     }
@@ -428,22 +445,40 @@ public class TaskModel extends AbstractModel {
         this.done = done;
     }
 
-    public int getAssigneeUserId() {
-        return assigneeUserId;
+    public UserModel getAssignee() {
+        return assignee;
     }
 
-    public void setAssigneeUserId(int assigneeUserId) throws InvalidInputException {
-        if (assigneeUserId < 0) {
+    public void setAssignee(UserModel assignee) throws InvalidInputException {
+        if (assignee == null) {
+            logger.debug("Set assignee given a null value, removing assignee.");
+        }
+        else if (assignee.getUserId() == 0) {
+            throw new InvalidInputException("Trying to set assignee as user " +
+            " ID of 0. User must be saved to database before assigning a task");
+        }
+        else if (assignee.getUserId() < 0) {
             throw new InvalidInputException("User ID must be a positive integer");
         }
-        else if (assigneeUserId > 0) {
-            try {
-                UserModel.getById(assigneeUserId);
-            } catch (ModelNotFoundException e) {
-                throw new InvalidInputException("No user exists with ID " + assigneeUserId + ".");
-            }
+
+        this.assignee = assignee;
+    }
+
+    public void removeAssignee() {
+        this.assignee = null;
+    }
+
+    public void setAssignee(int assigneeUserId) throws InvalidInputException, ModelNotFoundException {
+        if (assigneeUserId == 0) {
+            throw new InvalidInputException("User ID cannot be 0");
         }
-        this.assigneeUserId = assigneeUserId;
+        else if (assigneeUserId < 0) {
+            throw new InvalidInputException("User ID must be a positive integer");
+        }
+        else {
+            UserModel assignee = UserModel.getById(assigneeUserId);
+            this.assignee = assignee;
+        }
     }
 
     public List<String> getTags() {
@@ -481,15 +516,17 @@ public class TaskModel extends AbstractModel {
     public String toString() {
         String startDateStr = "";
         String deadlineStr = "";
+        String assigneeStr = "";
         if (getStartDate() != null) startDateStr = DateUtils.castDateToString(getStartDate());
         if (getDeadline() != null) deadlineStr = DateUtils.castDateToString(getDeadline());
+        if (getAssignee() != null) assigneeStr = getAssignee().toString();
         String tagsStr = getTags().stream().collect(Collectors.joining(" "));
         String dependenciesStr = getDependencies().stream().map(t -> t.getName()).collect(Collectors.joining(", "));
 
         return "Task ID: " + getTaskId() + ", name: " + getName() + ", description: " + getDescription() +
                 ", project ID: " + getProjectId() + ", budget: " + getBudget() + ", start date: " + startDateStr +
-                ", deadline: " + deadlineStr + ", done: " + isDone() + ", manager user ID: " + getAssigneeUserId() +
-                ", tags" + tagsStr + ", task dependencies: " + dependenciesStr;
+                ", deadline: " + deadlineStr + ", done: " + isDone() + ", manager user ID: " +
+                assigneeStr + ", tags" + tagsStr + ", task dependencies: " + dependenciesStr;
     }
 
     @Override
@@ -522,7 +559,7 @@ public class TaskModel extends AbstractModel {
         if (other.isDone() != isDone()) {
             return false;
         }
-        if (other.getAssigneeUserId() != getAssigneeUserId()) {
+        if (!equalsNullable(other.getAssignee(), getAssignee())) {
             return false;
         }
         if (!equalsNullable(other.getTags(), getTags())) {
@@ -616,11 +653,22 @@ public class TaskModel extends AbstractModel {
                         logger.error("Unable to parse Date from DB, this really shouldn't happen.");
                         throw new ModelNotFoundException("Unable to parse Date from DB, this really shouldn't happen.", e);
                     }
-                    double budgetTemp = rs.getInt(BUDGET_COLUMN);
+                    double budgetTemp = rs.getFloat(BUDGET_COLUMN);
                     boolean doneTemp = rs.getBoolean(DONE_COLUMN);
                     int userIdTemp = rs.getInt(ASSIGNEE_USER_ID_COLUMN);
+                    UserModel assignee = null;
+
+                    // Set UserModel
+                    if (userIdTemp > 0) {
+                        String firstNameTemp = rs.getString(UserModel.UserModelDBObject.FIRST_NAME_COLUMN);
+                        String lastNameTemp = rs.getString(UserModel.UserModelDBObject.LAST_NAME_COLUMN);
+                        double salaryPerHourTemp = rs.getFloat(UserModel.UserModelDBObject.SALARY_PER_HOUR_COLUMN);
+
+                        assignee = new UserModel(userIdTemp, firstNameTemp, lastNameTemp, salaryPerHourTemp);
+                    }
+
                     String tagsTemp = rs.getString(TAGS_COLUMN);
-                    List<String> tagsListTemp = null;
+                    List<String> tagsListTemp;
                     if (tagsTemp != null) {
                         tagsListTemp = getTagsListFromString(tagsTemp);
                     }
@@ -628,7 +676,7 @@ public class TaskModel extends AbstractModel {
                         tagsListTemp = new LinkedList<>();
                     }
                     m = new TaskModel(idTemp, nameTemp, descriptionTemp, projectIdTemp, budgetTemp, stDateTempDate,
-                            dlDateTempDate, doneTemp, userIdTemp, tagsListTemp);
+                            dlDateTempDate, doneTemp, assignee, tagsListTemp);
                 }
                 else {
                     logger.debug("DB query returned zero results");
@@ -645,6 +693,7 @@ public class TaskModel extends AbstractModel {
                     logger.debug("Unable to close connection to " + db.getDbPath(), e);
                 }
             }
+
             return m;
         }
 
@@ -671,9 +720,20 @@ public class TaskModel extends AbstractModel {
                         throw new ModelNotFoundException("Unable to parse Date from DB, this really shouldn't happen.",
                                 e);
                     }
-                    double budgetTemp = rs.getInt(BUDGET_COLUMN);
+                    double budgetTemp = rs.getFloat(BUDGET_COLUMN);
                     boolean doneTemp = rs.getBoolean(DONE_COLUMN);
                     int userIdTemp = rs.getInt(ASSIGNEE_USER_ID_COLUMN);
+                    UserModel assignee = null;
+
+                    // Set UserModel
+                    if (userIdTemp > 0) {
+                        String firstNameTemp = rs.getString(UserModel.UserModelDBObject.FIRST_NAME_COLUMN);
+                        String lastNameTemp = rs.getString(UserModel.UserModelDBObject.LAST_NAME_COLUMN);
+                        double salaryPerHourTemp = rs.getFloat(UserModel.UserModelDBObject.SALARY_PER_HOUR_COLUMN);
+
+                        assignee = new UserModel(userIdTemp, firstNameTemp, lastNameTemp, salaryPerHourTemp);
+                    }
+
                     String tagsTemp = rs.getString(TAGS_COLUMN);
                     List<String> tagsListTemp;
                     if (tagsTemp != null) {
@@ -683,7 +743,7 @@ public class TaskModel extends AbstractModel {
                         tagsListTemp = new LinkedList<>();
                     }
                     taskList.add(new TaskModel(idTemp, nameTemp, descriptionTemp, projectIdTemp, budgetTemp,
-                            stDateTempDate, dlDateTempDate, doneTemp, userIdTemp, tagsListTemp));
+                            stDateTempDate, dlDateTempDate, doneTemp, assignee, tagsListTemp));
                 }
 
                 if (taskList.isEmpty()) {
@@ -701,12 +761,17 @@ public class TaskModel extends AbstractModel {
                     logger.debug("Unable to close connection to " + db.getDbPath(), e);
                 }
             }
+
             return taskList;
         }
 
         @Override
         public List<TaskModel> findAll() throws ModelNotFoundException  {
-            String sql = "SELECT * " + "FROM " + getTableName() + ";";
+            String sql = "SELECT * " + "FROM " + getTableName() + " ";
+            sql += "LEFT JOIN " + UserModel.UserModelDBObject.TABLE_NAME + " ";
+            sql += "ON " + UserModel.UserModelDBObject.TABLE_NAME + "." +
+                    UserModel.UserModelDBObject.USER_ID_COLUMN + "=" + TABLE_NAME + "." + ASSIGNEE_USER_ID_COLUMN
+                    + ";";
 
             List<TaskModel> tasks = runMultiResultQuery(sql);
             for (TaskModel t : tasks) {
@@ -733,6 +798,10 @@ public class TaskModel extends AbstractModel {
         public List<TaskModel> findTaskDependencies(int taskId) {
             StringBuilder sql = new StringBuilder();
             sql.append("SELECT * FROM " + TABLE_NAME + " ");
+            sql.append("LEFT JOIN " + UserModel.UserModelDBObject.TABLE_NAME + " ");
+            sql.append("ON " + UserModel.UserModelDBObject.TABLE_NAME + "." +
+                    UserModel.UserModelDBObject.USER_ID_COLUMN + "=" + TABLE_NAME + "." + ASSIGNEE_USER_ID_COLUMN
+                    + " ");
             sql.append("INNER JOIN " + DEPENDENCIES_TABLE_NAME + " ");
             sql.append("ON " + TABLE_NAME + "." + TASK_ID_COLUMN + "=" + DEPENDENCIES_TABLE_NAME + "." +
                     DEPENDENCIES_DEPENDS_ON_TASK_COLUMN + " ");
@@ -752,6 +821,10 @@ public class TaskModel extends AbstractModel {
             StringBuilder sql = new StringBuilder();
             sql.append("SELECT * ");
             sql.append("FROM " + getTableName() + " ");
+            sql.append("LEFT JOIN " + UserModel.UserModelDBObject.TABLE_NAME + " ");
+            sql.append("ON " + UserModel.UserModelDBObject.TABLE_NAME + "." +
+                    UserModel.UserModelDBObject.USER_ID_COLUMN + "=" + TABLE_NAME + "." + ASSIGNEE_USER_ID_COLUMN
+                    + " ");
             sql.append("WHERE " + TASK_ID_COLUMN + "=" + taskId + ";");
             logger.debug("Query: " + sql.toString());
 
@@ -766,6 +839,10 @@ public class TaskModel extends AbstractModel {
             StringBuilder sql = new StringBuilder();
             sql.append("SELECT * ");
             sql.append("FROM " + getTableName() + " ");
+            sql.append("LEFT JOIN " + UserModel.UserModelDBObject.TABLE_NAME + " ");
+            sql.append("ON " + UserModel.UserModelDBObject.TABLE_NAME + "." +
+                    UserModel.UserModelDBObject.USER_ID_COLUMN + "=" + TABLE_NAME + "." + ASSIGNEE_USER_ID_COLUMN
+                    + " ");
             sql.append("WHERE " + ASSIGNEE_USER_ID_COLUMN + "=" + assigneeUserId + ";");
 
             List<TaskModel> tasks = runMultiResultQuery(sql.toString());
@@ -773,6 +850,7 @@ public class TaskModel extends AbstractModel {
                 List<TaskModel> dependencies = findTaskDependencies(t);
                 dependencies.forEach(t::addDependency);
             }
+
             return tasks;
         }
 
@@ -780,6 +858,10 @@ public class TaskModel extends AbstractModel {
             StringBuilder sql = new StringBuilder();
             sql.append("SELECT * ");
             sql.append("FROM " + getTableName() + " ");
+            sql.append("LEFT JOIN " + UserModel.UserModelDBObject.TABLE_NAME + " ");
+            sql.append("ON " + UserModel.UserModelDBObject.TABLE_NAME + "." +
+                    UserModel.UserModelDBObject.USER_ID_COLUMN + "=" + TABLE_NAME + "." + ASSIGNEE_USER_ID_COLUMN
+                    + " ");
             sql.append("WHERE " + PROJECT_ID_COLUMN + "=" + projectId + ";");
 
             List<TaskModel> tasks = runMultiResultQuery(sql.toString());
@@ -787,6 +869,7 @@ public class TaskModel extends AbstractModel {
                 List<TaskModel> dependencies = findTaskDependencies(t);
                 dependencies.forEach(t::addDependency);
             }
+
             return tasks;
         }
 
@@ -855,7 +938,7 @@ public class TaskModel extends AbstractModel {
             if (getStartDate() != null) sql.append("," + START_DATE_COLUMN);
             if (getDeadline() != null) sql.append("," + DEADLINE_COLUMN);
             sql.append("," + DONE_COLUMN);
-            sql.append("," + ASSIGNEE_USER_ID_COLUMN);
+            if (getAssignee() != null) sql.append("," + ASSIGNEE_USER_ID_COLUMN);
             if (getTags().size() > 0) sql.append("," + TAGS_COLUMN);
             sql.append(") ");
 
@@ -866,7 +949,7 @@ public class TaskModel extends AbstractModel {
             if (getStartDate() != null) sql.append(",'" + DateUtils.castDateToString(getStartDate()) + "'");
             if (getDeadline() != null) sql.append(",'" + DateUtils.castDateToString(getDeadline()) + "'");
             sql.append(",'" + (isDone() ? 1 : 0) + "'");
-            sql.append(",'" + getAssigneeUserId() + "'");
+            if (getAssignee() != null) sql.append(",'" + getAssignee().getUserId() + "'");
             if (getTags().size() > 0)sql.append(",'" + getTagsString() + "'");
             sql.append(");");
 
@@ -899,15 +982,16 @@ public class TaskModel extends AbstractModel {
             sql.append("UPDATE "+ getTableName() + " ");
             sql.append("SET ");
             sql.append(TASK_NAME_COLUMN + "='" + getName() + "'");
-            if (getDescription() != null) sql.append(", " + DESCRIPTION_COLUMN + "='" + getDescription() + "' ");
+            sql.append(", " + DESCRIPTION_COLUMN + "='" + (getDescription() != null ? getDescription() : "") + "' ");
             sql.append(", " + PROJECT_ID_COLUMN + "=" + getProjectId() + " ");
             sql.append(", " + BUDGET_COLUMN + "=" + getBudget() + " ");
-            if (getStartDate() != null) sql.append(", " + START_DATE_COLUMN + "='" +
-                    DateUtils.castDateToString(getStartDate()) + "' ");
-            if (getDeadline() != null) sql.append(", " + DEADLINE_COLUMN + "='" +
-                    DateUtils.castDateToString(getDeadline()) + "' ");
+            sql.append(", " + START_DATE_COLUMN + "='" +
+                    (getStartDate() != null ? DateUtils.castDateToString(getStartDate()) : "NULL") + "' ");
+            sql.append(", " + DEADLINE_COLUMN + "='" +
+                    (getDeadline() != null ? DateUtils.castDateToString(getDeadline()) : "NULL") + "' ");
             sql.append(", " + DONE_COLUMN + "=" + (isDone() ? 1 : 0) + " ");
-            sql.append(", " + ASSIGNEE_USER_ID_COLUMN + "=" + getAssigneeUserId() + " ");
+            sql.append(", " + ASSIGNEE_USER_ID_COLUMN + "=" +
+                    (getAssignee() != null ? getAssignee().getUserId() : "0") + " ");
             if (getTags().size() > 0) sql.append(", " + TAGS_COLUMN + "='" + getTagsString() + "' ");
             sql.append("WHERE " + TASK_ID_COLUMN + "=" + getTaskId() + ";");
 

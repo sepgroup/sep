@@ -75,7 +75,7 @@ public class ListableTaskModel implements Observer {
             startDate.set(model.getStartDateString());
             deadline.set(model.getDeadlineString());
             completed.set(model.isDone());
-            assignee.set(Integer.toString(model.getAssigneeUserId()));
+            assignee.set(model.getAssignee() != null ? model.getAssignee().getFullName() : "");
         }
     }
 

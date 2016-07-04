@@ -17,14 +17,15 @@
               <MenuItem fx:id="closeProjectMenuButton" mnemonicParsing="false" onAction="#onCloseProjectMenuItemClicked" text="Close Project" />
             </items>
           </Menu>
-          <Menu mnemonicParsing="false" text="Edit">
+          <Menu mnemonicParsing="false" text="Project">
             <items>
+                  <MenuItem mnemonicParsing="false" onAction="#onEditProjectClicked" text="Edit Project..." />
               <MenuItem fx:id="deleteProjectMenuButton" mnemonicParsing="false" onAction="#onDeleteProjectMenuButtonClicked" text="Delete Project..." />
             </items>
           </Menu>
             <Menu mnemonicParsing="false" text="Users">
               <items>
-                <MenuItem mnemonicParsing="false" onAction="#onAddUserClicked" text="Add user..." />
+                <MenuItem mnemonicParsing="false" onAction="#onAddUserMenuItemClicked" text="Add user..." />
               </items>
             </Menu>
           <Menu mnemonicParsing="false" text="Help">
@@ -55,7 +56,6 @@
          <center>
             <Pane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
                <children>
-                  <Button fx:id="editProjectButton" layoutY="2.0" mnemonicParsing="false" onAction="#onEditProjectClicked" text="Edit Project" />
                   <Label fx:id="startDateLabel" layoutX="14.0" layoutY="41.0" text="Start date:" />
                   <Label fx:id="deadlineLabel" layoutX="16.0" layoutY="67.0" text="Deadline:" />
                   <Label fx:id="startDateValueLabel" layoutX="111.0" layoutY="41.0" text="[ start date ]" />
@@ -108,7 +108,7 @@
                         <Font size="22.0" />
                     </font>
                 </Text>
-               <ComboBox fx:id="userFilterComboBox" layoutX="400.0" layoutY="3.0" onAction="#onUserFilterComboBoxClicked" prefWidth="150.0" />
+               <ComboBox fx:id="userFilterComboBox" layoutX="400.0" layoutY="3.0" onAction="#onUserFilterComboBoxClicked" prefHeight="27.0" prefWidth="200.0" />
                <Label layoutX="305.0" layoutY="6.0" text="Filter by user:" />
             </AnchorPane>
          </top>
