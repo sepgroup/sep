@@ -86,17 +86,11 @@ public class ProjectViewerController extends AbstractController {
 
             // Populate manager
             String managerName;
-            int managerUserID = model.getManagerUserId();
-            if (managerUserID == 0) {
+            if (model.getManager() == null) {
                 managerName = "[ none ]";
-            } else {
-                try {
-                    UserModel manager = UserModel.getById(managerUserID);
-                    managerName = manager.getFirstName() + " " + manager.getLastName();
-                } catch (ModelNotFoundException e) {
-                    logger.error("Error finding user with ID " + managerUserID);
-                    managerName = "[ none ]";
-                }
+            }
+            else {
+                managerName = model.getManager().getFullName();
             }
             managerValueLabel.setText(managerName);
 

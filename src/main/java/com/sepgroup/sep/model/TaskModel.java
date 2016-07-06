@@ -455,7 +455,7 @@ public class TaskModel extends AbstractModel {
         }
         else if (assignee.getUserId() == 0) {
             throw new InvalidInputException("Trying to set assignee as user " +
-            " ID of 0. User must be saved to database before assigning a task");
+            " ID of 0. User must be saved to database before assigning a task.");
         }
         else if (assignee.getUserId() < 0) {
             throw new InvalidInputException("User ID must be a positive integer");
@@ -680,7 +680,7 @@ public class TaskModel extends AbstractModel {
                 }
                 else {
                     logger.debug("DB query returned zero results");
-                    throw new ModelNotFoundException("DB query for task with ID " + taskId + " returned no results");
+                    throw new ModelNotFoundException("DB query for task returned no results");
                 }
             }
             catch (SQLException e) {
@@ -752,7 +752,7 @@ public class TaskModel extends AbstractModel {
                 }
             }
             catch (SQLException e) {
-                logger.error("Unable to fetch all entries in Task table" + ". Query: " + sql, e);
+                logger.error("Unable to fetch entries in Task table" + ". Query: " + sql, e);
                 throw new ModelNotFoundException(e);
             } finally {
                 try {

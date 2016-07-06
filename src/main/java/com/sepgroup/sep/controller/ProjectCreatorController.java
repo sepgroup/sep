@@ -36,8 +36,6 @@ public class ProjectCreatorController extends AbstractController {
 	@FXML
 	public TextArea descText;
 
-	public String nameFromField = "";
-	public int budgetFromField = 0;
 	public String description = "";
 
 	public ProjectCreatorController() {
@@ -74,7 +72,6 @@ public class ProjectCreatorController extends AbstractController {
         }
 
         // Start date
-		Date startDate = null;
 		if (startDatePicker.getValue() != null) {
             try {
                 createdProject.setStartDate(startDatePicker.getValue().toString());
@@ -87,7 +84,6 @@ public class ProjectCreatorController extends AbstractController {
         }
 
         // Deadline
-        Date deadline = null;
         if (deadlinePicker.getValue() != null) {
             try {
                 createdProject.setDeadline(deadlinePicker.getValue().toString());
