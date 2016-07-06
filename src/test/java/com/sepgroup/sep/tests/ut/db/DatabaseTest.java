@@ -1,5 +1,6 @@
 package com.sepgroup.sep.tests.ut.db;
 
+import com.sepgroup.sep.SepUserStorage;
 import com.sepgroup.sep.db.Database;
 import com.sepgroup.sep.model.ProjectModel;
 import org.aeonbits.owner.ConfigFactory;
@@ -96,10 +97,10 @@ public class DatabaseTest {
 
     @Test
     public void testDBClean() throws Exception {
-        createTables();
+        ProjectModel.createTable();
         int insertedKey = insertProject();
 
-        db.clean();
+        ProjectModel.cleanData();
 
         ResultSet rs = db.query("SELECT * FROM " + projectTableName + " WHERE " + projectIDColumn + "=" + insertedKey);
         assertThat(rs.next(), equalTo(false));
@@ -109,7 +110,7 @@ public class DatabaseTest {
     public void testDBCreate() throws Exception {
         db = Database.getDB(dbPath);
         db.dropTable(projectTableName);
-        db.createTables();
+        ProjectModel.createTable();
 
         int insertedKey = insertProject();
 
@@ -118,8 +119,7 @@ public class DatabaseTest {
     }
 
     private void createTables() throws Exception {
-        db = Database.getDB(dbPath);
-        db.createTables();
+        SepUserStorage.createDBTablesIfNotExisting();
     }
 
     private int insertProject() throws Exception {

@@ -1052,12 +1052,12 @@ public class TaskModel extends AbstractModel {
 
         @Override
         public void clean() throws DBException {
-            StringBuilder sql = new StringBuilder();
-            sql.append("DELETE FROM "+ getTableName()+";");
+            String cleanTaskTableSql = "DELETE FROM "+ getTableName()+";";
+
             try {
                 if (this.findAll() != null) {
                     try {
-                        db.update(sql.toString());
+                        db.update(cleanTaskTableSql);
                     } catch (SQLException e) {
                         logger.error("Unable to delete data from table "+ getTableName(), e);
                         throw new DBException(e);
@@ -1069,35 +1069,57 @@ public class TaskModel extends AbstractModel {
                         }
                     }
                 }
-
             } catch(ModelNotFoundException e) {
                 logger.debug(e.getLocalizedMessage());
+            }
+
+            // Clean task dependencies table
+            String fetchDependency="SELECT * FROM TaskDependency;";
+            try {
+                ResultSet rs = db.query(fetchDependency);
+                if (rs.next()) {
+                    String cleanTaskDependenciesTableSql = "DELETE FROM TaskDependency;";
+                    db.update(cleanTaskDependenciesTableSql);
+                }
+            } catch (SQLException e) {
+                logger.error("Unable to delete data from table " + getTableName(), e);
             }
         }
 
 
         @Override
         public void createTable() throws DBException{
-            StringBuilder sql = new StringBuilder();
-            sql.append("CREATE TABLE IF NOT EXISTS "+ getTableName()+" (");
-            sql.append(TASK_ID_COLUMN+ " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT"+",");
-            sql.append(PROJECT_ID_COLUMN+" INTEGER NOT NULL"+",");
-            sql.append(TASK_NAME_COLUMN+" VARCHAR(50) NOT NULL"+",");
-            sql.append(START_DATE_COLUMN+" DATE"+",");
-            sql.append(DEADLINE_COLUMN+" DATE"+",");
-            sql.append(BUDGET_COLUMN+" FLOAT CHECK("+BUDGET_COLUMN+" >= 0)"+",");
-            sql.append(DONE_COLUMN+" BOOLEAN"+",");
-            sql.append(TAGS_COLUMN+" TEXT"+",");
-            sql.append(DESCRIPTION_COLUMN+" TEXT"+",");
-            sql.append(ASSIGNEE_USER_ID_COLUMN+" INT"+",");
-            sql.append("FOREIGN KEY ("+PROJECT_ID_COLUMN+") REFERENCES Project(ProjectID) ON DELETE CASCADE"+",");
-            sql.append("FOREIGN KEY ("+ASSIGNEE_USER_ID_COLUMN+") REFERENCES User(UserID) ON DELETE CASCADE"+",");
-            sql.append("CONSTRAINT chk_date CHECK(" + DEADLINE_COLUMN + " >= "+START_DATE_COLUMN+"));");
+            // Create task table query
+            StringBuilder createTaskTableSql = new StringBuilder();
+            createTaskTableSql.append("CREATE TABLE IF NOT EXISTS "+ getTableName()+" (");
+            createTaskTableSql.append(TASK_ID_COLUMN+ " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT"+",");
+            createTaskTableSql.append(PROJECT_ID_COLUMN+" INTEGER NOT NULL"+",");
+            createTaskTableSql.append(TASK_NAME_COLUMN+" VARCHAR(50) NOT NULL"+",");
+            createTaskTableSql.append(START_DATE_COLUMN+" DATE"+",");
+            createTaskTableSql.append(DEADLINE_COLUMN+" DATE"+",");
+            createTaskTableSql.append(BUDGET_COLUMN+" FLOAT CHECK("+BUDGET_COLUMN+" >= 0)"+",");
+            createTaskTableSql.append(DONE_COLUMN+" BOOLEAN"+",");
+            createTaskTableSql.append(TAGS_COLUMN+" TEXT"+",");
+            createTaskTableSql.append(DESCRIPTION_COLUMN+" TEXT"+",");
+            createTaskTableSql.append(ASSIGNEE_USER_ID_COLUMN+" INT"+",");
+            createTaskTableSql.append("FOREIGN KEY ("+PROJECT_ID_COLUMN+") REFERENCES Project(ProjectID) ON DELETE CASCADE"+",");
+            createTaskTableSql.append("FOREIGN KEY ("+ASSIGNEE_USER_ID_COLUMN+") REFERENCES User(UserID) ON DELETE CASCADE"+",");
+            createTaskTableSql.append("CONSTRAINT chk_date CHECK(" + DEADLINE_COLUMN + " >= "+START_DATE_COLUMN+"));");
 
+            // Create task dependencies table query
+            StringBuilder createTaskDependenciesTableSql = new StringBuilder();
+            createTaskDependenciesTableSql.append("CREATE TABLE IF NOT EXISTS TaskDependency(");
+            createTaskDependenciesTableSql.append("FKTaskID INT NOT NULL,");
+            createTaskDependenciesTableSql.append("DependOnTaskID INT NOT NULL,");
+            createTaskDependenciesTableSql.append("FOREIGN KEY (FKTaskID) REFERENCES Task(TaskID) ON DELETE CASCADE,");
+            createTaskDependenciesTableSql.append("FOREIGN KEY (DependOnTaskID) REFERENCES Task(TaskID) ON DELETE CASCADE);");
+
+            // Run create queries
             try {
-                db.create(sql.toString());
+                db.create(createTaskTableSql.toString());
+                db.create(createTaskDependenciesTableSql.toString());
             } catch (SQLException e) {
-                logger.error("Unable to create table "+ getTableName(), e);
+                logger.error("Unable to create table", e);
                 throw new DBException(e);
             } finally {
                 try {

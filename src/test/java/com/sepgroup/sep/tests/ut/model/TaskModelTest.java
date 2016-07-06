@@ -1,5 +1,6 @@
 package com.sepgroup.sep.tests.ut.model;
 
+import com.sepgroup.sep.SepUserStorage;
 import com.sepgroup.sep.db.Database;
 import com.sepgroup.sep.model.*;
 import org.aeonbits.owner.ConfigFactory;
@@ -30,8 +31,7 @@ public class TaskModelTest {
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
         ConfigFactory.setProperty("configPath", ProjectModelTest.class.getResource("/test-db.properties").getFile());
-        Database db = Database.getActiveDB();
-        db.createTables();
+        SepUserStorage.createDBTablesIfNotExisting();
     }
 
     @Before
@@ -47,7 +47,7 @@ public class TaskModelTest {
     @AfterClass
     public static void tearDownAfterClass() throws Exception {
         Database db = Database.getActiveDB();
-        db.dropAllTables();
+        SepUserStorage.dropAllDBTables();
     }
 
     @Test

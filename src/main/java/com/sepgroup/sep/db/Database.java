@@ -1,10 +1,6 @@
 package com.sepgroup.sep.db;
 
 import com.sepgroup.sep.SepUserStorage;
-import com.sepgroup.sep.model.ModelNotFoundException;
-import com.sepgroup.sep.model.ProjectModel;
-import com.sepgroup.sep.model.TaskModel;
-import com.sepgroup.sep.model.UserModel;
 import org.aeonbits.owner.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +43,7 @@ public class Database {
 
     private void openConnection() throws SQLException {
         if (conn != null && !conn.isClosed()) {
-            logger.warn("Previous DB connection was not closed, closing it now");
+            logger.debug("Previous DB connection was not closed, closing it now");
             conn.close();
         }
         try {
@@ -169,49 +165,18 @@ public class Database {
         Database activeDB = activeDBs.get(dbPath);
         return activeDB != null;
     }
-    public void clean()throws DBException, ModelNotFoundException, SQLException{
-        ProjectModel.cleanData();
-        TaskModel.cleanData();
-        UserModel.cleanData();
-        String fetchDependency="SELECT * FROM TaskDependency;";
-        ResultSet rs=this.query(fetchDependency);
-        if(rs.next()){
-            String sql="DELETE FROM TaskDependency;";
-            this.update(sql);
+
+    public void dropTable(String tableName) throws DBException {
+        try {
+            openConnection();
+            String sql = "DROP TABLE IF EXISTS " + tableName + ";";
+            Statement s = conn.createStatement();
+            s.setQueryTimeout(5);
+            s.executeUpdate(sql);
+            conn.commit();
+            s.close();
+        } catch (SQLException e) {
+            throw new DBException("Error dropping table " + tableName, e);
         }
-    }
-
-    public void createTables() throws DBException, SQLException{
-        ProjectModel.createTable();
-        TaskModel.createTable();
-        UserModel.createTable();
-        StringBuilder sql = new StringBuilder();
-        sql.append("CREATE TABLE IF NOT EXISTS TaskDependency(");
-        sql.append("FKTaskID INT NOT NULL,");
-        sql.append("DependOnTaskID INT NOT NULL,");
-        sql.append("FOREIGN KEY (FKTaskID) REFERENCES Task(TaskID) ON DELETE CASCADE,");
-        sql.append("FOREIGN KEY (DependOnTaskID) REFERENCES Task(TaskID) ON DELETE CASCADE);");
-        this.create(sql.toString());
-    }
-
-    public void dropTable(String TableName) throws SQLException{
-        openConnection();
-        String sql="DROP TABLE IF EXISTS "+TableName+";";
-        Statement s = conn.createStatement();
-        s.setQueryTimeout(5);
-        s.executeUpdate(sql);
-        conn.commit();
-        s.close();
-    }
-
-    /**
-     * USE WITH CAUTION!
-     * @throws SQLException
-     */
-    public void dropAllTables() throws SQLException {
-        dropTable(ProjectModel.ProjectModelDBObject.TABLE_NAME);
-        dropTable(TaskModel.TaskModelDBObject.TABLE_NAME);
-        dropTable(TaskModel.TaskModelDBObject.DEPENDENCIES_TABLE_NAME);
-        dropTable(UserModel.UserModelDBObject.TABLE_NAME);
     }
 }
