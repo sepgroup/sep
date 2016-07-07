@@ -33,5 +33,10 @@
     <orderEntry type="library" name="Gradle: org.xerial:sqlite-jdbc:3.7.2" level="project" />
     <orderEntry type="library" name="Gradle: org.aeonbits.owner:owner:1.0.4" level="project" />
     <orderEntry type="library" name="Gradle: org.slf4j:slf4j-simple:1.7.21" level="project" />
+    <orderEntry type="library" name="Gradle: com.healthmarketscience.sqlbuilder:sqlbuilder:2.0.12" level="project" />
+    <orderEntry type="library" name="Gradle: com.healthmarketscience.common:common-util:1.0.2" level="project" />
+    <orderEntry type="library" name="Gradle: junit:junit:4.0" level="project" />
+    <orderEntry type="library" name="Gradle: commons-logging:commons-logging:1.0.4" level="project" />
+    <orderEntry type="library" name="Gradle: commons-lang:commons-lang:2.1" level="project" />
   </component>
 </module>

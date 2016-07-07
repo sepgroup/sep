@@ -1,5 +1,11 @@
 package com.sepgroup.sep.model;
 
+import com.healthmarketscience.sqlbuilder.CreateTableQuery;
+import com.healthmarketscience.sqlbuilder.dbspec.Table;
+import com.healthmarketscience.sqlbuilder.dbspec.basic.DbColumn;
+import com.healthmarketscience.sqlbuilder.dbspec.basic.DbSchema;
+import com.healthmarketscience.sqlbuilder.dbspec.basic.DbSpec;
+import com.healthmarketscience.sqlbuilder.dbspec.basic.DbTable;
 import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.db.DBObject;
 import com.sepgroup.sep.db.Database;
@@ -429,6 +435,8 @@ public class ProjectModel extends AbstractModel {
         public static final String PROJECT_DESCRIPTION_COLUMN = "ProjectDescription";
         public static final String TABLE_NAME = "Project";
 
+        DbTable projectTable;
+
         private Database db;
 
         private ProjectModelDBObject() {
@@ -437,6 +445,31 @@ public class ProjectModel extends AbstractModel {
             } catch (DBException e) {
                 logger.error("Unable to read from database", e);
             }
+
+            setUpTableSchema();
+        }
+
+        private void setUpTableSchema() {
+            // Create default schema
+            DbSpec projectSpec = new DbSpec();
+            DbSchema projectSchema = projectSpec.addDefaultSchema();
+
+            // Add table w/ info
+            projectTable = projectSchema.addTable("Project");
+            DbColumn projectIdColumn = projectTable.addColumn(PROJECT_ID_COLUMN, "integer", null);
+            projectTable.primaryKey("pk_project_id", PROJECT_ID_COLUMN);
+            // TODO autoincrement
+            DbColumn projectNameColumn = projectTable.addColumn(PROJECT_NAME_COLUMN, "varchar", 50);
+            // TODO not nulls
+            DbColumn startDateColumn = projectTable.addColumn(START_DATE_COLUMN, "date", null);
+            DbColumn deadlineColumn = projectTable.addColumn(DEADLINE_COLUMN, "date", null);
+            // TODO date constraint
+            DbColumn budgetColumn = projectTable.addColumn(BUDGET_COLUMN, "float", null);
+            // TODO budget constraint
+            DbColumn doneColumn = projectTable.addColumn(DONE_COLUMN, "boolean", null);
+            DbColumn managerUserIdColumn = projectTable.addColumn(MANAGER_USER_ID_COLUMN, "integer", null);
+            // TODO foreign key manager
+            DbColumn projectDescriptionColumn = projectTable.addColumn(PROJECT_DESCRIPTION_COLUMN, "text", null);
         }
 
         @Override
@@ -757,21 +790,27 @@ public class ProjectModel extends AbstractModel {
 
         @Override
         public void createTable() throws DBException {
-            StringBuilder sql = new StringBuilder();
-            sql.append("CREATE TABLE IF NOT EXISTS "+ getTableName() + " (");
-            sql.append(PROJECT_ID_COLUMN + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT" + ",");
-            sql.append(PROJECT_NAME_COLUMN +" VARCHAR(50) NOT NULL" + ",");
-            sql.append(START_DATE_COLUMN +" DATE" + ",");
-            sql.append(DEADLINE_COLUMN +" DATE" + ",");
-            sql.append(BUDGET_COLUMN +" FLOAT CHECK("+ BUDGET_COLUMN+" >= 0)" + ",");
-            sql.append(DONE_COLUMN +" BOOLEAN" + ",");
-            sql.append(MANAGER_USER_ID_COLUMN + " INT" + ",");
-            sql.append(PROJECT_DESCRIPTION_COLUMN + " TEXT" + ",");
-            sql.append("FOREIGN KEY ("+MANAGER_USER_ID_COLUMN+") REFERENCES User(UserID) ON DELETE CASCADE" + ",");
-            sql.append("CONSTRAINT chk_date CHECK(" + DEADLINE_COLUMN + " >= " + START_DATE_COLUMN + "));");
+//            StringBuilder sql = new StringBuilder();
+//            sql.append("CREATE TABLE IF NOT EXISTS "+ getTableName() + " (");
+//            sql.append(PROJECT_ID_COLUMN + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT" + ",");
+//            sql.append(PROJECT_NAME_COLUMN +" VARCHAR(50) NOT NULL" + ",");
+//            sql.append(START_DATE_COLUMN +" DATE" + ",");
+//            sql.append(DEADLINE_COLUMN +" DATE" + ",");
+//            sql.append(BUDGET_COLUMN +" FLOAT CHECK("+ BUDGET_COLUMN+" >= 0)" + ",");
+//            sql.append(DONE_COLUMN +" BOOLEAN" + ",");
+//            sql.append(MANAGER_USER_ID_COLUMN + " INT" + ",");
+//            sql.append(PROJECT_DESCRIPTION_COLUMN + " TEXT" + ",");
+//            sql.append("FOREIGN KEY ("+MANAGER_USER_ID_COLUMN+") REFERENCES User(UserID) ON DELETE CASCADE" + ",");
+//            sql.append("CONSTRAINT chk_date CHECK(" + DEADLINE_COLUMN + " >= " + START_DATE_COLUMN + "));");
+
+            String createProjectTable =
+                    new CreateTableQuery(projectTable, true)
+                    .validate().toString();
+
+            logger.info("Query: " + createProjectTable);
 
             try {
-                db.create(sql.toString());
+                db.create(createProjectTable);
             } catch (SQLException e) {
                 logger.error("Unable to create table "+ getTableName(), e);
                 throw new DBException(e);

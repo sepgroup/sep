@@ -172,6 +172,18 @@ public class ProjectModelTest {
     }
 
     @Test
+    public void testCreateTable() throws Exception {
+        // Create project
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setName("Project Y");
+        createdProject.persistData();
+
+        // If this succeeds then table creation should have succeeded
+        // TODO make better test..
+        ProjectModel.getAll();
+    }
+
+    @Test
     public void testEquals() throws Exception {
         // Create two projects with same data
         ProjectModel p1 = new ProjectModel("Proj", defaultStartDate, defaultDeadline, 1000, false, createdUser, "P Desc.");
