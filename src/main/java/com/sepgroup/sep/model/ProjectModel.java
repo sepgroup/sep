@@ -370,12 +370,14 @@ public class ProjectModel extends AbstractModel {
 	public String toString() {
         String startDateStr = "";
         String deadlineStr = "";
+        String managerStr = "";
         if (getStartDate() != null) startDateStr = DateUtils.castDateToString(getStartDate());
         if (getDeadline() != null) deadlineStr = DateUtils.castDateToString(getDeadline());
+        if (getManager() != null) managerStr = getManager().toString();
 
 		return "Project ID "+ getProjectId() + ", " + " Project name: " + getName() + ", " + "Description: " +
                 projectDescription + ", " + "Start date: " + startDateStr + ", " + "Deadline: " + deadlineStr + ", " +
-                "Budget: " + getBudget() + ", " + "Manager ID: " + getManager().getUserId() + ", " + "Done: " + isDone();
+                "Budget: " + getBudget() + ", " + "Manager ID: " + managerStr + ", " + "Done: " + isDone();
 	}
 
     @Override
