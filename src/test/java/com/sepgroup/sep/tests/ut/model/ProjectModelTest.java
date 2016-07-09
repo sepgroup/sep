@@ -1,9 +1,13 @@
 package com.sepgroup.sep.tests.ut.model;
 
+import com.sepgroup.sep.SepUserStorage;
 import com.sepgroup.sep.model.InvalidInputException;
 import com.sepgroup.sep.model.ModelNotFoundException;
 import com.sepgroup.sep.model.ProjectModel;
+import com.sepgroup.sep.model.UserModel;
 import org.aeonbits.owner.ConfigFactory;
+import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -22,13 +26,29 @@ import static org.junit.Assert.fail;
  */
 public class ProjectModelTest {
 
+    // Current date/time for dummy start date
     private static Date defaultStartDate = new Date();
+
+    // At least one day past defaultStartDate
     private static Date defaultDeadline = new Date(System.currentTimeMillis() + 9999*9999);
 
+    private UserModel createdUser;
 
     @BeforeClass
-    public static void setUp() throws Exception {
+    public static void setUpBeforeClass() throws Exception {
         ConfigFactory.setProperty("configPath", ProjectModelTest.class.getResource("/test-db.properties").getFile());
+        SepUserStorage.createDBTablesIfNotExisting();
+    }
+
+    @Before
+    public void setUp() throws Exception {
+        createdUser = new UserModel("FIRST", "LAST", 22.00);
+        createdUser.persistData();
+    }
+
+    @AfterClass
+    public static void tearDownAfterClass() throws Exception {
+        SepUserStorage.dropAllDBTables();
     }
 
     @Test
@@ -154,8 +174,8 @@ public class ProjectModelTest {
     @Test
     public void testEquals() throws Exception {
         // Create two projects with same data
-        ProjectModel p1 = new ProjectModel("Proj", defaultStartDate, defaultDeadline, 1000, false, 0, "P Desc.");
-        ProjectModel p2 = new ProjectModel("Proj", defaultStartDate, defaultDeadline, 1000, false, 0, "P Desc.");
+        ProjectModel p1 = new ProjectModel("Proj", defaultStartDate, defaultDeadline, 1000, false, createdUser, "P Desc.");
+        ProjectModel p2 = new ProjectModel("Proj", defaultStartDate, defaultDeadline, 1000, false, createdUser, "P Desc.");
 
         assertTrue(p1.equals(p2));
 

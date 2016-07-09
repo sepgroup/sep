@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
@@ -26,7 +27,7 @@
             <font>
                 <Font name="System Bold" size="12.0" />
             </font></Label>
-        <Button layoutX="44.0" layoutY="319.0" mnemonicParsing="false" onAction="#onEditTaskUpdateClicked" prefHeight="60.0" prefWidth="105.0" text="Update" textFill="WHITE">
+        <Button layoutX="44.0" layoutY="319.0" mnemonicParsing="false" onAction="#onUpdateClicked" prefHeight="60.0" prefWidth="105.0" text="Update" textFill="WHITE">
             <font>
                 <Font name="System Bold" size="12.0" />
             </font></Button>
@@ -34,7 +35,7 @@
             <font>
                 <Font name="System Bold" size="12.0" />
             </font></Button>
-        <Button layoutX="366.0" layoutY="319.0" mnemonicParsing="false" onAction="#onEditTaskCancelClicked" prefHeight="60.0" prefWidth="105.0" text="Cancel" textFill="WHITE">
+        <Button layoutX="366.0" layoutY="319.0" mnemonicParsing="false" onAction="#onCancelClicked" prefHeight="60.0" prefWidth="105.0" text="Cancel" textFill="WHITE">
             <font>
                 <Font name="System Bold" size="12.0" />
             </font></Button>
@@ -42,8 +43,7 @@
         <TextField fx:id="editTaskBudgetField" layoutX="105.0" layoutY="88.0" />
         <DatePicker fx:id="editStartDateTaskField" layoutX="104.0" layoutY="120.0" prefHeight="25.0" prefWidth="149.0" />
         <DatePicker fx:id="editDeadlineTaskField" layoutX="105.0" layoutY="152.0" prefHeight="25.0" prefWidth="149.0" />
-        <TextField fx:id="assigneeTaskField" layoutX="105.0" layoutY="188.0" />
-        <Label layoutX="22.0" layoutY="184.0" prefHeight="32.0" prefWidth="74.0" text="Assignee">
+        <Label layoutX="22.0" layoutY="190.0" prefHeight="32.0" prefWidth="74.0" text="Assignee">
             <font>
                 <Font name="System Bold" size="12.0" />
             </font>
@@ -69,5 +69,6 @@
         <ComboBox fx:id="dependenciesComboBox" layoutX="386.0" layoutY="235.0" onAction="#onDependenciesComboBoxSelected" prefWidth="150.0" />
         <Button fx:id="addSelectedDependencyButton" disable="true" layoutX="400.0" layoutY="270.0" mnemonicParsing="false" onAction="#onAddDependencyClicked" text="Add Dependency" />
         <Button fx:id="deleteSelectedDependencyButton" disable="true" layoutX="399.0" layoutY="179.0" mnemonicParsing="false" onAction="#onDeleteSelectedDependencyClicked" prefHeight="27.0" prefWidth="124.0" text="Delete Selected" />
+      <ComboBox fx:id="assigneeComboBox" layoutX="105.0" layoutY="193.0" prefWidth="150.0" />
     </children>
 </AnchorPane>

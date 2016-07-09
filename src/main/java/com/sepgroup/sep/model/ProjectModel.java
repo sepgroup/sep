@@ -32,7 +32,7 @@ public class ProjectModel extends AbstractModel {
     private Date startDate;
     private Date deadline;
     private boolean done;
-    private int managerUserId;
+    private UserModel manager;
     private String projectDescription;
 
 	/**
@@ -51,7 +51,7 @@ public class ProjectModel extends AbstractModel {
 	 * @param dl Deadline of project
 	 * @param budget Dedicated Budget to the project
 	 */
-	public ProjectModel(String name, Date sd, Date dl, double budget, boolean done, int managerUserId,
+	public ProjectModel(String name, Date sd, Date dl, double budget, boolean done, UserModel managerUserId,
                         String projectDescription) throws InvalidInputException {
         this();
         setName(name);
@@ -59,7 +59,7 @@ public class ProjectModel extends AbstractModel {
         setStartDate(sd);
         setDeadline(dl);
         setDone(done);
-        setManagerUserId(managerUserId);
+        setManager(manager);
         setProjectDescription(projectDescription);
 	}
 	/**
@@ -71,16 +71,16 @@ public class ProjectModel extends AbstractModel {
 	 * @param dl Deadline of project
 	 * @param budget Dedicated Budget to the project
 	 */
-	protected ProjectModel(int id, String name, Date sd, Date dl, double budget, boolean done, int managerUserId,
-                         String projectDescription) throws InvalidInputException {
+	protected ProjectModel(int id, String name, Date sd, Date dl, double budget, boolean done, UserModel manager,
+                         String projectDescription) {
         this();
-        setName(name);
-        setBudget(budget);
-        setStartDate(sd);
-        setDeadline(dl);
-        setDone(done);
-        setProjectDescription(projectDescription);
-        this.managerUserId = managerUserId;
+        this.name = name;
+        this.budget = budget;
+        this.startDate = sd;
+        this.deadline = dl;
+        this.done = done;
+        this.projectDescription = projectDescription;
+        this.manager = manager;
         this.projectId = id;
 	}
 
@@ -95,6 +95,7 @@ public class ProjectModel extends AbstractModel {
         setDeadline(refreshed.getDeadline());
         setDone(refreshed.isDone());
         setProjectDescription(refreshed.getProjectDescription());
+        setManager(refreshed.getManager());
 
         updateObservers();
     }
@@ -128,7 +129,7 @@ public class ProjectModel extends AbstractModel {
      * @param projectId is the ID that we search for that
      * @return the data inside the row of selected table
      */
-    public static ProjectModel getById(int projectId) throws ModelNotFoundException, InvalidInputException {
+    public static ProjectModel getById(int projectId) throws ModelNotFoundException {
         return new ProjectModel().dbo.findById(projectId);
     }
 
@@ -137,18 +138,24 @@ public class ProjectModel extends AbstractModel {
      * of project objects and return it
      * @return LinkedList of Project Objects
      */
-    public static List<ProjectModel> getAll() throws ModelNotFoundException, InvalidInputException {
+    public static List<ProjectModel> getAll() throws ModelNotFoundException {
         return new ProjectModel().dbo.findAll();
     }
 
-    public static List<ProjectModel> getAllByManager(UserModel userModel) throws ModelNotFoundException,
-            InvalidInputException {
+    public static List<ProjectModel> getAllByManager(UserModel userModel) throws ModelNotFoundException {
         return getAllByManager(userModel.getUserId());
     }
 
-    public static List<ProjectModel> getAllByManager(int managerUserId) throws ModelNotFoundException,
-            InvalidInputException {
+    public static List<ProjectModel> getAllByManager(int managerUserId) throws ModelNotFoundException {
         return new ProjectModel().dbo.findAllByManager(managerUserId);
+    }
+
+    public static void cleanData()throws DBException{
+        new ProjectModel().dbo.clean();
+    }
+
+    public static void createTable() throws DBException{
+        new ProjectModel().dbo.createTable();
     }
 
     /**
@@ -321,29 +328,34 @@ public class ProjectModel extends AbstractModel {
     }
 
     /**
-     *
-     * @return
+     * Get the project manager
+     * @return the UserModel of the project manager
      */
-    public int getManagerUserId() {
-        return managerUserId;
+    public UserModel getManager() {
+        return manager;
     }
 
     /**
-     *
-     * @param managerUserId
+     * Set the project manager
+     * @param manager UserModel of the project manager
      */
-    public void setManagerUserId(int managerUserId) throws InvalidInputException {
-        if (managerUserId < 0) {
-            throw new InvalidInputException("Manager user ID must be a positive integer");
+    public void setManager(UserModel manager) throws InvalidInputException {
+        if (manager == null) {
+            logger.debug("Set assignee given a null value, removing assignee.");
         }
-        else if (managerUserId > 0) {
-            try {
-                UserModel.getById(managerUserId);
-            } catch (ModelNotFoundException e) {
-                throw new InvalidInputException("No user exists with user ID " + managerUserId + ".");
-            }
-            this.managerUserId = managerUserId;
+        else if (manager.getUserId() == 0) {
+            throw new InvalidInputException("Trying to set assignee as user " +
+                    " ID of 0. User must be saved to database before managing a project.");
         }
+        else if (manager.getUserId() < 0) {
+            throw new InvalidInputException("User ID must be a positive integer");
+        }
+
+        this.manager = manager;
+    }
+
+    public void removeManager() {
+        this.manager = null;
     }
 
     /**
@@ -358,12 +370,14 @@ public class ProjectModel extends AbstractModel {
 	public String toString() {
         String startDateStr = "";
         String deadlineStr = "";
+        String managerStr = "";
         if (getStartDate() != null) startDateStr = DateUtils.castDateToString(getStartDate());
         if (getDeadline() != null) deadlineStr = DateUtils.castDateToString(getDeadline());
+        if (getManager() != null) managerStr = getManager().toString();
 
 		return "Project ID "+ getProjectId() + ", " + " Project name: " + getName() + ", " + "Description: " +
                 projectDescription + ", " + "Start date: " + startDateStr + ", " + "Deadline: " + deadlineStr + ", " +
-                "Budget: " + getBudget() + ", " + "Manager ID: " + getManagerUserId() + ", " + "Done: " + isDone();
+                "Budget: " + getBudget() + ", " + "Manager ID: " + managerStr + ", " + "Done: " + isDone();
 	}
 
     @Override
@@ -393,9 +407,9 @@ public class ProjectModel extends AbstractModel {
                 return false;
             }
         } catch (ModelNotFoundException e) {
-            logger.debug("Hacky, ignoring for now.");
+            logger.debug("Hacky, ignoring for now.", e);
         } catch (InvalidInputException e) {
-            logger.error("I was lazy...");
+            logger.error("I was lazy...", e);
         }
 
         return true;
@@ -457,7 +471,7 @@ public class ProjectModel extends AbstractModel {
             return id;
         }
 
-        private ProjectModel runSingleResultQuery(String sql) throws ModelNotFoundException, InvalidInputException {
+        private ProjectModel runSingleResultQuery(String sql) throws ModelNotFoundException {
             ProjectModel p = null;
             try {
                 ResultSet rs = db.query(sql);
@@ -479,14 +493,25 @@ public class ProjectModel extends AbstractModel {
                     }
                     double budgetTemp = rs.getFloat(BUDGET_COLUMN);
                     boolean doneTemp = rs.getBoolean(DONE_COLUMN);
-                    int managerUserIdTemp = rs.getInt(MANAGER_USER_ID_COLUMN);
                     String projectDescriptionTemp = rs.getString(PROJECT_DESCRIPTION_COLUMN);
+                    int managerUserIdTemp = rs.getInt(MANAGER_USER_ID_COLUMN);
+                    UserModel manager = null;
+
+                    // Set UserModel
+                    if (managerUserIdTemp > 0) {
+                        String firstNameTemp = rs.getString(UserModel.UserModelDBObject.FIRST_NAME_COLUMN);
+                        String lastNameTemp = rs.getString(UserModel.UserModelDBObject.LAST_NAME_COLUMN);
+                        double salaryPerHourTemp = rs.getFloat(UserModel.UserModelDBObject.SALARY_PER_HOUR_COLUMN);
+
+                        manager = new UserModel(managerUserIdTemp, firstNameTemp, lastNameTemp, salaryPerHourTemp);
+                    }
+
                     p = new ProjectModel(pIdTemp, pNameTemp, stDateTempDate, dlDateTempDate, budgetTemp, doneTemp,
-                            managerUserIdTemp, projectDescriptionTemp);
+                            manager, projectDescriptionTemp);
                 }
                 else {
                     logger.debug("DB query returned zero results");
-                    throw new ModelNotFoundException("DB query for project ID " + projectId+ " returned no results");
+                    throw new ModelNotFoundException("DB query for project ID " + projectId + " returned no results");
                 }
             }
             catch (SQLException e) {
@@ -502,8 +527,7 @@ public class ProjectModel extends AbstractModel {
             return p;
         }
 
-        private List<ProjectModel> runMultiResultQuery(String sql) throws ModelNotFoundException,
-                InvalidInputException {
+        private List<ProjectModel> runMultiResultQuery(String sql) throws ModelNotFoundException {
             List<ProjectModel> projectList = new LinkedList<>();
             try {
                 ResultSet rs =  db.query(sql);
@@ -525,10 +549,22 @@ public class ProjectModel extends AbstractModel {
                     }
                     double budgetTemp = rs.getFloat(BUDGET_COLUMN);
                     boolean doneTemp = rs.getBoolean(DONE_COLUMN);
-                    int managerUserIdTemp = rs.getInt(MANAGER_USER_ID_COLUMN);
                     String projectDescriptionTemp = rs.getString(PROJECT_DESCRIPTION_COLUMN);
+
+                    int managerUserIdTemp = rs.getInt(MANAGER_USER_ID_COLUMN);
+                    UserModel manager = null;
+
+                    // Set UserModel
+                    if (managerUserIdTemp > 0) {
+                        String firstNameTemp = rs.getString(UserModel.UserModelDBObject.FIRST_NAME_COLUMN);
+                        String lastNameTemp = rs.getString(UserModel.UserModelDBObject.LAST_NAME_COLUMN);
+                        double salaryPerHourTemp = rs.getFloat(UserModel.UserModelDBObject.SALARY_PER_HOUR_COLUMN);
+
+                        manager = new UserModel(managerUserIdTemp, firstNameTemp, lastNameTemp, salaryPerHourTemp);
+                    }
+
                     projectList.add(new ProjectModel(pIdTemp, pNameTemp, stDateTempDate, dlDateTempDate, budgetTemp,
-                            doneTemp, managerUserIdTemp, projectDescriptionTemp));
+                            doneTemp, manager, projectDescriptionTemp));
                 }
 
                 if (projectList.isEmpty()) {
@@ -537,7 +573,7 @@ public class ProjectModel extends AbstractModel {
                 }
             }
             catch (SQLException e) {
-                logger.error("Unable to fetch all projects with manager user ID" + managerUserId + ". Query: " + sql,
+                logger.error("Unable to fetch projects for a manager user ID. Query: " + sql,
                         e);
                 throw new ModelNotFoundException(e);
             } finally {
@@ -551,7 +587,7 @@ public class ProjectModel extends AbstractModel {
         }
 
         @Override
-        public List<ProjectModel> findAll() throws ModelNotFoundException, InvalidInputException {
+        public List<ProjectModel> findAll() throws ModelNotFoundException {
             StringBuilder sql = new StringBuilder();
             sql.append("SELECT * ");
             sql.append("FROM " + getTableName() + ";");
@@ -561,7 +597,7 @@ public class ProjectModel extends AbstractModel {
         }
 
         @Override
-        public ProjectModel findById(int projectId) throws ModelNotFoundException, InvalidInputException {
+        public ProjectModel findById(int projectId) throws ModelNotFoundException {
             logger.debug("Building query for project ID " + projectId);
             StringBuilder sql = new StringBuilder();
             sql.append("SELECT * ");
@@ -572,8 +608,7 @@ public class ProjectModel extends AbstractModel {
             return runSingleResultQuery(sql.toString());
         }
 
-        public List<ProjectModel> findAllByManager(int managerUserId) throws ModelNotFoundException,
-                InvalidInputException {
+        public List<ProjectModel> findAllByManager(int managerUserId) throws ModelNotFoundException {
             logger.debug("Building query for projects with manager user ID " + managerUserId);
             StringBuilder sql = new StringBuilder();
             sql.append("SELECT * ");
@@ -606,7 +641,7 @@ public class ProjectModel extends AbstractModel {
             sql.append("("+ PROJECT_NAME_COLUMN + "," + BUDGET_COLUMN + "," + DONE_COLUMN);
             if (getStartDate() != null) sql.append(", " + START_DATE_COLUMN);
             if (getDeadline() != null) sql.append(", " + DEADLINE_COLUMN);
-            if (getManagerUserId() != 0) sql.append(", " + MANAGER_USER_ID_COLUMN);
+            if (getManager() != null) sql.append(", " + MANAGER_USER_ID_COLUMN);
             if (getProjectDescription() != null) sql.append(", " + PROJECT_DESCRIPTION_COLUMN);
             sql.append(") ");
             sql.append("VALUES ('" + getName() + "'");
@@ -614,7 +649,11 @@ public class ProjectModel extends AbstractModel {
             sql.append("," + (isDone() ? 1 : 0));
             if (getStartDate() != null) sql.append(",'" + DateUtils.castDateToString(getStartDate()) + "'");
             if (getDeadline() != null) sql.append(",'" + DateUtils.castDateToString(getDeadline()) + "'");
+<<<<<<< HEAD
             if (getManagerUserId() != 0) sql.append("," + getManagerUserId());
+=======
+            if (getManager() != null) sql.append(",'" + getManager().getUserId() + "'");
+>>>>>>> 78fc8aaaddf071543b9e694a5ddfb625252bd225
             if (getProjectDescription() != null) sql.append(",'" + getProjectDescription() + "'");
             sql.append(");");
             logger.debug("SQL query: " + sql.toString());
@@ -648,13 +687,14 @@ public class ProjectModel extends AbstractModel {
             sql.append("UPDATE "+ getTableName() + " ");
             sql.append("SET ");
             sql.append(PROJECT_NAME_COLUMN + "='" + getName() + "',");
-            if (getStartDate() != null) sql.append(START_DATE_COLUMN + "='" + DateUtils.castDateToString(getStartDate())
+            sql.append(START_DATE_COLUMN + "='" +
+                    (getStartDate() != null ? DateUtils.castDateToString(getStartDate()) : "NULL") + "',");
+            sql.append(DEADLINE_COLUMN + "='" +
+                    (getDeadline() != null ? DateUtils.castDateToString(getDeadline()) : "NULL") + "',");
+            sql.append(MANAGER_USER_ID_COLUMN + "='" + (getManager() != null ? getManager().getUserId() : "0")
                     + "',");
-            if (getDeadline() != null) sql.append(DEADLINE_COLUMN + "='" + DateUtils.castDateToString(getDeadline()) +
-                    "',");
-            if (getManagerUserId() != 0) sql.append(MANAGER_USER_ID_COLUMN + "='" + getManagerUserId() + "',");
-            if (getProjectDescription() != null) sql.append(PROJECT_DESCRIPTION_COLUMN + "='" + getProjectDescription()
-                    + "',");
+            sql.append(PROJECT_DESCRIPTION_COLUMN + "='" + (getProjectDescription() != null ? getProjectDescription()
+                    : "") + "',");
             sql.append(BUDGET_COLUMN + "='" + getBudget() + "',");
             sql.append(DONE_COLUMN + "='" + (isDone() ? 1 : 0) + "' ");
             sql.append("WHERE " + PROJECT_ID_COLUMN + "=" + getProjectId() + ";");
@@ -685,6 +725,59 @@ public class ProjectModel extends AbstractModel {
                 db.update(sql.toString());
             } catch (SQLException e) {
                 logger.error("Unable to delete project with ID " + getProjectId() + ". Query: " + sql, e);
+                throw new DBException(e);
+            } finally {
+                try {
+                    db.closeConnection();
+                } catch (SQLException e) {
+                    throw new DBException("Unable to close connection to " + db.getDbPath(), e);
+                }
+            }
+        }
+
+        @Override
+        public void clean() throws DBException{
+            StringBuilder sql = new StringBuilder();
+            sql.append("DELETE FROM "+ getTableName()+";");
+            try {
+                if (this.findAll() != null) {
+                    try {
+                        db.update(sql.toString());
+                    } catch (SQLException e) {
+                        logger.error("Unable to delete data from table "+ getTableName(), e);
+                        throw new DBException(e);
+                    } finally {
+                        try {
+                            db.closeConnection();
+                        } catch (SQLException e) {
+                            throw new DBException("Unable to close connection to " + db.getDbPath(), e);
+                        }
+                    }
+                }
+            } catch(ModelNotFoundException e) {
+                logger.debug("No projects found to clean in DB.");
+            }
+        }
+
+        @Override
+        public void createTable() throws DBException {
+            StringBuilder sql = new StringBuilder();
+            sql.append("CREATE TABLE IF NOT EXISTS "+ getTableName() + " (");
+            sql.append(PROJECT_ID_COLUMN + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT" + ",");
+            sql.append(PROJECT_NAME_COLUMN +" VARCHAR(50) NOT NULL" + ",");
+            sql.append(START_DATE_COLUMN +" DATE" + ",");
+            sql.append(DEADLINE_COLUMN +" DATE" + ",");
+            sql.append(BUDGET_COLUMN +" FLOAT CHECK("+ BUDGET_COLUMN+" >= 0)" + ",");
+            sql.append(DONE_COLUMN +" BOOLEAN" + ",");
+            sql.append(MANAGER_USER_ID_COLUMN + " INT" + ",");
+            sql.append(PROJECT_DESCRIPTION_COLUMN + " TEXT" + ",");
+            sql.append("FOREIGN KEY ("+MANAGER_USER_ID_COLUMN+") REFERENCES User(UserID) ON DELETE CASCADE" + ",");
+            sql.append("CONSTRAINT chk_date CHECK(" + DEADLINE_COLUMN + " >= " + START_DATE_COLUMN + "));");
+
+            try {
+                db.create(sql.toString());
+            } catch (SQLException e) {
+                logger.error("Unable to create table "+ getTableName(), e);
                 throw new DBException(e);
             } finally {
                 try {

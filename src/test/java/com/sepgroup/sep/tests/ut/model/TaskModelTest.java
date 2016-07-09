@@ -1,5 +1,7 @@
 package com.sepgroup.sep.tests.ut.model;
 
+import com.sepgroup.sep.SepUserStorage;
+import com.sepgroup.sep.db.Database;
 import com.sepgroup.sep.model.*;
 import org.aeonbits.owner.ConfigFactory;
 import org.junit.*;
@@ -29,6 +31,7 @@ public class TaskModelTest {
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
         ConfigFactory.setProperty("configPath", ProjectModelTest.class.getResource("/test-db.properties").getFile());
+        SepUserStorage.createDBTablesIfNotExisting();
     }
 
     @Before
@@ -39,6 +42,12 @@ public class TaskModelTest {
 
         createdUser = new UserModel("FIRST", "LAST", 22.00);
         createdUser.persistData();
+    }
+
+    @AfterClass
+    public static void tearDownAfterClass() throws Exception {
+        Database db = Database.getActiveDB();
+        SepUserStorage.dropAllDBTables();
     }
 
     @Test
@@ -145,9 +154,9 @@ public class TaskModelTest {
     @Test
     public void testGetAll() throws Exception {
         new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 10000, defaultStartDate,
-                defaultDeadline, false, null).persistData();
+                defaultDeadline, false, createdUser).persistData();
         new TaskModel("T2", "Description of\n T2", createdProject.getProjectId(), 20000, defaultStartDate,
-                defaultDeadline, false, null).persistData();
+                defaultDeadline, false, createdUser).persistData();
         List<TaskModel> taskList = TaskModel.getAll();
 
         assertThat(taskList.size(), isA(Integer.class));
@@ -303,11 +312,28 @@ public class TaskModelTest {
         assertTrue(false);
     }
 
-    @Ignore
     @Test
     public void testGetAllByUser() throws Exception {
-        // TODO
-        assertTrue(false);
+        // Create tasks
+        TaskModel t1 = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId(), 10000, defaultStartDate,
+                defaultDeadline, false, createdUser);
+        TaskModel t2 = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId(), 10000, defaultStartDate,
+                defaultDeadline, false, createdUser);
+        TaskModel t3 = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId(), 10000, defaultStartDate,
+                defaultDeadline, false, null);
+        TaskModel t4 = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId(), 10000, defaultStartDate,
+                defaultDeadline, false, null);
+        t1.persistData();
+        t2.persistData();
+        t3.persistData();
+        t4.persistData();
+
+        List<TaskModel> tasksByAssignee = TaskModel.getAllByAssignee(createdUser);
+
+        assertTrue(tasksByAssignee.contains(t1));
+        assertTrue(tasksByAssignee.contains(t2));
+        assertFalse(tasksByAssignee.contains(t3));
+        assertFalse(tasksByAssignee.contains(t4));
     }
 
     @Ignore

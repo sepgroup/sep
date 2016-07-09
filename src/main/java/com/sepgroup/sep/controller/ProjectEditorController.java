@@ -4,8 +4,12 @@ import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 import com.sepgroup.sep.model.InvalidInputException;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +42,7 @@ public class ProjectEditorController extends AbstractController {
 	@FXML
 	public DatePicker editDeadlinePicker;
 	@FXML
-	public TextField editManagerField;
+	public ComboBox<UserModel> managerComboBox;
     @FXML
     public Text projectNameText;
     @FXML
@@ -163,25 +167,21 @@ public class ProjectEditorController extends AbstractController {
             }
 
             // Manager
-            // TODO use name instead of user ID
-            if (!editManagerField.getText().equals("")) {
-                int managerID;
+            UserModel selectedManager = managerComboBox.getSelectionModel().getSelectedItem();
+            if (selectedManager == null || selectedManager == UserModel.getEmptyUser()) {
+                model.removeManager();
+            }
+            else {
                 try {
-                    managerID = Integer.parseInt(editManagerField.getText());
-                } catch (NumberFormatException e) {
-                    DialogCreator.showErrorDialog("Invalid user ID", "Enter a valid manager user ID.");
-                    return;
-                }
-                try {
-                    model.setManagerUserId(managerID);
+                    model.setManager(selectedManager);
                 } catch (InvalidInputException e) {
-                    DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
-                    return;
+                    logger.error("User being assigned to project is invalid", e);
+                    DialogCreator.showExceptionDialog(e);
                 }
             }
 
             // Description
-            if (!projectDescriptionTextArea.getText().equals("")) {
+            if (projectDescriptionTextArea.getText() != null) {
                 model.setProjectDescription(projectDescriptionTextArea.getText());
             }
 
@@ -215,33 +215,33 @@ public class ProjectEditorController extends AbstractController {
             editNameField.setText(model.getName());
             projectDescriptionTextArea.setText(model.getProjectDescription());
             try {
-                LocalDate startDate = LocalDate.parse(model.getStartDateString());
-                editStartDatePicker.setValue(startDate);
+                if (model.getStartDate() != null) {
+                    LocalDate startDate = LocalDate.parse(model.getStartDateString());
+                    editStartDatePicker.setValue(startDate);
+                }
 
-                LocalDate deadline = LocalDate.parse(model.getDeadlineString());
-                editDeadlinePicker.setValue(deadline);
+                if (model.getDeadline() != null) {
+                    LocalDate deadline = LocalDate.parse(model.getDeadlineString());
+                    editDeadlinePicker.setValue(deadline);
+                }
             } catch (DateTimeParseException e) {
                 DialogCreator.showExceptionDialog(e);
             }
 
             editBudgetField.setText(Double.toString(model.getBudget()));
 
-            // Populate manager
-            String managerName = "";
-            int managerUserID = model.getManagerUserId();
-            if (managerUserID == 0) {
-                managerName = "[ none ]";
-            } else {
-                try {
-                    UserModel manager = UserModel.getById(managerUserID);
-                    managerName = manager.getFullName();
-                } catch (ModelNotFoundException e) {
-                    // TODO handle
-                }
+            // Populate manager list
+            List<UserModel> userList;
+            try {
+                userList = UserModel.getAll();
+            } catch (ModelNotFoundException e) {
+                logger.debug("No users found.");
+                userList = new LinkedList<>();
             }
-
-            // TODO fix if we want manager name
-            editManagerField.setText(Integer.toString(managerUserID));
+            userList.add(0, UserModel.getEmptyUser());
+            ObservableList<UserModel> observableUserList = FXCollections.observableList(userList);
+            managerComboBox.setItems(observableUserList);
+            if (model.getManager() != null) managerComboBox.getSelectionModel().select(model.getManager());
         }
     }
 }

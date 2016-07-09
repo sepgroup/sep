@@ -1,10 +1,11 @@
 package com.sepgroup.sep.db;
 
+import com.sepgroup.sep.SepUserStorage;
 import org.aeonbits.owner.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URL;
+import java.nio.file.Path;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,9 +27,9 @@ public class Database {
 
     /**
      *
-     * @param dbPath path to the DB file
+     * @param dbPathString path to the DB file
      */
-	public Database(String dbPath) throws DBException {
+	public Database(String dbPathString) throws DBException {
         try {
             Class.forName("org.sqlite.JDBC");
         } catch (ClassNotFoundException e) {
@@ -36,16 +37,13 @@ public class Database {
             throw new DBException(e);
         }
 
-        URL dbUrl = Database.class.getResource(dbPath);
-        if (dbUrl == null) {
-            throw new DBException("Unable to load DB at " + dbPath);
-        }
-        this.dbPath = dbUrl.getFile();
+        Path dbPath = SepUserStorage.getPath().resolve(dbPathString);
+        this.dbPath = dbPath.toAbsolutePath().toString();
     }
 
     private void openConnection() throws SQLException {
         if (conn != null && !conn.isClosed()) {
-            logger.warn("Previous DB connection was not closed, closing it now");
+            logger.debug("Previous DB connection was not closed, closing it now");
             conn.close();
         }
         try {
@@ -64,7 +62,7 @@ public class Database {
 
     public ResultSet query(String sql) throws SQLException {
         openConnection();
-        sql.replaceAll("[a-zA-Z0-9_!@#$%^&*()-=+~.;:,\\Q[\\E\\Q]\\E<>{}\\/? ]","");
+//        sql.replaceAll("[a-zA-Z0-9_!@#$%^&*()-=+~.;:,\\Q[\\E\\Q]\\E<>{}\\/? ]","");
         Statement s = conn.createStatement();
         s.setQueryTimeout(5);
         ResultSet rs = s.executeQuery(sql);
@@ -74,7 +72,7 @@ public class Database {
 
     public int insert(String sql) throws SQLException {
         openConnection();
-        sql.replaceAll("[a-zA-Z0-9_!@#$%^&*()-=+~.;:,\\Q[\\E\\Q]\\E<>{}\\/? ]","");
+//        sql.replaceAll("[a-zA-Z0-9_!@#$%^&*()-=+~.;:,\\Q[\\E\\Q]\\E<>{}\\/? ]","");
         PreparedStatement s = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
         s.setQueryTimeout(5);
 
@@ -98,7 +96,7 @@ public class Database {
 
     public void update(String sql) throws SQLException {
         openConnection();
-        sql.replaceAll("[a-zA-Z0-9_!@#$%^&*()-=+~.;:,\\Q[\\E\\Q]\\E<>{}\\/? ]","");
+//        sql.replaceAll("[a-zA-Z0-9_!@#$%^&*()-=+~.;:,\\Q[\\E\\Q]\\E<>{}\\/? ]","");
         Statement s = conn.createStatement();
         s.setQueryTimeout(5);
 
@@ -109,7 +107,16 @@ public class Database {
         conn.commit();
         s.close();
     }
-	
+
+    public void create(String sql) throws SQLException {
+        openConnection();
+        sql.replaceAll("[a-zA-Z0-9_!@#$%^&*()-=+~.;:,\\Q[\\E\\Q]\\E<>{}\\/? ]",""); // this is never used
+        Statement s = conn.createStatement();
+        s.setQueryTimeout(5);
+        s.execute(sql);
+        conn.commit();
+        s.close();
+    }
 	public void closeConnection() throws SQLException {
         if (conn != null && !conn.isClosed()) {
             logger.debug("Closing DB connection to " + getDbPath());
@@ -121,7 +128,8 @@ public class Database {
 	}
 
     /**
-     * Get the instance of the DB from the specified path
+     * Get the instance of the DB from the path specified in the properties file (db.properties for main code,
+     * db-test.properties for testing code)
      */
     public static Database getActiveDB() throws DBException {
         if (ConfigFactory.getProperty("configPath") == null) {
@@ -146,7 +154,9 @@ public class Database {
         }
         else {
             logger.debug("DB " + dbPath + " was not already active, creating instance");
-            return new Database(dbPath);
+            Database newDb = new Database(dbPath);
+            activeDBs.put(dbPath, newDb);
+            return newDb;
         }
     }
 
@@ -154,5 +164,19 @@ public class Database {
         logger.debug("Checking if DB " + dbPath + " is active");
         Database activeDB = activeDBs.get(dbPath);
         return activeDB != null;
+    }
+
+    public void dropTable(String tableName) throws DBException {
+        try {
+            openConnection();
+            String sql = "DROP TABLE IF EXISTS " + tableName + ";";
+            Statement s = conn.createStatement();
+            s.setQueryTimeout(5);
+            s.executeUpdate(sql);
+            conn.commit();
+            s.close();
+        } catch (SQLException e) {
+            throw new DBException("Error dropping table " + tableName, e);
+        }
     }
 }

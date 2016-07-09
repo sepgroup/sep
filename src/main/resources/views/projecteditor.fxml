@@ -14,51 +14,56 @@
 <?import javafx.scene.text.Text?>
 
 <AnchorPane fx:id="projecteditor" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/null" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sepgroup.sep.controller.ProjectEditorController">
-   <children>
-      <Label layoutX="182.0" layoutY="16.0" prefHeight="25.0" prefWidth="105.0" text="Edit Project">
-         <font>
-            <Font name="System Bold" size="14.0" />
-         </font></Label>
-      <Label layoutX="22.0" layoutY="94.0" prefHeight="25.0" prefWidth="144.0" text="Budget">
-         <font>
-            <Font name="System Bold" size="12.0" />
-         </font></Label>
-      <Label layoutX="23.0" layoutY="125.0" prefHeight="25.0" prefWidth="105.0" text="Start Date">
-         <font>
-            <Font name="System Bold" size="12.0" />
-         </font></Label>
-      <Label layoutX="23.0" layoutY="63.0" prefHeight="25.0" prefWidth="114.0" text="Name">
-         <font>
-            <Font name="System Bold" size="12.0" />
-         </font></Label>
-      <Label layoutX="23.0" layoutY="158.0" prefHeight="25.0" prefWidth="105.0" text="Deadline">
-         <font>
-            <Font name="System Bold" size="12.0" />
-         </font></Label>
-      <Button layoutX="28.0" layoutY="292.0" mnemonicParsing="false" onAction="#onEditUpdateClicked" prefHeight="60.0" prefWidth="105.0" text="Update" textFill="WHITE">
-         <font>
-            <Font name="System Bold" size="12.0" />
-         </font></Button>
-      <Button layoutX="182.0" layoutY="292.0" mnemonicParsing="false" onAction="#onDeleteClicked" prefHeight="60.0" prefWidth="105.0" text="Delete Project" textFill="WHITE">
-         <font>
-            <Font name="System Bold" size="12.0" />
-         </font></Button>
-      <Button layoutX="336.0" layoutY="292.0" mnemonicParsing="false" onAction="#onEditCancelClicked" prefHeight="60.0" prefWidth="105.0" text="Cancel" textFill="WHITE">
-         <font>
-            <Font name="System Bold" size="12.0" />
-         </font></Button>
-      <TextField fx:id="editNameField" layoutX="119.0" layoutY="63.0" />
-      <TextField fx:id="editBudgetField" layoutX="119.0" layoutY="94.0" />
-      <DatePicker fx:id="editStartDatePicker" layoutX="119.0" layoutY="125.0" prefHeight="25.0" prefWidth="149.0" />
-      <DatePicker fx:id="editDeadlinePicker" layoutX="119.0" layoutY="158.0" prefHeight="25.0" prefWidth="149.0" />
-      <TextField fx:id="editManagerField" layoutX="119.0" layoutY="194.0" />
-      <Label layoutX="23.0" layoutY="194.0" prefHeight="25.0" prefWidth="105.0" text="Manager">
-         <font>
-            <Font name="System Bold" size="12.0" />
-         </font>
-      </Label>
-      <TextArea fx:id="projectDescriptionTextArea" layoutX="21.0" layoutY="229.0" prefHeight="17.0" prefWidth="250.0" text="Project Description..." />
-      <Text fx:id="projectNameText" layoutX="287.0" layoutY="33.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Project" wrappingWidth="78.999999538064" />
+    <children>
+        <Label layoutX="182.0" layoutY="16.0" prefHeight="25.0" prefWidth="105.0" text="Edit Project">
+            <font>
+                <Font name="System Bold" size="14.0" />
+            </font></Label>
+        <Label layoutX="22.0" layoutY="94.0" prefHeight="25.0" prefWidth="144.0" text="Budget">
+            <font>
+                <Font name="System Bold" size="12.0" />
+            </font></Label>
+        <Label layoutX="23.0" layoutY="125.0" prefHeight="25.0" prefWidth="105.0" text="Start Date">
+            <font>
+                <Font name="System Bold" size="12.0" />
+            </font>
+        </Label>
+        <Label layoutX="23.0" layoutY="63.0" prefHeight="25.0" prefWidth="114.0" text="Name">
+            <font>
+                <Font name="System Bold" size="12.0" />
+            </font>
+        </Label>
+        <Label layoutX="23.0" layoutY="158.0" prefHeight="25.0" prefWidth="105.0" text="Deadline">
+            <font>
+                <Font name="System Bold" size="12.0" />
+            </font>
+        </Label>
+        <Button layoutX="28.0" layoutY="292.0" mnemonicParsing="false" onAction="#onEditUpdateClicked" prefHeight="60.0" prefWidth="105.0" text="Update" textFill="WHITE">
+             <font>
+                 <Font name="System Bold" size="12.0" />
+             </font>
+        </Button>
+        <Button layoutX="182.0" layoutY="292.0" mnemonicParsing="false" onAction="#onDeleteClicked" prefHeight="60.0" prefWidth="105.0" text="Delete Project" textFill="WHITE">
+            <font>
+                <Font name="System Bold" size="12.0" />
+            </font></Button>
+        <Button layoutX="336.0" layoutY="292.0" mnemonicParsing="false" onAction="#onEditCancelClicked" prefHeight="60.0" prefWidth="105.0" text="Cancel" textFill="WHITE">
+            <font>
+                <Font name="System Bold" size="12.0" />
+            </font>
+        </Button>
+        <TextField fx:id="editNameField" layoutX="119.0" layoutY="63.0" />
+        <TextField fx:id="editBudgetField" layoutX="119.0" layoutY="94.0" />
+        <DatePicker fx:id="editStartDatePicker" layoutX="119.0" layoutY="125.0" prefHeight="25.0" prefWidth="149.0" />
+        <DatePicker fx:id="editDeadlinePicker" layoutX="119.0" layoutY="158.0" prefHeight="25.0" prefWidth="149.0" />
+        <ComboBox fx:id="managerComboBox" layoutX="119.0" layoutY="194.0" prefWidth="150.0" />
+        <Label layoutX="23.0" layoutY="194.0" prefHeight="25.0" prefWidth="105.0" text="Manager">
+            <font>
+                <Font name="System Bold" size="12.0" />
+            </font>
+        </Label>
+        <TextArea fx:id="projectDescriptionTextArea" layoutX="21.0" layoutY="229.0" prefHeight="17.0" prefWidth="250.0" text="Project Description..." />
+        <Text fx:id="projectNameText" layoutX="287.0" layoutY="33.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Project" wrappingWidth="78.999999538064" />
 
-   </children>
+    </children>
 </AnchorPane>

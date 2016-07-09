@@ -3,7 +3,10 @@ package com.sepgroup.sep.tests.ut.db;
 import com.sepgroup.sep.db.DBConfig;
 import org.aeonbits.owner.ConfigFactory;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.io.File;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -13,11 +16,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
  */
 public class DBConfigTest {
 
-    private static String expectedActiveDBPath = "/test.db";
+    private static String expectedActiveDBPath = "test.db";
 
-    @Before
-    public void setUpBeforeMethod() throws Exception {
-        ConfigFactory.setProperty("configPath", getClass().getResource("/test-db.properties").getFile());
+    @BeforeClass
+    public static void setUpBeforeMethod() throws Exception {
+        ConfigFactory.setProperty("configPath", DBConfigTest.class.getResource(File.separator + "test-db.properties").getFile());
     }
 
     @Test

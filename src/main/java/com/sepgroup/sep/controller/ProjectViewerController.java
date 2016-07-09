@@ -86,17 +86,11 @@ public class ProjectViewerController extends AbstractController {
 
             // Populate manager
             String managerName;
-            int managerUserID = model.getManagerUserId();
-            if (managerUserID == 0) {
+            if (model.getManager() == null) {
                 managerName = "[ none ]";
-            } else {
-                try {
-                    UserModel manager = UserModel.getById(managerUserID);
-                    managerName = manager.getFirstName() + " " + manager.getLastName();
-                } catch (ModelNotFoundException e) {
-                    logger.error("Error finding user with ID " + managerUserID);
-                    managerName = "[ none ]";
-                }
+            }
+            else {
+                managerName = model.getManager().getFullName();
             }
             managerValueLabel.setText(managerName);
 
@@ -109,6 +103,7 @@ public class ProjectViewerController extends AbstractController {
                 taskTableView.setItems(observableTaskList);
             } catch (ModelNotFoundException e) {
                 logger.debug("No tasks found for project " + model.toString());
+                tasksList = new LinkedList<>();
             }
             taskIdColumn.setCellValueFactory(cellData -> cellData.getValue().taskIdProperty().asObject());
             taskNameColumn.setCellValueFactory(cellData -> cellData.getValue().taskNameProperty());
@@ -193,7 +188,7 @@ public class ProjectViewerController extends AbstractController {
             }
             else {
                 newTaskList = FXCollections.observableList(tasksList)
-                        .filtered(t -> t.getModel().getAssignee().equals(selectedUser));
+                        .filtered(t -> selectedUser.equals(t.getModel().getAssignee()));
             }
             taskTableView.setItems(newTaskList);
         }
