@@ -51,6 +51,9 @@ public class TaskModelTest {
 
     @Test
     public void testEquals() throws Exception {
+        /**
+         * Tests that creating two seperate objects with the same values are equivalent
+         */
         TaskModel t1 = new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 10000,
                 defaultStartDate, defaultDeadline, false, createdUser);
         TaskModel t2 = new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 10000,
@@ -61,6 +64,9 @@ public class TaskModelTest {
 
     @Test
     public void testNotEqual() throws Exception {
+        /**
+         * Tests that creating different objects leads to an inequality
+         */
         TaskModel t1 = new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 20000,
                 defaultStartDate, defaultDeadline, false, createdUser);
         TaskModel t2 = new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 10000,
@@ -71,6 +77,9 @@ public class TaskModelTest {
 
     @Test
     public void testPersistData() throws Exception {
+        /**
+         * Tests persistence to ensure that objects can be stored and loaded
+         */
         TaskModel createdTask = new TaskModel("TX", "Description of\n TX", createdProject.getProjectId(), 10000,
                 defaultStartDate, defaultDeadline, false, createdUser);
         createdTask.persistData();
@@ -87,6 +96,9 @@ public class TaskModelTest {
 
     @Test
     public void testPersistDataWithTaskDependencies() throws Exception {
+        /**
+         * Tests persistence for task dependencies in particular to ensure that objects can be stored and loaded
+         */
         TaskModel createdTask1 = new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 10000,
                 defaultStartDate, defaultDeadline, false, createdUser);
         createdTask1.persistData();

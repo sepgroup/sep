@@ -15,8 +15,10 @@ import static org.junit.Assert.*;
 
 /**
  * Created by Wired on 2016-06-05.
+ *  Integration test to ensure correct task generation with randomized data
+ *  TODO fix this
  */
-public class TaskTest {
+public class TaskIntegrationTest {
     TaskModel[] tasksIn, tasksOut;
     boolean[] hasValidName, hasValidDescription, hasValidBudget, hasValidProjectID, hasValidDatePair, hasValidUserID, isValid;
 
