@@ -61,9 +61,9 @@ public class SepUserStorage {
      * @throws DBException if the tables could not be created
      */
     public static void createDBTablesIfNotExisting() throws DBException {
+        UserModel.createTable();
         ProjectModel.createTable();
         TaskModel.createTable();
-        UserModel.createTable();
     }
 
     /**

@@ -1,5 +1,7 @@
 package com.sepgroup.sep.db;
 
+import com.healthmarketscience.sqlbuilder.dbspec.basic.DbSchema;
+import com.healthmarketscience.sqlbuilder.dbspec.basic.DbSpec;
 import com.sepgroup.sep.SepUserStorage;
 import org.aeonbits.owner.ConfigFactory;
 import org.slf4j.Logger;
@@ -14,6 +16,10 @@ public class Database {
 
     private static Logger logger = LoggerFactory.getLogger(Database.class);
     private static Map<String, Database> activeDBs = new HashMap<>();
+
+    // Create default schema
+    private DbSpec dbSpec = new DbSpec();
+    private DbSchema dbSchema = dbSpec.addDefaultSchema();
 
     /**
      * Path to the DB file
@@ -123,7 +129,7 @@ public class Database {
             conn.close();
         }
         else {
-            logger.warn("DB connection was already closed");
+            logger.debug("DB connection was already closed");
         }
 	}
 
@@ -158,6 +164,9 @@ public class Database {
             activeDBs.put(dbPath, newDb);
             return newDb;
         }
+    }
+    public DbSchema getDbchema() {
+        return dbSchema;
     }
 
     public static boolean isDBActive(String dbPath) {

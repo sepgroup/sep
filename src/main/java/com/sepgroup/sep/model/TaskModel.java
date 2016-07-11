@@ -1130,5 +1130,20 @@ public class TaskModel extends AbstractModel {
             }
         }
 
+        @Override
+        public void dropTable() throws DBException {
+//            try {
+//                db.create(dropTableQuery.validate().toString());
+//            } catch (SQLException e) {
+//                logger.error("Unable to drop table "+ getTableName(), e);
+//                throw new DBException(e);
+//            } finally {
+//                try {
+//                    db.closeConnection();
+//                } catch (SQLException e) {
+//                    throw new DBException("Unable to close connection to " + db.getDbPath(), e);
+//                }
+//            }
+        }
     }
 }

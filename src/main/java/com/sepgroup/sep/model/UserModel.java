@@ -1,5 +1,9 @@
 package com.sepgroup.sep.model;
 
+import com.healthmarketscience.sqlbuilder.*;
+import com.healthmarketscience.sqlbuilder.custom.mysql.MysObjects;
+import com.healthmarketscience.sqlbuilder.dbspec.basic.DbColumn;
+import com.healthmarketscience.sqlbuilder.dbspec.basic.DbTable;
 import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.db.DBObject;
 import com.sepgroup.sep.db.Database;
@@ -286,12 +290,33 @@ public class UserModel extends AbstractModel {
 
         private Database db;
 
+        DbTable userTable;
+        DbColumn userIdColumn;
+        DbColumn firstNameColumn;
+        DbColumn lastNameColumn;
+        DbColumn salaryPerHourColumn;
+
+        DropQuery dropTableQuery;
+
         private UserModelDBObject() {
             try {
                 db = Database.getActiveDB();
             } catch (DBException e) {
                 logger.error("Unable to read from database", e);
             }
+
+            setUpTableSchema();
+        }
+
+        private void setUpTableSchema() {
+            // Add table w/ info
+            userTable = db.getDbchema().addTable(TABLE_NAME);
+            userIdColumn = userTable.addColumn(USER_ID_COLUMN, "integer", null);
+            userIdColumn.notNull();
+            userIdColumn.primaryKey();
+            firstNameColumn = userTable.addColumn(FIRST_NAME_COLUMN, "varchar", 50);
+            lastNameColumn = userTable.addColumn(LAST_NAME_COLUMN, "varchar", 50);
+            salaryPerHourColumn = userTable.addColumn(SALARY_PER_HOUR_COLUMN, "float", null);
         }
 
         @Override
@@ -401,20 +426,22 @@ public class UserModel extends AbstractModel {
 
         @Override
         public int create() throws DBException {
-            logger.debug("Building SQL query for user model");
-            StringBuilder sql = new StringBuilder();
-            sql.append("INSERT INTO "+ getTableName() + " ");
-            sql.append("("+ FIRST_NAME_COLUMN + "," + LAST_NAME_COLUMN + "," + SALARY_PER_HOUR_COLUMN + ") ");
-            sql.append("VALUES ('" + getFirstName() + "','" + getLastName() + "'," + getSalaryPerHour() + ");");
-            logger.debug("SQL query: " + sql.toString());
+            logger.debug("Building SQL query for inserting user model");
+            String insertProjectSql =
+                    new InsertQuery(userTable)
+                    .addColumn(firstNameColumn, getFirstName())
+                    .addColumn(lastNameColumn, getLastName())
+                    .addColumn(salaryPerHourColumn, getSalaryPerHour())
+                    .validate().toString();
+            logger.debug("SQL query: " + insertProjectSql);
 
             int insertedKey;
             try {
-                insertedKey = this.db.insert(sql.toString());
+                insertedKey = this.db.insert(insertProjectSql);
                 logger.debug("Insert query returned key " + insertedKey);
             } catch (SQLException e) {
-                logger.error("Unable to create project " + ". Query: " + sql, e);
-                throw new DBException("Unable to create user " + ". Query: " + sql, e);
+                logger.error("Unable to create project " + ". Query: " + insertProjectSql, e);
+                throw new DBException("Unable to create user " + ". Query: " + insertProjectSql, e);
             }
             finally {
                 try {
@@ -429,20 +456,20 @@ public class UserModel extends AbstractModel {
 
         @Override
         public void update() throws DBException {
-            // Build query
-            StringBuilder sql = new StringBuilder();
-            sql.append("UPDATE "+ getTableName() + " ");
-            sql.append("SET ");
-            sql.append(FIRST_NAME_COLUMN + "='" + getFirstName() + "',");
-            sql.append(LAST_NAME_COLUMN + "='" + getLastName() + "',");
-            sql.append(SALARY_PER_HOUR_COLUMN + "=" + getSalaryPerHour() + " ");
-            sql.append("WHERE " + USER_ID_COLUMN + "=" + getUserId() + ";");
-            logger.debug("SQL query: " + sql.toString());
+            logger.debug("Building SQL query for updating user model");
+            String updateUserSql = new UpdateQuery(userTable)
+                    .addSetClause(firstNameColumn, getFirstName())
+                    .addSetClause(lastNameColumn, getLastName())
+                    .addSetClause(salaryPerHourColumn, getSalaryPerHour())
+                    .addCondition(BinaryCondition.equalTo(userIdColumn, getUserId()))
+                    .validate().toString();
+
+            logger.debug("SQL query: " + updateUserSql);
 
             try {
-                db.update(sql.toString());
+                db.update(updateUserSql);
             } catch (SQLException e) {
-                logger.error("Unable to update user with ID " + getUserId() + ". Query: " + sql, e);
+                logger.error("Unable to update user with ID " + getUserId() + ". Query: " + updateUserSql, e);
                 throw new DBException(e);
             } finally {
                 try {
@@ -455,16 +482,17 @@ public class UserModel extends AbstractModel {
 
         @Override
         public void delete() throws DBException {
-            // Build query
-            StringBuilder sql = new StringBuilder();
-            sql.append("DELETE FROM " + getTableName() + " ");
-            sql.append("WHERE " + USER_ID_COLUMN + "=" + getUserId() + ";");
+            logger.debug("Building SQL query for deleting user model");
+            String deleteUserSql = new DeleteQuery(userTable)
+                    .addCondition(BinaryCondition.equalTo(userIdColumn, getUserId()))
+                    .validate().toString();
+            logger.debug("SQL query: " + deleteUserSql);
 
             try {
-                db.update(sql.toString());
+                db.update(deleteUserSql);
             } catch (SQLException e) {
-                logger.error("Unable to delete user with ID " + getUserId() + ". Query: " + sql, e);
-                throw new DBException("Unable to delete user with ID " + getUserId() + ". Query: " + sql, e);
+                logger.error("Unable to delete user with ID " + getUserId() + ". Query: " + deleteUserSql, e);
+                throw new DBException("Unable to delete user with ID " + getUserId() + ". Query: " + deleteUserSql, e);
             } finally {
                 try {
                     db.closeConnection();
@@ -476,12 +504,13 @@ public class UserModel extends AbstractModel {
 
         @Override
         public void clean() throws DBException {
-            StringBuilder sql = new StringBuilder();
-            sql.append("DELETE FROM " + getTableName() + ";");
+            logger.debug("Building SQL query for cleaning " + TABLE_NAME + " table");
+            String cleanUserTableSql = new DeleteQuery(userTable).validate().toString();
+            logger.debug("SQL query: " + cleanUserTableSql);
             try {
                 if (this.findAll() != null) {
                     try {
-                        db.update(sql.toString());
+                        db.update(cleanUserTableSql);
                     } catch (SQLException e) {
                         logger.error("Unable to delete data from table " + getTableName(), e);
                         throw new DBException(e);
@@ -499,18 +528,36 @@ public class UserModel extends AbstractModel {
         }
 
         @Override
-        public void createTable() throws DBException{
-            StringBuilder sql = new StringBuilder();
-            sql.append("CREATE TABLE IF NOT EXISTS "+ getTableName()+" (");
-            sql.append(USER_ID_COLUMN+ " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT"+",");
-            sql.append(FIRST_NAME_COLUMN+" VARCHAR(50)"+",");
-            sql.append(LAST_NAME_COLUMN+" VARCHAR(50)"+",");
-            sql.append(SALARY_PER_HOUR_COLUMN+" FLOAT"+");");
+        public void createTable() throws DBException {
+            logger.debug("Building SQL query for creating " + TABLE_NAME + " table");
+            CreateTableQuery createUserTableQuery =
+                    new CreateTableQuery(userTable, true)
+                    .validate();
+            dropTableQuery = createUserTableQuery.getDropQuery();
+            String createUserTableSql = createUserTableQuery.toString();
+
+            logger.debug("SQL query: " + createUserTableSql);
 
             try {
-                db.create(sql.toString());
+                db.create(createUserTableSql);
             } catch (SQLException e) {
                 logger.error("Unable to create table "+ getTableName(), e);
+                throw new DBException(e);
+            } finally {
+                try {
+                    db.closeConnection();
+                } catch (SQLException e) {
+                    throw new DBException("Unable to close connection to " + db.getDbPath(), e);
+                }
+            }
+        }
+
+        @Override
+        public void dropTable() throws DBException {
+            try {
+                db.create(dropTableQuery.validate().toString());
+            } catch (SQLException e) {
+                logger.error("Unable to drop table "+ getTableName(), e);
                 throw new DBException(e);
             } finally {
                 try {

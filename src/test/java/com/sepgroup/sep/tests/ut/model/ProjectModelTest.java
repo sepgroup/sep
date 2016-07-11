@@ -6,17 +6,12 @@ import com.sepgroup.sep.model.ModelNotFoundException;
 import com.sepgroup.sep.model.ProjectModel;
 import com.sepgroup.sep.model.UserModel;
 import org.aeonbits.owner.ConfigFactory;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import java.util.Date;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.isA;
-import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -44,6 +39,12 @@ public class ProjectModelTest {
     public void setUp() throws Exception {
         createdUser = new UserModel("FIRST", "LAST", 22.00);
         createdUser.persistData();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        ProjectModel.cleanData();
+        UserModel.cleanData();
     }
 
     @AfterClass
@@ -118,10 +119,20 @@ public class ProjectModelTest {
 
     @Test
     public void testGetAll() throws Exception {
+        // Create projects
+        ProjectModel p1 = new ProjectModel();
+        p1.setName("Project 1");
+        p1.persistData();
+
+        ProjectModel p2 = new ProjectModel();
+        p2.setName("Project 2");
+        p2.persistData();
+
         List<ProjectModel> projectList = ProjectModel.getAll();
 
-        assertThat(projectList.size(), isA(Integer.class));
-        assertThat(projectList.size(), not(0));
+        assertThat(projectList.size(), equalTo(2));
+        assertTrue(projectList.contains(p1));
+        assertTrue(projectList.contains(p2));
     }
 
     @Test
@@ -168,7 +179,13 @@ public class ProjectModelTest {
 
     @Test
     public void testGetAllByManager() throws Exception {
-        // TODO
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setName("Project Z");
+        createdProject.setManager(createdUser);
+        createdProject.persistData();
+
+        List<ProjectModel> fetchedProjects = ProjectModel.getAllByManager(createdUser);
+        fetchedProjects.forEach(p -> assertThat(p.getManager(), equalTo(createdUser)));
     }
 
     @Test

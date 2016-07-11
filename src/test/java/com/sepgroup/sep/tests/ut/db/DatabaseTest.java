@@ -33,7 +33,12 @@ public class DatabaseTest {
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
         ConfigFactory.setProperty("configPath", DatabaseTest.class.getResource(File.separator + "test-db.properties").getFile());
+        SepUserStorage.createDBTablesIfNotExisting();
+    }
 
+    @AfterClass
+    public static void tearDownAfterClass() throws Exception {
+        SepUserStorage.dropAllDBTables();
     }
 
     @After

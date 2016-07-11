@@ -1,11 +1,10 @@
 package com.sepgroup.sep.model;
 
-import com.healthmarketscience.sqlbuilder.CreateTableQuery;
+import com.healthmarketscience.sqlbuilder.*;
+import com.healthmarketscience.sqlbuilder.custom.HookType;
+import com.healthmarketscience.sqlbuilder.custom.mysql.MysObjects;
 import com.healthmarketscience.sqlbuilder.dbspec.Table;
-import com.healthmarketscience.sqlbuilder.dbspec.basic.DbColumn;
-import com.healthmarketscience.sqlbuilder.dbspec.basic.DbSchema;
-import com.healthmarketscience.sqlbuilder.dbspec.basic.DbSpec;
-import com.healthmarketscience.sqlbuilder.dbspec.basic.DbTable;
+import com.healthmarketscience.sqlbuilder.dbspec.basic.*;
 import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.db.DBObject;
 import com.sepgroup.sep.db.Database;
@@ -20,6 +19,8 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+
+import static com.healthmarketscience.sqlbuilder.SqlObject.NULL_VALUE;
 
 public class ProjectModel extends AbstractModel {
 
@@ -395,7 +396,7 @@ public class ProjectModel extends AbstractModel {
         if (other.getProjectId() != this.projectId) {
             return false;
         }
-        // TODO fix
+        // TODO fix precsion comparison (approximate)
         if (other.getBudget() != this.budget) {
             return false;
         }
@@ -436,6 +437,16 @@ public class ProjectModel extends AbstractModel {
         public static final String TABLE_NAME = "Project";
 
         DbTable projectTable;
+        DbColumn projectIdColumn;
+        DbColumn projectNameColumn;
+        DbColumn startDateColumn;
+        DbColumn deadlineColumn;
+        DbColumn budgetColumn;
+        DbColumn doneColumn;
+        DbColumn managerUserIdColumn;
+        DbColumn projectDescriptionColumn;
+
+        DropQuery dropTableQuery;
 
         private Database db;
 
@@ -450,26 +461,23 @@ public class ProjectModel extends AbstractModel {
         }
 
         private void setUpTableSchema() {
-            // Create default schema
-            DbSpec projectSpec = new DbSpec();
-            DbSchema projectSchema = projectSpec.addDefaultSchema();
-
             // Add table w/ info
-            projectTable = projectSchema.addTable("Project");
-            DbColumn projectIdColumn = projectTable.addColumn(PROJECT_ID_COLUMN, "integer", null);
-            projectTable.primaryKey("pk_project_id", PROJECT_ID_COLUMN);
-            // TODO autoincrement
-            DbColumn projectNameColumn = projectTable.addColumn(PROJECT_NAME_COLUMN, "varchar", 50);
-            // TODO not nulls
-            DbColumn startDateColumn = projectTable.addColumn(START_DATE_COLUMN, "date", null);
-            DbColumn deadlineColumn = projectTable.addColumn(DEADLINE_COLUMN, "date", null);
-            // TODO date constraint
-            DbColumn budgetColumn = projectTable.addColumn(BUDGET_COLUMN, "float", null);
-            // TODO budget constraint
-            DbColumn doneColumn = projectTable.addColumn(DONE_COLUMN, "boolean", null);
-            DbColumn managerUserIdColumn = projectTable.addColumn(MANAGER_USER_ID_COLUMN, "integer", null);
-            // TODO foreign key manager
-            DbColumn projectDescriptionColumn = projectTable.addColumn(PROJECT_DESCRIPTION_COLUMN, "text", null);
+            projectTable = db.getDbchema().addTable(TABLE_NAME);
+            projectIdColumn = projectTable.addColumn(PROJECT_ID_COLUMN, "integer", null);
+            projectIdColumn.notNull();
+            projectIdColumn.primaryKey();
+            projectNameColumn = projectTable.addColumn(PROJECT_NAME_COLUMN, "varchar", 50);
+            projectNameColumn.notNull();
+            startDateColumn = projectTable.addColumn(START_DATE_COLUMN, "date", null);
+            deadlineColumn = projectTable.addColumn(DEADLINE_COLUMN, "date", null);
+            projectTable.checkCondition("chk_date", BinaryCondition.greaterThan(deadlineColumn, startDateColumn, true));
+            budgetColumn = projectTable.addColumn(BUDGET_COLUMN, "float", null);
+            budgetColumn.checkCondition("budget_check", BinaryCondition.greaterThan(budgetColumn, 0, true));
+            doneColumn = projectTable.addColumn(DONE_COLUMN, "boolean", null);
+            managerUserIdColumn = projectTable.addColumn(MANAGER_USER_ID_COLUMN, "integer", null);
+            managerUserIdColumn.references("fk_project_manager", UserModel.UserModelDBObject.TABLE_NAME, UserModel.UserModelDBObject.USER_ID_COLUMN);
+            // todo on delete cascade
+            projectDescriptionColumn = projectTable.addColumn(PROJECT_DESCRIPTION_COLUMN, "text", null);
         }
 
         @Override
@@ -621,35 +629,41 @@ public class ProjectModel extends AbstractModel {
 
         @Override
         public List<ProjectModel> findAll() throws ModelNotFoundException {
-            StringBuilder sql = new StringBuilder();
-            sql.append("SELECT * ");
-            sql.append("FROM " + getTableName() + ";");
-            logger.debug("Query: " + sql.toString());
+            String sql = "SELECT * ";
+            sql += "FROM " + getTableName() + " ";
+            sql += "LEFT JOIN " + UserModel.UserModelDBObject.TABLE_NAME + " ";
+            sql += "ON " + UserModel.UserModelDBObject.TABLE_NAME + "." +
+                    UserModel.UserModelDBObject.USER_ID_COLUMN + "=" + TABLE_NAME + "." + MANAGER_USER_ID_COLUMN + ";";
+            logger.debug("Query: " + sql);
 
-            return runMultiResultQuery(sql.toString());
+            return runMultiResultQuery(sql);
         }
 
         @Override
         public ProjectModel findById(int projectId) throws ModelNotFoundException {
             logger.debug("Building query for project ID " + projectId);
-            StringBuilder sql = new StringBuilder();
-            sql.append("SELECT * ");
-            sql.append("FROM " + getTableName() + " ");
-            sql.append("WHERE " + PROJECT_ID_COLUMN + "=" + projectId + ";");
-            logger.debug("Query: " + sql.toString());
+            String sql = "SELECT * ";
+            sql += "FROM " + getTableName() + " ";
+            sql += "LEFT JOIN " + UserModel.UserModelDBObject.TABLE_NAME + " ";
+            sql += "ON " + UserModel.UserModelDBObject.TABLE_NAME + "." +
+                    UserModel.UserModelDBObject.USER_ID_COLUMN + "=" + TABLE_NAME + "." + MANAGER_USER_ID_COLUMN + " ";
+            sql += "WHERE " + PROJECT_ID_COLUMN + "=" + projectId + ";";
+            logger.debug("Query: " + sql);
 
-            return runSingleResultQuery(sql.toString());
+            return runSingleResultQuery(sql);
         }
 
         public List<ProjectModel> findAllByManager(int managerUserId) throws ModelNotFoundException {
             logger.debug("Building query for projects with manager user ID " + managerUserId);
-            StringBuilder sql = new StringBuilder();
-            sql.append("SELECT * ");
-            sql.append("FROM " + getTableName() + " ");
-            sql.append("WHERE " + MANAGER_USER_ID_COLUMN + "=" + managerUserId + ";");
-            logger.debug("Query: " + sql.toString());
+            String sql = "SELECT * ";
+            sql += "FROM " + getTableName() + " ";
+            sql += "LEFT JOIN " + UserModel.UserModelDBObject.TABLE_NAME + " ";
+            sql += "ON " + UserModel.UserModelDBObject.TABLE_NAME + "." +
+                    UserModel.UserModelDBObject.USER_ID_COLUMN + "=" + TABLE_NAME + "." + MANAGER_USER_ID_COLUMN + " ";
+            sql += "WHERE " + MANAGER_USER_ID_COLUMN + "=" + managerUserId + ";";
+            logger.debug("Query: " + sql);
 
-            return runMultiResultQuery(sql.toString());
+            return runMultiResultQuery(sql);
         }
 
         /**
@@ -669,31 +683,25 @@ public class ProjectModel extends AbstractModel {
         @Override
         public int create() throws DBException {
             logger.debug("Building SQL query for project model");
-            StringBuilder sql = new StringBuilder();
-            sql.append("INSERT INTO "+ getTableName() + " ");
-            sql.append("("+ PROJECT_NAME_COLUMN + "," + BUDGET_COLUMN + "," + DONE_COLUMN);
-            if (getStartDate() != null) sql.append(", " + START_DATE_COLUMN);
-            if (getDeadline() != null) sql.append(", " + DEADLINE_COLUMN);
-            if (getManager() != null) sql.append(", " + MANAGER_USER_ID_COLUMN);
-            if (getProjectDescription() != null) sql.append(", " + PROJECT_DESCRIPTION_COLUMN);
-            sql.append(") ");
-            sql.append("VALUES ('" + getName() + "'");
-            sql.append(",'" + getBudget() + "'");
-            sql.append(",'" + (isDone() ? 1 : 0) + "'");
-            if (getStartDate() != null) sql.append(",'" + DateUtils.castDateToString(getStartDate()) + "'");
-            if (getDeadline() != null) sql.append(",'" + DateUtils.castDateToString(getDeadline()) + "'");
-            if (getManager() != null) sql.append(",'" + getManager().getUserId() + "'");
-            if (getProjectDescription() != null) sql.append(",'" + getProjectDescription() + "'");
-            sql.append(");");
-            logger.debug("SQL query: " + sql.toString());
+            String insertProjectSql =
+                    new InsertQuery(projectTable)
+                    .addColumn(projectNameColumn, getName())
+                    .addColumn(budgetColumn, getBudget())
+                    .addColumn(doneColumn, isDone())
+                    .addColumn(startDateColumn, (getStartDate() != null ? DateUtils.castDateToString(getStartDate()) : NULL_VALUE))
+                    .addColumn(deadlineColumn, (getDeadline() != null ? DateUtils.castDateToString(getDeadline()) : NULL_VALUE))
+                    .addColumn(managerUserIdColumn, (getManager() != null ? getManager().getUserId() : "0"))
+                    .addColumn(projectDescriptionColumn, (getProjectDescription() != null ? getProjectDescription() : NULL_VALUE))
+                    .validate().toString();
+            logger.debug("SQL query: " + insertProjectSql);
 
             int insertedKey;
             try {
-                insertedKey = this.db.insert(sql.toString());
+                insertedKey = this.db.insert(insertProjectSql);
                 logger.debug("Insert query returned key " + insertedKey);
             } catch (SQLException e) {
-                logger.error("Unable to create project " + ". Query: " + sql, e);
-                throw new DBException("Unable to create project " + ". Query: " + sql, e);
+                logger.error("Unable to create project " + ". Query: " + insertProjectSql, e);
+                throw new DBException("Unable to create project " + ". Query: " + insertProjectSql, e);
             }
             finally {
                 try {
@@ -711,28 +719,22 @@ public class ProjectModel extends AbstractModel {
          */
         @Override
         public void update() throws DBException {
-            // Build query
-            StringBuilder sql = new StringBuilder();
-            sql.append("UPDATE "+ getTableName() + " ");
-            sql.append("SET ");
-            sql.append(PROJECT_NAME_COLUMN + "='" + getName() + "',");
-            sql.append(START_DATE_COLUMN + "='" +
-                    (getStartDate() != null ? DateUtils.castDateToString(getStartDate()) : "NULL") + "',");
-            sql.append(DEADLINE_COLUMN + "='" +
-                    (getDeadline() != null ? DateUtils.castDateToString(getDeadline()) : "NULL") + "',");
-            sql.append(MANAGER_USER_ID_COLUMN + "='" + (getManager() != null ? getManager().getUserId() : "0")
-                    + "',");
-            sql.append(PROJECT_DESCRIPTION_COLUMN + "='" + (getProjectDescription() != null ? getProjectDescription()
-                    : "") + "',");
-            sql.append(BUDGET_COLUMN + "='" + getBudget() + "',");
-            sql.append(DONE_COLUMN + "='" + (isDone() ? 1 : 0) + "' ");
-            sql.append("WHERE " + PROJECT_ID_COLUMN + "=" + getProjectId() + ";");
-            logger.debug("SQL query: " + sql.toString());
+            String updateProjectSql = new UpdateQuery(projectTable)
+                    .addSetClause(projectNameColumn, getName())
+                    .addSetClause(startDateColumn, (getStartDate() != null ? DateUtils.castDateToString(getStartDate()) : NULL_VALUE))
+                    .addSetClause(deadlineColumn, (getDeadline() != null ? DateUtils.castDateToString(getDeadline()) : NULL_VALUE))
+                    .addSetClause(managerUserIdColumn, (getManager() != null ? getManager().getUserId() : 0))
+                    .addSetClause(projectDescriptionColumn, (getProjectDescription() != null ? getProjectDescription() : NULL_VALUE))
+                    .addSetClause(budgetColumn, getBudget())
+                    .addSetClause(doneColumn, (isDone() ? 1 : 0))
+                    .addCondition(BinaryCondition.equalTo(projectIdColumn, getProjectId()))
+                    .validate().toString();
+            logger.debug("SQL query: " + updateProjectSql);
 
             try {
-                db.update(sql.toString());
+                db.update(updateProjectSql);
             } catch (SQLException e) {
-                logger.error("Unable to update project with ID " + getProjectId() + ". Query: " + sql, e);
+                logger.error("Unable to update project with ID " + getProjectId() + ". Query: " + updateProjectSql, e);
                 throw new DBException(e);
             } finally {
                 try {
@@ -746,14 +748,15 @@ public class ProjectModel extends AbstractModel {
         @Override
         public void delete() throws DBException {
             // Build query
-            StringBuilder sql = new StringBuilder();
-            sql.append("DELETE FROM " + getTableName() + " ");
-            sql.append("WHERE " + PROJECT_ID_COLUMN + "=" + getProjectId() + ";");
+            String deleteProjectSql =
+                    new DeleteQuery(projectTable)
+                    .addCondition(BinaryCondition.equalTo(projectIdColumn, getProjectId()))
+                    .validate().toString();
 
             try {
-                db.update(sql.toString());
+                db.update(deleteProjectSql);
             } catch (SQLException e) {
-                logger.error("Unable to delete project with ID " + getProjectId() + ". Query: " + sql, e);
+                logger.error("Unable to delete project with ID " + getProjectId() + ". Query: " + deleteProjectSql, e);
                 throw new DBException(e);
             } finally {
                 try {
@@ -766,12 +769,12 @@ public class ProjectModel extends AbstractModel {
 
         @Override
         public void clean() throws DBException{
-            StringBuilder sql = new StringBuilder();
-            sql.append("DELETE FROM "+ getTableName()+";");
+            String cleanProjectTableSql = new DeleteQuery(projectTable).validate().toString();
+
             try {
                 if (this.findAll() != null) {
                     try {
-                        db.update(sql.toString());
+                        db.update(cleanProjectTableSql);
                     } catch (SQLException e) {
                         logger.error("Unable to delete data from table "+ getTableName(), e);
                         throw new DBException(e);
@@ -790,29 +793,34 @@ public class ProjectModel extends AbstractModel {
 
         @Override
         public void createTable() throws DBException {
-//            StringBuilder sql = new StringBuilder();
-//            sql.append("CREATE TABLE IF NOT EXISTS "+ getTableName() + " (");
-//            sql.append(PROJECT_ID_COLUMN + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT" + ",");
-//            sql.append(PROJECT_NAME_COLUMN +" VARCHAR(50) NOT NULL" + ",");
-//            sql.append(START_DATE_COLUMN +" DATE" + ",");
-//            sql.append(DEADLINE_COLUMN +" DATE" + ",");
-//            sql.append(BUDGET_COLUMN +" FLOAT CHECK("+ BUDGET_COLUMN+" >= 0)" + ",");
-//            sql.append(DONE_COLUMN +" BOOLEAN" + ",");
-//            sql.append(MANAGER_USER_ID_COLUMN + " INT" + ",");
-//            sql.append(PROJECT_DESCRIPTION_COLUMN + " TEXT" + ",");
-//            sql.append("FOREIGN KEY ("+MANAGER_USER_ID_COLUMN+") REFERENCES User(UserID) ON DELETE CASCADE" + ",");
-//            sql.append("CONSTRAINT chk_date CHECK(" + DEADLINE_COLUMN + " >= " + START_DATE_COLUMN + "));");
+            CreateTableQuery createProjectTableQuery = new CreateTableQuery(projectTable, true)
+                    .addCustomization(MysObjects.IF_NOT_EXISTS_TABLE)
+                    .validate();
+            dropTableQuery = createProjectTableQuery.getDropQuery();
+            String createProjectTableSql = createProjectTableQuery.toString();
 
-            String createProjectTable =
-                    new CreateTableQuery(projectTable, true)
-                    .validate().toString();
-
-            logger.info("Query: " + createProjectTable);
+            logger.debug("Query: " + createProjectTableSql);
 
             try {
-                db.create(createProjectTable);
+                db.create(createProjectTableSql);
             } catch (SQLException e) {
                 logger.error("Unable to create table "+ getTableName(), e);
+                throw new DBException(e);
+            } finally {
+                try {
+                    db.closeConnection();
+                } catch (SQLException e) {
+                    throw new DBException("Unable to close connection to " + db.getDbPath(), e);
+                }
+            }
+        }
+
+        @Override
+        public void dropTable() throws DBException {
+            try {
+                db.create(dropTableQuery.validate().toString());
+            } catch (SQLException e) {
+                logger.error("Unable to drop table "+ getTableName(), e);
                 throw new DBException(e);
             } finally {
                 try {

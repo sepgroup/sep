@@ -61,4 +61,11 @@ public interface DBObject {
      * @throws DBException
      */
     void createTable() throws DBException;
+
+    /**
+     * Drops the table from the database
+     * USE WITH CAUTION!
+     * @throws DBException
+     */
+    void dropTable() throws DBException;
 }

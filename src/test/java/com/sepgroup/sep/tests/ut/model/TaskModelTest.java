@@ -34,6 +34,11 @@ public class TaskModelTest {
         SepUserStorage.createDBTablesIfNotExisting();
     }
 
+    @AfterClass
+    public static void tearDownAfterClass() throws Exception {
+        SepUserStorage.dropAllDBTables();
+    }
+
     @Before
     public void setUp() throws Exception {
         createdProject = new ProjectModel();
@@ -42,12 +47,6 @@ public class TaskModelTest {
 
         createdUser = new UserModel("FIRST", "LAST", 22.00);
         createdUser.persistData();
-    }
-
-    @AfterClass
-    public static void tearDownAfterClass() throws Exception {
-        Database db = Database.getActiveDB();
-        SepUserStorage.dropAllDBTables();
     }
 
     @Test
