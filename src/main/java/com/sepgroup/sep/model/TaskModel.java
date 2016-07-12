@@ -1,5 +1,9 @@
 package com.sepgroup.sep.model;
 
+import com.healthmarketscience.sqlbuilder.*;
+import com.healthmarketscience.sqlbuilder.custom.mysql.MysObjects;
+import com.healthmarketscience.sqlbuilder.dbspec.basic.DbColumn;
+import com.healthmarketscience.sqlbuilder.dbspec.basic.DbTable;
 import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.db.DBObject;
 import com.sepgroup.sep.db.Database;
@@ -16,6 +20,8 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.healthmarketscience.sqlbuilder.SqlObject.NULL_VALUE;
 
 /**
  * Created by jeremybrown on 2016-05-18.
@@ -130,7 +136,11 @@ public class TaskModel extends AbstractModel {
     }
 
     private static List<String> getTagsListFromString(String tagsString) {
-        return Arrays.asList(tagsString.split(" "));
+        if (tagsString.trim().equals("")) {
+            return new LinkedList<>();
+        } else {
+            return Arrays.asList(tagsString.split(" "));
+        }
     }
 
     /**
@@ -594,12 +604,65 @@ public class TaskModel extends AbstractModel {
 
         private Database db;
 
+        DbTable taskTable;
+        DropQuery dropTaskTableQuery;
+        DbColumn taskIdColumn;
+        DbColumn projectIdColumn;
+        DbColumn taskNameColumn;
+        DbColumn descriptionColumn;
+        DbColumn startDateColumn;
+        DbColumn deadlineColumn;
+        DbColumn budgetColumn;
+        DbColumn doneColumn;
+        DbColumn tagsColumn;
+        DbColumn assigneeUserIdColumn;
+
+        DbTable taskDependenciesTable;
+        DropQuery dropTaskDependenciesTableQuery;
+        DbColumn dependenciesMainTaskColumn;
+        DbColumn dependenciesDependsOnTaskColumn;
+
         private TaskModelDBObject() {
             try {
                 db = Database.getActiveDB();
             } catch (DBException e) {
                 logger.error("Unable to read from database", e);
             }
+            setUpTableSchema();
+        }
+
+        private void setUpTableSchema() {
+            // Add table w/ info
+            taskTable = db.getDbchema().addTable(TABLE_NAME);
+            taskIdColumn = taskTable.addColumn(TASK_ID_COLUMN, "integer", null);
+            taskIdColumn.notNull();
+            taskIdColumn.primaryKey();
+            projectIdColumn = taskTable.addColumn(PROJECT_ID_COLUMN, "integer", null);
+            projectIdColumn.notNull();
+            projectIdColumn.references("fk_project_id", ProjectModel.ProjectModelDBObject.TABLE_NAME, ProjectModel.ProjectModelDBObject.PROJECT_ID_COLUMN);
+            // todo on delete cascade
+            taskNameColumn = taskTable.addColumn(TASK_NAME_COLUMN, "varchar", 50);
+            taskNameColumn.notNull();
+            descriptionColumn = taskTable.addColumn(DESCRIPTION_COLUMN, "text", null);
+            startDateColumn = taskTable.addColumn(START_DATE_COLUMN, "date", null);
+            deadlineColumn = taskTable.addColumn(DEADLINE_COLUMN, "date", null);
+            taskTable.checkCondition("chk_date_task", BinaryCondition.greaterThan(deadlineColumn, startDateColumn, true));
+            budgetColumn = taskTable.addColumn(BUDGET_COLUMN, "float", null);
+            budgetColumn.checkCondition("check_budget_task", BinaryCondition.greaterThan(budgetColumn, 0, true));
+            doneColumn = taskTable.addColumn(DONE_COLUMN, "boolean", null);
+            tagsColumn = taskTable.addColumn(TAGS_COLUMN, "text", null);
+            assigneeUserIdColumn = taskTable.addColumn(ASSIGNEE_USER_ID_COLUMN, "integer", null);
+            assigneeUserIdColumn.references("fk_task_assignee", UserModel.UserModelDBObject.TABLE_NAME, UserModel.UserModelDBObject.USER_ID_COLUMN);
+            // todo on delete cascade
+
+            taskDependenciesTable = db.getDbchema().addTable(DEPENDENCIES_TABLE_NAME);
+            dependenciesMainTaskColumn = taskDependenciesTable.addColumn(DEPENDENCIES_MAIN_TASK_COLUMN, "integer", null);
+            dependenciesMainTaskColumn.notNull();
+            dependenciesMainTaskColumn.references("fk_main_task", taskTable, taskIdColumn);
+            dependenciesDependsOnTaskColumn = taskDependenciesTable.addColumn(DEPENDENCIES_DEPENDS_ON_TASK_COLUMN, "integer", null);
+            dependenciesDependsOnTaskColumn.notNull();
+            dependenciesDependsOnTaskColumn.references("fk_depends_on_task", taskTable, taskIdColumn);
+            // todo on delete cascade
         }
 
         @Override
@@ -767,13 +830,18 @@ public class TaskModel extends AbstractModel {
 
         @Override
         public List<TaskModel> findAll() throws ModelNotFoundException  {
-            String sql = "SELECT * " + "FROM " + getTableName() + " ";
-            sql += "LEFT JOIN " + UserModel.UserModelDBObject.TABLE_NAME + " ";
-            sql += "ON " + UserModel.UserModelDBObject.TABLE_NAME + "." +
-                    UserModel.UserModelDBObject.USER_ID_COLUMN + "=" + TABLE_NAME + "." + ASSIGNEE_USER_ID_COLUMN
-                    + ";";
+            logger.debug("Building select (find all) SQL query for Task");
+            String findAll = new SelectQuery()
+                    .addAllColumns()
+                    .addFromTable(taskTable)
+                    .addJoin(SelectQuery.JoinType.LEFT_OUTER, taskTable,
+                            db.getDbchema().findTable(UserModel.UserModelDBObject.TABLE_NAME),
+                            assigneeUserIdColumn, db.getDbchema().findTable(UserModel.UserModelDBObject.TABLE_NAME).
+                                    findColumn(UserModel.UserModelDBObject.USER_ID_COLUMN))
+                    .validate().toString();
+            logger.debug("Query: " + findAll);
 
-            List<TaskModel> tasks = runMultiResultQuery(sql);
+            List<TaskModel> tasks = runMultiResultQuery(findAll);
             for (TaskModel t : tasks) {
                 List<TaskModel> dependencies = findTaskDependencies(t);
                 dependencies.forEach(t::addDependency);
@@ -796,20 +864,22 @@ public class TaskModel extends AbstractModel {
          * @return the dependencies of the taskModel
          */
         public List<TaskModel> findTaskDependencies(int taskId) {
-            StringBuilder sql = new StringBuilder();
-            sql.append("SELECT * FROM " + TABLE_NAME + " ");
-            sql.append("LEFT JOIN " + UserModel.UserModelDBObject.TABLE_NAME + " ");
-            sql.append("ON " + UserModel.UserModelDBObject.TABLE_NAME + "." +
-                    UserModel.UserModelDBObject.USER_ID_COLUMN + "=" + TABLE_NAME + "." + ASSIGNEE_USER_ID_COLUMN
-                    + " ");
-            sql.append("INNER JOIN " + DEPENDENCIES_TABLE_NAME + " ");
-            sql.append("ON " + TABLE_NAME + "." + TASK_ID_COLUMN + "=" + DEPENDENCIES_TABLE_NAME + "." +
-                    DEPENDENCIES_DEPENDS_ON_TASK_COLUMN + " ");
-            sql.append("WHERE " + DEPENDENCIES_TABLE_NAME + "." + DEPENDENCIES_MAIN_TASK_COLUMN + "=" + taskId + ";");
-            logger.debug("Query: " + sql.toString());
+            logger.debug("Building select (find by main task) SQL query for task dependencies");
+            String findById = new SelectQuery()
+                    .addAllColumns()
+                    .addFromTable(taskTable)
+                    .addJoin(SelectQuery.JoinType.LEFT_OUTER, taskTable,
+                            db.getDbchema().findTable(UserModel.UserModelDBObject.TABLE_NAME),
+                            assigneeUserIdColumn, db.getDbchema().findTable(UserModel.UserModelDBObject.TABLE_NAME).
+                                    findColumn(UserModel.UserModelDBObject.USER_ID_COLUMN))
+                    .addJoin(SelectQuery.JoinType.INNER, taskTable, taskDependenciesTable,
+                            taskIdColumn, dependenciesDependsOnTaskColumn)
+                    .addCondition(BinaryCondition.equalTo(dependenciesMainTaskColumn, taskId))
+                    .validate().toString();
+            logger.debug("Query: " + findById);
 
             try {
-                return runMultiResultQuery(sql.toString());
+                return runMultiResultQuery(findById);
             } catch (ModelNotFoundException e) {
                 logger.debug("No task dependencies found for task with ID " + taskId);
             }
@@ -818,17 +888,19 @@ public class TaskModel extends AbstractModel {
 
         @Override
         public TaskModel findById(int taskId) throws ModelNotFoundException, InvalidInputException {
-            StringBuilder sql = new StringBuilder();
-            sql.append("SELECT * ");
-            sql.append("FROM " + getTableName() + " ");
-            sql.append("LEFT JOIN " + UserModel.UserModelDBObject.TABLE_NAME + " ");
-            sql.append("ON " + UserModel.UserModelDBObject.TABLE_NAME + "." +
-                    UserModel.UserModelDBObject.USER_ID_COLUMN + "=" + TABLE_NAME + "." + ASSIGNEE_USER_ID_COLUMN
-                    + " ");
-            sql.append("WHERE " + TASK_ID_COLUMN + "=" + taskId + ";");
-            logger.debug("Query: " + sql.toString());
+            logger.debug("Building select (find by ID) SQL query for Task");
+            String findById = new SelectQuery()
+                    .addAllColumns()
+                    .addFromTable(taskTable)
+                    .addJoin(SelectQuery.JoinType.LEFT_OUTER, taskTable,
+                            db.getDbchema().findTable(UserModel.UserModelDBObject.TABLE_NAME),
+                            assigneeUserIdColumn, db.getDbchema().findTable(UserModel.UserModelDBObject.TABLE_NAME).
+                                    findColumn(UserModel.UserModelDBObject.USER_ID_COLUMN))
+                    .addCondition(BinaryCondition.equalTo(taskIdColumn, taskId))
+                    .validate().toString();
+            logger.debug("Query: " + findById);
 
-            TaskModel t = runSingleResultQuery(sql.toString());
+            TaskModel t = runSingleResultQuery(findById);
             findTaskDependencies(t).forEach(t::addDependency);
 
             return t;
@@ -836,16 +908,19 @@ public class TaskModel extends AbstractModel {
 
         public List<TaskModel> findAllByAssignee(int assigneeUserId) throws ModelNotFoundException,
                 InvalidInputException {
-            StringBuilder sql = new StringBuilder();
-            sql.append("SELECT * ");
-            sql.append("FROM " + getTableName() + " ");
-            sql.append("LEFT JOIN " + UserModel.UserModelDBObject.TABLE_NAME + " ");
-            sql.append("ON " + UserModel.UserModelDBObject.TABLE_NAME + "." +
-                    UserModel.UserModelDBObject.USER_ID_COLUMN + "=" + TABLE_NAME + "." + ASSIGNEE_USER_ID_COLUMN
-                    + " ");
-            sql.append("WHERE " + ASSIGNEE_USER_ID_COLUMN + "=" + assigneeUserId + ";");
+            logger.debug("Building select (find all by assignee) SQL query for Task");
+            String findAllByAssigneeSql = new SelectQuery()
+                    .addAllColumns()
+                    .addFromTable(taskTable)
+                    .addJoin(SelectQuery.JoinType.LEFT_OUTER, taskTable,
+                            db.getDbchema().findTable(UserModel.UserModelDBObject.TABLE_NAME),
+                            assigneeUserIdColumn, db.getDbchema().findTable(UserModel.UserModelDBObject.TABLE_NAME).
+                                    findColumn(UserModel.UserModelDBObject.USER_ID_COLUMN))
+                    .addCondition(BinaryCondition.equalTo(assigneeUserIdColumn, assigneeUserId))
+                    .validate().toString();
+            logger.debug("Query: " + findAllByAssigneeSql);
 
-            List<TaskModel> tasks = runMultiResultQuery(sql.toString());
+            List<TaskModel> tasks = runMultiResultQuery(findAllByAssigneeSql);
             for (TaskModel t : tasks) {
                 List<TaskModel> dependencies = findTaskDependencies(t);
                 dependencies.forEach(t::addDependency);
@@ -855,16 +930,19 @@ public class TaskModel extends AbstractModel {
         }
 
         public List<TaskModel> findAllByProject(int projectId) throws ModelNotFoundException {
-            StringBuilder sql = new StringBuilder();
-            sql.append("SELECT * ");
-            sql.append("FROM " + getTableName() + " ");
-            sql.append("LEFT JOIN " + UserModel.UserModelDBObject.TABLE_NAME + " ");
-            sql.append("ON " + UserModel.UserModelDBObject.TABLE_NAME + "." +
-                    UserModel.UserModelDBObject.USER_ID_COLUMN + "=" + TABLE_NAME + "." + ASSIGNEE_USER_ID_COLUMN
-                    + " ");
-            sql.append("WHERE " + PROJECT_ID_COLUMN + "=" + projectId + ";");
+            logger.debug("Building select (find all by project) SQL query for Task");
+            String findAllByProjectSql = new SelectQuery()
+                    .addAllColumns()
+                    .addFromTable(taskTable)
+                    .addJoin(SelectQuery.JoinType.LEFT_OUTER, taskTable,
+                            db.getDbchema().findTable(UserModel.UserModelDBObject.TABLE_NAME),
+                            assigneeUserIdColumn, db.getDbchema().findTable(UserModel.UserModelDBObject.TABLE_NAME).
+                                    findColumn(UserModel.UserModelDBObject.USER_ID_COLUMN))
+                    .addCondition(BinaryCondition.equalTo(projectIdColumn, projectId))
+                    .validate().toString();
+            logger.debug("Query: " + findAllByProjectSql);
 
-            List<TaskModel> tasks = runMultiResultQuery(sql.toString());
+            List<TaskModel> tasks = runMultiResultQuery(findAllByProjectSql);
             for (TaskModel t : tasks) {
                 List<TaskModel> dependencies = findTaskDependencies(t);
                 dependencies.forEach(t::addDependency);
@@ -887,16 +965,19 @@ public class TaskModel extends AbstractModel {
             if (baseTaskId == dependsOnTask.getTaskId()) {
                 logger.error("A task cannot depend on itself! Aborting save to DB.");
             }
-            logger.debug("Building SQL query for task dependencies");
-            StringBuilder depSql = new StringBuilder();
-            depSql.append("INSERT INTO " + DEPENDENCIES_TABLE_NAME + " ");
-            depSql.append("( " + DEPENDENCIES_MAIN_TASK_COLUMN + ", " + DEPENDENCIES_DEPENDS_ON_TASK_COLUMN + ") ");
-            depSql.append("VALUES (" + baseTaskId + "," + dependsOnTask.getTaskId() + ");");
+            // TODO determine cycles
+
+            logger.debug("Building insert SQL query for task dependencies");
+            String insertTaskDependencySql = new InsertQuery(taskDependenciesTable)
+                    .addColumn(dependenciesMainTaskColumn, baseTaskId)
+                    .addColumn(dependenciesDependsOnTaskColumn, dependsOnTask.getTaskId())
+                    .validate().toString();
+            logger.debug("SQL query: " + insertTaskDependencySql);
 
             try {
-                db.insert(depSql.toString());
+                db.insert(insertTaskDependencySql);
             } catch (SQLException e) {
-                logger.error("Unable to create task dependency. Query: " + depSql, e);
+                logger.error("Unable to create task dependency. Query: " + insertTaskDependencySql, e);
             } finally {
                 try {
                     db.closeConnection();
@@ -907,16 +988,16 @@ public class TaskModel extends AbstractModel {
         }
 
         private void deleteDependencyFromDb(int baseTaskId, TaskModel dependsOnTask) {
-            logger.debug("Building SQL query for task dependencies");
-            StringBuilder depSql = new StringBuilder();
-            depSql.append("DELETE FROM " + DEPENDENCIES_TABLE_NAME + " ");
-            depSql.append("WHERE " + DEPENDENCIES_MAIN_TASK_COLUMN + "=" + baseTaskId + " ");
-            depSql.append("AND " + DEPENDENCIES_DEPENDS_ON_TASK_COLUMN + "=" + dependsOnTask.getTaskId() + ";");
+            logger.debug("Building delete SQL query for task dependencies");
+            String deleteTaskDependencySql = new DeleteQuery(taskDependenciesTable)
+                    .addCondition(BinaryCondition.equalTo(dependenciesDependsOnTaskColumn, dependsOnTask.getTaskId()))
+                    .validate().toString();
+            logger.debug("SQL query: " + deleteTaskDependencySql);
 
             try {
-                db.insert(depSql.toString());
+                db.insert(deleteTaskDependencySql);
             } catch (SQLException e) {
-                logger.error("Unable to delete task dependency. Query: " + depSql, e);
+                logger.error("Unable to delete task dependency. Query: " + deleteTaskDependencySql, e);
             } finally {
                 try {
                     db.closeConnection();
@@ -928,38 +1009,25 @@ public class TaskModel extends AbstractModel {
 
         @Override
         public int create() throws DBException {
-            logger.debug("Building SQL query for task model");
-            StringBuilder sql = new StringBuilder();
-            sql.append("INSERT INTO "+ getTableName() + " ");
-            sql.append("(" + TASK_NAME_COLUMN);
-            if (getDescription() != null) sql.append("," + DESCRIPTION_COLUMN);
-            sql.append("," + PROJECT_ID_COLUMN);
-            sql.append("," + BUDGET_COLUMN);
-            if (getStartDate() != null) sql.append("," + START_DATE_COLUMN);
-            if (getDeadline() != null) sql.append("," + DEADLINE_COLUMN);
-            sql.append("," + DONE_COLUMN);
-            if (getAssignee() != null) sql.append("," + ASSIGNEE_USER_ID_COLUMN);
-            if (getTags().size() > 0) sql.append("," + TAGS_COLUMN);
-            sql.append(") ");
-
-            sql.append("VALUES ('" + getName() + "'");
-            if (getDescription() != null) sql.append(",'" + getDescription() + "'");
-            sql.append("," + getProjectId() + "");
-            sql.append(",'" + getBudget() + "'");
-            if (getStartDate() != null) sql.append(",'" + DateUtils.castDateToString(getStartDate()) + "'");
-            if (getDeadline() != null) sql.append(",'" + DateUtils.castDateToString(getDeadline()) + "'");
-            sql.append(",'" + (isDone() ? 1 : 0) + "'");
-            if (getAssignee() != null) sql.append(",'" + getAssignee().getUserId() + "'");
-            if (getTags().size() > 0)sql.append(",'" + getTagsString() + "'");
-            sql.append(");");
-
-            logger.debug("SQL query: " + sql.toString());
+            logger.debug("Building create SQL query for task model");
+            String insertTaskSql = new InsertQuery(taskTable)
+                    .addColumn(taskNameColumn, getName())
+                    .addColumn(projectIdColumn, getProjectId())
+                    .addColumn(descriptionColumn, getDescription())
+                    .addColumn(startDateColumn, (getStartDate() != null ? DateUtils.castDateToString(getStartDate()) : NULL_VALUE))
+                    .addColumn(deadlineColumn, (getDeadline() != null ? DateUtils.castDateToString(getDeadline()) : NULL_VALUE))
+                    .addColumn(budgetColumn, getBudget())
+                    .addColumn(doneColumn, (isDone() ? 1 : 0))
+                    .addColumn(assigneeUserIdColumn, (getAssignee() != null ? getAssignee().getUserId() : "0"))
+                    .addColumn(tagsColumn, getTagsString())
+                    .validate().toString();
+            logger.debug("SQL query: " + insertTaskSql);
 
             int insertedKey;
             try {
-                insertedKey = db.insert(sql.toString());
+                insertedKey = db.insert(insertTaskSql);
             } catch (SQLException e) {
-                logger.error("Unable to create task " + ". Query: " + sql, e);
+                logger.error("Unable to create task " + ". Query: " + insertTaskSql, e);
                 throw new DBException(e);
             } finally {
                 try {
@@ -977,28 +1045,25 @@ public class TaskModel extends AbstractModel {
 
         @Override
         public void update() throws DBException {
-            // Build query
-            StringBuilder sql = new StringBuilder();
-            sql.append("UPDATE "+ getTableName() + " ");
-            sql.append("SET ");
-            sql.append(TASK_NAME_COLUMN + "='" + getName() + "'");
-            sql.append(", " + DESCRIPTION_COLUMN + "='" + (getDescription() != null ? getDescription() : "") + "' ");
-            sql.append(", " + PROJECT_ID_COLUMN + "=" + getProjectId() + " ");
-            sql.append(", " + BUDGET_COLUMN + "=" + getBudget() + " ");
-            sql.append(", " + START_DATE_COLUMN + "='" +
-                    (getStartDate() != null ? DateUtils.castDateToString(getStartDate()) : "NULL") + "' ");
-            sql.append(", " + DEADLINE_COLUMN + "='" +
-                    (getDeadline() != null ? DateUtils.castDateToString(getDeadline()) : "NULL") + "' ");
-            sql.append(", " + DONE_COLUMN + "=" + (isDone() ? 1 : 0) + " ");
-            sql.append(", " + ASSIGNEE_USER_ID_COLUMN + "=" +
-                    (getAssignee() != null ? getAssignee().getUserId() : "0") + " ");
-            if (getTags().size() > 0) sql.append(", " + TAGS_COLUMN + "='" + getTagsString() + "' ");
-            sql.append("WHERE " + TASK_ID_COLUMN + "=" + getTaskId() + ";");
+            logger.debug("Building update SQL query for task model");
+            String updateTaskSql = new UpdateQuery(taskTable)
+                    .addSetClause(taskNameColumn, getName())
+                    .addSetClause(descriptionColumn, (getDescription() != null ? getDescription() : ""))
+                    .addSetClause(projectIdColumn, getProjectId())
+                    .addSetClause(budgetColumn, getBudget())
+                    .addSetClause(startDateColumn, (getStartDate() != null ? DateUtils.castDateToString(getStartDate()) : NULL_VALUE))
+                    .addSetClause(deadlineColumn, (getDeadline() != null ? DateUtils.castDateToString(getDeadline()) : NULL_VALUE))
+                    .addSetClause(doneColumn, (isDone() ? 1 : 0))
+                    .addSetClause(assigneeUserIdColumn, (getAssignee() != null ? getAssignee().getUserId() : 0))
+                    .addSetClause(tagsColumn, getTagsString())
+                    .addCondition(BinaryCondition.equalTo(taskIdColumn, getTaskId()))
+                    .validate().toString();
+            logger.debug("SQL query: " + updateTaskSql);
 
             try {
-                db.update(sql.toString());
+                db.update(updateTaskSql);
             } catch (SQLException e) {
-                logger.error("Unable to update task with taskId" + getTaskId() + ". Query: " + sql, e);
+                logger.error("Unable to update task with taskId" + getTaskId() + ". Query: " + updateTaskSql, e);
                 throw new DBException(e);
             } finally {
                 try {
@@ -1031,16 +1096,17 @@ public class TaskModel extends AbstractModel {
 
         @Override
         public void delete() throws DBException {
-            // Build query
-            StringBuilder sql = new StringBuilder();
-            sql.append("DELETE FROM " + getTableName() + " ");
-            sql.append("WHERE " + TASK_ID_COLUMN + "=" + getTaskId() + ";");
+            logger.debug("Building delete SQL query for task model");
+            String deleteTaskSql = new DeleteQuery(taskTable)
+                    .addCondition(BinaryCondition.equalTo(taskIdColumn, getTaskId()))
+                    .validate().toString();
+            logger.debug("SQL query: " + deleteTaskSql);
 
             try {
-                db.update(sql.toString());
+                db.update(deleteTaskSql);
             } catch (SQLException e) {
-                logger.error("Unable to delete task with taskId" + getTaskId() + ". Query: " + sql, e);
-                throw new DBException("Unable to delete task with taskId" + getTaskId() + ". Query: " + sql, e);
+                logger.error("Unable to delete task with taskId" + getTaskId() + ". Query: " + deleteTaskSql, e);
+                throw new DBException("Unable to delete task with taskId" + getTaskId() + ". Query: " + deleteTaskSql, e);
             } finally {
                 try {
                     db.closeConnection();
@@ -1052,7 +1118,7 @@ public class TaskModel extends AbstractModel {
 
         @Override
         public void clean() throws DBException {
-            String cleanTaskTableSql = "DELETE FROM "+ getTableName()+";";
+            String cleanTaskTableSql = new DeleteQuery(taskTable).validate().toString();
 
             try {
                 if (this.findAll() != null) {
@@ -1088,36 +1154,40 @@ public class TaskModel extends AbstractModel {
 
 
         @Override
-        public void createTable() throws DBException{
-            // Create task table query
-            StringBuilder createTaskTableSql = new StringBuilder();
-            createTaskTableSql.append("CREATE TABLE IF NOT EXISTS "+ getTableName()+" (");
-            createTaskTableSql.append(TASK_ID_COLUMN+ " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT"+",");
-            createTaskTableSql.append(PROJECT_ID_COLUMN+" INTEGER NOT NULL"+",");
-            createTaskTableSql.append(TASK_NAME_COLUMN+" VARCHAR(50) NOT NULL"+",");
-            createTaskTableSql.append(START_DATE_COLUMN+" DATE"+",");
-            createTaskTableSql.append(DEADLINE_COLUMN+" DATE"+",");
-            createTaskTableSql.append(BUDGET_COLUMN+" FLOAT CHECK("+BUDGET_COLUMN+" >= 0)"+",");
-            createTaskTableSql.append(DONE_COLUMN+" BOOLEAN"+",");
-            createTaskTableSql.append(TAGS_COLUMN+" TEXT"+",");
-            createTaskTableSql.append(DESCRIPTION_COLUMN+" TEXT"+",");
-            createTaskTableSql.append(ASSIGNEE_USER_ID_COLUMN+" INT"+",");
-            createTaskTableSql.append("FOREIGN KEY ("+PROJECT_ID_COLUMN+") REFERENCES Project(ProjectID) ON DELETE CASCADE"+",");
-            createTaskTableSql.append("FOREIGN KEY ("+ASSIGNEE_USER_ID_COLUMN+") REFERENCES User(UserID) ON DELETE CASCADE"+",");
-            createTaskTableSql.append("CONSTRAINT chk_date CHECK(" + DEADLINE_COLUMN + " >= "+START_DATE_COLUMN+"));");
+        public void createTable() throws DBException {
+            // Task table create query
+            logger.debug("Building SQL query for creating " + TABLE_NAME + " table");
+            CreateTableQuery createTaskTableQuery = new CreateTableQuery(taskTable, true)
+                    .addCustomization(MysObjects.IF_NOT_EXISTS_TABLE)
+                    .validate();
+            dropTaskTableQuery = createTaskTableQuery.getDropQuery();
+            String createTaskTableSql = createTaskTableQuery.toString();
+            logger.debug("SQL query: " + createTaskTableSql);
 
-            // Create task dependencies table query
-            StringBuilder createTaskDependenciesTableSql = new StringBuilder();
-            createTaskDependenciesTableSql.append("CREATE TABLE IF NOT EXISTS TaskDependency(");
-            createTaskDependenciesTableSql.append("FKTaskID INT NOT NULL,");
-            createTaskDependenciesTableSql.append("DependOnTaskID INT NOT NULL,");
-            createTaskDependenciesTableSql.append("FOREIGN KEY (FKTaskID) REFERENCES Task(TaskID) ON DELETE CASCADE,");
-            createTaskDependenciesTableSql.append("FOREIGN KEY (DependOnTaskID) REFERENCES Task(TaskID) ON DELETE CASCADE);");
-
-            // Run create queries
             try {
-                db.create(createTaskTableSql.toString());
-                db.create(createTaskDependenciesTableSql.toString());
+                db.create(createTaskTableSql);
+            } catch (SQLException e) {
+                logger.error("Unable to create table", e);
+                throw new DBException(e);
+            } finally {
+                try {
+                    db.closeConnection();
+                } catch (SQLException e) {
+                    throw new DBException("Unable to close connection to " + db.getDbPath(), e);
+                }
+            }
+
+            // Task dependencies table create query
+            logger.debug("Building SQL query for creating " + DEPENDENCIES_TABLE_NAME + " table");
+            CreateTableQuery createTaskDependenciesTableQuery = new CreateTableQuery(taskDependenciesTable, true)
+                    .addCustomization(MysObjects.IF_NOT_EXISTS_TABLE)
+                    .validate();
+            dropTaskTableQuery = createTaskDependenciesTableQuery.getDropQuery();
+            String createTaskDependenciesTableSql = createTaskDependenciesTableQuery.toString();
+            logger.debug("SQL query: " + createTaskDependenciesTableSql);
+
+            try {
+                db.create(createTaskDependenciesTableSql);
             } catch (SQLException e) {
                 logger.error("Unable to create table", e);
                 throw new DBException(e);
@@ -1132,18 +1202,19 @@ public class TaskModel extends AbstractModel {
 
         @Override
         public void dropTable() throws DBException {
-//            try {
-//                db.create(dropTableQuery.validate().toString());
-//            } catch (SQLException e) {
-//                logger.error("Unable to drop table "+ getTableName(), e);
-//                throw new DBException(e);
-//            } finally {
-//                try {
-//                    db.closeConnection();
-//                } catch (SQLException e) {
-//                    throw new DBException("Unable to close connection to " + db.getDbPath(), e);
-//                }
-//            }
+            try {
+                db.create(dropTaskTableQuery.validate().toString());
+                db.create(dropTaskDependenciesTableQuery.validate().toString());
+            } catch (SQLException e) {
+                logger.error("Unable to drop table "+ getTableName(), e);
+                throw new DBException(e);
+            } finally {
+                try {
+                    db.closeConnection();
+                } catch (SQLException e) {
+                    throw new DBException("Unable to close connection to " + db.getDbPath(), e);
+                }
+            }
         }
     }
 }

@@ -290,7 +290,7 @@ public class UserModel extends AbstractModel {
 
         private Database db;
 
-        DbTable userTable;
+        public DbTable userTable;
         DbColumn userIdColumn;
         DbColumn firstNameColumn;
         DbColumn lastNameColumn;
@@ -530,12 +530,11 @@ public class UserModel extends AbstractModel {
         @Override
         public void createTable() throws DBException {
             logger.debug("Building SQL query for creating " + TABLE_NAME + " table");
-            CreateTableQuery createUserTableQuery =
-                    new CreateTableQuery(userTable, true)
+            CreateTableQuery createUserTableQuery = new CreateTableQuery(userTable, true)
+                    .addCustomization(MysObjects.IF_NOT_EXISTS_TABLE)
                     .validate();
             dropTableQuery = createUserTableQuery.getDropQuery();
             String createUserTableSql = createUserTableQuery.toString();
-
             logger.debug("SQL query: " + createUserTableSql);
 
             try {

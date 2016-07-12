@@ -3,6 +3,8 @@ package com.sepgroup.sep.tests.ut.db;
 import com.sepgroup.sep.SepUserStorage;
 import com.sepgroup.sep.db.Database;
 import com.sepgroup.sep.model.ProjectModel;
+import com.sepgroup.sep.model.TaskModel;
+import com.sepgroup.sep.model.UserModel;
 import org.aeonbits.owner.ConfigFactory;
 import org.junit.*;
 
@@ -42,10 +44,14 @@ public class DatabaseTest {
     }
 
     @After
-    public void tearDownAfterMethod() throws Exception {
+    public void tearDown() throws Exception {
         if (db != null) {
             db.closeConnection();
         }
+
+        UserModel.cleanData();
+        ProjectModel.cleanData();
+        TaskModel.cleanData();
     }
 
     @Test

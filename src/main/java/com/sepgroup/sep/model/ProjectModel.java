@@ -470,9 +470,9 @@ public class ProjectModel extends AbstractModel {
             projectNameColumn.notNull();
             startDateColumn = projectTable.addColumn(START_DATE_COLUMN, "date", null);
             deadlineColumn = projectTable.addColumn(DEADLINE_COLUMN, "date", null);
-            projectTable.checkCondition("chk_date", BinaryCondition.greaterThan(deadlineColumn, startDateColumn, true));
+            projectTable.checkCondition("chk_date_proj", BinaryCondition.greaterThan(deadlineColumn, startDateColumn, true));
             budgetColumn = projectTable.addColumn(BUDGET_COLUMN, "float", null);
-            budgetColumn.checkCondition("budget_check", BinaryCondition.greaterThan(budgetColumn, 0, true));
+            budgetColumn.checkCondition("chk_budget_proj", BinaryCondition.greaterThan(budgetColumn, 0, true));
             doneColumn = projectTable.addColumn(DONE_COLUMN, "boolean", null);
             managerUserIdColumn = projectTable.addColumn(MANAGER_USER_ID_COLUMN, "integer", null);
             managerUserIdColumn.references("fk_project_manager", UserModel.UserModelDBObject.TABLE_NAME, UserModel.UserModelDBObject.USER_ID_COLUMN);
@@ -629,41 +629,72 @@ public class ProjectModel extends AbstractModel {
 
         @Override
         public List<ProjectModel> findAll() throws ModelNotFoundException {
-            String sql = "SELECT * ";
-            sql += "FROM " + getTableName() + " ";
-            sql += "LEFT JOIN " + UserModel.UserModelDBObject.TABLE_NAME + " ";
-            sql += "ON " + UserModel.UserModelDBObject.TABLE_NAME + "." +
-                    UserModel.UserModelDBObject.USER_ID_COLUMN + "=" + TABLE_NAME + "." + MANAGER_USER_ID_COLUMN + ";";
-            logger.debug("Query: " + sql);
+//            String sql = "SELECT * ";
+//            sql += "FROM " + getTableName() + " ";
+//            sql += "LEFT JOIN " + UserModel.UserModelDBObject.TABLE_NAME + " ";
+//            sql += "ON " + UserModel.UserModelDBObject.TABLE_NAME + "." +
+//                    UserModel.UserModelDBObject.USER_ID_COLUMN + "=" + TABLE_NAME + "." + MANAGER_USER_ID_COLUMN + ";";
 
-            return runMultiResultQuery(sql);
+            String findAllSql = new SelectQuery()
+                    .addAllColumns()
+                    .addFromTable(projectTable)
+                    .addJoin(SelectQuery.JoinType.LEFT_OUTER, projectTable,
+                            db.getDbchema().findTable(UserModel.UserModelDBObject.TABLE_NAME),
+                            managerUserIdColumn, db.getDbchema().findTable(UserModel.UserModelDBObject.TABLE_NAME).
+                                    findColumn(UserModel.UserModelDBObject.USER_ID_COLUMN))
+                    .validate().toString();
+            logger.debug("Query: " + findAllSql);
+
+            return runMultiResultQuery(findAllSql);
         }
 
         @Override
         public ProjectModel findById(int projectId) throws ModelNotFoundException {
             logger.debug("Building query for project ID " + projectId);
-            String sql = "SELECT * ";
-            sql += "FROM " + getTableName() + " ";
-            sql += "LEFT JOIN " + UserModel.UserModelDBObject.TABLE_NAME + " ";
-            sql += "ON " + UserModel.UserModelDBObject.TABLE_NAME + "." +
-                    UserModel.UserModelDBObject.USER_ID_COLUMN + "=" + TABLE_NAME + "." + MANAGER_USER_ID_COLUMN + " ";
-            sql += "WHERE " + PROJECT_ID_COLUMN + "=" + projectId + ";";
-            logger.debug("Query: " + sql);
+//            String sql = "SELECT * ";
+//            sql += "FROM " + getTableName() + " ";
+//            sql += "LEFT JOIN " + UserModel.UserModelDBObject.TABLE_NAME + " ";
+//            sql += "ON " + UserModel.UserModelDBObject.TABLE_NAME + "." +
+//                    UserModel.UserModelDBObject.USER_ID_COLUMN + "=" + TABLE_NAME + "." + MANAGER_USER_ID_COLUMN + " ";
+//            sql += "WHERE " + PROJECT_ID_COLUMN + "=" + projectId + ";";
+//            logger.debug("Query: " + sql);
 
-            return runSingleResultQuery(sql);
+            String findByIdSql = new SelectQuery()
+                    .addAllColumns()
+                    .addFromTable(projectTable)
+                    .addJoin(SelectQuery.JoinType.LEFT_OUTER, projectTable,
+                            db.getDbchema().findTable(UserModel.UserModelDBObject.TABLE_NAME),
+                            managerUserIdColumn, db.getDbchema().findTable(UserModel.UserModelDBObject.TABLE_NAME).
+                                    findColumn(UserModel.UserModelDBObject.USER_ID_COLUMN))
+                    .addCondition(BinaryCondition.equalTo(projectIdColumn, projectId))
+                    .validate().toString();
+            logger.debug("Query: " + findByIdSql);
+
+            return runSingleResultQuery(findByIdSql);
         }
 
         public List<ProjectModel> findAllByManager(int managerUserId) throws ModelNotFoundException {
             logger.debug("Building query for projects with manager user ID " + managerUserId);
-            String sql = "SELECT * ";
-            sql += "FROM " + getTableName() + " ";
-            sql += "LEFT JOIN " + UserModel.UserModelDBObject.TABLE_NAME + " ";
-            sql += "ON " + UserModel.UserModelDBObject.TABLE_NAME + "." +
-                    UserModel.UserModelDBObject.USER_ID_COLUMN + "=" + TABLE_NAME + "." + MANAGER_USER_ID_COLUMN + " ";
-            sql += "WHERE " + MANAGER_USER_ID_COLUMN + "=" + managerUserId + ";";
-            logger.debug("Query: " + sql);
+//            String sql = "SELECT * ";
+//            sql += "FROM " + getTableName() + " ";
+//            sql += "LEFT JOIN " + UserModel.UserModelDBObject.TABLE_NAME + " ";
+//            sql += "ON " + UserModel.UserModelDBObject.TABLE_NAME + "." +
+//                    UserModel.UserModelDBObject.USER_ID_COLUMN + "=" + TABLE_NAME + "." + MANAGER_USER_ID_COLUMN + " ";
+//            sql += "WHERE " + MANAGER_USER_ID_COLUMN + "=" + managerUserId + ";";
+//            logger.debug("Query: " + sql);
 
-            return runMultiResultQuery(sql);
+            String findAllByManagerSql = new SelectQuery()
+                    .addAllColumns()
+                    .addFromTable(projectTable)
+                    .addJoin(SelectQuery.JoinType.LEFT_OUTER, projectTable,
+                            db.getDbchema().findTable(UserModel.UserModelDBObject.TABLE_NAME),
+                            managerUserIdColumn, db.getDbchema().findTable(UserModel.UserModelDBObject.TABLE_NAME).
+                                    findColumn(UserModel.UserModelDBObject.USER_ID_COLUMN))
+                    .addCondition(BinaryCondition.equalTo(managerUserIdColumn, managerUserId))
+                    .validate().toString();
+            logger.debug("Query: " + findAllByManagerSql);
+
+            return runMultiResultQuery(findAllByManagerSql);
         }
 
         /**
