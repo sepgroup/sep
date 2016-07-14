@@ -3,6 +3,7 @@ package com.sepgroup.sep.model;
 import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.db.DBObject;
 import com.sepgroup.sep.db.Database;
+import com.sepgroup.sep.utils.CurrencyUtils;
 import com.sepgroup.sep.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,7 +113,6 @@ public class TaskModel extends AbstractModel {
      * @param done
      * @param assignee
      * @param tags
-     * @throws InvalidInputException
      */
     protected TaskModel(int taskId, String name, String description, int projectId, double budget, Date startDate,
             Date deadline, boolean done, UserModel assignee, List<String> tags) {
@@ -120,7 +120,7 @@ public class TaskModel extends AbstractModel {
         this.name = name;
         this.description = description;
         this.projectId = projectId;
-        this.budget = budget;
+        this.budget = CurrencyUtils.roundToTwoDecimals(budget);
         this.startDate = startDate;
         this.deadline = deadline;
         this.done = done;
@@ -238,6 +238,14 @@ public class TaskModel extends AbstractModel {
         return getAllByAssignee(assignee.getUserId());
     }
 
+    public static void cleanData()throws DBException{
+        new TaskModel().dbo.clean();
+    }
+
+    public static void createTable() throws DBException{
+        new TaskModel().dbo.createTable();
+    }
+
     /**
      *
      * @return
@@ -337,7 +345,7 @@ public class TaskModel extends AbstractModel {
         if (budget < 0) {
             throw new InvalidInputException("Budget must be a positive number");
         }
-        this.budget = budget;
+        this.budget = CurrencyUtils.roundToTwoDecimals(budget);
     }
 
     public Date getStartDate() {
@@ -370,10 +378,14 @@ public class TaskModel extends AbstractModel {
      * @throws InvalidInputException if the start date is after the deadline
      */
     public void setStartDate(Date startDate) throws InvalidInputException{
-        if (deadline != null && startDate.after(deadline)) {
+        if (deadline != null && startDate != null && startDate.after(deadline)) {
             throw new InvalidInputException("Start date must be before deadline.");
         }
         this.startDate = DateUtils.filterDateToMidnight(startDate);
+    }
+
+    public void removeStartDate() {
+        this.startDate = null;
     }
 
     public Date getDeadline() {
@@ -394,8 +406,16 @@ public class TaskModel extends AbstractModel {
      * @throws InvalidInputException if the deadline is before the start date
      */
     public void setDeadline(Date deadline) throws InvalidInputException {
-        if (startDate != null && deadline.before(startDate)) {
-            throw new InvalidInputException("Deadline must be after start date.");
+        if (deadline != null) {
+            if (startDate != null) {
+                if (deadline.before(startDate)) {
+                    throw new InvalidInputException("Deadline must be after start date.");
+                } else {
+                    this.deadline = DateUtils.filterDateToMidnight(deadline);
+                }
+            } else {
+                throw new InvalidInputException("Cannot set actual deadline on task w/o start date");
+            }
         }
         this.deadline = DateUtils.filterDateToMidnight(deadline);
     }
@@ -411,6 +431,10 @@ public class TaskModel extends AbstractModel {
         } catch (ParseException e) {
             throw new InvalidInputException("Invalid deadline string.");
         }
+    }
+
+    public void removeDeadline() {
+        this.deadline = null;
     }
 
     public boolean isDone() {
@@ -431,13 +455,17 @@ public class TaskModel extends AbstractModel {
         }
         else if (assignee.getUserId() == 0) {
             throw new InvalidInputException("Trying to set assignee as user " +
-            " ID of 0. User must be saved to database before assigning a task");
+            " ID of 0. User must be saved to database before assigning a task.");
         }
         else if (assignee.getUserId() < 0) {
             throw new InvalidInputException("User ID must be a positive integer");
         }
 
         this.assignee = assignee;
+    }
+
+    public void removeAssignee() {
+        this.assignee = null;
     }
 
     public void setAssignee(int assigneeUserId) throws InvalidInputException, ModelNotFoundException {
@@ -544,7 +572,7 @@ public class TaskModel extends AbstractModel {
         return true;
     }
 
-    class TaskModelDBObject implements DBObject {
+    public class TaskModelDBObject implements DBObject {
 
         private final Logger logger = LoggerFactory.getLogger(TaskModelDBObject.class);
 
@@ -625,7 +653,7 @@ public class TaskModel extends AbstractModel {
                         logger.error("Unable to parse Date from DB, this really shouldn't happen.");
                         throw new ModelNotFoundException("Unable to parse Date from DB, this really shouldn't happen.", e);
                     }
-                    double budgetTemp = rs.getInt(BUDGET_COLUMN);
+                    double budgetTemp = rs.getFloat(BUDGET_COLUMN);
                     boolean doneTemp = rs.getBoolean(DONE_COLUMN);
                     int userIdTemp = rs.getInt(ASSIGNEE_USER_ID_COLUMN);
                     UserModel assignee = null;
@@ -640,7 +668,7 @@ public class TaskModel extends AbstractModel {
                     }
 
                     String tagsTemp = rs.getString(TAGS_COLUMN);
-                    List<String> tagsListTemp = null;
+                    List<String> tagsListTemp;
                     if (tagsTemp != null) {
                         tagsListTemp = getTagsListFromString(tagsTemp);
                     }
@@ -652,7 +680,7 @@ public class TaskModel extends AbstractModel {
                 }
                 else {
                     logger.debug("DB query returned zero results");
-                    throw new ModelNotFoundException("DB query for task with ID " + taskId + " returned no results");
+                    throw new ModelNotFoundException("DB query for task returned no results");
                 }
             }
             catch (SQLException e) {
@@ -692,7 +720,7 @@ public class TaskModel extends AbstractModel {
                         throw new ModelNotFoundException("Unable to parse Date from DB, this really shouldn't happen.",
                                 e);
                     }
-                    double budgetTemp = rs.getInt(BUDGET_COLUMN);
+                    double budgetTemp = rs.getFloat(BUDGET_COLUMN);
                     boolean doneTemp = rs.getBoolean(DONE_COLUMN);
                     int userIdTemp = rs.getInt(ASSIGNEE_USER_ID_COLUMN);
                     UserModel assignee = null;
@@ -724,7 +752,7 @@ public class TaskModel extends AbstractModel {
                 }
             }
             catch (SQLException e) {
-                logger.error("Unable to fetch all entries in Task table" + ". Query: " + sql, e);
+                logger.error("Unable to fetch entries in Task table" + ". Query: " + sql, e);
                 throw new ModelNotFoundException(e);
             } finally {
                 try {
@@ -954,15 +982,16 @@ public class TaskModel extends AbstractModel {
             sql.append("UPDATE "+ getTableName() + " ");
             sql.append("SET ");
             sql.append(TASK_NAME_COLUMN + "='" + getName() + "'");
-            if (getDescription() != null) sql.append(", " + DESCRIPTION_COLUMN + "='" + getDescription() + "' ");
+            sql.append(", " + DESCRIPTION_COLUMN + "='" + (getDescription() != null ? getDescription() : "") + "' ");
             sql.append(", " + PROJECT_ID_COLUMN + "=" + getProjectId() + " ");
             sql.append(", " + BUDGET_COLUMN + "=" + getBudget() + " ");
-            if (getStartDate() != null) sql.append(", " + START_DATE_COLUMN + "='" +
-                    DateUtils.castDateToString(getStartDate()) + "' ");
-            if (getDeadline() != null) sql.append(", " + DEADLINE_COLUMN + "='" +
-                    DateUtils.castDateToString(getDeadline()) + "' ");
+            sql.append(", " + START_DATE_COLUMN + "='" +
+                    (getStartDate() != null ? DateUtils.castDateToString(getStartDate()) : "NULL") + "' ");
+            sql.append(", " + DEADLINE_COLUMN + "='" +
+                    (getDeadline() != null ? DateUtils.castDateToString(getDeadline()) : "NULL") + "' ");
             sql.append(", " + DONE_COLUMN + "=" + (isDone() ? 1 : 0) + " ");
-            if (getAssignee() != null) sql.append(", " + ASSIGNEE_USER_ID_COLUMN + "=" + getAssignee().getUserId() + " ");
+            sql.append(", " + ASSIGNEE_USER_ID_COLUMN + "=" +
+                    (getAssignee() != null ? getAssignee().getUserId() : "0") + " ");
             if (getTags().size() > 0) sql.append(", " + TAGS_COLUMN + "='" + getTagsString() + "' ");
             sql.append("WHERE " + TASK_ID_COLUMN + "=" + getTaskId() + ";");
 
@@ -1020,5 +1049,86 @@ public class TaskModel extends AbstractModel {
                 }
             }
         }
+
+        @Override
+        public void clean() throws DBException {
+            String cleanTaskTableSql = "DELETE FROM "+ getTableName()+";";
+
+            try {
+                if (this.findAll() != null) {
+                    try {
+                        db.update(cleanTaskTableSql);
+                    } catch (SQLException e) {
+                        logger.error("Unable to delete data from table "+ getTableName(), e);
+                        throw new DBException(e);
+                    } finally {
+                        try {
+                            db.closeConnection();
+                        } catch (SQLException e) {
+                            throw new DBException("Unable to close connection to " + db.getDbPath(), e);
+                        }
+                    }
+                }
+            } catch(ModelNotFoundException e) {
+                logger.debug(e.getLocalizedMessage());
+            }
+
+            // Clean task dependencies table
+            String fetchDependency="SELECT * FROM TaskDependency;";
+            try {
+                ResultSet rs = db.query(fetchDependency);
+                if (rs.next()) {
+                    String cleanTaskDependenciesTableSql = "DELETE FROM TaskDependency;";
+                    db.update(cleanTaskDependenciesTableSql);
+                }
+            } catch (SQLException e) {
+                logger.error("Unable to delete data from table " + getTableName(), e);
+            }
+        }
+
+
+        @Override
+        public void createTable() throws DBException{
+            // Create task table query
+            StringBuilder createTaskTableSql = new StringBuilder();
+            createTaskTableSql.append("CREATE TABLE IF NOT EXISTS "+ getTableName()+" (");
+            createTaskTableSql.append(TASK_ID_COLUMN+ " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT"+",");
+            createTaskTableSql.append(PROJECT_ID_COLUMN+" INTEGER NOT NULL"+",");
+            createTaskTableSql.append(TASK_NAME_COLUMN+" VARCHAR(50) NOT NULL"+",");
+            createTaskTableSql.append(START_DATE_COLUMN+" DATE"+",");
+            createTaskTableSql.append(DEADLINE_COLUMN+" DATE"+",");
+            createTaskTableSql.append(BUDGET_COLUMN+" FLOAT CHECK("+BUDGET_COLUMN+" >= 0)"+",");
+            createTaskTableSql.append(DONE_COLUMN+" BOOLEAN"+",");
+            createTaskTableSql.append(TAGS_COLUMN+" TEXT"+",");
+            createTaskTableSql.append(DESCRIPTION_COLUMN+" TEXT"+",");
+            createTaskTableSql.append(ASSIGNEE_USER_ID_COLUMN+" INT"+",");
+            createTaskTableSql.append("FOREIGN KEY ("+PROJECT_ID_COLUMN+") REFERENCES Project(ProjectID) ON DELETE CASCADE"+",");
+            createTaskTableSql.append("FOREIGN KEY ("+ASSIGNEE_USER_ID_COLUMN+") REFERENCES User(UserID) ON DELETE CASCADE"+",");
+            createTaskTableSql.append("CONSTRAINT chk_date CHECK(" + DEADLINE_COLUMN + " >= "+START_DATE_COLUMN+"));");
+
+            // Create task dependencies table query
+            StringBuilder createTaskDependenciesTableSql = new StringBuilder();
+            createTaskDependenciesTableSql.append("CREATE TABLE IF NOT EXISTS TaskDependency(");
+            createTaskDependenciesTableSql.append("FKTaskID INT NOT NULL,");
+            createTaskDependenciesTableSql.append("DependOnTaskID INT NOT NULL,");
+            createTaskDependenciesTableSql.append("FOREIGN KEY (FKTaskID) REFERENCES Task(TaskID) ON DELETE CASCADE,");
+            createTaskDependenciesTableSql.append("FOREIGN KEY (DependOnTaskID) REFERENCES Task(TaskID) ON DELETE CASCADE);");
+
+            // Run create queries
+            try {
+                db.create(createTaskTableSql.toString());
+                db.create(createTaskDependenciesTableSql.toString());
+            } catch (SQLException e) {
+                logger.error("Unable to create table", e);
+                throw new DBException(e);
+            } finally {
+                try {
+                    db.closeConnection();
+                } catch (SQLException e) {
+                    throw new DBException("Unable to close connection to " + db.getDbPath(), e);
+                }
+            }
+        }
+
     }
 }

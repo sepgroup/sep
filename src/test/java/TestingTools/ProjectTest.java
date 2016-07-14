@@ -79,18 +79,29 @@ public class ProjectTest {
 
             int managerID = random.nextInt(20) - 10;
 
-            try {
-                hasValidManager[i] = UserModel.getById(managerID) != null;
+            UserModel user = null;
+            try{
+                user = new UserModel("Coco", "Gonzalez", 20.04);
+                user.persistData();
             }
             catch(Exception e) {
-                hasValidManager[i] = false;
+                assert(false);
             }
+
+            hasValidManager[i] = true;
+
+//            try {
+//                hasValidManager[i] = UserModel.getById(managerID) != null;
+//            }
+//            catch(Exception e) {
+//                hasValidManager[i] = false;
+//            }
 
             String description = RandomStringBuilder.randomString(hasValidDescription[i]? random.nextInt(999) + 1 : 0);
 
 
             try {
-                projectsIn[i] = new ProjectModel(name, ds, de, budget, done, managerID, description);
+                projectsIn[i] = new ProjectModel(name, ds, de, budget, done, user, description);
                 projectsIn[i].persistData();
             } catch (DBException e) {
                 System.out.println(e.getLocalizedMessage());
@@ -129,7 +140,7 @@ public class ProjectTest {
             assertEquals("Date start test", projectsIn[i].getStartDate(),projectsOut[i].getStartDate());
             assertEquals("Date end test", projectsIn[i].getDeadline(),projectsOut[i].getDeadline());
             assertEquals("Budget test", projectsIn[i].getBudget(),projectsOut[i].getBudget(), 0.001);
-            assertEquals("Manager ID test", projectsIn[i].getManagerUserId(), projectsOut[i].getManagerUserId());
+            assertEquals("Manager ID test", projectsIn[i].getManager().getUserId(), projectsOut[i].getManager().getUserId());
             assertEquals("Done test", projectsIn[i].isDone(),projectsOut[i].isDone());
             passCount++;
         }

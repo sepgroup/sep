@@ -124,6 +124,11 @@ public class ProjectViewerController extends AbstractController {
             deadlineColumn.setCellValueFactory(cellData -> cellData.getValue().deadlineProperty());
             taskCompleteColumn.setCellValueFactory(cellData -> cellData.getValue().completedProperty());
             assigneeColumn.setCellValueFactory(cellData -> cellData.getValue().assigneeProperty());
+            if (taskTableView.getItems().isEmpty()){
+				createGanttChartButton.setDisable(true);
+				
+			}
+
 
             // Populate user filter combo box
             List<UserModel> userList;
@@ -259,5 +264,6 @@ public class ProjectViewerController extends AbstractController {
 				+ "\nMichael Deom";
 
         DialogCreator.showInfoDialog(headerText, contentText);
-    }
+
+}
 }

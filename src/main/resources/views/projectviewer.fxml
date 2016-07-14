@@ -1,10 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
 <FlowPane fx:id="projectviewer" prefHeight="500.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sepgroup.sep.controller.ProjectViewerController">
    <children>
       <MenuBar prefHeight="29.0" prefWidth="800.0">
@@ -38,7 +51,7 @@
          <top>
             <Text fx:id="projectNameText" strokeType="OUTSIDE" strokeWidth="0.0" text="Project Name" BorderPane.alignment="CENTER">
                <font>
-                  <Font size="30.0" />
+                  <Font size="29.0" />
                </font>
                <BorderPane.margin>
                   <Insets top="10.0" />
@@ -55,29 +68,18 @@
          <center>
             <Pane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
                <children>
-                  <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="103.0" layoutX="110.0" layoutY="-1.0" stroke="#3366ff" strokeType="INSIDE" width="435.0" />
-                  <Button fx:id="editProjectButton" layoutX="-10.0" layoutY="14.0" mnemonicParsing="false" onAction="#onEditProjectClicked" prefHeight="59.0" prefWidth="111.0" text="Edit Project" textFill="WHITE">
-                     <font>
-                        <Font name="System Bold" size="14.0" />
-                     </font></Button>
-                  <Label fx:id="startDateLabel" layoutX="120.0" layoutY="16.0" text="Start date:" />
-                  <Label fx:id="deadlineLabel" layoutX="122.0" layoutY="44.0" text="Deadline:" />
-                  <Label fx:id="startDateValueLabel" layoutX="184.0" layoutY="16.0" text="[ start date ]" />
-                  <Label fx:id="deadlineValueLabel" layoutX="184.0" layoutY="44.0" text="Deadline" />
-                  <Label fx:id="managerLabel" layoutX="313.0" layoutY="7.0" text="Manager:" />
-                  <Label fx:id="managerValueLabel" layoutX="387.0" layoutY="7.0" text="[ manager ]" />
-                  <Label fx:id="budgetValueLabel" layoutX="386.0" layoutY="35.0" text="[ budget ]" />
-                  <Label fx:id="budgetLabel" layoutX="318.0" layoutY="35.0" text="Budget" />
-                  <Label fx:id="completeValueLabel" layoutX="386.0" layoutY="63.0" text="[ complete ]">
-                     <font>
-                        <Font name="System Bold" size="12.0" />
-                     </font></Label>
-                  <Label fx:id="completeLabel" layoutX="311.0" layoutY="63.0" text="Complete:" />
-                  <Button fx:id="createGanttChartButton" layoutX="122.0" layoutY="67.0" mnemonicParsing="false" onAction="#onCreateGanttChartClicked" prefHeight="14.0" prefWidth="146.0" text="Create Gantt Chart" textFill="WHITE">
-                     <font>
-                        <Font name="System Bold" size="14.0" />
-                     </font>
-                  </Button>
+                  <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="110.0" layoutX="-11.0" layoutY="-9.0" stroke="BLUE" strokeType="INSIDE" width="557.0" />
+                  <Label fx:id="startDateLabel" layoutX="14.0" layoutY="41.0" text="Start date:" />
+                  <Label fx:id="deadlineLabel" layoutX="16.0" layoutY="67.0" text="Deadline:" />
+                  <Label fx:id="startDateValueLabel" layoutX="111.0" layoutY="41.0" text="[ start date ]" />
+                  <Label fx:id="deadlineValueLabel" layoutX="111.0" layoutY="67.0" text="[ start date ]" />
+                  <Label fx:id="managerLabel" layoutX="275.0" layoutY="7.0" text="Manager:" />
+                  <Label fx:id="managerValueLabel" layoutX="366.0" layoutY="7.0" text="[ manager ]" />
+                  <Label fx:id="budgetValueLabel" layoutX="366.0" layoutY="35.0" text="[ budget ]" />
+                  <Label fx:id="budgetLabel" layoutX="275.0" layoutY="35.0" text="Budget" />
+                  <Label fx:id="completeValueLabel" layoutX="366.0" layoutY="63.0" text="[ complete ]" />
+                  <Label fx:id="completeLabel" layoutX="275.0" layoutY="63.0" text="Complete:" />
+                  
                </children>
                <BorderPane.margin>
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
@@ -85,26 +87,17 @@
             </Pane>
          </center>
       </BorderPane>
-      <BorderPane fx:id="projectInfoPane2" prefHeight="239.0" prefWidth="800.0">
-         <top>
-            <Text fx:id="tasksLabel" strokeType="OUTSIDE" strokeWidth="0.0" text="Tasks" BorderPane.alignment="CENTER">
-               <font>
-                  <Font size="22.0" />
-               </font>
-            </Text>
-         </top>
+      <BorderPane prefHeight="239.0" prefWidth="800.0">
          <center>
-            <TableView fx:id="taskTableView" minHeight="-Infinity" onMouseClicked="#onTaskItemClicked" prefHeight="213.0" prefWidth="792.0" BorderPane.alignment="CENTER">
+            <TableView fx:id="taskTableView" minHeight="-Infinity" onMouseClicked="#onTaskItemClicked" prefHeight="213.0" prefWidth="800.0" BorderPane.alignment="CENTER">
               <columns>
                 <TableColumn fx:id="taskIdColumn" prefWidth="75.0" text="Task ID" />
-                <TableColumn fx:id="taskNameColumn" prefWidth="110.0" text="Task Name" />
-                  <TableColumn fx:id="taskBudgetColumn" prefWidth="75.0" text="Budget" />
-                  <TableColumn fx:id="startDateColumn" prefWidth="75.0" text="Start Date" />
-                  <TableColumn fx:id="deadlineColumn" prefWidth="75.0" text="Deadline" />
-
-                  <TableColumn fx:id="taskCompleteColumn" prefWidth="91.0" text="Complete?" />
-                  <TableColumn fx:id="assigneeColumn" prefWidth="75.0" text="Assignee" />
->>>>>>> master
+                <TableColumn fx:id="taskNameColumn" prefWidth="126.0" text="Task Name" />
+                  <TableColumn fx:id="taskBudgetColumn" prefWidth="71.0" text="Budget" />
+                  <TableColumn fx:id="startDateColumn" prefWidth="74.0" text="Start Date" />
+                  <TableColumn fx:id="deadlineColumn" prefWidth="77.0" text="Deadline" />
+                  <TableColumn fx:id="taskCompleteColumn" prefWidth="103.0" text="Complete?" />
+                  <TableColumn fx:id="assigneeColumn" prefWidth="238.0" text="Assignee" />
               </columns>
                <BorderPane.margin>
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
@@ -114,7 +107,7 @@
          <bottom>
             <FlowPane prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
                <children>
-                  <Button fx:id="createTastButton" mnemonicParsing="false" onAction="#onCreateTaskButtonClicked" prefHeight="51.0" prefWidth="127.0" text="Create Task" textFill="WHITE">
+                  <Button fx:id="createTastButton" mnemonicParsing="false" onAction="#onCreateTaskButtonClicked" prefHeight="41.0" prefWidth="103.0" text="Create Task" textFill="WHITE">
                      <FlowPane.margin>
                         <Insets left="10.0" top="7.0" />
                      </FlowPane.margin>
@@ -127,13 +120,19 @@
          </bottom>
          <top>
             <AnchorPane prefHeight="30.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-                <Text fx:id="tasksLabel" layoutX="171.0" layoutY="24.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Tasks" BorderPane.alignment="CENTER">
+                <Text fx:id="tasksLabel" layoutX="31.0" layoutY="28.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Tasks" BorderPane.alignment="CENTER">
                     <font>
                         <Font size="22.0" />
                     </font>
                 </Text>
-               <ComboBox fx:id="userFilterComboBox" layoutX="400.0" layoutY="3.0" onAction="#onUserFilterComboBoxClicked" prefHeight="27.0" prefWidth="200.0" />
-               <Label layoutX="305.0" layoutY="6.0" text="Filter by user:" />
+               <ComboBox fx:id="userFilterComboBox" layoutX="562.0" layoutY="10.0" onAction="#onUserFilterComboBoxClicked" prefHeight="27.0" prefWidth="200.0" />
+               <Label layoutX="477.0" layoutY="15.0" text="Filter by user:" />
+               
+                           <Button fx:id="createGanttChartButton" layoutX="287.0" layoutY="9.0" mnemonicParsing="false" onAction="#onCreateGanttChartClicked" prefHeight="14.0" prefWidth="146.0" text="Create Gantt Chart" textFill="WHITE">
+                  <font>
+                     <Font name="System Bold" size="14.0" />
+                  </font>
+               </Button>
             </AnchorPane>
          </top>
       </BorderPane>

@@ -1,6 +1,8 @@
 package com.sepgroup.sep.controller;
 
 import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,25 +34,15 @@ public class TaskEditorController extends AbstractController {
     @FXML
 	public TextField editTaskNameField;
     @FXML
-  	public Label taskNameLabel;
-    @FXML
   	public Label taskIdLabel;
 	@FXML
 	public TextField editTaskBudgetField;
 	@FXML
-	public Label taskBudgetValueLabel;
-	@FXML
 	public DatePicker editStartDateTaskField;
-	@FXML
-	public Label taskStartDateValueLabel;
 	@FXML
 	public DatePicker editDeadlineTaskField;
 	@FXML
-	public Label taskDeadlineValueLabel;
-	@FXML
-	public TextField assigneeTaskField;
-	@FXML
-	public Label taskAssigneeLabel;
+	public ComboBox<UserModel> assigneeComboBox;
 	@FXML
 	public TextArea taskDescriptionArea;
     @FXML
@@ -80,7 +72,7 @@ public class TaskEditorController extends AbstractController {
     }
     
     @FXML
-    public void onEditTaskCancelClicked() {
+    public void onCancelClicked() {
         // Ignore all changes made to task
         try {
             model.refreshData();
@@ -95,7 +87,7 @@ public class TaskEditorController extends AbstractController {
     }
 
     @FXML
-    public void onEditTaskUpdateClicked() {
+    public void onUpdateClicked() {
         // Name
         if (editTaskNameField.getText() != null && editTaskNameField.getText().length() > 0) {
             try {
@@ -123,6 +115,8 @@ public class TaskEditorController extends AbstractController {
                 DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
                 return;
             }
+        } else {
+            model.removeStartDate();
         }
 
         // Deadline
@@ -143,6 +137,9 @@ public class TaskEditorController extends AbstractController {
                 return;
             }
         }
+        else {
+            model.removeDeadline();
+        }
 
         // Budget
         if (!editTaskBudgetField.getText().equals("")) {
@@ -160,29 +157,32 @@ public class TaskEditorController extends AbstractController {
                 DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
                 return;
             }
+        } else {
+            try {
+                model.setBudget(0);
+            } catch (InvalidInputException e) {
+                logger.error("Error setting task budget to 0 when user left field blank", e);
+                DialogCreator.showExceptionDialog(e);
+                return;
+            }
         }
 
         // Assignee
-        // TODO user name instead of ID
-        if (!assigneeTaskField.getText().equals("")) {
-            int assigneeId;
+        UserModel selectedAssignee = assigneeComboBox.getSelectionModel().getSelectedItem();
+        if (selectedAssignee == null || selectedAssignee == UserModel.getEmptyUser()) {
+            model.removeAssignee();
+        }
+        else {
             try {
-                assigneeId = Integer.parseInt(assigneeTaskField.getText());
-            } catch (NumberFormatException e) {
-                DialogCreator.showErrorDialog("Invalid user ID", "Enter a valid manager user ID.");
-                return;
+                model.setAssignee(selectedAssignee);
+            } catch (InvalidInputException e) {
+                logger.error("User being assigned to task is invalid", e);
+                DialogCreator.showExceptionDialog(e);
             }
-//            try {
-//                model.setAssigneeUserId(assigneeId);
-//            } catch (InvalidInputException e) {
-//                DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
-//                return;
-//            }
         }
 
-        if (!taskDescriptionArea.getText().equals("")) {
-            model.setDescription(taskDescriptionArea.getText());
-        }
+        // Description
+        model.setDescription(taskDescriptionArea.getText());
 
         // Complete
         model.setDone(completeCheckBox.isSelected());
@@ -289,11 +289,38 @@ public class TaskEditorController extends AbstractController {
     public void update() {
    	    if (this.model != null) {
    		    taskIdLabel.setText(String.valueOf(model.getTaskId()));
-   		    if (model.getName() != null) taskNameLabel.setText(model.getName());
-   		    taskBudgetValueLabel.setText(String.valueOf(model.getBudget()));
-   		    if (model.getStartDate() != null) taskStartDateValueLabel.setText(String.valueOf(model.getStartDate()));
-            if (model.getDeadline() != null) taskDeadlineValueLabel.setText(String.valueOf(model.getDeadline()));
-   		    if (model.getAssignee() != null) taskAssigneeLabel.setText(model.getAssignee().getFullName());
+   		    if (model.getName() != null) editTaskNameField.setText(model.getName());
+            editTaskBudgetField.setText(String.valueOf(model.getBudget()));
+   		    if (model.getStartDate() != null) {
+                try {
+                    LocalDate startDate = LocalDate.parse(model.getStartDateString());
+                    editStartDateTaskField.setValue(startDate);
+                } catch (DateTimeParseException e) {
+                    DialogCreator.showExceptionDialog(e);
+                }
+            }
+            if (model.getDeadline() != null) {
+                try {
+                    LocalDate deadline = LocalDate.parse(model.getDeadlineString());
+                    editDeadlineTaskField.setValue(deadline);
+                } catch (DateTimeParseException e) {
+                    DialogCreator.showExceptionDialog(e);
+                }
+            }
+
+            // Populate assignee list
+            List<UserModel> userList;
+            try {
+                userList = UserModel.getAll();
+            } catch (ModelNotFoundException e) {
+                logger.debug("No users found.");
+                userList = new LinkedList<>();
+            }
+            userList.add(0, UserModel.getEmptyUser());
+            ObservableList<UserModel> observableUserList = FXCollections.observableList(userList);
+            assigneeComboBox.setItems(observableUserList);
+   		    if (model.getAssignee() != null) assigneeComboBox.getSelectionModel().select(model.getAssignee());
+
             completeCheckBox.setSelected(model.isDone());
 
             refreshCurrentDependenciesList();
