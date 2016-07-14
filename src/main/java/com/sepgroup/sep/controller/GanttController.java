@@ -1,4 +1,5 @@
 package com.sepgroup.sep.controller;
+import java.awt.Color;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -7,6 +8,7 @@ import javax.swing.JFrame;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.data.category.IntervalCategoryDataset;
 import org.jfree.data.gantt.Task;
 import org.jfree.data.gantt.TaskSeries;
@@ -73,6 +75,11 @@ import com.sepgroup.sep.model.ProjectModel;
 	            true,                // tooltips
 	            false                // urls
 	        );    
+	        CategoryPlot categoryplot = chart.getCategoryPlot();
+	        categoryplot.setBackgroundPaint(Color.white);
+	        categoryplot.setBackgroundImage(getIconImage());
+
+
 	        return chart;    
 	    }
 	    

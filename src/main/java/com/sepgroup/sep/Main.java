@@ -20,6 +20,10 @@ import java.io.IOException;
 public class Main extends Application {
 
     private static Logger logger = LoggerFactory.getLogger(Main.class);
+    private static int screenMinHeight = 560;
+    private static int screenMinWidth = 810;
+    private static int screenMaxHeight = 800;
+    private static int screenMaxWidth = 1000;
 
     private static Stage primaryStage;
 
@@ -34,11 +38,11 @@ public class Main extends Application {
         primaryStage.setTitle("Project Management Application");
 
         setPrimaryScene(WelcomeController.getFxmlPath());
-        primaryStage.setMaxHeight(800);
-        primaryStage.setMaxWidth(1000);
+        primaryStage.setMaxHeight(screenMaxHeight);
+        primaryStage.setMaxWidth(screenMaxWidth);
         
-        primaryStage.setMinHeight(560);
-        primaryStage.setMinWidth(810);
+        primaryStage.setMinHeight(screenMinHeight);
+        primaryStage.setMinWidth(screenMinWidth);
         
 
         primaryStage.show();

@@ -25,6 +25,7 @@ public class ProjectEditorController extends AbstractController {
 
     private static Logger logger = LoggerFactory.getLogger(ProjectEditorController.class);
     private static final String fxmlPath = "/views/projecteditor.fxml";
+    
 	private ProjectModel model;
 
 	@FXML

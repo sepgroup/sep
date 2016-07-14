@@ -4,6 +4,8 @@ import com.sepgroup.sep.Main;
 import com.sepgroup.sep.Observer;
 import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.model.*;
+
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -40,7 +42,6 @@ public class ProjectViewerController extends AbstractController {
 	private static ProjectModel model;
 
 
-
 	@FXML
 	public Text projectNameText;
 	@FXML
@@ -70,6 +71,9 @@ public class ProjectViewerController extends AbstractController {
 	public TableColumn<ListableTaskModel, String> deadlineColumn;
 	@FXML
 	public TableColumn<ListableTaskModel, Boolean> taskCompleteColumn;
+	@FXML
+	public Button createGanttChartButton;
+	
 
 	public ProjectViewerController() {
 		setCssPath("/style/stylesheet.css");
@@ -81,7 +85,7 @@ public class ProjectViewerController extends AbstractController {
 
 	public void onEditClicked() {
 		ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(ProjectEditorController.getFxmlPath());
-		pvc.setModel(model);
+		pvc.setModel(model);	
 	}
 
 	public void setModel(ProjectModel p) {
@@ -135,6 +139,11 @@ public class ProjectViewerController extends AbstractController {
 			startDateColumn.setCellValueFactory(cellData -> cellData.getValue().startDateProperty());
 			deadlineColumn.setCellValueFactory(cellData -> cellData.getValue().deadlineProperty());
 			taskCompleteColumn.setCellValueFactory(cellData -> cellData.getValue().completedProperty());
+			//Disable Chart Button if project has no tasks.
+			if (taskTableView.getItems().isEmpty()){
+				createGanttChartButton.setDisable(true);
+				
+			}
 		}
 	}
 
@@ -144,51 +153,42 @@ public class ProjectViewerController extends AbstractController {
 	}
 
 	public void onCreateTaskButtonClicked() {
+	
 		TaskCreatorController tcc = (TaskCreatorController) Main.setPrimaryScene(TaskCreatorController.getFxmlPath());
 		tcc.setReturnProject(model);
 	}
 
 
-
 	public void onCreateGanttChartClicked() throws ModelNotFoundException, InvalidInputException {
+		final GanttController Gantt = new GanttController("Gantt Chart");
+		Gantt.pack();
+		RefineryUtilities.centerFrameOnScreen(Gantt);
+		Gantt.setVisible(true);
 
-		final GanttController test = new GanttController("Gantt Chart Demo 1");
-		test.pack();
-		RefineryUtilities.centerFrameOnScreen(test);
-		test.setVisible(true);
 
-
-	}      
+	}       
 	public static IntervalCategoryDataset createDataset() throws ModelNotFoundException, InvalidInputException {
-
-		int numOfTasks = model.getTasks().size();
-		if (numOfTasks>0){
 			final TaskSeries s1 = new TaskSeries("Scheduled");
+			final TaskSeries s2 = new TaskSeries("Completed");
+			
 			for(int i = 0; i<model.getTasks().size();i++){
-				s1.add(new Task(model.getTasks().get(i).getName(), new SimpleTimePeriod (date( model.getTasks().get(i).getStartDate()), date(model.getTasks().get(i).getDeadline()))));}
+				if (model.getTasks().get(i).isDone()){
+				s2.add(new Task(model.getTasks().get(i).getName(),
+						new SimpleTimePeriod (date( model.getTasks().get(i).getStartDate()), date(model.getTasks().get(i).getDeadline()))));}
 
-			final TaskSeries s2 = new TaskSeries("Actual");
-			for(int i = 0; i<model.getTasks().size();i++){
-				s2.add(new Task("Name of task 2",
-						new SimpleTimePeriod(date( model.getTasks().get(i).getStartDate()), date(model.getTasks().get(i).getDeadline()))));}
-
+			
+				else{						
+					
+					if ((model.getTasks().get(i).getStartDate()!=(null))&&(model.getTasks().get(i).getDeadline()!=(null))){
+				        s1.add(new Task(model.getTasks().get(i).getName(),
+						new SimpleTimePeriod(date( model.getTasks().get(i).getStartDate()), date(model.getTasks().get(i).getDeadline()))));
+				}}}
+			
 			final TaskSeriesCollection collection = new TaskSeriesCollection();
 			collection.add(s1);
 			collection.add(s2);
-
 			return collection;
-
 		}
-		else{
-		
-			Alert alert = new Alert(AlertType.WARNING);
-			alert.setTitle("Warning");
-			alert.setHeaderText("Project has no tasks");
-			alert.setContentText(model.getName() + " has no tasks. The chart is empty.");
-			alert.showAndWait();
-			
-	}
-		return null;}
 
 	private static Date date(final Date date) {
 
