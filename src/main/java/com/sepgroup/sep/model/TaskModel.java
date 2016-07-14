@@ -9,6 +9,7 @@ import com.sepgroup.sep.db.DBObject;
 import com.sepgroup.sep.db.Database;
 import com.sepgroup.sep.utils.CurrencyUtils;
 import com.sepgroup.sep.utils.DateUtils;
+import com.sun.org.apache.bcel.internal.generic.Select;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -162,12 +163,17 @@ public class TaskModel extends AbstractModel {
      * @return true if the task was not already in the list of dependencies
      */
     public boolean addDependency(TaskModel task) {
+        // todo check if addedDependency depends on a task already depended by 'this' task
+        // TODO determine cycles
         if (dependencies.stream().noneMatch((t) -> t.equals(task))) {
             dependencies.add(task);
             return true;
         } else {
             return false;
         }
+        //1
+        //2
+        //3
     }
 
     /**
@@ -965,7 +971,6 @@ public class TaskModel extends AbstractModel {
             if (baseTaskId == dependsOnTask.getTaskId()) {
                 logger.error("A task cannot depend on itself! Aborting save to DB.");
             }
-            // TODO determine cycles
 
             logger.debug("Building insert SQL query for task dependencies");
             String insertTaskDependencySql = new InsertQuery(taskDependenciesTable)

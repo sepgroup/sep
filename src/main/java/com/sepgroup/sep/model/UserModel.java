@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Currency;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -400,23 +399,28 @@ public class UserModel extends AbstractModel {
 
         @Override
         public List<UserModel> findAll() throws ModelNotFoundException {
-            StringBuilder sql = new StringBuilder();
-            sql.append("SELECT * ");
-            sql.append("FROM " + getTableName() + ";");
+            logger.debug("Building select query for all users");
+            String selectAllSql = new SelectQuery()
+                    .addAllTableColumns(userTable)
 
-            return runMultiResultQuery(sql.toString());
+                    .addFromTable(userTable)
+                    .validate().toString();
+            logger.debug("Query: " + selectAllSql);
+
+            return runMultiResultQuery(selectAllSql);
         }
 
         @Override
         public UserModel findById(int userId) throws ModelNotFoundException {
-            logger.debug("Building query for user ID " + userId);
-            StringBuilder sql = new StringBuilder();
-            sql.append("SELECT * ");
-            sql.append("FROM " + getTableName() + " ");
-            sql.append("WHERE " + USER_ID_COLUMN + "=" + userId + ";");
-            logger.debug("Query: " + sql.toString());
+            logger.debug("Building select query for user ID " + userId);
+            String selectByIdSql = new SelectQuery()
+                    .addAllTableColumns(userTable)
+                    .addFromTable(userTable)
+                    .addCondition(BinaryCondition.equalTo(userIdColumn, userId))
+                    .validate().toString();
+            logger.debug("Query: " + selectByIdSql);
 
-            return runSingleResultQuery(sql.toString());
+            return runSingleResultQuery(selectByIdSql);
         }
 
         @Override

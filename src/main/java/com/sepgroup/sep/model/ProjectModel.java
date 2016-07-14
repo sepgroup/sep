@@ -629,12 +629,7 @@ public class ProjectModel extends AbstractModel {
 
         @Override
         public List<ProjectModel> findAll() throws ModelNotFoundException {
-//            String sql = "SELECT * ";
-//            sql += "FROM " + getTableName() + " ";
-//            sql += "LEFT JOIN " + UserModel.UserModelDBObject.TABLE_NAME + " ";
-//            sql += "ON " + UserModel.UserModelDBObject.TABLE_NAME + "." +
-//                    UserModel.UserModelDBObject.USER_ID_COLUMN + "=" + TABLE_NAME + "." + MANAGER_USER_ID_COLUMN + ";";
-
+            logger.debug("Building select query for all projects");
             String findAllSql = new SelectQuery()
                     .addAllColumns()
                     .addFromTable(projectTable)
@@ -650,14 +645,7 @@ public class ProjectModel extends AbstractModel {
 
         @Override
         public ProjectModel findById(int projectId) throws ModelNotFoundException {
-            logger.debug("Building query for project ID " + projectId);
-//            String sql = "SELECT * ";
-//            sql += "FROM " + getTableName() + " ";
-//            sql += "LEFT JOIN " + UserModel.UserModelDBObject.TABLE_NAME + " ";
-//            sql += "ON " + UserModel.UserModelDBObject.TABLE_NAME + "." +
-//                    UserModel.UserModelDBObject.USER_ID_COLUMN + "=" + TABLE_NAME + "." + MANAGER_USER_ID_COLUMN + " ";
-//            sql += "WHERE " + PROJECT_ID_COLUMN + "=" + projectId + ";";
-//            logger.debug("Query: " + sql);
+            logger.debug("Building select query for project w/ ID " + projectId);
 
             String findByIdSql = new SelectQuery()
                     .addAllColumns()
@@ -674,14 +662,7 @@ public class ProjectModel extends AbstractModel {
         }
 
         public List<ProjectModel> findAllByManager(int managerUserId) throws ModelNotFoundException {
-            logger.debug("Building query for projects with manager user ID " + managerUserId);
-//            String sql = "SELECT * ";
-//            sql += "FROM " + getTableName() + " ";
-//            sql += "LEFT JOIN " + UserModel.UserModelDBObject.TABLE_NAME + " ";
-//            sql += "ON " + UserModel.UserModelDBObject.TABLE_NAME + "." +
-//                    UserModel.UserModelDBObject.USER_ID_COLUMN + "=" + TABLE_NAME + "." + MANAGER_USER_ID_COLUMN + " ";
-//            sql += "WHERE " + MANAGER_USER_ID_COLUMN + "=" + managerUserId + ";";
-//            logger.debug("Query: " + sql);
+            logger.debug("Building select query for projects with manager user ID " + managerUserId);
 
             String findAllByManagerSql = new SelectQuery()
                     .addAllColumns()
@@ -713,7 +694,7 @@ public class ProjectModel extends AbstractModel {
          */
         @Override
         public int create() throws DBException {
-            logger.debug("Building SQL query for project model");
+            logger.debug("Building create query for project model");
             String insertProjectSql =
                     new InsertQuery(projectTable)
                     .addColumn(projectNameColumn, getName())
@@ -750,6 +731,7 @@ public class ProjectModel extends AbstractModel {
          */
         @Override
         public void update() throws DBException {
+            logger.debug("Building update query for project model");
             String updateProjectSql = new UpdateQuery(projectTable)
                     .addSetClause(projectNameColumn, getName())
                     .addSetClause(startDateColumn, (getStartDate() != null ? DateUtils.castDateToString(getStartDate()) : NULL_VALUE))
@@ -778,7 +760,7 @@ public class ProjectModel extends AbstractModel {
 
         @Override
         public void delete() throws DBException {
-            // Build query
+            logger.debug("Building delete query for project model");
             String deleteProjectSql =
                     new DeleteQuery(projectTable)
                     .addCondition(BinaryCondition.equalTo(projectIdColumn, getProjectId()))
@@ -800,6 +782,7 @@ public class ProjectModel extends AbstractModel {
 
         @Override
         public void clean() throws DBException{
+            logger.debug("Building clean query for project model");
             String cleanProjectTableSql = new DeleteQuery(projectTable).validate().toString();
 
             try {
@@ -824,6 +807,7 @@ public class ProjectModel extends AbstractModel {
 
         @Override
         public void createTable() throws DBException {
+            logger.debug("Building create table query for project model");
             CreateTableQuery createProjectTableQuery = new CreateTableQuery(projectTable, true)
                     .addCustomization(MysObjects.IF_NOT_EXISTS_TABLE)
                     .validate();
