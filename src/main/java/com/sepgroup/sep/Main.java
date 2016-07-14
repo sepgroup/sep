@@ -35,22 +35,12 @@ public class Main extends Application {
         primaryStage.setTitle("Project Management Application");
 
         setPrimaryScene(WelcomeController.getFxmlPath());
-<<<<<<< HEAD
         primaryStage.setMaxHeight(screenMaxHeight);
         primaryStage.setMaxWidth(screenMaxWidth);
         
         primaryStage.setMinHeight(screenMinHeight);
         primaryStage.setMinWidth(screenMinWidth);
-        
-=======
 
-       // Window size
-        primaryStage.setMaxHeight(900);
-        primaryStage.setMaxWidth(900);
-
-        primaryStage.setMinHeight(600);
-        primaryStage.setMinWidth(800);
->>>>>>> master
 
         primaryStage.show();
     }

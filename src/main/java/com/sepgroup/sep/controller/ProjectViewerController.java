@@ -3,20 +3,10 @@ package com.sepgroup.sep.controller;
 import com.sepgroup.sep.Main;
 import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.model.*;
-<<<<<<< HEAD
-
-import javafx.beans.binding.Bindings;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
-=======
->>>>>>> master
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
 
@@ -29,12 +19,9 @@ import org.jfree.ui.RefineryUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-<<<<<<< HEAD
 import java.util.Calendar;
 import java.util.Date;
-=======
 import java.util.LinkedList;
->>>>>>> master
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -44,129 +31,135 @@ import java.util.stream.Collectors;
  */
 public class ProjectViewerController extends AbstractController {
 
-<<<<<<< HEAD
-	private static Logger logger = LoggerFactory.getLogger(ProjectViewerController.class);
-	private static final String fxmlPath = "/views/projectviewer.fxml";
-	private static ProjectModel model;
+    private static Logger logger = LoggerFactory.getLogger(ProjectViewerController.class);
+    private static final String fxmlPath = "/views/projectviewer.fxml";
+    private static ProjectModel model;
+    private List<ListableTaskModel> tasksList;
 
-
-	@FXML
-	public Text projectNameText;
-	@FXML
-	public TextArea projectDescriptionTextArea;
-	@FXML
-	public Label startDateValueLabel;
-	@FXML
-	public Label deadlineValueLabel;
-	@FXML
-	public Label managerValueLabel;
-	@FXML
-	public Label budgetValueLabel;
-	@FXML
-	public Label completeValueLabel;
-	@FXML
-	public TableView<ListableTaskModel> taskTableView;
-
-	@FXML
-	public TableColumn<ListableTaskModel, Integer> taskIdColumn;
-	@FXML
-	public TableColumn<ListableTaskModel, String> taskNameColumn;
-	@FXML
-	public TableColumn<ListableTaskModel, Double> taskBudgetColumn;
-	@FXML
-	public TableColumn<ListableTaskModel, String> startDateColumn;
-	@FXML
-	public TableColumn<ListableTaskModel, String> deadlineColumn;
-	@FXML
-	public TableColumn<ListableTaskModel, Boolean> taskCompleteColumn;
-	@FXML
+    @FXML
+    public Text projectNameText;
+    @FXML
+    public TextArea projectDescriptionTextArea;
+    @FXML
+    public Label startDateValueLabel;
+    @FXML
+    public Label deadlineValueLabel;
+    @FXML
+    public Label managerValueLabel;
+    @FXML
+    public Label budgetValueLabel;
+    @FXML
+    public Label completeValueLabel;
+    @FXML
+    public TableView<ListableTaskModel> taskTableView;
+    @FXML
+    public TableColumn<ListableTaskModel, Integer> taskIdColumn;
+    @FXML
+    public TableColumn<ListableTaskModel, String> taskNameColumn;
+    @FXML
+    public TableColumn<ListableTaskModel, Double> taskBudgetColumn;
+    @FXML
+    public TableColumn<ListableTaskModel, String> startDateColumn;
+    @FXML
+    public TableColumn<ListableTaskModel, String> deadlineColumn;
+    @FXML
+    public TableColumn<ListableTaskModel, Boolean> taskCompleteColumn;
+    @FXML
+    public TableColumn<ListableTaskModel, String> assigneeColumn;
+    @FXML
+    public ComboBox<UserModel> userFilterComboBox;
+    @FXML
 	public Button createGanttChartButton;
-	
-
-	public ProjectViewerController() {
-		setCssPath("/style/stylesheet.css");
-	}
-
-	public static String getFxmlPath() {
-		return fxmlPath;
-	}
-
-	public void onEditClicked() {
-		ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(ProjectEditorController.getFxmlPath());
-		pvc.setModel(model);	
-	}
-
-	public void setModel(ProjectModel p) {
-		this.model = p;
-		update();
-	}
 
 
-	@Override
-	public void update() {
-		if (this.model != null) {
-			projectNameText.setText(model.getName());
-			if (model.getProjectDescription() != null) projectDescriptionTextArea.setText(model.getProjectDescription());
-			if (model.getStartDate() != null) startDateValueLabel.setText(model.getStartDateString());
-			if (model.getDeadline() != null) deadlineValueLabel.setText(model.getDeadlineString());
-			budgetValueLabel.setText(Double.toString(model.getBudget()));
-			completeValueLabel.setText(model.isDone() ? "Yes" : "No");
+    public ProjectViewerController() {
+        setCssPath("/style/stylesheet.css");
+    }
 
-			// Populate manager
-			String managerName = "";
-			int managerUserID = model.getManagerUserId();
-			if (managerUserID == 0) {
-				managerName = "[ none ]";
-			} else {
-				try {
-					UserModel manager = UserModel.getById(managerUserID);
-					managerName = manager.getFirstName() + " " + manager.getLastName();
-				} catch (ModelNotFoundException e) {
-					logger.error("Error finding user with ID " + managerUserID);
-				} catch (InvalidInputException e) {
-					logger.error("Errored data in DB");
-				}
-			}
-			managerValueLabel.setText(managerName);
+    public static String getFxmlPath() {
+        return fxmlPath;
+    }
 
-			// Populate tasks list
-			try {
-				logger.debug("Populating tasks list");
-				List<ListableTaskModel> tasksList = TaskModel.getAllByProject(model.getProjectId()).stream()
-						.map(taskModel -> new ListableTaskModel(taskModel)).collect(Collectors.toList());
-				ObservableList<ListableTaskModel> observableTaskList = FXCollections.observableList(tasksList);
-				taskTableView.setItems(observableTaskList);
-			} catch (ModelNotFoundException e) {
-				logger.debug("No tasks found for project " + model.toString());
-			} catch (InvalidInputException e) {
-				logger.error("Invalid data in DB");
-			}
-			taskIdColumn.setCellValueFactory(cellData -> cellData.getValue().taskIdProperty().asObject());
-			taskNameColumn.setCellValueFactory(cellData -> cellData.getValue().taskNameProperty());
-			taskBudgetColumn.setCellValueFactory(cellData -> cellData.getValue().taskBudgetProperty().asObject());
-			startDateColumn.setCellValueFactory(cellData -> cellData.getValue().startDateProperty());
-			deadlineColumn.setCellValueFactory(cellData -> cellData.getValue().deadlineProperty());
-			taskCompleteColumn.setCellValueFactory(cellData -> cellData.getValue().completedProperty());
-			//Disable Chart Button if project has no tasks.
-			if (taskTableView.getItems().isEmpty()){
-				createGanttChartButton.setDisable(true);
-				
-			}
-		}
-	}
+    public void setModel(ProjectModel p) {
+        this.model = p;
+        update();
+    }
+    
 
-	public void onEditProjectClicked() {
-		ProjectEditorController pec = (ProjectEditorController) Main.setPrimaryScene(ProjectEditorController.getFxmlPath());
-		pec.setModel(model);
-	}
+    @Override
+    public void update() {
+        if (this.model != null) {
+            projectNameText.setText(model.getName());
+            if (model.getProjectDescription() != null) projectDescriptionTextArea.setText(model.getProjectDescription());
+            if (model.getStartDate() != null) startDateValueLabel.setText(model.getStartDateString());
+            if (model.getDeadline() != null) deadlineValueLabel.setText(model.getDeadlineString());
+            budgetValueLabel.setText(Double.toString(model.getBudget()));
+            completeValueLabel.setText(model.isDone() ? "Yes" : "No");
 
-	public void onCreateTaskButtonClicked() {
-	
-		TaskCreatorController tcc = (TaskCreatorController) Main.setPrimaryScene(TaskCreatorController.getFxmlPath());
-		tcc.setReturnProject(model);
-	}
+            // Populate manager
+            String managerName;
+            if (model.getManager() == null) {
+                managerName = "[ none ]";
+            }
+            else {
+                managerName = model.getManager().getFullName();
+            }
+            managerValueLabel.setText(managerName);
 
+            // Populate tasks list
+            try {
+                logger.debug("Populating tasks list");
+                tasksList = TaskModel.getAllByProject(model.getProjectId()).stream()
+                        .map(ListableTaskModel::new).collect(Collectors.toList());
+                ObservableList<ListableTaskModel> observableTaskList = FXCollections.observableList(tasksList);
+                taskTableView.setItems(observableTaskList);
+            } catch (ModelNotFoundException e) {
+                logger.debug("No tasks found for project " + model.toString());
+                tasksList = new LinkedList<>();
+            }
+            taskIdColumn.setCellValueFactory(cellData -> cellData.getValue().taskIdProperty().asObject());
+            taskNameColumn.setCellValueFactory(cellData -> cellData.getValue().taskNameProperty());
+            taskBudgetColumn.setCellValueFactory(cellData -> cellData.getValue().taskBudgetProperty().asObject());
+            startDateColumn.setCellValueFactory(cellData -> cellData.getValue().startDateProperty());
+            deadlineColumn.setCellValueFactory(cellData -> cellData.getValue().deadlineProperty());
+            taskCompleteColumn.setCellValueFactory(cellData -> cellData.getValue().completedProperty());
+            assigneeColumn.setCellValueFactory(cellData -> cellData.getValue().assigneeProperty());
 
+            // Populate user filter combo box
+            List<UserModel> userList;
+            try {
+                userList = UserModel.getAll();
+            } catch (ModelNotFoundException e) {
+                logger.debug("No users found.");
+                userList = new LinkedList<>();
+            }
+            userList.add(0, UserModel.getEmptyUser());
+            ObservableList<UserModel> observableUserList = FXCollections.observableList(userList);
+            userFilterComboBox.setItems(observableUserList);
+        }
+    }
+
+    public void onEditProjectClicked() {
+        ProjectEditorController pec = (ProjectEditorController) Main.setPrimaryScene(ProjectEditorController.getFxmlPath());
+        pec.setModel(model);
+    }
+
+    public void onCreateTaskButtonClicked() {
+        TaskCreatorController tcc = (TaskCreatorController) Main.setPrimaryScene(TaskCreatorController.getFxmlPath());
+        tcc.setReturnProject(model);
+    }
+    
+    public void onTaskItemClicked(MouseEvent e) {
+        if (e.getClickCount() == 2) {
+            ListableTaskModel selectedListableTask = taskTableView.getSelectionModel().getSelectedItem();
+            if (selectedListableTask != null) {
+                TaskEditorController tec = (TaskEditorController) Main.setPrimaryScene(TaskEditorController.getFxmlPath());
+                tec.setModel(selectedListableTask.getModel());
+                tec.setReturnProject(model);
+            }
+        }
+    }
+    
 	public void onCreateGanttChartClicked() throws ModelNotFoundException, InvalidInputException {
 		final GanttController Gantt = new GanttController("Gantt Chart");
 		Gantt.pack();
@@ -208,182 +201,6 @@ public class ProjectViewerController extends AbstractController {
 	}
 
 
-	public void onTaskItemClicked(MouseEvent e) {
-		if (e.getClickCount() == 2) {
-			ListableTaskModel selectedListableTask = taskTableView.getSelectionModel().getSelectedItem();
-			if (selectedListableTask != null) {
-				TaskEditorController tec = (TaskEditorController) Main.setPrimaryScene(TaskEditorController.getFxmlPath());
-				tec.setModel(selectedListableTask.getModel());
-				tec.setReturnProject(model);
-			}
-		}
-	}
-
-	public void onCreateProjectMenuItemClicked() {
-		Main.setPrimaryScene(ProjectCreatorController.getFxmlPath());
-	}
-
-	public void onOpenProjectMenuItemClicked() {
-		Main.setPrimaryScene(WelcomeController.getFxmlPath());
-	}
-
-	public void onCloseProjectMenuItemClicked() {
-		Main.setPrimaryScene(WelcomeController.getFxmlPath());
-	}
-
-	public void onDeleteProjectMenuButtonClicked(){
-		String title = "Warning!";
-		String header = "This will delete the project named " + model.getName() + ". This action cannot be undone";
-		String content = "Are you sure?";
-
-		if (DialogCreator.showConfirmationDialog(title, header, content).get() == ButtonType.OK) {
-			try {
-				model.deleteData();
-				// Go to welcome screen
-				Main.setPrimaryScene(WelcomeController.getFxmlPath());
-			} catch (DBException e) {
-				logger.error("Unable to delete project from DB");
-				DialogCreator.showErrorDialog("Unable to delete project from DB", e.getLocalizedMessage());
-				return;
-			}
-		}
-	}
-
-	public void showInfo() {
-		Alert alert = new Alert(AlertType.INFORMATION);
-		alert.setTitle("Info");
-=======
-    private static Logger logger = LoggerFactory.getLogger(ProjectViewerController.class);
-    private static final String fxmlPath = "/views/projectviewer.fxml";
-    private ProjectModel model;
-    private List<ListableTaskModel> tasksList;
-
-    @FXML
-    public Text projectNameText;
-    @FXML
-    public TextArea projectDescriptionTextArea;
-    @FXML
-    public Label startDateValueLabel;
-    @FXML
-    public Label deadlineValueLabel;
-    @FXML
-    public Label managerValueLabel;
-    @FXML
-    public Label budgetValueLabel;
-    @FXML
-    public Label completeValueLabel;
-    @FXML
-    public TableView<ListableTaskModel> taskTableView;
-
-    @FXML
-    public TableColumn<ListableTaskModel, Integer> taskIdColumn;
-    @FXML
-    public TableColumn<ListableTaskModel, String> taskNameColumn;
-    @FXML
-    public TableColumn<ListableTaskModel, Double> taskBudgetColumn;
-    @FXML
-    public TableColumn<ListableTaskModel, String> startDateColumn;
-    @FXML
-    public TableColumn<ListableTaskModel, String> deadlineColumn;
-    @FXML
-    public TableColumn<ListableTaskModel, Boolean> taskCompleteColumn;
-    @FXML
-    public TableColumn<ListableTaskModel, String> assigneeColumn;
-    @FXML
-    public ComboBox<UserModel> userFilterComboBox;
-
-    public ProjectViewerController() {
-        setCssPath("/style/stylesheet.css");
-    }
-
-    public static String getFxmlPath() {
-        return fxmlPath;
-    }
-
-    public void setModel(ProjectModel p) {
-        this.model = p;
-        update();
-    }
-    
-
-    @Override
-    public void update() {
-        if (this.model != null) {
-            projectNameText.setText(model.getName());
-            if (model.getProjectDescription() != null) projectDescriptionTextArea.setText(model.getProjectDescription());
-            if (model.getStartDate() != null) startDateValueLabel.setText(model.getStartDateString());
-            if (model.getDeadline() != null) deadlineValueLabel.setText(model.getDeadlineString());
-            budgetValueLabel.setText(Double.toString(model.getBudget()));
-            completeValueLabel.setText(model.isDone() ? "Yes" : "No");
-
-            // Populate manager
-            String managerName = "";
-            int managerUserID = model.getManagerUserId();
-            if (managerUserID == 0) {
-                managerName = "[ none ]";
-            } else {
-                try {
-                    UserModel manager = UserModel.getById(managerUserID);
-                    managerName = manager.getFirstName() + " " + manager.getLastName();
-                } catch (ModelNotFoundException e) {
-                    logger.error("Error finding user with ID " + managerUserID);
-                }
-            }
-            managerValueLabel.setText(managerName);
-
-            // Populate tasks list
-            try {
-                logger.debug("Populating tasks list");
-                tasksList = TaskModel.getAllByProject(model.getProjectId()).stream()
-                        .map(ListableTaskModel::new).collect(Collectors.toList());
-                ObservableList<ListableTaskModel> observableTaskList = FXCollections.observableList(tasksList);
-                taskTableView.setItems(observableTaskList);
-            } catch (ModelNotFoundException e) {
-                logger.debug("No tasks found for project " + model.toString());
-            }
-            taskIdColumn.setCellValueFactory(cellData -> cellData.getValue().taskIdProperty().asObject());
-            taskNameColumn.setCellValueFactory(cellData -> cellData.getValue().taskNameProperty());
-            taskBudgetColumn.setCellValueFactory(cellData -> cellData.getValue().taskBudgetProperty().asObject());
-            startDateColumn.setCellValueFactory(cellData -> cellData.getValue().startDateProperty());
-            deadlineColumn.setCellValueFactory(cellData -> cellData.getValue().deadlineProperty());
-            taskCompleteColumn.setCellValueFactory(cellData -> cellData.getValue().completedProperty());
-            assigneeColumn.setCellValueFactory(cellData -> cellData.getValue().assigneeProperty());
-
-            // Populate user filter combo box
-            List<UserModel> userList;
-            try {
-                userList = UserModel.getAll();
-            } catch (ModelNotFoundException e) {
-                logger.debug("No users found.");
-                userList = new LinkedList<>();
-            }
-            userList.add(0, UserModel.getEmptyUser());
-            ObservableList<UserModel> observableUserList = FXCollections.observableList(userList);
-            userFilterComboBox.setItems(observableUserList);
-        }
-    }
-
-    public void onEditProjectClicked() {
-        ProjectEditorController pec = (ProjectEditorController) Main.setPrimaryScene(ProjectEditorController.getFxmlPath());
-        pec.setModel(model);
-    }
-
-    public void onCreateTaskButtonClicked() {
-        TaskCreatorController tcc = (TaskCreatorController) Main.setPrimaryScene(TaskCreatorController.getFxmlPath());
-        tcc.setReturnProject(model);
-    }
-
-    public void onTaskItemClicked(MouseEvent e) {
-        if (e.getClickCount() == 2) {
-            ListableTaskModel selectedListableTask = taskTableView.getSelectionModel().getSelectedItem();
-            if (selectedListableTask != null) {
-                TaskEditorController tec = (TaskEditorController) Main.setPrimaryScene(TaskEditorController.getFxmlPath());
-                tec.setModel(selectedListableTask.getModel());
-                tec.setReturnProject(model);
-            }
-        }
-    }
-
     public void onCreateProjectMenuItemClicked() {
         Main.setPrimaryScene(ProjectCreatorController.getFxmlPath());
     }
@@ -424,7 +241,7 @@ public class ProjectViewerController extends AbstractController {
             }
             else {
                 newTaskList = FXCollections.observableList(tasksList)
-                        .filtered(t -> t.getModel().getAssignee().equals(selectedUser));
+                        .filtered(t -> selectedUser.equals(t.getModel().getAssignee()));
             }
             taskTableView.setItems(newTaskList);
         }
@@ -436,77 +253,11 @@ public class ProjectViewerController extends AbstractController {
     }
     
     public void showInfo() {
-    	Alert alert = new Alert(AlertType.INFORMATION);
-    	alert.setTitle("Info");
->>>>>>> master
-		alert.setHeaderText("Version 1.0. Team members:");
-		alert.setContentText("Jeremy Brown \nAli Zoghi \nCharles Tondreau-Alin \nNicola Polesana"
+        String headerText = "SEP Version 0.1.";
+		String contentText = "Team Members: \nJeremy Brown \nAli Zoghi \nCharles Tondreau-Alin \nNicola Polesana"
 				+ "\nAndres Gonzales \nDemo Kioussis \nJustin Watley \nMark Chmilar \nVince Fugnitto"
-				+ "\nMichael Deom");
-		alert.showAndWait();
-<<<<<<< HEAD
-	}
+				+ "\nMichael Deom";
 
-	static class ListableTaskModel implements Observer {
-
-		private TaskModel model;
-
-		private SimpleIntegerProperty taskId;
-		private SimpleStringProperty taskName;
-		private SimpleDoubleProperty taskBudget;
-		private SimpleStringProperty startDate;
-		private SimpleStringProperty deadline;
-		private SimpleBooleanProperty completed;
-
-		public ListableTaskModel(TaskModel m) {
-			this.model = m;
-			this.model.registerObserver(this);
-			taskId = new SimpleIntegerProperty();
-			taskName = new SimpleStringProperty();
-			taskBudget = new SimpleDoubleProperty();
-			startDate = new SimpleStringProperty();
-			deadline = new SimpleStringProperty();
-			completed = new SimpleBooleanProperty();
-			update();
-		}
-
-		public TaskModel getModel() {
-			return model;
-		}
-
-		public SimpleIntegerProperty taskIdProperty() {
-			return taskId;
-		}
-		public SimpleStringProperty taskNameProperty() {
-			return taskName;
-		}
-		public SimpleDoubleProperty taskBudgetProperty() {
-			return taskBudget;
-		}
-		public SimpleStringProperty startDateProperty() {
-			return startDate;
-		}
-		public SimpleStringProperty deadlineProperty() {
-			return deadline;
-		}
-		public SimpleBooleanProperty completedProperty() {
-			return completed;
-		}
-
-		@Override
-		public void update() {
-			if (model != null) {
-				taskId.set(model.getTaskId());
-				taskName.set(model.getName());
-				completed.set(model.isDone());
-				startDate.set(model.getStartDateString());
-				deadline.set(model.getDeadlineString());
-				taskBudget.set(model.getBudget());
-			}
-		}
-	}
-=======
+        DialogCreator.showInfoDialog(headerText, contentText);
     }
-
->>>>>>> master
 }
