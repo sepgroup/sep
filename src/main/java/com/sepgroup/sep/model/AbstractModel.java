@@ -15,13 +15,17 @@ public abstract class AbstractModel extends Observable {
     public abstract void deleteData() throws DBException;
 
     protected boolean equalsNullable(Object obj1, Object obj2) {
-        if (!(obj1 == null && obj2 == null) && // Equal if both are null
-                obj1 == null || obj2 == null ||  // Not equal if 1 / 2 null
-                !obj1.equals(obj2)) { // Not equal if contents not equal
-            return false;
+        if (obj1 == null && obj2 == null) {
+            return true;  // equal if both are null
+        }
+        else if (obj1 == null || obj2 == null) {
+            return false;  // not equal if only one is null
+        }
+        else if (obj1.equals(obj2)) {
+            return true;  // equal if both are equal
         }
         else {
-            return true;
+            return false;  // not equal otherwise
         }
     }
 

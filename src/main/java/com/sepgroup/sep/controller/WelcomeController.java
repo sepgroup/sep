@@ -12,6 +12,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
+import javafx.scene.input.MouseEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +41,7 @@ public class WelcomeController extends AbstractController {
     }
 
     @FXML
-    public void initialize(){
+    public void initialize() {
         // Will be called by FXMLLoader
         populateExistingProjects();
     }
@@ -63,18 +64,25 @@ public class WelcomeController extends AbstractController {
     }
 
     /**
-     * Moves to createproject
+     * Moves to project creator
      */
     @FXML
     public void onCreateNewProjectClicked() {
         Main.setPrimaryScene(ProjectCreatorController.getFxmlPath());
     }
 
+    /**
+     * Handle click on project list
+     * @param e the MouseEvent
+     */
     @FXML
-    public void onProjectListSelected() {
+    public void onProjectListSelected(MouseEvent e) {
         selectedProject = existingProjectsList.getSelectionModel().getSelectedItem();
         if (selectedProject != null) {
             openSelectedProjectButton.setDisable(false);
+            if (e.getClickCount() == 2) {
+                openProjectViewer(selectedProject);
+            }
         }
         else {
             openSelectedProjectButton.setDisable(true);
@@ -82,14 +90,22 @@ public class WelcomeController extends AbstractController {
     }
 
     /**
-     * Moves to editview 
+     * Moves to project viewer
      */
     @FXML
     public void onOpenSelectedProjectClicked() {
         if (selectedProject != null) {
-            ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(ProjectViewerController.getFxmlPath());
-            pvc.setModel(selectedProject);
+            openProjectViewer(selectedProject);
         }
+    }
+
+    /**
+     * Open project viewer with specified project
+     * @param project the project to open
+     */
+    private void openProjectViewer(ProjectModel project) {
+        ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(ProjectViewerController.getFxmlPath());
+        pvc.setModel(project);
     }
 
     @Override

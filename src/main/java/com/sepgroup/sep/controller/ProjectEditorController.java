@@ -61,6 +61,12 @@ public class ProjectEditorController extends AbstractController {
         return fxmlPath;
     }
 
+    @FXML
+    public void initialize() {
+        // TODO doesn't actually focus?
+        editNameField.requestFocus();
+    }
+
 	/**
 	 * Returns to projectview
 	 */
@@ -231,8 +237,6 @@ public class ProjectEditorController extends AbstractController {
                     UserModel manager = UserModel.getById(managerUserID);
                     managerName = manager.getFirstName() + " " + manager.getLastName();
                 } catch (ModelNotFoundException e) {
-                    // TODO handle
-                } catch (InvalidInputException e) {
                     // TODO handle
                 }
             }

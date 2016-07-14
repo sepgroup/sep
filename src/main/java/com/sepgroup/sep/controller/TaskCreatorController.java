@@ -44,6 +44,12 @@ public class TaskCreatorController extends AbstractController {
         setCssPath("/style/stylesheet.css");
     }
 
+    @FXML
+    public void initialize() {
+        // TODO doesn't actually focus?
+        taskNameField.requestFocus();
+    }
+
     public static String getFxmlPath() {
         return fxmlPath;
     }
@@ -55,13 +61,11 @@ public class TaskCreatorController extends AbstractController {
     /**
 	 * Returns to createproject
 	 */
-	@FXML
     public void onTaskCancelClicked() throws IOException {
 		ProjectViewerController pec = (ProjectViewerController) Main.setPrimaryScene(ProjectViewerController.getFxmlPath());
         pec.setModel(project);
     }
 
-	@FXML
 	public void onCreateTaskClicked() throws IOException {
         TaskModel createdTask = new TaskModel();
 
@@ -135,12 +139,12 @@ public class TaskCreatorController extends AbstractController {
                 DialogCreator.showErrorDialog("Invalid user ID", "Enter a valid manager user ID.");
                 return;
             }
-            try {
-                createdTask.setAssigneeUserId(assigneeID);
-            } catch (InvalidInputException e) {
-                DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
-                return;
-            }
+//            try {
+//                createdTask.setAssigneeUserId(assigneeID);
+//            } catch (InvalidInputException e) {
+//                DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
+//                return;
+//            }
         }
 
         // Description
