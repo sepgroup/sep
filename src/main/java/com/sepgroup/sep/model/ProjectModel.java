@@ -382,6 +382,9 @@ public class ProjectModel extends AbstractModel {
 
     @Override
     public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
         if (!(obj instanceof ProjectModel)) {
             return false;
         }

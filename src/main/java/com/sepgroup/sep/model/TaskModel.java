@@ -147,15 +147,66 @@ public class TaskModel extends AbstractModel {
     }
 
     /**
-     * Add a task dependency to this task
+     * Add a task dependency to this task.
+     * Will not be added if it was already present in the list.
      * @param task task on which this task is dependent
-     * @return true if the task was not already in the list of dependencies
+     * @return true if the task was added to the list of dependencies, false if it was not added
      */
-    public boolean addDependency(TaskModel task) {
-        if (dependencies.stream().noneMatch((t) -> t.equals(task))) {
+    public void addDependency(TaskModel task) throws TaskDependencyException {
+        // Don't add dependency to itself
+        if (task.equals(this)) {
+            throw new TaskDependencyException("A task dependency cannot be added to itself.");
+        }
+        // Don't add dependency if it already exists
+        else if (dependencies.stream().anyMatch(task::equals)) {
+            throw new TaskDependencyException("Dependency from task " + this.getTaskId() + " to task "
+                    + task.getTaskId() + " already exists.");
+        }
+        // Don't add dependency if it creates a cycle
+        else if (hasDependencyCycle(task)) {
+            throw new TaskDependencyException("Adding dependency to task " + task.getTaskId()
+                    + " creates a dependency cycle.");
+        }
+        // Add dependency if none of the above conditions are met
+        else {
             dependencies.add(task);
+        }
+    }
+
+    private void internalAddDependency(TaskModel task) {
+        try {
+            addDependency(task);
+        } catch (TaskDependencyException e) {
+            throw new RuntimeException("Task dependency error", e);
+        }
+    }
+
+    /**
+     * Checks if adding the given task as a dependency to this task would create a dependency cycle.
+     * @param task the given task
+     * @return true if adding the given task as a dependency to this task would create a dependency cycle, false if not
+     */
+    private boolean hasDependencyCycle(TaskModel task) {
+        try {
+            task.refreshData();
+        } catch (ModelNotFoundException e) {
+            logger.error("Task not found in DB when refreshing data, it has probably been deleted since.");
+            return false;
+        }
+        List<TaskModel> taskDependencies = task.getDependencies();
+        if (taskDependencies.isEmpty()) {
+            return false;
+        }
+        else if (taskDependencies.stream().anyMatch(this::equals)) {
             return true;
-        } else {
+        }
+        else {
+            // Recusrive call
+            for (TaskModel t : taskDependencies) {
+                if (hasDependencyCycle(t)) {
+                    return true;
+                }
+            }
             return false;
         }
     }
@@ -170,20 +221,20 @@ public class TaskModel extends AbstractModel {
     }
 
     @Override
-    public void refreshData() throws ModelNotFoundException, InvalidInputException {
+    public void refreshData() throws ModelNotFoundException {
         TaskModel refreshed = getById(getTaskId());
 
-        setTaskId(refreshed.getTaskId());
-        setName(refreshed.getName());
-        setDescription(refreshed.getDescription());
-        setProjectId(refreshed.getProjectId());
-        setBudget(refreshed.getBudget());
-        setStartDate(refreshed.getStartDate());
-        setDeadline(refreshed.getDeadline());
-        setDone(refreshed.isDone());
-        setAssignee(refreshed.getAssignee());
-        setTags(refreshed.getTags());
-        setDependencies(refreshed.getDependencies());
+        this.name = refreshed.getName();
+        this.description = refreshed.getDescription();
+        this.projectId = refreshed.getProjectId();
+        this.budget = CurrencyUtils.roundToTwoDecimals(refreshed.getBudget());
+        this.startDate = refreshed.getStartDate();
+        this.deadline = refreshed.getDeadline();
+        this.done = refreshed.isDone();
+        this.assignee = refreshed.getAssignee();
+        this.tags = refreshed.getTags();
+        this.taskId = refreshed.getTaskId();
+        this.dependencies = refreshed.getDependencies();
 
         updateObservers();
     }
@@ -216,7 +267,7 @@ public class TaskModel extends AbstractModel {
         return new TaskModel().dbo.findAll();
     }
 
-    public static TaskModel getById(int taskId) throws ModelNotFoundException, InvalidInputException {
+    public static TaskModel getById(int taskId) throws ModelNotFoundException {
         return new TaskModel().dbo.findById(taskId);
     }
 
@@ -238,7 +289,7 @@ public class TaskModel extends AbstractModel {
         return getAllByAssignee(assignee.getUserId());
     }
 
-    public static void cleanData()throws DBException{
+    public static void cleanData() throws DBException{
         new TaskModel().dbo.clean();
     }
 
@@ -476,8 +527,7 @@ public class TaskModel extends AbstractModel {
             throw new InvalidInputException("User ID must be a positive integer");
         }
         else {
-            UserModel assignee = UserModel.getById(assigneeUserId);
-            this.assignee = assignee;
+            this.assignee = UserModel.getById(assigneeUserId);
         }
     }
 
@@ -505,7 +555,7 @@ public class TaskModel extends AbstractModel {
 
     public void addTagsFromString(String tagsString) {
         // TODO filter chars
-        getTagsListFromString(tagsString).forEach(t -> addTag(t));
+        getTagsListFromString(tagsString).forEach(this::addTag);
     }
 
     public void removeTag(String tag) {
@@ -521,7 +571,7 @@ public class TaskModel extends AbstractModel {
         if (getDeadline() != null) deadlineStr = DateUtils.castDateToString(getDeadline());
         if (getAssignee() != null) assigneeStr = getAssignee().toString();
         String tagsStr = getTags().stream().collect(Collectors.joining(" "));
-        String dependenciesStr = getDependencies().stream().map(t -> t.getName()).collect(Collectors.joining(", "));
+        String dependenciesStr = getDependencies().stream().map(TaskModel::getName).collect(Collectors.joining(", "));
 
         return "Task ID: " + getTaskId() + ", name: " + getName() + ", description: " + getDescription() +
                 ", project ID: " + getProjectId() + ", budget: " + getBudget() + ", start date: " + startDateStr +
@@ -531,6 +581,9 @@ public class TaskModel extends AbstractModel {
 
     @Override
     public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
         if (!(obj instanceof TaskModel)) {
             return false;
         }
@@ -565,9 +618,9 @@ public class TaskModel extends AbstractModel {
         if (!equalsNullable(other.getTags(), getTags())) {
             return false;
         }
-        if (!equalsNullable(other.getDependencies(), getDependencies())) {
-            return false;
-        }
+//        if (!equalsNullable(other.getDependencies(), getDependencies())) {
+//            return false;
+//        }
 
         return true;
     }
@@ -776,7 +829,7 @@ public class TaskModel extends AbstractModel {
             List<TaskModel> tasks = runMultiResultQuery(sql);
             for (TaskModel t : tasks) {
                 List<TaskModel> dependencies = findTaskDependencies(t);
-                dependencies.forEach(t::addDependency);
+                dependencies.forEach(t::internalAddDependency);
             }
             return tasks;
         }
@@ -796,20 +849,31 @@ public class TaskModel extends AbstractModel {
          * @return the dependencies of the taskModel
          */
         public List<TaskModel> findTaskDependencies(int taskId) {
-            StringBuilder sql = new StringBuilder();
-            sql.append("SELECT * FROM " + TABLE_NAME + " ");
-            sql.append("LEFT JOIN " + UserModel.UserModelDBObject.TABLE_NAME + " ");
-            sql.append("ON " + UserModel.UserModelDBObject.TABLE_NAME + "." +
+            String sql = "SELECT * FROM " + TABLE_NAME + " ";
+            sql += "LEFT JOIN " + UserModel.UserModelDBObject.TABLE_NAME + " ";
+            sql += "ON " + UserModel.UserModelDBObject.TABLE_NAME + "." +
                     UserModel.UserModelDBObject.USER_ID_COLUMN + "=" + TABLE_NAME + "." + ASSIGNEE_USER_ID_COLUMN
-                    + " ");
-            sql.append("INNER JOIN " + DEPENDENCIES_TABLE_NAME + " ");
-            sql.append("ON " + TABLE_NAME + "." + TASK_ID_COLUMN + "=" + DEPENDENCIES_TABLE_NAME + "." +
-                    DEPENDENCIES_DEPENDS_ON_TASK_COLUMN + " ");
-            sql.append("WHERE " + DEPENDENCIES_TABLE_NAME + "." + DEPENDENCIES_MAIN_TASK_COLUMN + "=" + taskId + ";");
-            logger.debug("Query: " + sql.toString());
+                    + " ";
+            sql += "WHERE " + TABLE_NAME + "." + TASK_ID_COLUMN + " in( ";
+            sql += "SELECT " + DEPENDENCIES_TABLE_NAME + "." + DEPENDENCIES_DEPENDS_ON_TASK_COLUMN + " ";
+            sql += "FROM " + DEPENDENCIES_TABLE_NAME + " ";
+            sql += "WHERE " + DEPENDENCIES_TABLE_NAME + "." + DEPENDENCIES_MAIN_TASK_COLUMN + "=" + taskId + ");";
+//            sql.append("INNER JOIN " + DEPENDENCIES_TABLE_NAME + " ");
+//            sql.append("ON " + TABLE_NAME + "." + TASK_ID_COLUMN + "=" + DEPENDENCIES_TABLE_NAME + "." +
+//                    DEPENDENCIES_DEPENDS_ON_TASK_COLUMN + " ");
+//            sql.append("WHERE " + DEPENDENCIES_TABLE_NAME + "." + DEPENDENCIES_MAIN_TASK_COLUMN + "=" + taskId + ";");
+            logger.debug("Query: " + sql);
+
+            // TODO FIX BROKEN QUERY
 
             try {
-                return runMultiResultQuery(sql.toString());
+//                return runMultiResultQuery(sql.toString());
+                List<TaskModel> tasks = runMultiResultQuery(sql);
+                for (TaskModel t : tasks) {
+                    List<TaskModel> dependencies = findTaskDependencies(t);
+                    dependencies.forEach(t::internalAddDependency);
+                }
+                return tasks;
             } catch (ModelNotFoundException e) {
                 logger.debug("No task dependencies found for task with ID " + taskId);
             }
@@ -817,7 +881,7 @@ public class TaskModel extends AbstractModel {
         }
 
         @Override
-        public TaskModel findById(int taskId) throws ModelNotFoundException, InvalidInputException {
+        public TaskModel findById(int taskId) throws ModelNotFoundException {
             StringBuilder sql = new StringBuilder();
             sql.append("SELECT * ");
             sql.append("FROM " + getTableName() + " ");
@@ -829,7 +893,7 @@ public class TaskModel extends AbstractModel {
             logger.debug("Query: " + sql.toString());
 
             TaskModel t = runSingleResultQuery(sql.toString());
-            findTaskDependencies(t).forEach(t::addDependency);
+            findTaskDependencies(t).forEach(t::internalAddDependency);
 
             return t;
         }
@@ -848,7 +912,7 @@ public class TaskModel extends AbstractModel {
             List<TaskModel> tasks = runMultiResultQuery(sql.toString());
             for (TaskModel t : tasks) {
                 List<TaskModel> dependencies = findTaskDependencies(t);
-                dependencies.forEach(t::addDependency);
+                dependencies.forEach(t::internalAddDependency);
             }
 
             return tasks;
@@ -867,7 +931,7 @@ public class TaskModel extends AbstractModel {
             List<TaskModel> tasks = runMultiResultQuery(sql.toString());
             for (TaskModel t : tasks) {
                 List<TaskModel> dependencies = findTaskDependencies(t);
-                dependencies.forEach(t::addDependency);
+                dependencies.forEach(t::internalAddDependency);
             }
 
             return tasks;
@@ -878,7 +942,7 @@ public class TaskModel extends AbstractModel {
             List<TaskModel> tasks = runMultiResultQuery(sql);
             for (TaskModel t : tasks) {
                 List<TaskModel> dependencies = findTaskDependencies(t);
-                dependencies.forEach(t::addDependency);
+                dependencies.forEach(t::internalAddDependency);
             }
             return tasks;
         }

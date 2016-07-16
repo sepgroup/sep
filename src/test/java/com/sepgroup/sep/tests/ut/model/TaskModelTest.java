@@ -178,6 +178,32 @@ public class TaskModelTest {
     }
 
     @Test
+    public void testAddDependency() throws Exception {
+        TaskModel t1 = new TaskModel("T1", "D1", createdProject.getProjectId());
+        TaskModel t2 = new TaskModel("T2", "D2", createdProject.getProjectId());
+        t1.persistData();
+        t2.persistData();
+
+        t1.addDependency(t2);
+
+        assertTrue(t1.getDependencies().contains(t2));
+    }
+
+    @Test(expected = TaskDependencyException.class)
+    public void testAddSelfAsDependency() throws Exception {
+        TaskModel t1 = new TaskModel("T1", "D1", createdProject.getProjectId());
+        t1.addDependency(t1);
+    }
+
+    @Test(expected = TaskDependencyException.class)
+    public void testAddExistingDependency() throws Exception {
+        TaskModel t1 = new TaskModel("T1", "D1", createdProject.getProjectId());
+        TaskModel t2 = new TaskModel("T2", "D2", createdProject.getProjectId());
+        t1.addDependency(t2);
+        t1.addDependency(t2);
+    }
+
+    @Test
     public void testCreateWithDependencies() throws Exception {
         // Create tasks
         TaskModel t1 = new TaskModel("T1", "D1", createdProject.getProjectId());
@@ -334,6 +360,60 @@ public class TaskModelTest {
         assertTrue(tasksByAssignee.contains(t2));
         assertFalse(tasksByAssignee.contains(t3));
         assertFalse(tasksByAssignee.contains(t4));
+    }
+
+    @Test(expected = TaskDependencyException.class)
+    public void testDetectDependencyCycleActiveModels() throws Exception {
+        TaskModel t1 = new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 10000, defaultStartDate,
+                defaultDeadline, false, createdUser);
+        TaskModel t2 = new TaskModel("T2", "Description of\n T2", createdProject.getProjectId(), 10000, defaultStartDate,
+                defaultDeadline, false, createdUser);
+        TaskModel t3 = new TaskModel("T3", "Description of\n T3", createdProject.getProjectId(), 10000, defaultStartDate,
+                defaultDeadline, false, createdUser);
+        t1.persistData();
+        t2.persistData();
+        t3.persistData();
+
+        t1.addDependency(t2);
+        t1.persistData();
+
+        t2.addDependency(t3);
+        t2.persistData();
+
+        t3.addDependency(t1);
+    }
+
+    @Test(expected = TaskDependencyException.class)
+    public void testDetectDependencyCycleFetchFromDb() throws Exception {
+        TaskModel t1 = new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 10000, defaultStartDate,
+                defaultDeadline, false, createdUser);
+        TaskModel t2 = new TaskModel("T2", "Description of\n T2", createdProject.getProjectId(), 10000, defaultStartDate,
+                defaultDeadline, false, createdUser);
+        TaskModel t3 = new TaskModel("T3", "Description of\n T3", createdProject.getProjectId(), 10000, defaultStartDate,
+                defaultDeadline, false, createdUser);
+        t1.persistData();
+        t2.persistData();
+        t3.persistData();
+
+        t1.addDependency(t2);
+        t1.persistData();
+
+        try {
+            t2 = TaskModel.getById(2);
+        } catch (ModelNotFoundException e) {
+            fail(e.getMessage());
+        }
+
+        t2.addDependency(t3);
+        t2.persistData();
+
+        try {
+            t3 = TaskModel.getById(3);
+        } catch (ModelNotFoundException e) {
+            fail(e.getMessage());
+        }
+
+        t3.addDependency(t1);
     }
 
     @Ignore
