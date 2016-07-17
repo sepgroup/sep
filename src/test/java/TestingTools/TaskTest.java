@@ -20,11 +20,6 @@ public class TaskTest {
     TaskModel[] tasksIn, tasksOut;
     boolean[] hasValidName, hasValidDescription, hasValidBudget, hasValidProjectID, hasValidDatePair, hasValidUserID, isValid;
 
-    @BeforeClass
-    public static void setUpBeforeMethod() throws Exception {
-        ConfigFactory.setProperty("configPath", DatabaseTest.class.getResource("/test-db.properties").getFile());
-    }
-
     @Ignore
     @Test
     public void test() {

@@ -36,7 +36,6 @@ public class ProjectModelTest {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        ConfigFactory.setProperty("configPath", ProjectModelTest.class.getResource("/test-db.properties").getFile());
         SepUserStorage.createDBTablesIfNotExisting();
     }
 
