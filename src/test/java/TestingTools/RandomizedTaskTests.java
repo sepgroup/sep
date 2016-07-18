@@ -18,7 +18,7 @@ import static org.junit.Assert.*;
  *  Integration test to ensure correct task generation with randomized data
  *  TODO fix this
  */
-public class TaskIntegrationTest {
+public class RandomizedTaskTests {
     TaskModel[] tasksIn, tasksOut;
     boolean[] hasValidName, hasValidDescription, hasValidBudget, hasValidProjectID, hasValidDatePair, hasValidUserID, isValid;
 

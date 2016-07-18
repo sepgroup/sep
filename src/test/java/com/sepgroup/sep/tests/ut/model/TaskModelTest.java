@@ -69,7 +69,7 @@ public class TaskModelTest {
          */
         TaskModel t1 = new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 20000,
                 defaultStartDate, defaultDeadline, false, createdUser);
-        TaskModel t2 = new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 10000,
+        TaskModel t2 = new TaskModel("T2", "Description of\n T2", createdProject.getProjectId(), 10000,
                 defaultStartDate, defaultDeadline, false, createdUser);
 
         assertThat(t1, not(equalTo(t2)));
@@ -443,4 +443,241 @@ public class TaskModelTest {
     public void testGetLastInsertedId() throws Exception {
         // TODO
     }
+
+    //Auto-generated stubs for function unit-tests
+
+    @Test
+    public void getDependencies() throws Exception {
+
+    }
+
+    @Test
+    public void addDependency() throws Exception {
+
+    }
+
+    @Test
+    public void removeDependency() throws Exception {
+
+    }
+
+    @Test
+    public void refreshData() throws Exception {
+
+    }
+
+    @Test
+    public void persistData() throws Exception {
+
+    }
+
+    @Test
+    public void deleteData() throws Exception {
+
+    }
+
+    @Test
+    public void getAll() throws Exception {
+
+    }
+
+    @Test
+    public void getById() throws Exception {
+
+    }
+
+    @Test
+    public void getAllByProject() throws Exception {
+
+    }
+
+    @Test
+    public void getAllByProject1() throws Exception {
+
+    }
+
+    @Test
+    public void getAllByAssignee() throws Exception {
+
+    }
+
+    @Test
+    public void getAllByAssignee1() throws Exception {
+
+    }
+
+    @Test
+    public void cleanData() throws Exception {
+
+    }
+
+    @Test
+    public void createTable() throws Exception {
+
+    }
+
+    @Test
+    public void getTaskId() throws Exception {
+
+    }
+
+    @Test
+    public void getName() throws Exception {
+
+    }
+
+    @Test
+    public void setName() throws Exception {
+
+    }
+
+    @Test
+    public void getDescription() throws Exception {
+
+    }
+
+    @Test
+    public void setDescription() throws Exception {
+
+    }
+
+    @Test
+    public void getProjectId() throws Exception {
+
+    }
+
+    @Test
+    public void setProjectId() throws Exception {
+
+    }
+
+    @Test
+    public void getBudget() throws Exception {
+
+    }
+
+    @Test
+    public void setBudget() throws Exception {
+
+    }
+
+    @Test
+    public void getStartDate() throws Exception {
+
+    }
+
+    @Test
+    public void getStartDateString() throws Exception {
+
+    }
+
+    @Test
+    public void setStartDate() throws Exception {
+
+    }
+
+    @Test
+    public void setStartDate1() throws Exception {
+
+    }
+
+    @Test
+    public void removeStartDate() throws Exception {
+
+    }
+
+    @Test
+    public void getDeadline() throws Exception {
+
+    }
+
+    @Test
+    public void getDeadlineString() throws Exception {
+
+    }
+
+    @Test
+    public void setDeadline() throws Exception {
+
+    }
+
+    @Test
+    public void setDeadline1() throws Exception {
+
+    }
+
+    @Test
+    public void removeDeadline() throws Exception {
+
+    }
+
+    @Test
+    public void isDone() throws Exception {
+
+    }
+
+    @Test
+    public void setDone() throws Exception {
+
+    }
+
+    @Test
+    public void getAssignee() throws Exception {
+
+    }
+
+    @Test
+    public void setAssignee() throws Exception {
+
+    }
+
+    @Test
+    public void removeAssignee() throws Exception {
+
+    }
+
+    @Test
+    public void setAssignee1() throws Exception {
+
+    }
+
+    @Test
+    public void getTags() throws Exception {
+
+    }
+
+    @Test
+    public void setTags() throws Exception {
+
+    }
+
+    @Test
+    public void getTagsString() throws Exception {
+
+    }
+
+    @Test
+    public void addTag() throws Exception {
+
+    }
+
+    @Test
+    public void addTagsFromString() throws Exception {
+
+    }
+
+    @Test
+    public void removeTag() throws Exception {
+
+    }
+
+    @Test
+    public void equals() throws Exception {
+
+    }
+
+
+
+
+
 }

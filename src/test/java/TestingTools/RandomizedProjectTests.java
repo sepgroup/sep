@@ -26,8 +26,9 @@ import static org.junit.Assert.*;
  * Integration test to ensure correct project generation with randomized data
  * TODO fix this
  */
+@Ignore
 @RunWith(Parameterized.class)
-public class ProjectIntegrationTest {
+public class RandomizedProjectTests {
     private static ProjectModel[] projectsIn;
     private static ProjectModel[] projectsOut;
     private static boolean[] hasValidDatePair;
@@ -76,7 +77,7 @@ public class ProjectIntegrationTest {
     private static void instantiateProject() throws InvalidInputException, DBException{
         /**
          * Initializes variables relevant for project test. These are all initialized at the start of
-         * ProjectIntegrationTest
+         * RandomizedProjectTests
          */
 
         createdManager = new UserModel("FIRST", "MANAGER", 100.00);
@@ -132,41 +133,8 @@ public class ProjectIntegrationTest {
     }
 
 
-    private void generateDatePair()
+    private Pair<Date> generateDatePair(boolean hasValidDatePair[])
     {
-
-    }
-
-    @Test
-    public void projectGenerationTest() throws Exception {
-        /**
-         * Assigns randomly generated values to the project
-         */
-
-//        try {
-//
-//        }
-//        catch (Exception e) {
-//            System.out.println("Failure instantiating project variables, ");
-//            throw e;
-//        }
-
-
-        Random random = new Random();
-        int passCount = 0;
-
-
-        /**
-         * FIX AFTER HERE
-         */
-        //TODO figure out why this is random - generating expected result?
-        hasValidDatePair[testNumber] = random.nextBoolean();
-        hasValidName[testNumber] = random.nextBoolean();
-        hasValidDescription[testNumber] = random.nextBoolean();
-        hasValidBudget[testNumber] = random.nextBoolean();
-
-
-        //Generates a random date pair
         Pair<Date> dates = null;
         try {
             dates = RandomDateBuilder.randomDatePair(hasValidDatePair[testNumber]);
@@ -174,22 +142,94 @@ public class ProjectIntegrationTest {
             System.out.println("Error with test framework while trying to generate random date pair");
 //            throws e;
         }
-        Date ds = dates.first;
-        Date de = dates.second;
+        return dates;
+    }
 
+    private void printAssignedValues(String name, Date sd, Date dl, double budget, boolean done, UserModel managerUserId,
+                                     String projectDescription)
+    {
 
-        //
-        String name = RandomStringBuilder.randomString(hasValidName[testNumber]? random.nextInt(399) + 1 : 0);
+    }
 
+    private void printStoredValues()
+    {
+        System.out.println("Current test number is: " + testNumber);
 
+        System.out.println("Name: " + projectsIn[testNumber].getName());
+        System.out.println("Date start: " +  projectsIn[testNumber].getStartDate());
+        System.out.println("Date end: " +  projectsIn[testNumber].getDeadline());
+        System.out.println("Budget: " + projectsIn[testNumber].getBudget());
+        System.out.println("Done: " + projectsIn[testNumber].isDone());
+        System.out.println("ID: " + projectsIn[testNumber].getProjectId());
+        System.out.println("Description: " + projectsIn[testNumber].getProjectDescription() + "\n");
+    }
 
-        double budget = hasValidBudget[testNumber]? Math.random() * 10000000 : -Math.random() * 10000000;
+    @Ignore
+    @Test
+    public void projectGenerationTest() throws Exception {
+        /**
+         * Assigns randomly generated values to the project
+         */
+
+        Random random = new Random();
+        int passCount = 0;
+
+        hasValidDatePair[testNumber] = random.nextBoolean();
+        hasValidName[testNumber] = random.nextBoolean();
+        hasValidDescription[testNumber] = random.nextBoolean();
+        hasValidBudget[testNumber] = random.nextBoolean();
+
+        String name = null;
+        Date ds = null;
+        Date de = null;
+        double budget = 0.0;
         boolean done = random.nextBoolean();
+        try {
+            //Generates a random date pair based on the randomized boolean value
+            Pair<Date> dates = generateDatePair(hasValidDatePair);
+            ds = dates.first;
+            de = dates.second;
 
-        int managerID = random.nextInt(20) - 10;
+            //Generates random string for the description. Assumes the name should be no more than 50 characters
+            name = RandomStringBuilder.randomString(hasValidName[testNumber]? random.nextInt(50) + 1 : 0);
+
+            //Generate random budget based on randomized boolean value
+            budget = hasValidBudget[testNumber]? Math.random() * 10000000 : -Math.random() * 10000000;
+
+            //TODO check reason for this
+            //Generates random managerID
+            int managerID = random.nextInt(20) - 10;
+            hasValidManager[testNumber] = true;
+            //printAssignedValues(name, ds, de, budget, done, createdManager, description);
+
+        }
+        catch (Exception e) {
+            System.out.println("Failure instantiating project variables, ");
+            throw e;
+        }
 
 
-        hasValidManager[testNumber] = true;
+        //Randomizes the description of the project
+        String description = RandomStringBuilder.randomString(hasValidDescription[testNumber]? random.nextInt(999) + 1 : 0);
+
+        //Create a new project with randomized data
+        try {
+            projectsIn[testNumber] = new ProjectModel(name, ds, de, budget, done, createdManager, description);
+            projectsIn[testNumber].persistData();
+        } catch (DBException e) {
+            System.out.println(e.getLocalizedMessage());
+        } catch (InvalidInputException e) {
+            System.err.println(e.getLocalizedMessage());
+        }
+
+
+
+        /**
+         * FIX AFTER HERE
+         */
+
+
+
 
 //            try {
 //                hasValidManager[testNumber] = UserModel.getById(managerID) != null;
@@ -198,21 +238,9 @@ public class ProjectIntegrationTest {
 //                hasValidManager[testNumber] = false;
 //            }
 
-            String description = RandomStringBuilder.randomString(hasValidDescription[testNumber]? random.nextInt(999) + 1 : 0);
-
-
-            try {
-                projectsIn[testNumber] = new ProjectModel(name, ds, de, budget, done, createdUser, description);
-                projectsIn[testNumber].persistData();
-            } catch (DBException e) {
-                System.out.println(e.getLocalizedMessage());
-            } catch (InvalidInputException e) {
-                System.err.println(e.getLocalizedMessage());
-            }
 
         System.out.println("Current test number is: " + testNumber);
 
-        System.out.println("TEST ITERATION : " + testNumber);
         System.out.println("Name: " + projectsIn[testNumber].getName());
         System.out.println("Date start: " +  projectsIn[testNumber].getStartDate());
         System.out.println("Date end: " +  projectsIn[testNumber].getDeadline());
