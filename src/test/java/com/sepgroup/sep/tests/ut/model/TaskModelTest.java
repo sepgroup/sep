@@ -415,6 +415,17 @@ public class TaskModelTest {
         t3.addDependency(t1);
     }
 
+    @Test
+    public void testSetNameFiltersNewlines() throws Exception {
+        TaskModel t = new TaskModel();
+
+        t.setName("Hello\nWorld");
+        assertThat(t.getName(), equalTo("Hello World"));
+
+        t.setName("Monty\t\rPython");
+        assertThat(t.getName(), equalTo("Monty  Python"));
+    }
+
     @Ignore
     @Test
     public void testGetLastInsertedId() throws Exception {

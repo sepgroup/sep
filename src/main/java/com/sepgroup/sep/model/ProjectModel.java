@@ -183,7 +183,8 @@ public class ProjectModel extends AbstractModel {
         if (name.length() > 50) {
             throw new InvalidInputException("Name must not be longer than 50 characters.");
         }
-		this.name = name;
+
+		this.name = name.replaceAll("(\\r|\\n|\\t)", " "); // Replace newlines with spaces
 	}
 
     /**

@@ -179,4 +179,15 @@ public class ProjectModelTest {
         assertTrue(p1.equals(p2));
 
     }
+
+    @Test
+    public void testSetNameFiltersNewlines() throws Exception {
+        ProjectModel p = new ProjectModel();
+
+        p.setName("Hello\nWorld");
+        assertThat(p.getName(), equalTo("Hello World"));
+
+        p.setName("Monty\t\rPython");
+        assertThat(p.getName(), equalTo("Monty  Python"));
+    }
 }

@@ -331,11 +331,10 @@ public class TaskModel extends AbstractModel {
      * @throws InvalidInputException
      */
     public void setName(String name) throws InvalidInputException {
-        name = name.replaceAll("\\n", " "); // Replace newlines with spaces
         if (name.length() > 50) {
             throw new InvalidInputException("Name cannot be longer than 50 characters.");
         }
-        this.name = name;
+        this.name = name.replaceAll("(\\r|\\n|\\t)", " "); // Replace tabs/newlines with spaces
     }
 
     /**
