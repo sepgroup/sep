@@ -15,6 +15,11 @@ public class DBConfigTest {
 
     private static String expectedActiveDBPath = "test.db";
 
+    @BeforeClass
+    public static void setUpBeforeClass() {
+        ConfigFactory.setProperty("configPath", "db.properties");
+    }
+
     @Test
     public void testGetActiveDbPath() {
         DBConfig c = ConfigFactory.create(DBConfig.class);
