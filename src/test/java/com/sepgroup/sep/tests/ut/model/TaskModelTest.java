@@ -22,6 +22,8 @@ import static org.junit.Assert.fail;
  */
 public class TaskModelTest {
 
+    //Setup
+
     private static Date defaultStartDate = new Date();
     private static Date defaultDeadline = new Date(System.currentTimeMillis() + 9999*9999);
 
@@ -49,143 +51,25 @@ public class TaskModelTest {
         SepUserStorage.dropAllDBTables();
     }
 
-    @Test
-    public void testEquals() throws Exception {
-        /**
-         * Tests that creating two seperate objects with the same values are equivalent
-         */
-        TaskModel t1 = new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 10000,
-                defaultStartDate, defaultDeadline, false, createdUser);
-        TaskModel t2 = new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 10000,
-                defaultStartDate, defaultDeadline, false, createdUser);
 
-        assertThat(t1, equalTo(t2));
+    //Unit Tests
+
+
+
+
+    @Ignore
+    @Test
+    public void testGetLastInsertedId() throws Exception {
+        // TODO
     }
 
-    @Test
-    public void testNotEqual() throws Exception {
-        /**
-         * Tests that creating different objects leads to an inequality
-         */
-        TaskModel t1 = new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 20000,
-                defaultStartDate, defaultDeadline, false, createdUser);
-        TaskModel t2 = new TaskModel("T2", "Description of\n T2", createdProject.getProjectId(), 10000,
-                defaultStartDate, defaultDeadline, false, createdUser);
-
-        assertThat(t1, not(equalTo(t2)));
-    }
+    //********************************************
+    //Auto-generated stubs for function unit-tests
+    //********************************************
 
     @Test
-    public void testPersistData() throws Exception {
-        /**
-         * Tests persistence to ensure that objects can be stored and loaded
-         */
-        TaskModel createdTask = new TaskModel("TX", "Description of\n TX", createdProject.getProjectId(), 10000,
-                defaultStartDate, defaultDeadline, false, createdUser);
-        createdTask.persistData();
-        int tId = createdTask.getTaskId();
+    public void getDependencies() throws Exception {
 
-        TaskModel fetchedTask = null;
-        try {
-            fetchedTask = TaskModel.getById(tId);
-        } catch (ModelNotFoundException e) {
-            fail(e.getMessage());
-        }
-        assertThat(fetchedTask, equalTo(createdTask));
-    }
-
-    @Test
-    public void testPersistDataWithTaskDependencies() throws Exception {
-        /**
-         * Tests persistence for task dependencies in particular to ensure that objects can be stored and loaded
-         */
-        TaskModel createdTask1 = new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 10000,
-                defaultStartDate, defaultDeadline, false, createdUser);
-        createdTask1.persistData();
-
-        TaskModel createdTask2 = new TaskModel("T2", "Description of\n TX2", createdProject.getProjectId(), 10000,
-                defaultStartDate, defaultDeadline, false, createdUser);
-        createdTask2.addDependency(createdTask1);
-        createdTask2.persistData();
-        int t2Id = createdTask2.getTaskId();
-
-        TaskModel fetchedTask2 = null;
-        try {
-            fetchedTask2 = TaskModel.getById(t2Id);
-        } catch (ModelNotFoundException e) {
-            fail(e.getMessage());
-        }
-        assertThat(fetchedTask2, equalTo(createdTask2));
-    }
-
-    @Test
-    public void testRefreshData() throws Exception {
-        // Create task
-        TaskModel createdTask = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId(), 10000,
-                defaultStartDate, defaultDeadline, false, createdUser);
-        createdTask.persistData();
-        int tId = createdTask.getTaskId();
-
-        // Fetch project
-        TaskModel fetchedTask = null;
-        try {
-            fetchedTask = TaskModel.getById(tId);
-        } catch (ModelNotFoundException e) {
-            fail(e.getMessage());
-        }
-
-        // Modify & persist project
-        fetchedTask.setName("Task Task D :D");
-        fetchedTask.setBudget(0);
-        fetchedTask.setDescription(".. budget was cut...");
-        fetchedTask.setDone(true);
-        fetchedTask.persistData();
-
-        // Refresh first project instance
-        createdTask.refreshData();
-
-        assertThat(createdTask, equalTo(fetchedTask));
-    }
-
-    @Test(expected = ModelNotFoundException.class)
-    public void testDeleteData() throws Exception {
-        // Create user
-        TaskModel t = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId(), 10000,
-                defaultStartDate, defaultDeadline, false, createdUser);
-        t.persistData();
-        int tId = t.getTaskId();
-
-        // Delete project
-        t.deleteData();
-
-        // Attempt to fetch project
-        TaskModel.getById(tId);
-    }
-
-    @Test
-    public void testGetAll() throws Exception {
-        new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 10000, defaultStartDate,
-                defaultDeadline, false, createdUser).persistData();
-        new TaskModel("T2", "Description of\n T2", createdProject.getProjectId(), 20000, defaultStartDate,
-                defaultDeadline, false, createdUser).persistData();
-        List<TaskModel> taskList = TaskModel.getAll();
-
-        assertThat(taskList.size(), isA(Integer.class));
-        assertThat(taskList.size(), not(0));
-    }
-
-    @Test
-    public void testGetById() throws Exception {
-        // Create task
-        TaskModel createdTask  = new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 10000,
-                defaultStartDate, defaultDeadline, false, createdUser);
-        createdTask.persistData();
-        int tId = createdTask.getTaskId();
-
-        // Fetch same task
-        TaskModel fetchedTask = TaskModel.getById(tId);
-
-        assertThat(fetchedTask, equalTo(createdTask));
     }
 
     @Test
@@ -313,64 +197,82 @@ public class TaskModelTest {
         assertTrue(!t3Dependencies.contains(t1));
     }
 
-    @Test(expected = InvalidInputException.class)
-    public void testSetDeadlineNotBeforeStartDate() throws Exception {
-        TaskModel createdTask = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId());
-        createdTask.setStartDate(defaultDeadline);
-        createdTask.setDeadline(defaultStartDate);
-    }
+    //TODO
+    @Test
+    public void removeDependency() throws Exception {
 
-    @Test(expected = InvalidInputException.class)
-    public void testSetStartDateNotAfterDeadline() throws Exception {
-        TaskModel createdTask = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId());
-        createdTask.setDeadline(defaultStartDate);
-        createdTask.setStartDate(defaultDeadline);
-    }
-
-    @Test(expected = InvalidInputException.class)
-    public void testSetNegativeBudget() throws Exception {
-        TaskModel createdTask = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId());
-        createdTask.setBudget(-100.0);
     }
 
     @Test
-    public void testSetBudget() throws Exception {
-        double budget = 100034.44;
-        TaskModel createdTask = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId());
-        createdTask.setBudget(budget);
+    public void testRefreshData() throws Exception {
+        // Create task
+        TaskModel createdTask = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId(), 10000,
+                defaultStartDate, defaultDeadline, false, createdUser);
+        createdTask.persistData();
+        int tId = createdTask.getTaskId();
 
-        assertThat(createdTask.getBudget(), equalTo(budget));
+        // Fetch project
+        TaskModel fetchedTask = null;
+        try {
+            fetchedTask = TaskModel.getById(tId);
+        } catch (ModelNotFoundException e) {
+            fail(e.getMessage());
+        }
+
+        // Modify & persist project
+        fetchedTask.setName("Task Task D :D");
+        fetchedTask.setBudget(0);
+        fetchedTask.setDescription(".. budget was cut...");
+        fetchedTask.setDone(true);
+        fetchedTask.persistData();
+
+        // Refresh first project instance
+        createdTask.refreshData();
+
+        assertThat(createdTask, equalTo(fetchedTask));
     }
 
-    @Ignore
     @Test
-    public void testGetAllByProject() throws Exception {
-        // TODO
-        assertTrue(false);
+    public void testPersistData() throws Exception {
+        /**
+         * Tests persistence to ensure that objects can be stored and loaded
+         */
+        TaskModel createdTask = new TaskModel("TX", "Description of\n TX", createdProject.getProjectId(), 10000,
+                defaultStartDate, defaultDeadline, false, createdUser);
+        createdTask.persistData();
+        int tId = createdTask.getTaskId();
+
+        TaskModel fetchedTask = null;
+        try {
+            fetchedTask = TaskModel.getById(tId);
+        } catch (ModelNotFoundException e) {
+            fail(e.getMessage());
+        }
+        assertThat(fetchedTask, equalTo(createdTask));
     }
 
     @Test
-    public void testGetAllByUser() throws Exception {
-        // Create tasks
-        TaskModel t1 = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId(), 10000, defaultStartDate,
-                defaultDeadline, false, createdUser);
-        TaskModel t2 = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId(), 10000, defaultStartDate,
-                defaultDeadline, false, createdUser);
-        TaskModel t3 = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId(), 10000, defaultStartDate,
-                defaultDeadline, false, null);
-        TaskModel t4 = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId(), 10000, defaultStartDate,
-                defaultDeadline, false, null);
-        t1.persistData();
-        t2.persistData();
-        t3.persistData();
-        t4.persistData();
+    public void testPersistDataWithTaskDependencies() throws Exception {
+        /**
+         * Tests persistence for task dependencies in particular to ensure that objects can be stored and loaded
+         */
+        TaskModel createdTask1 = new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 10000,
+                defaultStartDate, defaultDeadline, false, createdUser);
+        createdTask1.persistData();
 
-        List<TaskModel> tasksByAssignee = TaskModel.getAllByAssignee(createdUser);
+        TaskModel createdTask2 = new TaskModel("T2", "Description of\n TX2", createdProject.getProjectId(), 10000,
+                defaultStartDate, defaultDeadline, false, createdUser);
+        createdTask2.addDependency(createdTask1);
+        createdTask2.persistData();
+        int t2Id = createdTask2.getTaskId();
 
-        assertTrue(tasksByAssignee.contains(t1));
-        assertTrue(tasksByAssignee.contains(t2));
-        assertFalse(tasksByAssignee.contains(t3));
-        assertFalse(tasksByAssignee.contains(t4));
+        TaskModel fetchedTask2 = null;
+        try {
+            fetchedTask2 = TaskModel.getById(t2Id);
+        } catch (ModelNotFoundException e) {
+            fail(e.getMessage());
+        }
+        assertThat(fetchedTask2, equalTo(createdTask2));
     }
 
     @Test(expected = TaskDependencyException.class)
@@ -433,133 +335,181 @@ public class TaskModelTest {
 
         t.setName("Hello\nWorld");
         assertThat(t.getName(), equalTo("Hello World"));
-
         t.setName("Monty\t\rPython");
         assertThat(t.getName(), equalTo("Monty  Python"));
     }
 
+    @Test(expected = ModelNotFoundException.class)
+    public void testDeleteData() throws Exception {
+        // Create user
+        TaskModel t = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId(), 10000,
+                defaultStartDate, defaultDeadline, false, createdUser);
+        t.persistData();
+        int tId = t.getTaskId();
+        
+
+
+        // Delete project
+        t.deleteData();
+
+        // Attempt to fetch project
+        TaskModel.getById(tId);
+    }
+
+
+    @Test
+    public void testGetAll() throws Exception {
+        new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 10000, defaultStartDate,
+                defaultDeadline, false, createdUser).persistData();
+        new TaskModel("T2", "Description of\n T2", createdProject.getProjectId(), 20000, defaultStartDate,
+                defaultDeadline, false, createdUser).persistData();
+        List<TaskModel> taskList = TaskModel.getAll();
+
+        assertThat(taskList.size(), isA(Integer.class));
+        assertThat(taskList.size(), not(0));
+    }
+
+    @Test
+    public void testGetById() throws Exception {
+        // Create task
+        TaskModel createdTask  = new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 10000,
+                defaultStartDate, defaultDeadline, false, createdUser);
+        createdTask.persistData();
+        int tId = createdTask.getTaskId();
+
+        // Fetch same task
+        TaskModel fetchedTask = TaskModel.getById(tId);
+
+        assertThat(fetchedTask, equalTo(createdTask));
+    }
+
+
+    // TODO
     @Ignore
     @Test
-    public void testGetLastInsertedId() throws Exception {
-        // TODO
+    public void testGetAllByProject() throws Exception {
+
+        assertTrue(false);
     }
 
-    //Auto-generated stubs for function unit-tests
 
     @Test
-    public void getDependencies() throws Exception {
+    public void testGetAllByUser() throws Exception {
+        // Create tasks
+        TaskModel t1 = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId(), 10000, defaultStartDate,
+                defaultDeadline, false, createdUser);
+        TaskModel t2 = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId(), 10000, defaultStartDate,
+                defaultDeadline, false, createdUser);
+        TaskModel t3 = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId(), 10000, defaultStartDate,
+                defaultDeadline, false, null);
+        TaskModel t4 = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId(), 10000, defaultStartDate,
+                defaultDeadline, false, null);
+        t1.persistData();
+        t2.persistData();
+        t3.persistData();
+        t4.persistData();
 
+        List<TaskModel> tasksByAssignee = TaskModel.getAllByAssignee(createdUser);
+
+        assertTrue(tasksByAssignee.contains(t1));
+        assertTrue(tasksByAssignee.contains(t2));
+        assertFalse(tasksByAssignee.contains(t3));
+        assertFalse(tasksByAssignee.contains(t4));
     }
 
-    @Test
-    public void addDependency() throws Exception {
 
-    }
-
-    @Test
-    public void removeDependency() throws Exception {
-
-    }
-
-    @Test
-    public void refreshData() throws Exception {
-
-    }
-
-    @Test
-    public void persistData() throws Exception {
-
-    }
-
-    @Test
-    public void deleteData() throws Exception {
-
-    }
-
-    @Test
-    public void getAll() throws Exception {
-
-    }
-
-    @Test
-    public void getById() throws Exception {
-
-    }
-
-    @Test
-    public void getAllByProject() throws Exception {
-
-    }
-
-    @Test
-    public void getAllByProject1() throws Exception {
-
-    }
-
-    @Test
-    public void getAllByAssignee() throws Exception {
-
-    }
-
-    @Test
-    public void getAllByAssignee1() throws Exception {
-
-    }
-
+    //TODO
     @Test
     public void cleanData() throws Exception {
 
     }
 
+    //TODO
     @Test
     public void createTable() throws Exception {
 
     }
 
+    //TODO
     @Test
     public void getTaskId() throws Exception {
 
     }
 
+    //TODO
     @Test
     public void getName() throws Exception {
 
     }
 
+    //TODO
     @Test
     public void setName() throws Exception {
 
     }
 
+    //TODO
     @Test
     public void getDescription() throws Exception {
 
     }
 
+    //TODO
     @Test
     public void setDescription() throws Exception {
 
     }
 
+    //TODO
     @Test
     public void getProjectId() throws Exception {
 
     }
 
+    //TODO
     @Test
     public void setProjectId() throws Exception {
 
     }
 
-    @Test
-    public void getBudget() throws Exception {
 
+    /**
+     * Positive test to check whether budget setter
+     * @throws Exception
+     */
+    @Test
+    public void testSetBudget() throws Exception {
+        double budget = 100034.44;
+        TaskModel createdTask = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId());
+        createdTask.setBudget(budget);
+
+        assertThat(createdTask.getBudget(), equalTo(budget));
     }
 
-    @Test
-    public void setBudget() throws Exception {
-
+    /**
+     * Negative test to check whether budget can be set with negative values
+     * @throws Exception
+     */
+    @Test(expected = InvalidInputException.class)
+    public void testSetNegativeBudget() throws Exception {
+        TaskModel createdTask = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId());
+        createdTask.setBudget(-100.0);
     }
+
+    @Test(expected = InvalidInputException.class)
+    public void testSetDeadlineNotBeforeStartDate() throws Exception {
+        TaskModel createdTask = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId());
+        createdTask.setStartDate(defaultDeadline);
+        createdTask.setDeadline(defaultStartDate);
+    }
+
+    @Test(expected = InvalidInputException.class)
+    public void testSetStartDateNotAfterDeadline() throws Exception {
+        TaskModel createdTask = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId());
+        createdTask.setDeadline(defaultStartDate);
+        createdTask.setStartDate(defaultDeadline);
+    }
+
 
     @Test
     public void getStartDate() throws Exception {
@@ -671,10 +621,35 @@ public class TaskModelTest {
 
     }
 
-    @Test
-    public void equals() throws Exception {
 
+    /**
+     * Tests that creating two seperate objects with the same values are equivalent
+     */
+    @Test
+    public void testEquals() throws Exception {
+
+        TaskModel t1 = new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 10000,
+                defaultStartDate, defaultDeadline, false, createdUser);
+        TaskModel t2 = new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 10000,
+                defaultStartDate, defaultDeadline, false, createdUser);
+
+        assertThat(t1, equalTo(t2));
     }
+
+    /**
+     * Tests that creating different objects leads to an inequality
+     */
+    @Test
+    public void testNotEqual() throws Exception {
+
+        TaskModel t1 = new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 20000,
+                defaultStartDate, defaultDeadline, false, createdUser);
+        TaskModel t2 = new TaskModel("T2", "Description of\n T2", createdProject.getProjectId(), 10000,
+                defaultStartDate, defaultDeadline, false, createdUser);
+
+        assertThat(t1, not(equalTo(t2)));
+    }
+
 
 
 
