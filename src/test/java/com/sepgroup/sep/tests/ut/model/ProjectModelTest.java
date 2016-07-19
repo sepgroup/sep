@@ -543,9 +543,9 @@ public class ProjectModelTest {
 
         //Creates tasks and assigns these to the project
         TaskModel t1 = new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 10000,
-                defaultStartDate, defaultDeadline, false, createdManager);
+                defaultStartDate, defaultDeadline, false, createdManager, 8, 9, 7);
         TaskModel t2 = new TaskModel("T2", "Description of\n T2", createdProject.getProjectId(), 20000,
-                defaultStartDate, defaultDeadline, false, createdManager);
+                defaultStartDate, defaultDeadline, false, createdManager, 8, 9, 7);
 
         //TODO figure out why tasks are not being assigned
         List<TaskModel> taskList = createdProject.getTasks();

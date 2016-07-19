@@ -45,7 +45,6 @@ public class RandomizedProjectTests {
     private static UserModel createdManager;
     private static UserModel createdUser;
 
-
     @Parameterized.Parameters
     public static List<Object[]> data() throws Exception {
         /**
@@ -80,6 +79,8 @@ public class RandomizedProjectTests {
          * RandomizedProjectTests
          */
 
+        SepUserStorage.createDBTablesIfNotExisting();
+
         createdManager = new UserModel("FIRST", "MANAGER", 100.00);
         createdManager.persistData();
 
@@ -93,15 +94,6 @@ public class RandomizedProjectTests {
         hasValidDescription = new boolean[NUMBER_OF_TESTS];
         hasValidBudget = new boolean[NUMBER_OF_TESTS];
         hasValidManager = new boolean[NUMBER_OF_TESTS];
-    }
-
-    @BeforeClass
-    public static void setUpBeforeClass() throws Exception {
-        /**
-         * Loads database
-         */
-        ConfigFactory.setProperty("configPath", ProjectModelTest.class.getResource("/test-db.properties").getFile());
-        SepUserStorage.createDBTablesIfNotExisting();
     }
 
     @Before

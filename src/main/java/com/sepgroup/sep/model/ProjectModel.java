@@ -653,15 +653,11 @@ public class ProjectModel extends AbstractModel {
             sql.append("," + (isDone() ? 1 : 0));
             if (getStartDate() != null) sql.append(",'" + DateUtils.castDateToString(getStartDate()) + "'");
             if (getDeadline() != null) sql.append(",'" + DateUtils.castDateToString(getDeadline()) + "'");
-<<<<<<< HEAD
-            if (getManagerUserId() != 0) sql.append("," + getManagerUserId());
-=======
             if (getManager() != null) sql.append(",'" + getManager().getUserId() + "'");
->>>>>>> 78fc8aaaddf071543b9e694a5ddfb625252bd225
             if (getProjectDescription() != null) sql.append(",'" + getProjectDescription() + "'");
             sql.append(");");
             logger.debug("SQL query: " + sql.toString());
-            System.out.println(sql.toString());
+//            System.out.println(sql.toString());
             int insertedKey;
             try {
                 insertedKey = this.db.insert(sql.toString());

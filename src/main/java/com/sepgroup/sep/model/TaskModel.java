@@ -233,22 +233,6 @@ public class TaskModel extends AbstractModel {
     public void refreshData() throws ModelNotFoundException {
         TaskModel refreshed = getById(getTaskId());
 
-<<<<<<< HEAD
-        setTaskId(refreshed.getTaskId());
-        setName(refreshed.getName());
-        setDescription(refreshed.getDescription());
-        setProjectId(refreshed.getProjectId());
-        setBudget(refreshed.getBudget());
-        setStartDate(refreshed.getStartDate());
-        setDeadline(refreshed.getDeadline());
-        setDone(refreshed.isDone());
-        setAssignee(refreshed.getAssignee());
-        setTags(refreshed.getTags());
-        setDependencies(refreshed.getDependencies());
-        setMostLikelyTimeToFinish(refreshed.getMostLikelyTimeToFinish());
-        setPessimisticTimeToFinish(refreshed.getPesimisticTimeToFinish());
-        setOptimisticTimeToFinish(refreshed.getOptimisticTimeToFinish());
-=======
         this.name = refreshed.getName();
         this.description = refreshed.getDescription();
         this.projectId = refreshed.getProjectId();
@@ -260,7 +244,6 @@ public class TaskModel extends AbstractModel {
         this.tags = refreshed.getTags();
         this.taskId = refreshed.getTaskId();
         this.dependencies = refreshed.getDependencies();
->>>>>>> becdc7d293abdef32b70331287fda4d3f57e2334
 
         updateObservers();
     }
@@ -1238,7 +1221,7 @@ public class TaskModel extends AbstractModel {
 
 
         @Override
-        public void createTable() throws DBException{
+        public void createTable() throws DBException {
             // Create task table query
             StringBuilder createTaskTableSql = new StringBuilder();
             createTaskTableSql.append("CREATE TABLE IF NOT EXISTS "+ getTableName()+" (");
@@ -1262,7 +1245,7 @@ public class TaskModel extends AbstractModel {
             createTaskTableSql.append("FOREIGN KEY ("+ASSIGNEE_USER_ID_COLUMN+") REFERENCES User(UserID) ON DELETE CASCADE"+",");
             createTaskTableSql.append("CONSTRAINT chk_date CHECK(" + DEADLINE_COLUMN + " >= "+START_DATE_COLUMN+"),");
             createTaskTableSql.append("CONSTRAINT chk_dateForPert CHECK(" + MOST_LIKELY_TIME_TO_FINISH + " >= "+OPTIMIST_TIME_TO_FINISH+" AND "+PESSIMIST_TIME_TO_FINISH+" >= "+ MOST_LIKELY_TIME_TO_FINISH+ " AND "+PESSIMIST_TIME_TO_FINISH+" >= "+OPTIMIST_TIME_TO_FINISH+"));");
-            System.out.print(createTaskTableSql);
+//            System.out.print(createTaskTableSql);
             // Create task dependencies table query
             StringBuilder createTaskDependenciesTableSql = new StringBuilder();
             createTaskDependenciesTableSql.append("CREATE TABLE IF NOT EXISTS TaskDependency(");
