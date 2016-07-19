@@ -40,6 +40,12 @@ public class TaskCreatorController extends AbstractController {
 	public ComboBox<UserModel> assigneeComboBox;
 	@FXML
 	public TextArea taskDescriptionArea;
+    @FXML
+    public TextField mostLikelyTime;
+    @FXML
+    public TextField pessimisticTime;
+    @FXML
+    public TextField optimisticTime;
 
     public TaskCreatorController() {
         setCssPath("/style/stylesheet.css");
@@ -146,7 +152,57 @@ public class TaskCreatorController extends AbstractController {
 		if (!taskDescriptionArea.getText().equals("")) {
             createdTask.setDescription(taskDescriptionArea.getText());
 		}
-
+        //Most Likely Time
+        if (!mostLikelyTime.getText().equals("")) {
+            int mostLikely = 0;
+            try {
+                mostLikely = Integer.parseInt(mostLikelyTime.getText());
+            } catch (NumberFormatException e) {
+                logger.info("User entered invalid integer value");
+                DialogCreator.showErrorDialog("Most likely time to finish field invalid", "Invalid Most likely time to finish, please enter a valid number.");
+                return;
+            }
+            try {
+                createdTask.setMostLikelyTimeToFinish(mostLikely);
+            } catch (InvalidInputException e) {
+                DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
+                return;
+            }
+        }
+        //Pessimistic Time
+        if (!pessimisticTime.getText().equals("")) {
+            int pessimistic = 0;
+            try {
+                pessimistic = Integer.parseInt(pessimisticTime.getText());
+            } catch (NumberFormatException e) {
+                logger.info("User entered invalid integer value");
+                DialogCreator.showErrorDialog("Pessimistic time to finish field invalid", "Invalid Pessimistic time to finish, please enter a valid number.");
+                return;
+            }
+            try {
+                createdTask.setMostLikelyTimeToFinish(pessimistic);
+            } catch (InvalidInputException e) {
+                DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
+                return;
+            }
+        }
+        //Optimistic Time
+        if (!optimisticTime.getText().equals("")) {
+            int optimist = 0;
+            try {
+                optimist = Integer.parseInt(optimisticTime.getText());
+            } catch (NumberFormatException e) {
+                logger.info("User entered invalid integer value");
+                DialogCreator.showErrorDialog("Optimistic time to finish field invalid", "Invalid Optimistic time to finish, please enter a valid number.");
+                return;
+            }
+            try {
+                createdTask.setMostLikelyTimeToFinish(optimist);
+            } catch (InvalidInputException e) {
+                DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
+                return;
+            }
+        }
         // Persist created Project
 		try {
 		    createdTask.persistData();

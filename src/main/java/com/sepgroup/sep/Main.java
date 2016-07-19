@@ -42,7 +42,7 @@ public class Main extends Application {
 
        // Window size
         primaryStage.setMaxHeight(900);
-        primaryStage.setMaxWidth(900);
+        primaryStage.setMaxWidth(1100);
 
         primaryStage.setMinHeight(600);
         primaryStage.setMinWidth(800);

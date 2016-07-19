@@ -55,6 +55,12 @@ public class TaskEditorController extends AbstractController {
     public Button addSelectedDependencyButton;
     @FXML
     public Button deleteSelectedDependencyButton;
+    @FXML
+    public TextField editMostLikelyTime;
+    @FXML
+    public TextField editPessimisticTime;
+    @FXML
+    public TextField editOptimisticTime;
 
     private ListableTaskModel selectedDependency;
     private ListableTaskModel selectedPotentialDependency;
@@ -162,6 +168,81 @@ public class TaskEditorController extends AbstractController {
                 model.setBudget(0);
             } catch (InvalidInputException e) {
                 logger.error("Error setting task budget to 0 when user left field blank", e);
+                DialogCreator.showExceptionDialog(e);
+                return;
+            }
+        }
+        //Most Likely Time
+        if (!editMostLikelyTime.getText().equals("")) {
+            int editMostLikelyFromField;
+            try {
+                editMostLikelyFromField = Integer.parseInt(editMostLikelyTime.getText());
+            } catch (NumberFormatException e) {
+                logger.info("User entered invalid integer value");
+                DialogCreator.showErrorDialog("Most likely time to finish field invalid", "Invalid Most likely time to finish, please enter a valid number.");
+                return;
+            }
+            try {
+                model.setMostLikelyTimeToFinish(editMostLikelyFromField);
+            } catch (InvalidInputException e) {
+                DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
+                return;
+            }
+        }else {
+            try {
+                model.setMostLikelyTimeToFinish(0);
+            } catch (InvalidInputException e) {
+                logger.error("Error setting most likely time to finish to 0 when user left field blank", e);
+                DialogCreator.showExceptionDialog(e);
+                return;
+            }
+        }
+        //Pessimistic Time
+        if (!editPessimisticTime.getText().equals("")) {
+            int editPessimisticFromField;
+            try {
+                editPessimisticFromField = Integer.parseInt(editPessimisticTime.getText());
+            } catch (NumberFormatException e) {
+                logger.info("User entered invalid integer value");
+                DialogCreator.showErrorDialog("Pessimistic time to finish field invalid", "Invalid Pessimistic time to finish, please enter a valid number.");
+                return;
+            }
+            try {
+                model.setPessimisticTimeToFinish(editPessimisticFromField);
+            } catch (InvalidInputException e) {
+                DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
+                return;
+            }
+        }else {
+            try {
+                model.setPessimisticTimeToFinish(0);
+            } catch (InvalidInputException e) {
+                logger.error("Error setting pessimistic time to finish to 0 when user left field blank", e);
+                DialogCreator.showExceptionDialog(e);
+                return;
+            }
+        }
+        //Optimistic Time
+        if (!editOptimisticTime.getText().equals("")) {
+            int editOptimisticFromField = 0;
+            try {
+                editOptimisticFromField = Integer.parseInt(editOptimisticTime.getText());
+            } catch (NumberFormatException e) {
+                logger.info("User entered invalid integer value");
+                DialogCreator.showErrorDialog("Optimistic time to finish field invalid", "Invalid Optimistic time to finish, please enter a valid number.");
+                return;
+            }
+            try {
+                model.setOptimisticTimeToFinish(editOptimisticFromField);
+            } catch (InvalidInputException e) {
+                DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
+                return;
+            }
+        }else {
+            try {
+                model.setOptimisticTimeToFinish(0);
+            } catch (InvalidInputException e) {
+                logger.error("Error setting optimistic time to finish to 0 when user left field blank", e);
                 DialogCreator.showExceptionDialog(e);
                 return;
             }
@@ -291,6 +372,9 @@ public class TaskEditorController extends AbstractController {
    		    taskIdLabel.setText(String.valueOf(model.getTaskId()));
    		    if (model.getName() != null) editTaskNameField.setText(model.getName());
             editTaskBudgetField.setText(String.valueOf(model.getBudget()));
+            editMostLikelyTime.setText(String.valueOf(model.getMostLikelyTimeToFinish()));
+            editPessimisticTime.setText(String.valueOf(model.getPesimisticTimeToFinish()));
+            editOptimisticTime.setText(String.valueOf(model.getOptimisticTimeToFinish()));
    		    if (model.getStartDate() != null) {
                 try {
                     LocalDate startDate = LocalDate.parse(model.getStartDateString());
