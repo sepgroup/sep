@@ -1,6 +1,5 @@
 package com.sepgroup.sep.model;
 
-import com.sepgroup.sep.Observer;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;

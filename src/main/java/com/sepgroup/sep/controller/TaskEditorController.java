@@ -83,9 +83,7 @@ public class TaskEditorController extends AbstractController {
         try {
             model.refreshData();
         } catch (ModelNotFoundException e) {
-            logger.warn("Tried to refresh existing model that did not exist, this should never happen.");
-        } catch (InvalidInputException e) {
-            logger.error("Invalid data in DB.");
+            logger.warn("Tried to refresh existing model that did not exist, this shouldn't happen.");
         }
         // Return to project viewer
         ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(ProjectViewerController.getFxmlPath());
@@ -347,7 +345,11 @@ public class TaskEditorController extends AbstractController {
      */
     public void onAddDependencyClicked() {
         if (selectedPotentialDependency != null) {
-            model.addDependency(selectedPotentialDependency.getModel());
+            try {
+                model.addDependency(selectedPotentialDependency.getModel());
+            } catch (TaskDependencyException e) {
+                DialogCreator.showErrorDialog("Dependency Error", e.getLocalizedMessage());
+            }
             refreshCurrentDependenciesList();
             refreshPotentialDependenciesList();
             addSelectedDependencyButton.setDisable(true);

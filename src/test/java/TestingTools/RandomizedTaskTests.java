@@ -15,15 +15,12 @@ import static org.junit.Assert.*;
 
 /**
  * Created by Wired on 2016-06-05.
+ *  Integration test to ensure correct task generation with randomized data
+ *  TODO fix this
  */
-public class TaskTest {
+public class RandomizedTaskTests {
     TaskModel[] tasksIn, tasksOut;
     boolean[] hasValidName, hasValidDescription, hasValidBudget, hasValidProjectID, hasValidDatePair, hasValidUserID, isValid, hasValidMostLikelyTime, hasValidPessimisticTime, hasValidOptimisticTime;
-
-    @BeforeClass
-    public static void setUpBeforeMethod() throws Exception {
-        ConfigFactory.setProperty("configPath", DatabaseTest.class.getResource("/test-db.properties").getFile());
-    }
 
     @Ignore
     @Test

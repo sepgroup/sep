@@ -1,4 +1,4 @@
-package com.sepgroup.sep;
+package com.sepgroup.sep.model;
 
 import java.util.ArrayList;
 import java.util.List;

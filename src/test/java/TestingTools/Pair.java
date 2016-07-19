@@ -4,7 +4,7 @@ package TestingTools;
  * Used to store monomorphic pairs of objects.
  * @param <T> The type stored in the pair.
  */
-public final class Pair<T>
+public final class Pair<T> //
 {
 	public T first;		// First element
 	public T second;	// Second element
@@ -57,7 +57,7 @@ public final class Pair<T>
 	 */
 	public boolean equals(final Object other)
 	{
-		if (other == null || !(other instanceof Pair<?>))
+		if (other == null || other.getClass() != getClass())
 			return false;
 		Pair<?> otherPair = (Pair<?>) other;
 		return first.equals(otherPair.first) && second.equals(otherPair.second);

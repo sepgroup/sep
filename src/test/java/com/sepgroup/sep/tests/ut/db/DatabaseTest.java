@@ -6,8 +6,6 @@ import com.sepgroup.sep.model.ProjectModel;
 import org.aeonbits.owner.ConfigFactory;
 import org.junit.*;
 
-import java.io.File;
-import java.nio.file.Paths;
 import java.sql.ResultSet;
 
 import static org.hamcrest.CoreMatchers.endsWith;
@@ -29,12 +27,6 @@ public class DatabaseTest {
     private static String projectTableName = ProjectModel.ProjectModelDBObject.TABLE_NAME;
     private static String projectIDColumn = ProjectModel.ProjectModelDBObject.PROJECT_ID_COLUMN;
     private static String projectNameColumn = ProjectModel.ProjectModelDBObject.PROJECT_NAME_COLUMN;
-
-    @BeforeClass
-    public static void setUpBeforeClass() throws Exception {
-        ConfigFactory.setProperty("configPath", DatabaseTest.class.getResource(File.separator + "test-db.properties").getFile());
-
-    }
 
     @After
     public void tearDownAfterMethod() throws Exception {

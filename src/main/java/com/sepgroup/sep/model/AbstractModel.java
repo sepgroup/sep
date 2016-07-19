@@ -1,6 +1,5 @@
 package com.sepgroup.sep.model;
 
-import com.sepgroup.sep.Observable;
 import com.sepgroup.sep.db.DBException;
 
 /**
