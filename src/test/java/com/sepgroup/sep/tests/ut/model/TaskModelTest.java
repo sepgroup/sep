@@ -346,8 +346,6 @@ public class TaskModelTest {
                 defaultStartDate, defaultDeadline, false, createdUser);
         t.persistData();
         int tId = t.getTaskId();
-        
-
 
         // Delete project
         t.deleteData();
