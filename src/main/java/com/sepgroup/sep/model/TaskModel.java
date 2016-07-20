@@ -389,8 +389,8 @@ public class TaskModel extends AbstractModel {
     }
 
     /**
-     *
-     * @return
+     * Get the task's budget
+     * @return the task's budget
      */
     public int getMostLikelyTimeToFinish(){return mostLikelyTimeToFinish;}
 
@@ -449,13 +449,41 @@ public class TaskModel extends AbstractModel {
     }
 
     /**
-     *
-     * @param budget
+     * Set the task's new budget
+     * @param budget the task's new budget
      */
     public void setBudget(double budget) throws InvalidInputException {
         if (budget < 0) {
             throw new InvalidInputException("Budget must be a positive number");
         }
+
+        double projectTotalBudget = 0;
+        double projectTasksBudget = 0;
+        try {
+            // Get project budget
+            ProjectModel project = ProjectModel.getById(getProjectId());
+            projectTotalBudget = project.getBudget();
+        } catch (ModelNotFoundException e) {
+            throw new InvalidInputException("Project w/ ID " + getProjectId() + " not found. Task project must be set " +
+                    "before setting the task budget");
+        }
+        try {
+            // Get all project tasks budget
+            List<TaskModel> projectTasks = TaskModel.getAllByProject(getProjectId());
+            projectTasks = projectTasks.stream().filter(t -> !this.equals(t)).collect(Collectors.toList());
+            projectTasksBudget = projectTasks.stream().mapToDouble(TaskModel::getBudget).sum();
+            logger.debug("Total budget for current tasks of project " + projectId + " is " + projectTasksBudget);
+        } catch (ModelNotFoundException e) {
+            logger.debug("No tasks found for project " + projectId + ", leaving tasks budget at 0.");
+        }
+
+        double budgetDifference = projectTotalBudget - projectTasksBudget - budget;
+
+        if (budgetDifference < 0) {
+            throw new InvalidInputException("A budget of $" + budget + " for this task makes the actual project's " +
+                    "budget $" + budgetDifference + " over the expected project budget of $" + projectTotalBudget);
+        }
+
         this.budget = CurrencyUtils.roundToTwoDecimals(budget);
     }
 
@@ -472,8 +500,9 @@ public class TaskModel extends AbstractModel {
     }
 
     /**
-     * Setter for Start date of project which is used in update method
-     * @param startDate updated date of project
+     * Setter for Start date of project which is used in update method.
+     * @param startDate updated date of project.
+     * @throws InvalidInputException if the start date is after the deadline or the string is unable to be parsed.
      */
     public void setStartDate(String startDate) throws InvalidInputException {
         try {
@@ -484,14 +513,39 @@ public class TaskModel extends AbstractModel {
     }
 
     /**
-     * Setter for Start date of project which is used in update method
-     * @param startDate updated date of project
-     * @throws InvalidInputException if the start date is after the deadline
+     * Setter for Start date of project which is used in update method.
+     * @param startDate updated date of project.
+     * @throws InvalidInputException if the start date is after the deadline.
      */
-    public void setStartDate(Date startDate) throws InvalidInputException{
+    public void setStartDate(Date startDate) throws InvalidInputException {
+        // Check task start is before task deadline
         if (deadline != null && startDate != null && startDate.after(deadline)) {
             throw new InvalidInputException("Start date must be before deadline.");
         }
+
+        // Set null if start date argument is null
+        if (startDate == null) {
+            this.startDate = startDate;
+            return;
+        }
+
+        // Check task start date is not before project start date
+        Date projectStartDate = null;
+        try {
+            ProjectModel project = ProjectModel.getById(getProjectId());
+            projectStartDate = project.getStartDate();
+        } catch (ModelNotFoundException e) {
+            throw new InvalidInputException("Project w/ ID " + getProjectId() + " not found. Task project must be set " +
+                    "before setting the task start date.");
+        }
+        if (projectStartDate == null) {
+            throw new InvalidInputException("Must set project start date before setting task start date.");
+        }
+        if (startDate.before(projectStartDate)) {
+            throw new InvalidInputException("Cannot set task start date (" + DateUtils.castDateToString(startDate) +
+                    " before actual project start date (" + DateUtils.castDateToString(projectStartDate) + ").");
+        }
+
         this.startDate = DateUtils.filterDateToMidnight(startDate);
     }
 
@@ -527,7 +581,25 @@ public class TaskModel extends AbstractModel {
             } else {
                 throw new InvalidInputException("Cannot set actual deadline on task w/o start date");
             }
+
+            // Check task deadline is not after project deadline
+            Date projectDeadline = null;
+            try {
+                ProjectModel project = ProjectModel.getById(getProjectId());
+                projectDeadline = project.getDeadline();
+            } catch (ModelNotFoundException e) {
+                throw new InvalidInputException("Project w/ ID " + getProjectId() + " not found. Task project must " +
+                        "be set before setting the task deadline.");
+            }
+            if (projectDeadline == null) {
+                throw new InvalidInputException("Must set project deadline before setting task deadline.");
+            }
+            if (deadline.after(projectDeadline)) {
+                throw new InvalidInputException("Cannot set task deadline (" + DateUtils.castDateToString(deadline) +
+                        " after actual project deadline (" + DateUtils.castDateToString(projectDeadline) + ").");
+            }
         }
+
         this.deadline = DateUtils.filterDateToMidnight(deadline);
     }
 

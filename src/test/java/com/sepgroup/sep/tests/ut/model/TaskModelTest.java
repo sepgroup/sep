@@ -1,9 +1,7 @@
 package com.sepgroup.sep.tests.ut.model;
 
 import com.sepgroup.sep.SepUserStorage;
-import com.sepgroup.sep.db.Database;
 import com.sepgroup.sep.model.*;
-import org.aeonbits.owner.ConfigFactory;
 import org.junit.*;
 
 import java.util.Date;
@@ -26,6 +24,8 @@ public class TaskModelTest {
     private static Date defaultDeadline = new Date(System.currentTimeMillis() + 9999*9999);
 
     private ProjectModel createdProject;
+    private Date createdProjectStartDate = new Date(System.currentTimeMillis() - 9999*9999);
+    private Date createdProjectDeadline = new Date(System.currentTimeMillis() + 2 * 9999*9999);
     private UserModel createdUser;
 
     @BeforeClass
@@ -37,6 +37,9 @@ public class TaskModelTest {
     public void setUp() throws Exception {
         createdProject = new ProjectModel();
         createdProject.setName("Project 1");
+        createdProject.setBudget(100000);
+        createdProject.setStartDate(createdProjectStartDate);
+        createdProject.setDeadline(createdProjectDeadline);
         createdProject.persistData();
 
         createdUser = new UserModel("FIRST", "LAST", 22.00);
@@ -480,7 +483,7 @@ public class TaskModelTest {
      */
     @Test
     public void testSetBudget() throws Exception {
-        double budget = 100034.44;
+        double budget = 134.44;
         TaskModel createdTask = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId());
         createdTask.setBudget(budget);
 
@@ -497,18 +500,64 @@ public class TaskModelTest {
         createdTask.setBudget(-100.0);
     }
 
+    /**
+     * Negative test to check whether budget can be set with value that would make the project's actual budget surpass
+     * its set budget.
+     * @throws Exception
+     */
     @Test(expected = InvalidInputException.class)
-    public void testSetDeadlineNotBeforeStartDate() throws Exception {
+    public void testSetBudgetOverProjectBudget() throws Exception {
+        TaskModel createdTask = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId());
+        createdTask.setBudget(1000000000.0);
+    }
+
+    /**
+     * Negative test to check whether a task's deadline can be set before its start date.
+     * @throws Exception
+     */
+    @Test(expected = InvalidInputException.class)
+    public void testSetDeadlineBeforeStartDate() throws Exception {
         TaskModel createdTask = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId());
         createdTask.setStartDate(defaultDeadline);
         createdTask.setDeadline(defaultStartDate);
     }
 
+    /**
+     * Negative test to check whether a task's start date can be set before its deadline.
+     * @throws Exception
+     */
     @Test(expected = InvalidInputException.class)
-    public void testSetStartDateNotAfterDeadline() throws Exception {
+    public void testSetStartDateAfterDeadline() throws Exception {
         TaskModel createdTask = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId());
         createdTask.setDeadline(defaultStartDate);
         createdTask.setStartDate(defaultDeadline);
+    }
+
+    /**
+     * Negative test to check whether a task's start date can be set before its project's start date.
+     * @throws Exception
+     */
+    @Test(expected = InvalidInputException.class)
+    public void testSetStartDateBeforeProjectStartDate() throws Exception {
+        TaskModel createdTask = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId());
+        Date taskStartDate = new Date(System.currentTimeMillis() - 2 * 9999*9999);
+        createdTask.setStartDate(taskStartDate);
+    }
+
+    /**
+     * Negative test to check whether a task's deadline can be set after its project's deadline.
+     * @throws Exception
+     */
+    @Test(expected = InvalidInputException.class)
+    public void testSetDeadlineAfterProjectDeadline() throws Exception {
+        TaskModel createdTask = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId());
+        Date taskDeadline = new Date(System.currentTimeMillis() + 3 * 9999*9999);
+        createdTask.setDeadline(taskDeadline);
+    }
+
+    @Test
+    public void testSetStartDate() throws Exception {
+
     }
 
 
