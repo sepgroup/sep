@@ -99,9 +99,7 @@ public class TaskCreatorController extends AbstractController {
             try {
                 createdTask.setStartDate(taskStartDatePicker.getValue().toString());
             } catch (InvalidInputException e) {
-                String errorContent = "Unable to parse date from DatePicker, this really shouldn't happen";
-                logger.error(errorContent);
-                DialogCreator.showErrorDialog("Unable to parse date", errorContent);
+                DialogCreator.showErrorDialog("Error", e.getLocalizedMessage());
                 return;
             }
         }
@@ -112,9 +110,7 @@ public class TaskCreatorController extends AbstractController {
             try {
                 createdTask.setDeadline(taskDeadlinePicker.getValue().toString());
             } catch (InvalidInputException e) {
-                String errorContent = "Unable to parse date from DatePicker, this really shouldn't happen";
-                logger.error(errorContent);
-                DialogCreator.showErrorDialog("Unable to parse date", errorContent);
+                DialogCreator.showErrorDialog("Error", e.getLocalizedMessage());
                 return;
             }
         }
