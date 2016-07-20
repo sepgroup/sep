@@ -67,6 +67,13 @@ public class ProjectViewerController extends AbstractController {
     @FXML
     public TableColumn<ListableTaskModel, String> assigneeColumn;
     @FXML
+    public TableColumn<ListableTaskModel, Integer> mostLikelyColumn;
+    @FXML
+    public TableColumn<ListableTaskModel, Integer> pessimisticColumn;
+    @FXML
+    public TableColumn<ListableTaskModel, Integer> optimisticColumn;
+
+    @FXML
     public ComboBox<UserModel> userFilterComboBox;
     @FXML
 	public Button createGanttChartButton;
@@ -124,10 +131,14 @@ public class ProjectViewerController extends AbstractController {
             deadlineColumn.setCellValueFactory(cellData -> cellData.getValue().deadlineProperty());
             taskCompleteColumn.setCellValueFactory(cellData -> cellData.getValue().completedProperty());
             assigneeColumn.setCellValueFactory(cellData -> cellData.getValue().assigneeProperty());
+            mostLikelyColumn.setCellValueFactory(cellData -> cellData.getValue().taskMostLikelyProperty().asObject());
+            pessimisticColumn.setCellValueFactory(cellData -> cellData.getValue().taskPessimisticTimeProperty().asObject());
+            optimisticColumn.setCellValueFactory(cellData -> cellData.getValue().taskOptimisticTimeProperty().asObject());
             if (taskTableView.getItems().isEmpty()){
 				createGanttChartButton.setDisable(true);
 				
 			}
+
 
 
             // Populate user filter combo box

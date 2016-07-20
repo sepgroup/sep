@@ -1,8 +1,12 @@
 apply plugin: 'java'
 apply from: "gradle/plugin/javafx.plugin"
 
+compileJava {
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+}
 defaultTasks 'clean', 'run'
-sourceCompatibility = 1.8
+
 version = '0.1'
 
 repositories {
@@ -31,4 +35,39 @@ test {
     testLogging {
         events "passed", "skipped", "failed", "standardOut", "standardError"
     }
+}
+
+javafx {
+    appID 'SEP'
+    appName 'Software Engineering Project'
+    mainClass 'com.sepgroup.sep.Main'
+
+//    jvmArgs = ['-XX:+AggressiveOpts', '-XX:CompileThreshold=1']
+//    systemProperties = [ 'prism.disableRegionCaching':'true' ]
+//    arguments = ['-l', '--fast']
+
+    // deploy/info attributes
+//    category = 'Demos'
+    copyright = 'Copyright (c) 2016 SEP GROUP'
+//    description = 'This is a sample configuration, it is not real.'
+//    licenseType = 'Apache 2.0'
+//    vendor = 'Acme'
+//    installSystemWide = true
+//    menu = true
+//    shortcut = true
+
+    // app icons
+    icons {
+        shortcut = ['shortcut-256.png']
+//        volume = 'javafx-icon.png'
+//        setup = 'javafx-icon.png'
+    }
+
+    // applet and webstart stuff
+
+//    width = 800
+//    height = 600
+//    embedJNLP = false
+//    codebase = 'http://example.com/bogus/JNLP/Codebase'
+
 }

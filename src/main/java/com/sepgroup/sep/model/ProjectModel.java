@@ -183,7 +183,8 @@ public class ProjectModel extends AbstractModel {
         if (name.length() > 50) {
             throw new InvalidInputException("Name must not be longer than 50 characters.");
         }
-		this.name = name;
+
+		this.name = name.replaceAll("(\\r|\\n|\\t)", " "); // Replace newlines with spaces
 	}
 
     /**
@@ -382,6 +383,9 @@ public class ProjectModel extends AbstractModel {
 
     @Override
     public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
         if (!(obj instanceof ProjectModel)) {
             return false;
         }
@@ -645,15 +649,15 @@ public class ProjectModel extends AbstractModel {
             if (getProjectDescription() != null) sql.append(", " + PROJECT_DESCRIPTION_COLUMN);
             sql.append(") ");
             sql.append("VALUES ('" + getName() + "'");
-            sql.append(",'" + getBudget() + "'");
-            sql.append(",'" + (isDone() ? 1 : 0) + "'");
+            sql.append("," + getBudget());
+            sql.append("," + (isDone() ? 1 : 0));
             if (getStartDate() != null) sql.append(",'" + DateUtils.castDateToString(getStartDate()) + "'");
             if (getDeadline() != null) sql.append(",'" + DateUtils.castDateToString(getDeadline()) + "'");
             if (getManager() != null) sql.append(",'" + getManager().getUserId() + "'");
             if (getProjectDescription() != null) sql.append(",'" + getProjectDescription() + "'");
             sql.append(");");
             logger.debug("SQL query: " + sql.toString());
-
+//            System.out.println(sql.toString());
             int insertedKey;
             try {
                 insertedKey = this.db.insert(sql.toString());

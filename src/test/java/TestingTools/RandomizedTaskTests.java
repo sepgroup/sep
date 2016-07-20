@@ -15,15 +15,12 @@ import static org.junit.Assert.*;
 
 /**
  * Created by Wired on 2016-06-05.
+ *  Integration test to ensure correct task generation with randomized data
+ *  TODO fix this
  */
-public class TaskTest {
+public class RandomizedTaskTests {
     TaskModel[] tasksIn, tasksOut;
-    boolean[] hasValidName, hasValidDescription, hasValidBudget, hasValidProjectID, hasValidDatePair, hasValidUserID, isValid;
-
-    @BeforeClass
-    public static void setUpBeforeMethod() throws Exception {
-        ConfigFactory.setProperty("configPath", DatabaseTest.class.getResource("/test-db.properties").getFile());
-    }
+    boolean[] hasValidName, hasValidDescription, hasValidBudget, hasValidProjectID, hasValidDatePair, hasValidUserID, isValid, hasValidMostLikelyTime, hasValidPessimisticTime, hasValidOptimisticTime;
 
     @Ignore
     @Test
@@ -45,6 +42,9 @@ public class TaskTest {
         hasValidProjectID = new boolean[numOfTests];
         hasValidDatePair = new boolean[numOfTests];
         hasValidUserID = new boolean[numOfTests];
+        hasValidMostLikelyTime=new boolean[numOfTests];
+        hasValidPessimisticTime=new boolean[numOfTests];
+        hasValidOptimisticTime=new boolean[numOfTests];
 
         UserModel user = null;
         try{
@@ -71,8 +71,11 @@ public class TaskTest {
             hasValidBudget[i] = random.nextBoolean();
             hasValidDatePair[i] = random.nextBoolean();
             hasValidUserID[i] = random.nextBoolean();
+            hasValidMostLikelyTime[i]=random.nextBoolean();
+            hasValidPessimisticTime[i]=random.nextBoolean();
+            hasValidOptimisticTime[i]=random.nextBoolean();
 
-            isValid[i] = hasValidName[i] && hasValidDescription[i] && hasValidProjectID[i] && hasValidBudget[i] && hasValidDatePair[i] && hasValidUserID[i];
+            isValid[i] = hasValidName[i] && hasValidDescription[i] && hasValidProjectID[i] && hasValidBudget[i] && hasValidDatePair[i] && hasValidUserID[i] && hasValidMostLikelyTime[i] && hasValidPessimisticTime[i] && hasValidOptimisticTime[i];
 
             try {
                 boolean isEmpty = false;
@@ -88,6 +91,9 @@ public class TaskTest {
                 int projectID = hasValidProjectID[i] ? 1 : (random.nextBoolean() ? -random.nextInt(10) : random.nextInt(8) + 2);
                 int userID = hasValidUserID[i] ? 1 : (random.nextBoolean() ? -random.nextInt(10) : random.nextInt(8) + 2);
                 float budget = (hasValidBudget[i]? random.nextFloat() * 1000000000 + 0.01f : - random.nextFloat() * 1000000000);
+                int mostLikelyTime = hasValidMostLikelyTime[i] ? 1 : (random.nextBoolean() ? -random.nextInt(10) : random.nextInt(8) + 2);
+                int pessimisticTime = hasValidPessimisticTime[i] ? 1 : (random.nextBoolean() ? -random.nextInt(10) : random.nextInt(8) + 2);
+                int optimisticTime = hasValidOptimisticTime[i] ? 1 : (random.nextBoolean() ? -random.nextInt(10) : random.nextInt(8) + 2);
 
                 Pair<Date> datePair = RandomDateBuilder.randomDatePair(hasValidDatePair[i]);
                 Date startDate = datePair.first;
@@ -95,7 +101,7 @@ public class TaskTest {
 
                 boolean done = random.nextBoolean();
 
-                tasksIn[i] = new TaskModel(name, description, projectID, budget, startDate, deadline, done, null);
+                tasksIn[i] = new TaskModel(name, description, projectID, budget, startDate, deadline, done, null, mostLikelyTime, pessimisticTime, optimisticTime);
                 tasksIn[i].setAssignee(userID);
                 tasksIn[i].persistData();
                 tasksOut[i] = TaskModel.getById(tasksIn[i].getTaskId());
@@ -111,7 +117,7 @@ public class TaskTest {
     }
 
     public void assertionCriteria(int i){
-        String name, description, projectID, userID, budget, startDate, deadline;
+        String name, description, projectID, userID, budget, startDate, deadline, mostLikelyTime, pessimisticTime, optimisticTime;
 
         if(tasksOut[i] == null)
         {
@@ -122,6 +128,9 @@ public class TaskTest {
             budget = "";
             startDate = "";
             deadline = "";
+            mostLikelyTime = "";
+            pessimisticTime = "";
+            optimisticTime = "";
         }
         else
         {
@@ -132,6 +141,9 @@ public class TaskTest {
             budget = Float.toString((float)tasksOut[i].getBudget());
             startDate = tasksOut[i].getStartDate().toString();
             deadline = tasksOut[i].getDeadline().toString();
+            mostLikelyTime=Integer.toString(tasksOut[i].getMostLikelyTimeToFinish());
+            pessimisticTime=Integer.toString(tasksOut[i].getPesimisticTimeToFinish());
+            optimisticTime=Integer.toString(tasksOut[i].getOptimisticTimeToFinish());
         }
 
         // Checks database integrity based on whether it allows creation of projects based upon valid attributes
@@ -142,6 +154,9 @@ public class TaskTest {
         assertEquals("Budget validity test: " + tasksIn[i].getBudget() + " " + budget, hasValidBudget[i], tasksOut[i] != null);
         assertEquals("Assignee validity test: " + tasksIn[i].getAssignee().getUserId() + " " + userID, hasValidUserID[i], tasksOut[i] != null);
         assertEquals("Chronology validity test: " + startDate + " " + deadline, hasValidDatePair[i], tasksOut[i] != null);
+        assertEquals("Most Likely Time validity test: " + tasksIn[i].getMostLikelyTimeToFinish()+ " "+mostLikelyTime, hasValidMostLikelyTime[i], tasksOut[i] != null);
+        assertEquals("Pessimistic Time validity test: " + tasksIn[i].getPesimisticTimeToFinish()+ " "+pessimisticTime, hasValidOptimisticTime[i], tasksOut[i] != null);
+        assertEquals("Optimistic Time validity test: " + tasksIn[i].getOptimisticTimeToFinish()+ " "+optimisticTime, hasValidOptimisticTime[i], tasksOut[i] != null);
 
         // Checks data integrity of output from stored values as compared to the input
         assertEquals("ID test", tasksIn[i].getTaskId(), tasksOut[i].getTaskId());
@@ -153,6 +168,9 @@ public class TaskTest {
         assertEquals("Budget test", tasksIn[i].getBudget(), tasksOut[i].getBudget(), 0.005);
         assertEquals("Manager ID test", tasksIn[i].getAssignee().getUserId(), tasksOut[i].getAssignee().getUserId());
         assertEquals("Done test", tasksIn[i].isDone(), tasksOut[i].isDone());
+        assertEquals("Most Likely Time test", tasksIn[i].getMostLikelyTimeToFinish(), tasksOut[i].getMostLikelyTimeToFinish());
+        assertEquals("Pessimistic Time test", tasksIn[i].getPesimisticTimeToFinish(), tasksOut[i].getPesimisticTimeToFinish());
+        assertEquals("Optimistic Time test", tasksIn[i].getOptimisticTimeToFinish(), tasksOut[i].getOptimisticTimeToFinish());
     }
 
     public void updateTest(){

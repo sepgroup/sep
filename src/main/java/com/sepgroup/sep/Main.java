@@ -22,9 +22,9 @@ public class Main extends Application {
 
     private static Logger logger = LoggerFactory.getLogger(Main.class);
     private static int screenMinHeight = 560;
-    private static int screenMinWidth = 810;
+    private static int screenMinWidth = 1100;
     private static int screenMaxHeight = 800;
-    private static int screenMaxWidth = 1000;
+    private static int screenMaxWidth = 1500;
 
     private static Stage primaryStage;
 

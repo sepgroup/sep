@@ -1,6 +1,5 @@
 package com.sepgroup.sep.model;
 
-import com.sepgroup.sep.Observer;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -20,6 +19,9 @@ public class ListableTaskModel implements Observer {
     private SimpleStringProperty deadline;
     private SimpleBooleanProperty completed;
     private SimpleStringProperty assignee;
+    private SimpleIntegerProperty mostLikelyTime;
+    private SimpleIntegerProperty pessimisticTime;
+    private SimpleIntegerProperty optimisticTime;
 
     public ListableTaskModel(TaskModel m) {
         this.model = m;
@@ -31,6 +33,9 @@ public class ListableTaskModel implements Observer {
         deadline = new SimpleStringProperty();
         completed = new SimpleBooleanProperty();
         assignee = new SimpleStringProperty();
+        mostLikelyTime=new SimpleIntegerProperty();
+        pessimisticTime=new SimpleIntegerProperty();
+        optimisticTime=new SimpleIntegerProperty();
         update();
     }
 
@@ -62,6 +67,12 @@ public class ListableTaskModel implements Observer {
         return completed;
     }
 
+    public SimpleIntegerProperty taskMostLikelyProperty(){ return mostLikelyTime; }
+
+    public SimpleIntegerProperty taskPessimisticTimeProperty(){ return pessimisticTime; }
+
+    public SimpleIntegerProperty taskOptimisticTimeProperty(){ return optimisticTime; }
+
     public SimpleStringProperty assigneeProperty() {
         return assignee;
     }
@@ -76,6 +87,9 @@ public class ListableTaskModel implements Observer {
             deadline.set(model.getDeadlineString());
             completed.set(model.isDone());
             assignee.set(model.getAssignee() != null ? model.getAssignee().getFullName() : "");
+            mostLikelyTime.set(model.getMostLikelyTimeToFinish());
+            pessimisticTime.set(model.getPesimisticTimeToFinish());
+            optimisticTime.set(model.getOptimisticTimeToFinish());
         }
     }
 

@@ -37,6 +37,9 @@ public class TaskModel extends AbstractModel {
     private UserModel assignee;
     private List<String> tags;
     private List<TaskModel> dependencies;
+    private int mostLikelyTimeToFinish;
+    private int pessimisticTimeToFinish;
+    private int optimisticTimeToFinish;
 
     /**
      * Default constructor
@@ -73,13 +76,16 @@ public class TaskModel extends AbstractModel {
      * @throws InvalidInputException
      */
     public TaskModel(String name, String description, int projectId, double budget, Date startDate, Date deadline,
-            boolean done, UserModel assignee) throws InvalidInputException {
+            boolean done, UserModel assignee, int mostLikelyTimeToFinish, int pessimisticTimeToFinish, int optimisticTimeToFinish) throws InvalidInputException {
         this(name, description, projectId);
         setBudget(budget);
         setStartDate(startDate);
         setDeadline(deadline);
         setDone(done);
         setAssignee(assignee);
+        setMostLikelyTimeToFinish(mostLikelyTimeToFinish);
+        setPessimisticTimeToFinish(pessimisticTimeToFinish);
+        setOptimisticTimeToFinish(optimisticTimeToFinish);
     }
 
     /**
@@ -96,8 +102,8 @@ public class TaskModel extends AbstractModel {
      * @throws InvalidInputException
      */
     public TaskModel(String name, String description, int projectId, double budget, Date startDate, Date deadline,
-            boolean done, UserModel assignee, List<String> tags) throws InvalidInputException {
-        this(name, description, projectId, budget, startDate, deadline, done, assignee);
+            boolean done, UserModel assignee, List<String> tags, int mostLikelyTimeToFinish, int pessimisticTimeToFinish, int optimisticTimeToFinish) throws InvalidInputException {
+        this(name, description, projectId, budget, startDate, deadline, done, assignee, mostLikelyTimeToFinish, pessimisticTimeToFinish, optimisticTimeToFinish);
         if (tags != null) setTags(tags);
     }
 
@@ -115,7 +121,7 @@ public class TaskModel extends AbstractModel {
      * @param tags
      */
     protected TaskModel(int taskId, String name, String description, int projectId, double budget, Date startDate,
-            Date deadline, boolean done, UserModel assignee, List<String> tags) {
+            Date deadline, boolean done, UserModel assignee, List<String> tags, int mostLikelyTimeToFinish, int pessimisticTimeToFinish, int optimisticTimeToFinish) {
         this();
         this.name = name;
         this.description = description;
@@ -127,6 +133,9 @@ public class TaskModel extends AbstractModel {
         this.assignee = assignee;
         this.tags = tags;
         this.taskId = taskId;
+        this.mostLikelyTimeToFinish=mostLikelyTimeToFinish;
+        this.pessimisticTimeToFinish=pessimisticTimeToFinish;
+        this.optimisticTimeToFinish=optimisticTimeToFinish;
     }
 
     private static List<String> getTagsListFromString(String tagsString) {
@@ -147,15 +156,66 @@ public class TaskModel extends AbstractModel {
     }
 
     /**
-     * Add a task dependency to this task
+     * Add a task dependency to this task.
+     * Will not be added if it was already present in the list.
      * @param task task on which this task is dependent
-     * @return true if the task was not already in the list of dependencies
+     * @return true if the task was added to the list of dependencies, false if it was not added
      */
-    public boolean addDependency(TaskModel task) {
-        if (dependencies.stream().noneMatch((t) -> t.equals(task))) {
+    public void addDependency(TaskModel task) throws TaskDependencyException {
+        // Don't add dependency to itself
+        if (task.equals(this)) {
+            throw new TaskDependencyException("A task dependency cannot be added to itself.");
+        }
+        // Don't add dependency if it already exists
+        else if (dependencies.stream().anyMatch(task::equals)) {
+            throw new TaskDependencyException("Dependency from task " + this.getTaskId() + " to task "
+                    + task.getTaskId() + " already exists.");
+        }
+        // Don't add dependency if it creates a cycle
+        else if (hasDependencyCycle(task)) {
+            throw new TaskDependencyException("Adding dependency to task " + task.getTaskId()
+                    + " creates a dependency cycle.");
+        }
+        // Add dependency if none of the above conditions are met
+        else {
             dependencies.add(task);
+        }
+    }
+
+    private void internalAddDependency(TaskModel task) {
+        try {
+            addDependency(task);
+        } catch (TaskDependencyException e) {
+            throw new RuntimeException("Task dependency error", e);
+        }
+    }
+
+    /**
+     * Checks if adding the given task as a dependency to this task would create a dependency cycle.
+     * @param task the given task
+     * @return true if adding the given task as a dependency to this task would create a dependency cycle, false if not
+     */
+    private boolean hasDependencyCycle(TaskModel task) {
+        try {
+            task.refreshData();
+        } catch (ModelNotFoundException e) {
+            logger.error("Task not found in DB when refreshing data, it has probably been deleted since.");
+            return false;
+        }
+        List<TaskModel> taskDependencies = task.getDependencies();
+        if (taskDependencies.isEmpty()) {
+            return false;
+        }
+        else if (taskDependencies.stream().anyMatch(this::equals)) {
             return true;
-        } else {
+        }
+        else {
+            // Recusrive call
+            for (TaskModel t : taskDependencies) {
+                if (hasDependencyCycle(t)) {
+                    return true;
+                }
+            }
             return false;
         }
     }
@@ -170,20 +230,20 @@ public class TaskModel extends AbstractModel {
     }
 
     @Override
-    public void refreshData() throws ModelNotFoundException, InvalidInputException {
+    public void refreshData() throws ModelNotFoundException {
         TaskModel refreshed = getById(getTaskId());
 
-        setTaskId(refreshed.getTaskId());
-        setName(refreshed.getName());
-        setDescription(refreshed.getDescription());
-        setProjectId(refreshed.getProjectId());
-        setBudget(refreshed.getBudget());
-        setStartDate(refreshed.getStartDate());
-        setDeadline(refreshed.getDeadline());
-        setDone(refreshed.isDone());
-        setAssignee(refreshed.getAssignee());
-        setTags(refreshed.getTags());
-        setDependencies(refreshed.getDependencies());
+        this.name = refreshed.getName();
+        this.description = refreshed.getDescription();
+        this.projectId = refreshed.getProjectId();
+        this.budget = CurrencyUtils.roundToTwoDecimals(refreshed.getBudget());
+        this.startDate = refreshed.getStartDate();
+        this.deadline = refreshed.getDeadline();
+        this.done = refreshed.isDone();
+        this.assignee = refreshed.getAssignee();
+        this.tags = refreshed.getTags();
+        this.taskId = refreshed.getTaskId();
+        this.dependencies = refreshed.getDependencies();
 
         updateObservers();
     }
@@ -216,7 +276,7 @@ public class TaskModel extends AbstractModel {
         return new TaskModel().dbo.findAll();
     }
 
-    public static TaskModel getById(int taskId) throws ModelNotFoundException, InvalidInputException {
+    public static TaskModel getById(int taskId) throws ModelNotFoundException {
         return new TaskModel().dbo.findById(taskId);
     }
 
@@ -238,7 +298,7 @@ public class TaskModel extends AbstractModel {
         return getAllByAssignee(assignee.getUserId());
     }
 
-    public static void cleanData()throws DBException{
+    public static void cleanData() throws DBException{
         new TaskModel().dbo.clean();
     }
 
@@ -280,11 +340,10 @@ public class TaskModel extends AbstractModel {
      * @throws InvalidInputException
      */
     public void setName(String name) throws InvalidInputException {
-        name = name.replaceAll("\\n", " "); // Replace newlines with spaces
         if (name.length() > 50) {
             throw new InvalidInputException("Name cannot be longer than 50 characters.");
         }
-        this.name = name;
+        this.name = name.replaceAll("(\\r|\\n|\\t)", " "); // Replace tabs/newlines with spaces
     }
 
     /**
@@ -329,6 +388,58 @@ public class TaskModel extends AbstractModel {
         this.projectId = projectId;
     }
 
+    /**
+     *
+     * @return
+     */
+    public int getMostLikelyTimeToFinish(){return mostLikelyTimeToFinish;}
+
+    /**
+     *
+     * @param mostLikelyTimeToFinish is a factor of ten with a day unit
+     * @throws InvalidInputException
+     */
+    public void setMostLikelyTimeToFinish(int mostLikelyTimeToFinish)throws InvalidInputException{
+        if(mostLikelyTimeToFinish<0){
+            throw new InvalidInputException("Most likely time to finish must be a positive number");
+        }
+        this.mostLikelyTimeToFinish=mostLikelyTimeToFinish;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public int getPesimisticTimeToFinish(){return pessimisticTimeToFinish;}
+
+    /**
+     *
+     * @param pessimisticTimeToFinish is a factor of ten with a day unit
+     * @throws InvalidInputException
+     */
+    public void setPessimisticTimeToFinish(int pessimisticTimeToFinish)throws InvalidInputException{
+        if(pessimisticTimeToFinish<0){
+            throw new InvalidInputException("Pessimistic time to finish must be a positive number");
+        }
+        this.pessimisticTimeToFinish=pessimisticTimeToFinish;
+    }
+    /**
+     *
+     * @return
+     */
+    public int getOptimisticTimeToFinish(){return optimisticTimeToFinish;}
+
+    /**
+     *
+     * @param optimisticTimeToFinish is a factor of ten with a day unit
+     * @throws InvalidInputException
+     */
+    public void setOptimisticTimeToFinish(int optimisticTimeToFinish)throws InvalidInputException{
+        if(optimisticTimeToFinish<0){
+            throw new InvalidInputException("Optimistic time to finish must be a positive number");
+        }
+        this.optimisticTimeToFinish=optimisticTimeToFinish;
+    }
     /**
      *
      * @return
@@ -476,8 +587,7 @@ public class TaskModel extends AbstractModel {
             throw new InvalidInputException("User ID must be a positive integer");
         }
         else {
-            UserModel assignee = UserModel.getById(assigneeUserId);
-            this.assignee = assignee;
+            this.assignee = UserModel.getById(assigneeUserId);
         }
     }
 
@@ -505,7 +615,7 @@ public class TaskModel extends AbstractModel {
 
     public void addTagsFromString(String tagsString) {
         // TODO filter chars
-        getTagsListFromString(tagsString).forEach(t -> addTag(t));
+        getTagsListFromString(tagsString).forEach(this::addTag);
     }
 
     public void removeTag(String tag) {
@@ -521,7 +631,7 @@ public class TaskModel extends AbstractModel {
         if (getDeadline() != null) deadlineStr = DateUtils.castDateToString(getDeadline());
         if (getAssignee() != null) assigneeStr = getAssignee().toString();
         String tagsStr = getTags().stream().collect(Collectors.joining(" "));
-        String dependenciesStr = getDependencies().stream().map(t -> t.getName()).collect(Collectors.joining(", "));
+        String dependenciesStr = getDependencies().stream().map(TaskModel::getName).collect(Collectors.joining(", "));
 
         return "Task ID: " + getTaskId() + ", name: " + getName() + ", description: " + getDescription() +
                 ", project ID: " + getProjectId() + ", budget: " + getBudget() + ", start date: " + startDateStr +
@@ -531,6 +641,9 @@ public class TaskModel extends AbstractModel {
 
     @Override
     public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
         if (!(obj instanceof TaskModel)) {
             return false;
         }
@@ -565,9 +678,9 @@ public class TaskModel extends AbstractModel {
         if (!equalsNullable(other.getTags(), getTags())) {
             return false;
         }
-        if (!equalsNullable(other.getDependencies(), getDependencies())) {
-            return false;
-        }
+//        if (!equalsNullable(other.getDependencies(), getDependencies())) {
+//            return false;
+//        }
 
         return true;
     }
@@ -587,6 +700,9 @@ public class TaskModel extends AbstractModel {
         public static final String DONE_COLUMN = "Done";
         public static final String TAGS_COLUMN = "Tags";
         public static final String ASSIGNEE_USER_ID_COLUMN = "FKUserID";
+        public static final String MOST_LIKELY_TIME_TO_FINISH = "MostLikelyTimeToFinish";
+        public static final String PESSIMIST_TIME_TO_FINISH = "PessimistTimeToFinish";
+        public static final String OPTIMIST_TIME_TO_FINISH = "OptimistTimeToFinish";
 
         public static final String DEPENDENCIES_TABLE_NAME = "TaskDependency";
         public static final String DEPENDENCIES_MAIN_TASK_COLUMN = "FKTaskID";
@@ -646,6 +762,9 @@ public class TaskModel extends AbstractModel {
                     String dlDateTemp = rs.getString(DEADLINE_COLUMN);
                     Date stDateTempDate;
                     Date dlDateTempDate;
+                    int mostLikelyTimeTemp=rs.getInt(MOST_LIKELY_TIME_TO_FINISH);
+                    int pessimisticTimeTemp=rs.getInt(PESSIMIST_TIME_TO_FINISH);
+                    int optimistTimeTemp=rs.getInt(OPTIMIST_TIME_TO_FINISH);
                     try {
                         stDateTempDate = DateUtils.castStringToDate(stDateTemp);
                         dlDateTempDate = DateUtils.castStringToDate(dlDateTemp);
@@ -676,7 +795,7 @@ public class TaskModel extends AbstractModel {
                         tagsListTemp = new LinkedList<>();
                     }
                     m = new TaskModel(idTemp, nameTemp, descriptionTemp, projectIdTemp, budgetTemp, stDateTempDate,
-                            dlDateTempDate, doneTemp, assignee, tagsListTemp);
+                            dlDateTempDate, doneTemp, assignee, tagsListTemp, mostLikelyTimeTemp, pessimisticTimeTemp, optimistTimeTemp);
                 }
                 else {
                     logger.debug("DB query returned zero results");
@@ -712,6 +831,9 @@ public class TaskModel extends AbstractModel {
                     String dlDateTemp = rs.getString(DEADLINE_COLUMN);
                     Date stDateTempDate;
                     Date dlDateTempDate;
+                    int mostLikelyTimeTemp=rs.getInt(MOST_LIKELY_TIME_TO_FINISH);
+                    int pessimisticTimeTemp=rs.getInt(PESSIMIST_TIME_TO_FINISH);
+                    int optimistTimeTemp=rs.getInt(OPTIMIST_TIME_TO_FINISH);
                     try {
                         stDateTempDate = DateUtils.castStringToDate(stDateTemp);
                         dlDateTempDate = DateUtils.castStringToDate(dlDateTemp);
@@ -743,7 +865,7 @@ public class TaskModel extends AbstractModel {
                         tagsListTemp = new LinkedList<>();
                     }
                     taskList.add(new TaskModel(idTemp, nameTemp, descriptionTemp, projectIdTemp, budgetTemp,
-                            stDateTempDate, dlDateTempDate, doneTemp, assignee, tagsListTemp));
+                            stDateTempDate, dlDateTempDate, doneTemp, assignee, tagsListTemp, mostLikelyTimeTemp, pessimisticTimeTemp, optimistTimeTemp));
                 }
 
                 if (taskList.isEmpty()) {
@@ -776,7 +898,7 @@ public class TaskModel extends AbstractModel {
             List<TaskModel> tasks = runMultiResultQuery(sql);
             for (TaskModel t : tasks) {
                 List<TaskModel> dependencies = findTaskDependencies(t);
-                dependencies.forEach(t::addDependency);
+                dependencies.forEach(t::internalAddDependency);
             }
             return tasks;
         }
@@ -796,20 +918,31 @@ public class TaskModel extends AbstractModel {
          * @return the dependencies of the taskModel
          */
         public List<TaskModel> findTaskDependencies(int taskId) {
-            StringBuilder sql = new StringBuilder();
-            sql.append("SELECT * FROM " + TABLE_NAME + " ");
-            sql.append("LEFT JOIN " + UserModel.UserModelDBObject.TABLE_NAME + " ");
-            sql.append("ON " + UserModel.UserModelDBObject.TABLE_NAME + "." +
+            String sql = "SELECT * FROM " + TABLE_NAME + " ";
+            sql += "LEFT JOIN " + UserModel.UserModelDBObject.TABLE_NAME + " ";
+            sql += "ON " + UserModel.UserModelDBObject.TABLE_NAME + "." +
                     UserModel.UserModelDBObject.USER_ID_COLUMN + "=" + TABLE_NAME + "." + ASSIGNEE_USER_ID_COLUMN
-                    + " ");
-            sql.append("INNER JOIN " + DEPENDENCIES_TABLE_NAME + " ");
-            sql.append("ON " + TABLE_NAME + "." + TASK_ID_COLUMN + "=" + DEPENDENCIES_TABLE_NAME + "." +
-                    DEPENDENCIES_DEPENDS_ON_TASK_COLUMN + " ");
-            sql.append("WHERE " + DEPENDENCIES_TABLE_NAME + "." + DEPENDENCIES_MAIN_TASK_COLUMN + "=" + taskId + ";");
-            logger.debug("Query: " + sql.toString());
+                    + " ";
+            sql += "WHERE " + TABLE_NAME + "." + TASK_ID_COLUMN + " in( ";
+            sql += "SELECT " + DEPENDENCIES_TABLE_NAME + "." + DEPENDENCIES_DEPENDS_ON_TASK_COLUMN + " ";
+            sql += "FROM " + DEPENDENCIES_TABLE_NAME + " ";
+            sql += "WHERE " + DEPENDENCIES_TABLE_NAME + "." + DEPENDENCIES_MAIN_TASK_COLUMN + "=" + taskId + ");";
+//            sql.append("INNER JOIN " + DEPENDENCIES_TABLE_NAME + " ");
+//            sql.append("ON " + TABLE_NAME + "." + TASK_ID_COLUMN + "=" + DEPENDENCIES_TABLE_NAME + "." +
+//                    DEPENDENCIES_DEPENDS_ON_TASK_COLUMN + " ");
+//            sql.append("WHERE " + DEPENDENCIES_TABLE_NAME + "." + DEPENDENCIES_MAIN_TASK_COLUMN + "=" + taskId + ";");
+            logger.debug("Query: " + sql);
+
+            // TODO FIX BROKEN QUERY
 
             try {
-                return runMultiResultQuery(sql.toString());
+//                return runMultiResultQuery(sql.toString());
+                List<TaskModel> tasks = runMultiResultQuery(sql);
+                for (TaskModel t : tasks) {
+                    List<TaskModel> dependencies = findTaskDependencies(t);
+                    dependencies.forEach(t::internalAddDependency);
+                }
+                return tasks;
             } catch (ModelNotFoundException e) {
                 logger.debug("No task dependencies found for task with ID " + taskId);
             }
@@ -817,7 +950,7 @@ public class TaskModel extends AbstractModel {
         }
 
         @Override
-        public TaskModel findById(int taskId) throws ModelNotFoundException, InvalidInputException {
+        public TaskModel findById(int taskId) throws ModelNotFoundException {
             StringBuilder sql = new StringBuilder();
             sql.append("SELECT * ");
             sql.append("FROM " + getTableName() + " ");
@@ -829,7 +962,7 @@ public class TaskModel extends AbstractModel {
             logger.debug("Query: " + sql.toString());
 
             TaskModel t = runSingleResultQuery(sql.toString());
-            findTaskDependencies(t).forEach(t::addDependency);
+            findTaskDependencies(t).forEach(t::internalAddDependency);
 
             return t;
         }
@@ -848,7 +981,7 @@ public class TaskModel extends AbstractModel {
             List<TaskModel> tasks = runMultiResultQuery(sql.toString());
             for (TaskModel t : tasks) {
                 List<TaskModel> dependencies = findTaskDependencies(t);
-                dependencies.forEach(t::addDependency);
+                dependencies.forEach(t::internalAddDependency);
             }
 
             return tasks;
@@ -867,7 +1000,7 @@ public class TaskModel extends AbstractModel {
             List<TaskModel> tasks = runMultiResultQuery(sql.toString());
             for (TaskModel t : tasks) {
                 List<TaskModel> dependencies = findTaskDependencies(t);
-                dependencies.forEach(t::addDependency);
+                dependencies.forEach(t::internalAddDependency);
             }
 
             return tasks;
@@ -878,7 +1011,7 @@ public class TaskModel extends AbstractModel {
             List<TaskModel> tasks = runMultiResultQuery(sql);
             for (TaskModel t : tasks) {
                 List<TaskModel> dependencies = findTaskDependencies(t);
-                dependencies.forEach(t::addDependency);
+                dependencies.forEach(t::internalAddDependency);
             }
             return tasks;
         }
@@ -1088,7 +1221,7 @@ public class TaskModel extends AbstractModel {
 
 
         @Override
-        public void createTable() throws DBException{
+        public void createTable() throws DBException {
             // Create task table query
             StringBuilder createTaskTableSql = new StringBuilder();
             createTaskTableSql.append("CREATE TABLE IF NOT EXISTS "+ getTableName()+" (");
@@ -1102,10 +1235,17 @@ public class TaskModel extends AbstractModel {
             createTaskTableSql.append(TAGS_COLUMN+" TEXT"+",");
             createTaskTableSql.append(DESCRIPTION_COLUMN+" TEXT"+",");
             createTaskTableSql.append(ASSIGNEE_USER_ID_COLUMN+" INT"+",");
+            //This column is factor of 10 and its unit is a day (for example half a day needs number 5 inside this column)
+            createTaskTableSql.append(MOST_LIKELY_TIME_TO_FINISH+" INT CHECK("+MOST_LIKELY_TIME_TO_FINISH+" >= 0)"+",");
+            //This column is factor of 10 and its unit is a day (for example half a day needs number 5 inside this column)
+            createTaskTableSql.append(PESSIMIST_TIME_TO_FINISH+" INT CHECK("+PESSIMIST_TIME_TO_FINISH+" >= 0)"+",");
+            //This column is factor of 10 and its unit is a day (for example half a day needs number 5 inside this column)
+            createTaskTableSql.append(OPTIMIST_TIME_TO_FINISH+" INT CHECK("+OPTIMIST_TIME_TO_FINISH+" >= 0)"+",");
             createTaskTableSql.append("FOREIGN KEY ("+PROJECT_ID_COLUMN+") REFERENCES Project(ProjectID) ON DELETE CASCADE"+",");
             createTaskTableSql.append("FOREIGN KEY ("+ASSIGNEE_USER_ID_COLUMN+") REFERENCES User(UserID) ON DELETE CASCADE"+",");
-            createTaskTableSql.append("CONSTRAINT chk_date CHECK(" + DEADLINE_COLUMN + " >= "+START_DATE_COLUMN+"));");
-
+            createTaskTableSql.append("CONSTRAINT chk_date CHECK(" + DEADLINE_COLUMN + " >= "+START_DATE_COLUMN+"),");
+            createTaskTableSql.append("CONSTRAINT chk_dateForPert CHECK(" + MOST_LIKELY_TIME_TO_FINISH + " >= "+OPTIMIST_TIME_TO_FINISH+" AND "+PESSIMIST_TIME_TO_FINISH+" >= "+ MOST_LIKELY_TIME_TO_FINISH+ " AND "+PESSIMIST_TIME_TO_FINISH+" >= "+OPTIMIST_TIME_TO_FINISH+"));");
+//            System.out.print(createTaskTableSql);
             // Create task dependencies table query
             StringBuilder createTaskDependenciesTableSql = new StringBuilder();
             createTaskDependenciesTableSql.append("CREATE TABLE IF NOT EXISTS TaskDependency(");

@@ -134,7 +134,7 @@ public class Database {
     public static Database getActiveDB() throws DBException {
         if (ConfigFactory.getProperty("configPath") == null) {
             logger.debug("DB config path was not previously set, setting it now");
-            ConfigFactory.setProperty("configPath", Database.class.getResource("/db.properties").getFile());
+            ConfigFactory.setProperty("configPath", "db.properties");
         }
         DBConfig cfg = ConfigFactory.create(DBConfig.class);
         String activeDBPath = cfg.activeDbPath();
@@ -147,10 +147,9 @@ public class Database {
      */
     public static Database getDB(String dbPath) throws DBException {
         logger.debug("Getting DB " + dbPath);
-        Database activeDB = activeDBs.get(dbPath);
         if (isDBActive(dbPath)) {
             logger.debug("DB " + dbPath + " was already active, using same instance");
-            return activeDB;
+            return activeDBs.get(dbPath);
         }
         else {
             logger.debug("DB " + dbPath + " was not already active, creating instance");
@@ -162,8 +161,7 @@ public class Database {
 
     public static boolean isDBActive(String dbPath) {
         logger.debug("Checking if DB " + dbPath + " is active");
-        Database activeDB = activeDBs.get(dbPath);
-        return activeDB != null;
+        return activeDBs.get(dbPath) != null;
     }
 
     public void dropTable(String tableName) throws DBException {

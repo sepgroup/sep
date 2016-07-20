@@ -1,11 +1,7 @@
 package com.sepgroup.sep.controller;
 
 
-import com.sepgroup.sep.model.ModelNotFoundException;
-import com.sepgroup.sep.Observer;
-import com.sepgroup.sep.db.DBException;
-import com.sepgroup.sep.model.AbstractModel;
-import com.sepgroup.sep.model.ProjectModel;
+import com.sepgroup.sep.model.Observer;
 import javafx.scene.Scene;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
