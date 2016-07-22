@@ -288,7 +288,7 @@ public class TaskModelTest {
         createdTask.persistData();
         int tId = createdTask.getTaskId();
 
-        // Fetch project
+        // Fetch task
         TaskModel fetchedTask = null;
         try {
             fetchedTask = TaskModel.getById(tId);
@@ -558,6 +558,50 @@ public class TaskModelTest {
     @Test
     public void testSetStartDate() throws Exception {
 
+    }
+
+    /**
+     * Positive test verifying most likely time is saved & retrieved from DB
+     * @throws Exception
+     */
+    @Test
+    public void testPersistPertTimes() throws Exception {
+        // Create & persist task
+        TaskModel createdTask = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId());
+        createdTask.setOptimisticTimeToFinish(10);
+        createdTask.setMostLikelyTimeToFinish(20);
+        createdTask.setPessimisticTimeToFinish(30);
+        createdTask.persistData();
+        int tId = createdTask.getTaskId();
+
+        // Fetch task & assert value
+        TaskModel fetchedTask = null;
+        try {
+            fetchedTask = TaskModel.getById(tId);
+        } catch (ModelNotFoundException e) {
+            fail(e.getMessage());
+        }
+        assertThat(fetchedTask.getOptimisticTimeToFinish(), equalTo(createdTask.getOptimisticTimeToFinish()));
+        assertThat(fetchedTask.getMostLikelyTimeToFinish(), equalTo(createdTask.getMostLikelyTimeToFinish()));
+        assertThat(fetchedTask.getPesimisticTimeToFinish(), equalTo(createdTask.getPesimisticTimeToFinish()));
+    }
+
+    @Test(expected = InvalidInputException.class)
+    public void testSetMostLikelyTimeNegativeValue() throws Exception {
+        TaskModel createdTask = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId());
+        createdTask.setMostLikelyTimeToFinish(-100);
+    }
+
+    @Test(expected = InvalidInputException.class)
+    public void testSetOptimisticTimeNegativeValue() throws Exception {
+        TaskModel createdTask = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId());
+        createdTask.setOptimisticTimeToFinish(-100);
+    }
+
+    @Test(expected = InvalidInputException.class)
+    public void testSetPessimisticTimeNegativeValue() throws Exception {
+        TaskModel createdTask = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId());
+        createdTask.setPessimisticTimeToFinish(-100);
     }
 
 

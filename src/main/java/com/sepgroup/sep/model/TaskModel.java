@@ -133,9 +133,9 @@ public class TaskModel extends AbstractModel {
         this.assignee = assignee;
         this.tags = tags;
         this.taskId = taskId;
-        this.mostLikelyTimeToFinish=mostLikelyTimeToFinish;
-        this.pessimisticTimeToFinish=pessimisticTimeToFinish;
-        this.optimisticTimeToFinish=optimisticTimeToFinish;
+        this.mostLikelyTimeToFinish = mostLikelyTimeToFinish;
+        this.pessimisticTimeToFinish = pessimisticTimeToFinish;
+        this.optimisticTimeToFinish = optimisticTimeToFinish;
     }
 
     private static List<String> getTagsListFromString(String tagsString) {
@@ -244,6 +244,9 @@ public class TaskModel extends AbstractModel {
         this.tags = refreshed.getTags();
         this.taskId = refreshed.getTaskId();
         this.dependencies = refreshed.getDependencies();
+        this.mostLikelyTimeToFinish = refreshed.getMostLikelyTimeToFinish();
+        this.optimisticTimeToFinish = refreshed.getOptimisticTimeToFinish();
+        this.pessimisticTimeToFinish = refreshed.getPesimisticTimeToFinish();
 
         updateObservers();
     }
@@ -399,8 +402,8 @@ public class TaskModel extends AbstractModel {
      * @param mostLikelyTimeToFinish is a factor of ten with a day unit
      * @throws InvalidInputException
      */
-    public void setMostLikelyTimeToFinish(int mostLikelyTimeToFinish)throws InvalidInputException{
-        if(mostLikelyTimeToFinish<0){
+    public void setMostLikelyTimeToFinish(int mostLikelyTimeToFinish) throws InvalidInputException {
+        if (mostLikelyTimeToFinish < 0) {
             throw new InvalidInputException("Most likely time to finish must be a positive number");
         }
         this.mostLikelyTimeToFinish=mostLikelyTimeToFinish;
@@ -417,8 +420,8 @@ public class TaskModel extends AbstractModel {
      * @param pessimisticTimeToFinish is a factor of ten with a day unit
      * @throws InvalidInputException
      */
-    public void setPessimisticTimeToFinish(int pessimisticTimeToFinish)throws InvalidInputException{
-        if(pessimisticTimeToFinish<0){
+    public void setPessimisticTimeToFinish(int pessimisticTimeToFinish) throws InvalidInputException {
+        if ( pessimisticTimeToFinish < 0 ) {
             throw new InvalidInputException("Pessimistic time to finish must be a positive number");
         }
         this.pessimisticTimeToFinish=pessimisticTimeToFinish;
@@ -434,8 +437,8 @@ public class TaskModel extends AbstractModel {
      * @param optimisticTimeToFinish is a factor of ten with a day unit
      * @throws InvalidInputException
      */
-    public void setOptimisticTimeToFinish(int optimisticTimeToFinish)throws InvalidInputException{
-        if(optimisticTimeToFinish<0){
+    public void setOptimisticTimeToFinish(int optimisticTimeToFinish) throws InvalidInputException {
+        if ( optimisticTimeToFinish < 0 ) {
             throw new InvalidInputException("Optimistic time to finish must be a positive number");
         }
         this.optimisticTimeToFinish=optimisticTimeToFinish;
@@ -481,7 +484,8 @@ public class TaskModel extends AbstractModel {
 
         if (budgetDifference < 0) {
             throw new InvalidInputException("A budget of $" + budget + " for this task makes the actual project's " +
-                    "budget $" + budgetDifference + " over the expected project budget of $" + projectTotalBudget);
+                    "budget $" + Math.abs(budgetDifference) + " over the expected project budget of $" +
+                    projectTotalBudget);
         }
 
         this.budget = CurrencyUtils.roundToTwoDecimals(budget);
@@ -772,9 +776,9 @@ public class TaskModel extends AbstractModel {
         public static final String DONE_COLUMN = "Done";
         public static final String TAGS_COLUMN = "Tags";
         public static final String ASSIGNEE_USER_ID_COLUMN = "FKUserID";
-        public static final String MOST_LIKELY_TIME_TO_FINISH = "MostLikelyTimeToFinish";
-        public static final String PESSIMIST_TIME_TO_FINISH = "PessimistTimeToFinish";
-        public static final String OPTIMIST_TIME_TO_FINISH = "OptimistTimeToFinish";
+        public static final String MOST_LIKELY_TIME_TO_FINISH_COLUMN = "MostLikelyTimeToFinish";
+        public static final String PESSIMIST_TIME_TO_FINISH_COLUMN = "PessimistTimeToFinish";
+        public static final String OPTIMIST_TIME_TO_FINISH_COLUMN = "OptimistTimeToFinish";
 
         public static final String DEPENDENCIES_TABLE_NAME = "TaskDependency";
         public static final String DEPENDENCIES_MAIN_TASK_COLUMN = "FKTaskID";
@@ -832,11 +836,11 @@ public class TaskModel extends AbstractModel {
                     int projectIdTemp = rs.getInt(PROJECT_ID_COLUMN);
                     String stDateTemp = rs.getString(START_DATE_COLUMN);
                     String dlDateTemp = rs.getString(DEADLINE_COLUMN);
+                    int mostLikelyTimeTemp=rs.getInt(MOST_LIKELY_TIME_TO_FINISH_COLUMN);
+                    int pessimisticTimeTemp=rs.getInt(PESSIMIST_TIME_TO_FINISH_COLUMN);
+                    int optimistTimeTemp=rs.getInt(OPTIMIST_TIME_TO_FINISH_COLUMN);
                     Date stDateTempDate;
                     Date dlDateTempDate;
-                    int mostLikelyTimeTemp=rs.getInt(MOST_LIKELY_TIME_TO_FINISH);
-                    int pessimisticTimeTemp=rs.getInt(PESSIMIST_TIME_TO_FINISH);
-                    int optimistTimeTemp=rs.getInt(OPTIMIST_TIME_TO_FINISH);
                     try {
                         stDateTempDate = DateUtils.castStringToDate(stDateTemp);
                         dlDateTempDate = DateUtils.castStringToDate(dlDateTemp);
@@ -901,11 +905,11 @@ public class TaskModel extends AbstractModel {
                     int projectIdTemp = rs.getInt(PROJECT_ID_COLUMN);
                     String stDateTemp = rs.getString(START_DATE_COLUMN);
                     String dlDateTemp = rs.getString(DEADLINE_COLUMN);
+                    int mostLikelyTimeTemp=rs.getInt(MOST_LIKELY_TIME_TO_FINISH_COLUMN);
+                    int pessimisticTimeTemp=rs.getInt(PESSIMIST_TIME_TO_FINISH_COLUMN);
+                    int optimistTimeTemp=rs.getInt(OPTIMIST_TIME_TO_FINISH_COLUMN);
                     Date stDateTempDate;
                     Date dlDateTempDate;
-                    int mostLikelyTimeTemp=rs.getInt(MOST_LIKELY_TIME_TO_FINISH);
-                    int pessimisticTimeTemp=rs.getInt(PESSIMIST_TIME_TO_FINISH);
-                    int optimistTimeTemp=rs.getInt(OPTIMIST_TIME_TO_FINISH);
                     try {
                         stDateTempDate = DateUtils.castStringToDate(stDateTemp);
                         dlDateTempDate = DateUtils.castStringToDate(dlDateTemp);
@@ -999,16 +1003,9 @@ public class TaskModel extends AbstractModel {
             sql += "SELECT " + DEPENDENCIES_TABLE_NAME + "." + DEPENDENCIES_DEPENDS_ON_TASK_COLUMN + " ";
             sql += "FROM " + DEPENDENCIES_TABLE_NAME + " ";
             sql += "WHERE " + DEPENDENCIES_TABLE_NAME + "." + DEPENDENCIES_MAIN_TASK_COLUMN + "=" + taskId + ");";
-//            sql.append("INNER JOIN " + DEPENDENCIES_TABLE_NAME + " ");
-//            sql.append("ON " + TABLE_NAME + "." + TASK_ID_COLUMN + "=" + DEPENDENCIES_TABLE_NAME + "." +
-//                    DEPENDENCIES_DEPENDS_ON_TASK_COLUMN + " ");
-//            sql.append("WHERE " + DEPENDENCIES_TABLE_NAME + "." + DEPENDENCIES_MAIN_TASK_COLUMN + "=" + taskId + ";");
             logger.debug("Query: " + sql);
 
-            // TODO FIX BROKEN QUERY
-
             try {
-//                return runMultiResultQuery(sql.toString());
                 List<TaskModel> tasks = runMultiResultQuery(sql);
                 for (TaskModel t : tasks) {
                     List<TaskModel> dependencies = findTaskDependencies(t);
@@ -1145,17 +1142,23 @@ public class TaskModel extends AbstractModel {
             sql.append("," + DONE_COLUMN);
             if (getAssignee() != null) sql.append("," + ASSIGNEE_USER_ID_COLUMN);
             if (getTags().size() > 0) sql.append("," + TAGS_COLUMN);
+            sql.append("," + MOST_LIKELY_TIME_TO_FINISH_COLUMN);
+            sql.append("," + OPTIMIST_TIME_TO_FINISH_COLUMN);
+            sql.append("," + PESSIMIST_TIME_TO_FINISH_COLUMN);
             sql.append(") ");
 
             sql.append("VALUES ('" + getName() + "'");
             if (getDescription() != null) sql.append(",'" + getDescription() + "'");
-            sql.append("," + getProjectId() + "");
+            sql.append("," + getProjectId());
             sql.append(",'" + getBudget() + "'");
             if (getStartDate() != null) sql.append(",'" + DateUtils.castDateToString(getStartDate()) + "'");
             if (getDeadline() != null) sql.append(",'" + DateUtils.castDateToString(getDeadline()) + "'");
             sql.append(",'" + (isDone() ? 1 : 0) + "'");
             if (getAssignee() != null) sql.append(",'" + getAssignee().getUserId() + "'");
             if (getTags().size() > 0)sql.append(",'" + getTagsString() + "'");
+            sql.append("," + getMostLikelyTimeToFinish());
+            sql.append("," + getOptimisticTimeToFinish());
+            sql.append("," + getPesimisticTimeToFinish());
             sql.append(");");
 
             logger.debug("SQL query: " + sql.toString());
@@ -1198,6 +1201,9 @@ public class TaskModel extends AbstractModel {
             sql.append(", " + ASSIGNEE_USER_ID_COLUMN + "=" +
                     (getAssignee() != null ? getAssignee().getUserId() : "0") + " ");
             if (getTags().size() > 0) sql.append(", " + TAGS_COLUMN + "='" + getTagsString() + "' ");
+            sql.append(", " + MOST_LIKELY_TIME_TO_FINISH_COLUMN + "=" + getMostLikelyTimeToFinish() + " ");
+            sql.append(", " + OPTIMIST_TIME_TO_FINISH_COLUMN + "=" + getOptimisticTimeToFinish() + " ");
+            sql.append(", " + PESSIMIST_TIME_TO_FINISH_COLUMN + "=" + getPesimisticTimeToFinish() + " ");
             sql.append("WHERE " + TASK_ID_COLUMN + "=" + getTaskId() + ";");
 
             try {
@@ -1308,15 +1314,15 @@ public class TaskModel extends AbstractModel {
             createTaskTableSql.append(DESCRIPTION_COLUMN+" TEXT"+",");
             createTaskTableSql.append(ASSIGNEE_USER_ID_COLUMN+" INT"+",");
             //This column is factor of 10 and its unit is a day (for example half a day needs number 5 inside this column)
-            createTaskTableSql.append(MOST_LIKELY_TIME_TO_FINISH+" INT CHECK("+MOST_LIKELY_TIME_TO_FINISH+" >= 0)"+",");
+            createTaskTableSql.append(MOST_LIKELY_TIME_TO_FINISH_COLUMN +" INT CHECK("+ MOST_LIKELY_TIME_TO_FINISH_COLUMN +" >= 0)"+",");
             //This column is factor of 10 and its unit is a day (for example half a day needs number 5 inside this column)
-            createTaskTableSql.append(PESSIMIST_TIME_TO_FINISH+" INT CHECK("+PESSIMIST_TIME_TO_FINISH+" >= 0)"+",");
+            createTaskTableSql.append(PESSIMIST_TIME_TO_FINISH_COLUMN +" INT CHECK("+ PESSIMIST_TIME_TO_FINISH_COLUMN +" >= 0)"+",");
             //This column is factor of 10 and its unit is a day (for example half a day needs number 5 inside this column)
-            createTaskTableSql.append(OPTIMIST_TIME_TO_FINISH+" INT CHECK("+OPTIMIST_TIME_TO_FINISH+" >= 0)"+",");
+            createTaskTableSql.append(OPTIMIST_TIME_TO_FINISH_COLUMN +" INT CHECK("+ OPTIMIST_TIME_TO_FINISH_COLUMN +" >= 0)"+",");
             createTaskTableSql.append("FOREIGN KEY ("+PROJECT_ID_COLUMN+") REFERENCES Project(ProjectID) ON DELETE CASCADE"+",");
             createTaskTableSql.append("FOREIGN KEY ("+ASSIGNEE_USER_ID_COLUMN+") REFERENCES User(UserID) ON DELETE CASCADE"+",");
             createTaskTableSql.append("CONSTRAINT chk_date CHECK(" + DEADLINE_COLUMN + " >= "+START_DATE_COLUMN+"),");
-            createTaskTableSql.append("CONSTRAINT chk_dateForPert CHECK(" + MOST_LIKELY_TIME_TO_FINISH + " >= "+OPTIMIST_TIME_TO_FINISH+" AND "+PESSIMIST_TIME_TO_FINISH+" >= "+ MOST_LIKELY_TIME_TO_FINISH+ " AND "+PESSIMIST_TIME_TO_FINISH+" >= "+OPTIMIST_TIME_TO_FINISH+"));");
+            createTaskTableSql.append("CONSTRAINT chk_dateForPert CHECK(" + MOST_LIKELY_TIME_TO_FINISH_COLUMN + " >= "+ OPTIMIST_TIME_TO_FINISH_COLUMN +" AND "+ PESSIMIST_TIME_TO_FINISH_COLUMN +" >= "+ MOST_LIKELY_TIME_TO_FINISH_COLUMN + " AND "+ PESSIMIST_TIME_TO_FINISH_COLUMN +" >= "+ OPTIMIST_TIME_TO_FINISH_COLUMN +"));");
 //            System.out.print(createTaskTableSql);
             // Create task dependencies table query
             StringBuilder createTaskDependenciesTableSql = new StringBuilder();

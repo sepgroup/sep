@@ -134,12 +134,10 @@ public class ProjectViewerController extends AbstractController {
             mostLikelyColumn.setCellValueFactory(cellData -> cellData.getValue().taskMostLikelyProperty().asObject());
             pessimisticColumn.setCellValueFactory(cellData -> cellData.getValue().taskPessimisticTimeProperty().asObject());
             optimisticColumn.setCellValueFactory(cellData -> cellData.getValue().taskOptimisticTimeProperty().asObject());
-            if (taskTableView.getItems().isEmpty()){
+
+            if (taskTableView.getItems().isEmpty()) {
 				createGanttChartButton.setDisable(true);
-				
 			}
-
-
 
             // Populate user filter combo box
             List<UserModel> userList;
