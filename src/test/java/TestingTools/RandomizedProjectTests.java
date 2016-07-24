@@ -1,6 +1,5 @@
 package TestingTools;
 
-import com.sepgroup.sep.SepUserStorage;
 import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.model.*;
 
@@ -13,9 +12,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.*;
-
-import com.sepgroup.sep.tests.ut.model.ProjectModelTest;
-import org.aeonbits.owner.ConfigFactory;
 
 
 import static org.junit.Assert.*;
@@ -79,7 +75,7 @@ public class RandomizedProjectTests {
          * RandomizedProjectTests
          */
 
-        SepUserStorage.createDBTablesIfNotExisting();
+        DBManager.createDBTablesIfNotExisting();
 
         createdManager = new UserModel("FIRST", "MANAGER", 100.00);
         createdManager.persistData();
@@ -121,7 +117,7 @@ public class RandomizedProjectTests {
 
     @AfterClass
     public static void tearDownAfterClass() throws Exception {
-        SepUserStorage.dropAllDBTables();
+        DBManager.dropAllDBTables();
     }
 
 

@@ -1,6 +1,5 @@
 package com.sepgroup.sep.tests.ut.model;
 
-import com.sepgroup.sep.SepUserStorage;
 import com.sepgroup.sep.model.*;
 import org.junit.*;
 
@@ -30,7 +29,7 @@ public class TaskModelTest {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        SepUserStorage.createDBTablesIfNotExisting();
+        DBManager.createDBTablesIfNotExisting();
     }
 
     @Before
@@ -48,7 +47,7 @@ public class TaskModelTest {
 
     @AfterClass
     public static void tearDownAfterClass() throws Exception {
-        SepUserStorage.dropAllDBTables();
+        DBManager.dropAllDBTables();
     }
 
     /**

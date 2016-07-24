@@ -1,9 +1,8 @@
 package com.sepgroup.sep.tests.ut.model;
 
-import com.sepgroup.sep.SepUserStorage;
+import com.sepgroup.sep.model.DBManager;
 import com.sepgroup.sep.model.ModelNotFoundException;
 import com.sepgroup.sep.model.UserModel;
-import org.aeonbits.owner.ConfigFactory;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -24,12 +23,12 @@ public class UserModelTest {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        SepUserStorage.createDBTablesIfNotExisting();
+        DBManager.createDBTablesIfNotExisting();
     }
 
     @AfterClass
     public static void tearDownAfterClass() throws Exception {
-        SepUserStorage.dropAllDBTables();
+        DBManager.dropAllDBTables();
     }
 
     @Test

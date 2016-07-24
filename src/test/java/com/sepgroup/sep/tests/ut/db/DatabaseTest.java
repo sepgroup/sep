@@ -1,9 +1,8 @@
 package com.sepgroup.sep.tests.ut.db;
 
-import com.sepgroup.sep.SepUserStorage;
 import com.sepgroup.sep.db.Database;
+import com.sepgroup.sep.model.DBManager;
 import com.sepgroup.sep.model.ProjectModel;
-import org.aeonbits.owner.ConfigFactory;
 import org.junit.*;
 
 import java.sql.ResultSet;
@@ -111,7 +110,7 @@ public class DatabaseTest {
     }
 
     private void createTables() throws Exception {
-        SepUserStorage.createDBTablesIfNotExisting();
+        DBManager.createDBTablesIfNotExisting();
     }
 
     private int insertProject() throws Exception {

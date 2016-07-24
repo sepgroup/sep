@@ -1,10 +1,8 @@
 package com.sepgroup.sep.tests.ut.model;
 
-import com.sepgroup.sep.SepUserStorage;
 import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.model.*;
 import com.sepgroup.sep.utils.DateUtils;
-import org.aeonbits.owner.ConfigFactory;
 import org.junit.*;
 
 import java.util.Date;
@@ -34,7 +32,7 @@ public class ProjectModelTest {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        SepUserStorage.createDBTablesIfNotExisting();
+        DBManager.createDBTablesIfNotExisting();
         try {
             createdManager = new UserModel("Manager", "One", 22.00);
             createdManager.persistData();
@@ -68,7 +66,7 @@ public class ProjectModelTest {
      */
     @AfterClass
     public static void tearDownAfterClass() throws Exception {
-        SepUserStorage.dropAllDBTables();
+        DBManager.dropAllDBTables();
     }
 
 
