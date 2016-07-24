@@ -1,7 +1,6 @@
 package com.sepgroup.sep.model;
 
 import com.sepgroup.sep.db.DBException;
-import com.sepgroup.sep.db.DBObject;
 import com.sepgroup.sep.db.Database;
 import com.sepgroup.sep.utils.CurrencyUtils;
 import com.sepgroup.sep.utils.DateUtils;

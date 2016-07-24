@@ -1,8 +1,6 @@
-package com.sepgroup.sep.db;
+package com.sepgroup.sep.model;
 
-import com.sepgroup.sep.model.AbstractModel;
-import com.sepgroup.sep.model.InvalidInputException;
-import com.sepgroup.sep.model.ModelNotFoundException;
+import com.sepgroup.sep.db.DBException;
 
 import java.util.List;
 

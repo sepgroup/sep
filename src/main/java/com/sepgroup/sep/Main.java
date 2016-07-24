@@ -4,19 +4,17 @@ import com.sepgroup.sep.controller.AbstractController;
 import com.sepgroup.sep.controller.DialogCreator;
 import com.sepgroup.sep.controller.WelcomeController;
 import com.sepgroup.sep.db.DBException;
+import com.sepgroup.sep.model.DBManager;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import org.jfree.ui.RefineryUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class Main extends Application {
 
@@ -32,7 +30,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
         // Create Db tables if needed
         try {
-            SepUserStorage.createDBTablesIfNotExisting();
+            DBManager.createDBTablesIfNotExisting();
         } catch (DBException e) {
             logger.error("Unable to create database", e);
             DialogCreator.showErrorDialog("Error creating database", "Unable to create database, ensure you have " +

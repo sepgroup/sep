@@ -1,7 +1,6 @@
 package com.sepgroup.sep.model;
 
 import com.sepgroup.sep.db.DBException;
-import com.sepgroup.sep.db.DBObject;
 import com.sepgroup.sep.db.Database;
 import com.sepgroup.sep.utils.CurrencyUtils;
 import org.slf4j.Logger;
@@ -9,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Currency;
 import java.util.LinkedList;
 import java.util.List;
 
