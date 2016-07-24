@@ -366,13 +366,11 @@ public class ProjectModelTest {
      * @throws Exception
      */
     @Test
-    @Ignore
     public void testGetProjectId() throws Exception {
         ProjectModel createdProject1 = generateDummyProject("Project A", 1000, defaultStartDate, defaultDeadline, false, "Some project description for A", createdManager);
         ProjectModel createdProject2 = generateDummyProject("Project B", 2000, defaultStartDate, defaultDeadline, false, "Some project description for B", createdManager2);
 
-        assertEquals(1, createdProject1.getProjectId());
-        assertEquals(2, createdProject2.getProjectId());
+        assertEquals(1, createdProject2.getProjectId() - createdProject1.getProjectId());
     }
 
     /**

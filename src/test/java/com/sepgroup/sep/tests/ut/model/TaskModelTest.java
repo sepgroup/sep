@@ -2,6 +2,8 @@ package com.sepgroup.sep.tests.ut.model;
 
 import com.sepgroup.sep.SepUserStorage;
 import com.sepgroup.sep.model.*;
+import com.sepgroup.sep.utils.DateUtils;
+import com.sun.javafx.tk.Toolkit;
 import org.junit.*;
 
 import java.util.Date;
@@ -11,9 +13,8 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.isA;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
+
 
 /**
  * Created by jeremybrown on 2016-05-22.
@@ -21,11 +22,11 @@ import static org.junit.Assert.fail;
 public class TaskModelTest {
 
     private static Date defaultStartDate = new Date();
-    private static Date defaultDeadline = new Date(System.currentTimeMillis() + 9999*9999);
+    private static Date defaultDeadline = new Date(System.currentTimeMillis() + 2* 9999*9999);
 
-    private ProjectModel createdProject;
-    private Date createdProjectStartDate = new Date(System.currentTimeMillis() - 9999*9999);
-    private Date createdProjectDeadline = new Date(System.currentTimeMillis() + 2 * 9999*9999);
+    private ProjectModel createdProject,createdProject2;
+    private Date createdProjectStartDate = new Date(System.currentTimeMillis() - 5 * 9999*9999);
+    private Date createdProjectDeadline = new Date(System.currentTimeMillis() + 5 * 9999*9999);
     private UserModel createdUser;
 
     @BeforeClass
@@ -42,6 +43,13 @@ public class TaskModelTest {
         createdProject.setDeadline(createdProjectDeadline);
         createdProject.persistData();
 
+        createdProject2 = new ProjectModel();
+        createdProject2.setName("Project 2");
+        createdProject2.setBudget(100000);
+        createdProject2.setStartDate(createdProjectStartDate);
+        createdProject2.setDeadline(createdProjectDeadline);
+        createdProject2.persistData();
+
         createdUser = new UserModel("FIRST", "LAST", 22.00);
         createdUser.persistData();
     }
@@ -49,6 +57,17 @@ public class TaskModelTest {
     @AfterClass
     public static void tearDownAfterClass() throws Exception {
         SepUserStorage.dropAllDBTables();
+    }
+
+    private TaskModel generateTestTask() {
+        TaskModel t1 = null;
+        try {
+            t1 = new TaskModel("T1", "Description of T1", createdProject.getProjectId(), 10000,
+                    defaultStartDate, defaultDeadline, false, createdUser, 8, 9, 7);
+        } catch (Exception e) {
+
+        }
+        return t1;
     }
 
     /**
@@ -434,46 +453,58 @@ public class TaskModelTest {
 
     }
 
-    //TODO
+    // Tests getTaskId by checking the difference of two sequentially created tasks is 1
     @Test
-    public void getTaskId() throws Exception {
-
+    public void testGetTaskId() throws Exception {
+        TaskModel t1 = new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 10000,
+                defaultStartDate, defaultDeadline, false, createdUser, 8, 9, 7);
+        TaskModel t2 = new TaskModel("T2", "Description of\n T2", createdProject.getProjectId(), 10000,
+                defaultStartDate, defaultDeadline, false, createdUser, 8, 9, 7);
+        t1.persistData();
+        t2.persistData();
+        assertEquals(1, t2.getTaskId() - t1.getTaskId());
     }
 
-    //TODO
-    @Test
-    public void getName() throws Exception {
 
+    @Test
+    public void testGetName() throws Exception {
+        TaskModel t1 = new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 10000,
+                defaultStartDate, defaultDeadline, false, createdUser, 8, 9, 7);
+        t1.setName("new name");
+        assertEquals("new name", t1.getName());
     }
 
-    //TODO
-    @Test
-    public void setName() throws Exception {
 
+    @Test
+    public void testSetName() throws Exception {
+        TaskModel t1 = generateTestTask();
+        assertEquals("T1", t1.getName());
     }
 
-    //TODO
     @Test
-    public void getDescription() throws Exception {
-
+    public void testGetDescription() throws Exception {
+        TaskModel t1 = generateTestTask();
+        assertEquals("Description of T1", t1.getDescription());
     }
 
-    //TODO
     @Test
-    public void setDescription() throws Exception {
-
+    public void testSetDescription() throws Exception {
+        TaskModel t1 = generateTestTask();
+        t1.setDescription("description");
+        assertEquals("description", t1.getDescription());
     }
 
-    //TODO
     @Test
-    public void getProjectId() throws Exception {
-
+    public void testGetProjectId() throws Exception {
+        TaskModel t1 = new TaskModel("T1", "test", createdProject.getProjectId());
+        assertEquals(createdProject.getProjectId(), t1.getProjectId());
     }
 
-    //TODO
     @Test
-    public void setProjectId() throws Exception {
-
+    public void testSetProjectId() throws Exception {
+        TaskModel t1 = generateTestTask();
+        t1.setProjectId(createdProject2.getProjectId());
+        assertEquals(createdProject2.getProjectId(), t1.getProjectId());
     }
 
 
@@ -540,7 +571,7 @@ public class TaskModelTest {
     @Test(expected = InvalidInputException.class)
     public void testSetStartDateBeforeProjectStartDate() throws Exception {
         TaskModel createdTask = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId());
-        Date taskStartDate = new Date(System.currentTimeMillis() - 2 * 9999*9999);
+        Date taskStartDate = new Date(System.currentTimeMillis() - 6 * 9999*9999);
         createdTask.setStartDate(taskStartDate);
     }
 
@@ -557,7 +588,10 @@ public class TaskModelTest {
 
     @Test
     public void testSetStartDate() throws Exception {
-
+        TaskModel t1 = generateTestTask();
+        Date someDate = new Date(System.currentTimeMillis() + 100);
+        t1.setStartDate(someDate);
+        assertThat(t1.getStartDate(), equalTo(DateUtils.filterDateToMidnight(someDate)));
     }
 
     /**
@@ -607,42 +641,61 @@ public class TaskModelTest {
 
     @Test
     public void getStartDate() throws Exception {
-
+        TaskModel t1 = generateTestTask();
+        Date date = new Date(System.currentTimeMillis() - 9999 * 9999);
+        t1.setStartDate(date);
+        assertEquals(DateUtils.filterDateToMidnight(date).getTime(), t1.getStartDate().getTime());
     }
 
     @Test
     public void getStartDateString() throws Exception {
-
+        TaskModel t1 = generateTestTask();
+        assertEquals(DateUtils.castDateToString(defaultStartDate), t1.getStartDateString());
     }
 
     @Test
     public void setStartDate() throws Exception {
-
+        TaskModel t1 = generateTestTask();
+        Date date = new Date(System.currentTimeMillis() + 9999*9999);
+        t1.setStartDate(date);
+        assertEquals(DateUtils.filterDateToMidnight(date), t1.getStartDate());
     }
 
     @Test
     public void setStartDate1() throws Exception {
-
+        TaskModel t1 = generateTestTask();
+        Date date = new Date(System.currentTimeMillis() + 9999*9999);
+        String stringDate = DateUtils.castDateToString(date);
+        t1.setStartDate(stringDate);
+        assertEquals(stringDate, DateUtils.castDateToString(t1.getStartDate()));
     }
 
     @Test
     public void removeStartDate() throws Exception {
-
+        TaskModel t1 = generateTestTask();
+        t1.removeStartDate();
+        assertEquals(null, t1.getStartDate());
     }
 
     @Test
     public void getDeadline() throws Exception {
-
+        TaskModel t1 = generateTestTask();
+        assertEquals(DateUtils.filterDateToMidnight(defaultDeadline).getTime(), t1.getDeadline().getTime());
     }
 
     @Test
     public void getDeadlineString() throws Exception {
-
+        TaskModel t1 = generateTestTask();
+        assertEquals(DateUtils.castDateToString(defaultDeadline), t1.getDeadlineString());
     }
 
     @Test
     public void setDeadline() throws Exception {
+        TaskModel t1 = generateTestTask();
+        Date date = new Date(System.currentTimeMillis() + 9999*9999);
 
+        t1.setDeadline(date);
+        assertEquals(DateUtils.filterDateToMidnight(date).getTime(), t1.getDeadline().getTime());
     }
 
     @Test
