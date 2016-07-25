@@ -851,8 +851,8 @@ public class TaskModel extends AbstractModel {
         public static final String DEPENDENCIES_TABLE_NAME = "TaskDependency";
         public static final String DEPENDENCIES_MAIN_TASK_COLUMN = "FKTaskID";
         public static final String DEPENDENCIES_DEPENDS_ON_TASK_COLUMN = "DependOnTaskID";
-        public static final String ACTUAL_START_DATE_COLUMN = "StartDate";
-        public static final String ACTUAL_END_DATE_COLUMN = "Deadline";
+        public static final String ACTUAL_START_DATE_COLUMN = "ActualStartDate";
+        public static final String ACTUAL_END_DATE_COLUMN = "ActualDeadline";
 
         private Database db;
 
