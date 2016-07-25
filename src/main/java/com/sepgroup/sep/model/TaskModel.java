@@ -33,8 +33,6 @@ public class TaskModel extends AbstractModel {
     private double budget;
     private Date startDate;
     private Date deadline;
-    private Date actualStartDate;
-    private Date actualEndDate;
     private boolean done;
     private UserModel assignee;
     private List<String> tags;
@@ -42,6 +40,8 @@ public class TaskModel extends AbstractModel {
     private int mostLikelyTimeToFinish;
     private int pessimisticTimeToFinish;
     private int optimisticTimeToFinish;
+    private Date actualStartDate;
+    private Date actualEndDate;
 
     /**
      * Default constructor
@@ -78,7 +78,7 @@ public class TaskModel extends AbstractModel {
      * @throws InvalidInputException
      */
     public TaskModel(String name, String description, int projectId, double budget, Date startDate, Date deadline,
-            boolean done, UserModel assignee, int mostLikelyTimeToFinish, int pessimisticTimeToFinish, int optimisticTimeToFinish) throws InvalidInputException {
+            boolean done, UserModel assignee, int mostLikelyTimeToFinish, int pessimisticTimeToFinish, int optimisticTimeToFinish, Date actualStartDate, Date actualEndDate) throws InvalidInputException {
         this(name, description, projectId);
         setBudget(budget);
         setStartDate(startDate);
@@ -88,6 +88,8 @@ public class TaskModel extends AbstractModel {
         setMostLikelyTimeToFinish(mostLikelyTimeToFinish);
         setPessimisticTimeToFinish(pessimisticTimeToFinish);
         setOptimisticTimeToFinish(optimisticTimeToFinish);
+        setActualStartDate(actualStartDate);
+        setActualEndDate(actualEndDate);
     }
 
     /**
@@ -104,8 +106,8 @@ public class TaskModel extends AbstractModel {
      * @throws InvalidInputException
      */
     public TaskModel(String name, String description, int projectId, double budget, Date startDate, Date deadline,
-            boolean done, UserModel assignee, List<String> tags, int mostLikelyTimeToFinish, int pessimisticTimeToFinish, int optimisticTimeToFinish) throws InvalidInputException {
-        this(name, description, projectId, budget, startDate, deadline, done, assignee, mostLikelyTimeToFinish, pessimisticTimeToFinish, optimisticTimeToFinish);
+            boolean done, UserModel assignee, List<String> tags, int mostLikelyTimeToFinish, int pessimisticTimeToFinish, int optimisticTimeToFinish, Date actualStartDate, Date actualEndDate) throws InvalidInputException {
+        this(name, description, projectId, budget, startDate, deadline, done, assignee, mostLikelyTimeToFinish, pessimisticTimeToFinish, optimisticTimeToFinish, actualStartDate, actualEndDate);
         if (tags != null) setTags(tags);
     }
 
@@ -123,7 +125,7 @@ public class TaskModel extends AbstractModel {
      * @param tags
      */
     protected TaskModel(int taskId, String name, String description, int projectId, double budget, Date startDate,
-            Date deadline, Date actualStartDate, Date actualEndDate, boolean done, UserModel assignee, List<String> tags, int mostLikelyTimeToFinish, int pessimisticTimeToFinish, int optimisticTimeToFinish) {
+            Date deadline, boolean done, UserModel assignee, List<String> tags, int mostLikelyTimeToFinish, int pessimisticTimeToFinish, int optimisticTimeToFinish, Date actualStartDate, Date actualEndDate) {
         this();
         this.name = name;
         this.description = description;
@@ -131,8 +133,6 @@ public class TaskModel extends AbstractModel {
         this.budget = CurrencyUtils.roundToTwoDecimals(budget);
         this.startDate = startDate;
         this.deadline = deadline;
-        this.actualStartDate=actualStartDate;
-        this.actualEndDate=actualEndDate;
         this.done = done;
         this.assignee = assignee;
         this.tags = tags;
@@ -140,6 +140,8 @@ public class TaskModel extends AbstractModel {
         this.mostLikelyTimeToFinish = mostLikelyTimeToFinish;
         this.pessimisticTimeToFinish = pessimisticTimeToFinish;
         this.optimisticTimeToFinish = optimisticTimeToFinish;
+        this.actualStartDate = actualStartDate;
+        this.actualEndDate = actualEndDate;
     }
 
     private static List<String> getTagsListFromString(String tagsString) {
@@ -233,663 +235,705 @@ public class TaskModel extends AbstractModel {
         return dependencies.remove(task);
     }
 
-    @Override
-    public void refreshData() throws ModelNotFoundException {
-        TaskModel refreshed = getById(getTaskId());
 
-        this.name = refreshed.getName();
-        this.description = refreshed.getDescription();
-        this.projectId = refreshed.getProjectId();
-        this.budget = CurrencyUtils.roundToTwoDecimals(refreshed.getBudget());
-        this.startDate = refreshed.getStartDate();
-        this.deadline = refreshed.getDeadline();
-        this.actualStartDate = refreshed.getActualStartDate();
-        this.actualEndDate = refreshed.getActualEndDate();
-        this.done = refreshed.isDone();
-        this.assignee = refreshed.getAssignee();
-        this.tags = refreshed.getTags();
-        this.taskId = refreshed.getTaskId();
-        this.dependencies = refreshed.getDependencies();
-        this.mostLikelyTimeToFinish = refreshed.getMostLikelyTimeToFinish();
-        this.optimisticTimeToFinish = refreshed.getOptimisticTimeToFinish();
-        this.pessimisticTimeToFinish = refreshed.getPesimisticTimeToFinish();
-
-        updateObservers();
-    }
-
-    @Override
-    public void persistData() throws DBException {
-        if (getName() == null || getName().equals("") || getProjectId() == 0) {
-            logger.error("Name & project ID must be set to persist model to DB");
-            throw new DBException("Name & project ID must be set to persist model to DB");
-        }
-        if (this.taskId != 0) {
-            // Task is already in DB
-            this.dbo.update();
-        }
-        else {
-            // Task is new, will set task id once it is saved to DB
-            int taskId = this.dbo.create();
-            this.taskId = taskId;
-        }
-        updateObservers();
-    }
-
-    @Override
-    public void deleteData() throws DBException {
-        this.dbo.delete();
-
-    }
-
-    public static List<TaskModel> getAll() throws ModelNotFoundException, InvalidInputException {
-        return new TaskModel().dbo.findAll();
-    }
-
-    public static TaskModel getById(int taskId) throws ModelNotFoundException {
-        return new TaskModel().dbo.findById(taskId);
-    }
-
-    public static List<TaskModel> getAllByProject(int projectId) throws ModelNotFoundException {
-        return new TaskModel().dbo.findAllByProject(projectId);
-    }
-
-    public static List<TaskModel> getAllByProject(ProjectModel project) throws ModelNotFoundException,
-            InvalidInputException{
-        return getAllByProject(project.getProjectId());
-    }
-
-    public static List<TaskModel> getAllByAssignee(int userId) throws ModelNotFoundException, InvalidInputException {
-        return new TaskModel().dbo.findAllByAssignee(userId);
-    }
-
-    public static List<TaskModel> getAllByAssignee(UserModel assignee) throws ModelNotFoundException,
-            InvalidInputException {
-        return getAllByAssignee(assignee.getUserId());
-    }
-
-    public static void cleanData() throws DBException{
-        new TaskModel().dbo.clean();
-    }
-
-    public static void createTable() throws DBException{
-        new TaskModel().dbo.createTable();
-    }
-
-    /**
-     *
-     * @return
-     */
-    public int getTaskId() {
-        return taskId;
-    }
-
-    /**
-     *
-     * @param taskId
-     * @throws InvalidInputException
-     */
-    private void setTaskId(int taskId) throws InvalidInputException {
-        if (taskId < 0) {
-            throw new InvalidInputException("Task ID must be a positive integer.");
-        }
-        this.taskId = taskId;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     *
-     * @param name
-     * @throws InvalidInputException
-     */
-    public void setName(String name) throws InvalidInputException {
-        if (name.length() > 50) {
-            throw new InvalidInputException("Name cannot be longer than 50 characters.");
-        }
-        this.name = name.replaceAll("(\\r|\\n|\\t)", " "); // Replace tabs/newlines with spaces
-    }
-
-    /**
-     *
-     * @return
-     */
-    public String getDescription() {
-        return description;
-    }
-
-    /**
-     *
-     * @param description
-     */
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public int getProjectId() {
-        return projectId;
-    }
-
-    /**
-     *
-     * @param projectId
-     */
-    public void setProjectId(int projectId) throws InvalidInputException {
-        if (projectId < 0) {
-            throw new InvalidInputException("Project ID must be a positive integer.");
-        }
-        else if (projectId > 0) {
-            try {
-                ProjectModel.getById(projectId);
-            } catch (ModelNotFoundException e) {
-                throw new InvalidInputException("No project exists with ID " + projectId + ".");
-            }
-        }
-        this.projectId = projectId;
-    }
-
-    /**
-     * Get the task's budget
-     * @return the task's budget
-     */
-    public int getMostLikelyTimeToFinish(){return mostLikelyTimeToFinish;}
-
-    /**
-     *
-     * @param mostLikelyTimeToFinish is a factor of ten with a day unit
-     * @throws InvalidInputException
-     */
-    public void setMostLikelyTimeToFinish(int mostLikelyTimeToFinish) throws InvalidInputException {
-        if (mostLikelyTimeToFinish < 0) {
-            throw new InvalidInputException("Most likely time to finish must be a positive number");
-        }
-        this.mostLikelyTimeToFinish=mostLikelyTimeToFinish;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public int getPesimisticTimeToFinish(){return pessimisticTimeToFinish;}
-
-    /**
-     *
-     * @param pessimisticTimeToFinish is a factor of ten with a day unit
-     * @throws InvalidInputException
-     */
-    public void setPessimisticTimeToFinish(int pessimisticTimeToFinish) throws InvalidInputException {
-        if ( pessimisticTimeToFinish < 0 ) {
-            throw new InvalidInputException("Pessimistic time to finish must be a positive number");
-        }
-        this.pessimisticTimeToFinish=pessimisticTimeToFinish;
-    }
-    /**
-     *
-     * @return
-     */
-    public int getOptimisticTimeToFinish(){return optimisticTimeToFinish;}
-
-    /**
-     *
-     * @param optimisticTimeToFinish is a factor of ten with a day unit
-     * @throws InvalidInputException
-     */
-    public void setOptimisticTimeToFinish(int optimisticTimeToFinish) throws InvalidInputException {
-        if ( optimisticTimeToFinish < 0 ) {
-            throw new InvalidInputException("Optimistic time to finish must be a positive number");
-        }
-        this.optimisticTimeToFinish=optimisticTimeToFinish;
-    }
-    /**
-     *
-     * @return
-     */
-    public double getBudget() {
-        return budget;
-    }
-
-    /**
-     * Set the task's new budget
-     * @param budget the task's new budget
-     */
-    public void setBudget(double budget) throws InvalidInputException {
-        if (budget < 0) {
-            throw new InvalidInputException("Budget must be a positive number");
-        }
-
-        double projectTotalBudget = 0;
-        double projectTasksBudget = 0;
-        try {
-            // Get project budget
-            ProjectModel project = ProjectModel.getById(getProjectId());
-            projectTotalBudget = project.getBudget();
-        } catch (ModelNotFoundException e) {
-            throw new InvalidInputException("Project w/ ID " + getProjectId() + " not found. Task project must be set " +
-                    "before setting the task budget");
-        }
-        try {
-            // Get all project tasks budget
-            List<TaskModel> projectTasks = TaskModel.getAllByProject(getProjectId());
-            projectTasks = projectTasks.stream().filter(t -> !this.equals(t)).collect(Collectors.toList());
-            projectTasksBudget = projectTasks.stream().mapToDouble(TaskModel::getBudget).sum();
-            logger.debug("Total budget for current tasks of project " + projectId + " is " + projectTasksBudget);
-        } catch (ModelNotFoundException e) {
-            logger.debug("No tasks found for project " + projectId + ", leaving tasks budget at 0.");
-        }
-
-        double budgetDifference = projectTotalBudget - projectTasksBudget - budget;
-
-        if (budgetDifference < 0) {
-            throw new InvalidInputException("A budget of $" + budget + " for this task makes the actual project's " +
-                    "budget $" + Math.abs(budgetDifference) + " over the expected project budget of $" +
-                    projectTotalBudget);
-        }
-
-        this.budget = CurrencyUtils.roundToTwoDecimals(budget);
-    }
-
-    public Date getStartDate() {
-        return startDate;
-    }
-
-    public String getStartDateString() {
-        if (this.startDate != null) {
-            return DateUtils.castDateToString(this.startDate);
+    public String getActualStartDateString() {
+        if (this.actualStartDate != null) {
+            return DateUtils.castDateToString(this.actualStartDate);
         } else {
             return null;
         }
     }
 
-    /**
-     * Setter for Start date of project which is used in update method.
-     * @param startDate updated date of project.
-     * @throws InvalidInputException if the start date is after the deadline or the string is unable to be parsed.
-     */
-    public void setStartDate(String startDate) throws InvalidInputException {
+    public void setActualStartDate(Date startDate) {
+        this.actualStartDate = startDate;
+    }
+
+    public void setActualStartDate(String startDate) throws InvalidInputException {
         try {
-            setStartDate(DateUtils.castStringToDate(startDate));
+            setActualStartDate(DateUtils.castStringToDate(startDate));
         } catch (ParseException e) {
-            throw new InvalidInputException("Invalid start date string " + startDate);
+            throw new InvalidInputException("Invalid actual start date string.");
         }
     }
 
-    /**
-     * Setter for Start date of project which is used in update method.
-     * @param startDate updated date of project.
-     * @throws InvalidInputException if the start date is after the deadline.
-     */
-    public void setStartDate(Date startDate) throws InvalidInputException {
-        // Check task start is before task deadline
-        if (deadline != null && startDate != null && startDate.after(deadline)) {
-            throw new InvalidInputException("Start date must be before deadline.");
-        }
 
-        // Set null if start date argument is null
-        if (startDate == null) {
-            this.startDate = startDate;
-            return;
-        }
 
-        // Check task start date is not before project start date
-        Date projectStartDate = null;
-        try {
-            ProjectModel project = ProjectModel.getById(getProjectId());
-            projectStartDate = project.getStartDate();
-        } catch (ModelNotFoundException e) {
-            throw new InvalidInputException("Project w/ ID " + getProjectId() + " not found. Task project must be set " +
-                    "before setting the task start date.");
-        }
-        if (projectStartDate == null) {
-            throw new InvalidInputException("Must set project start date before setting task start date.");
-        }
-        if (startDate.before(projectStartDate)) {
-            throw new InvalidInputException("Cannot set task start date (" + DateUtils.castDateToString(startDate) +
-                    " before actual project start date (" + DateUtils.castDateToString(projectStartDate) + ").");
-        }
+                    public String getActualEdnDateString() {
+                        if (this.actualEndDate != null) {
+                            return DateUtils.castDateToString(this.actualEndDate);
+                        } else {
+                            return null;
+                        }
+                    }
 
-        this.startDate = DateUtils.filterDateToMidnight(startDate);
-    }
+                public void setActualEndDate(Date endDate) {
+                    this.actualEndDate = endDate;
+                }
 
-    public void removeStartDate() {
-        this.startDate = null;
-    }
+                public void setActualEndDate(String endDate) throws InvalidInputException {
+                    try {
+                        setActualEndDate(DateUtils.castStringToDate(endDate));
+                    } catch (ParseException e) {
+                        throw new InvalidInputException("Invalid actual end date string.");
+                    }
+                }
 
-    public Date getDeadline() {
-        return deadline;
-    }
+                @Override
+                public void refreshData() throws ModelNotFoundException {
+                    TaskModel refreshed = getById(getTaskId());
 
-    public Date getActualStartDate(){
-        return actualStartDate;
-    }
+                    this.name = refreshed.getName();
+                    this.description = refreshed.getDescription();
+                    this.projectId = refreshed.getProjectId();
+                    this.budget = CurrencyUtils.roundToTwoDecimals(refreshed.getBudget());
+                    this.startDate = refreshed.getStartDate();
+                    this.deadline = refreshed.getDeadline();
+                    this.done = refreshed.isDone();
+                    this.assignee = refreshed.getAssignee();
+                    this.tags = refreshed.getTags();
+                    this.taskId = refreshed.getTaskId();
+                    this.dependencies = refreshed.getDependencies();
+                    this.mostLikelyTimeToFinish = refreshed.getMostLikelyTimeToFinish();
+                    this.optimisticTimeToFinish = refreshed.getOptimisticTimeToFinish();
+                    this.pessimisticTimeToFinish = refreshed.getPesimisticTimeToFinish();
+                    this.actualStartDate = refreshed.getActualStartDate();
+                    this.actualEndDate = refreshed.getActualEndDate();
 
-    public Date getActualEndDate(){
-        return actualEndDate;
-    }
+                    updateObservers();
+                }
 
-    public String getDeadlineString() {
-        if (this.deadline != null) {
-            return DateUtils.castDateToString(this.deadline);
-        } else {
-            return null;
-        }
-    }
+                @Override
+                public void persistData() throws DBException {
+                    if (getName() == null || getName().equals("") || getProjectId() == 0) {
+                        logger.error("Name & project ID must be set to persist model to DB");
+                        throw new DBException("Name & project ID must be set to persist model to DB");
+                    }
+                    if (this.taskId != 0) {
+                        // Task is already in DB
+                        this.dbo.update();
+                    }
+                    else {
+                        // Task is new, will set task id once it is saved to DB
+                        int taskId = this.dbo.create();
+                        this.taskId = taskId;
+                    }
+                    updateObservers();
+                }
 
-    /**
-     * Setter for Dead Line of project which is used in update method
-     * @param deadline updated date of deadline
-     * @throws InvalidInputException if the deadline is before the start date
-     */
-    public void setDeadline(Date deadline) throws InvalidInputException {
-        if (deadline != null) {
-            if (startDate != null) {
-                if (deadline.before(startDate)) {
-                    throw new InvalidInputException("Deadline must be after start date.");
-                } else {
+                @Override
+                public void deleteData() throws DBException {
+                    this.dbo.delete();
+
+                }
+
+                public static List<TaskModel> getAll() throws ModelNotFoundException, InvalidInputException {
+                    return new TaskModel().dbo.findAll();
+                }
+
+                public static TaskModel getById(int taskId) throws ModelNotFoundException {
+                    return new TaskModel().dbo.findById(taskId);
+                }
+
+                public static List<TaskModel> getAllByProject(int projectId) throws ModelNotFoundException {
+                    return new TaskModel().dbo.findAllByProject(projectId);
+                }
+
+                public static List<TaskModel> getAllByProject(ProjectModel project) throws ModelNotFoundException,
+                        InvalidInputException{
+                    return getAllByProject(project.getProjectId());
+                }
+
+                public static List<TaskModel> getAllByAssignee(int userId) throws ModelNotFoundException, InvalidInputException {
+                    return new TaskModel().dbo.findAllByAssignee(userId);
+                }
+
+                public static List<TaskModel> getAllByAssignee(UserModel assignee) throws ModelNotFoundException,
+                        InvalidInputException {
+                    return getAllByAssignee(assignee.getUserId());
+                }
+
+                public static void cleanData() throws DBException{
+                    new TaskModel().dbo.clean();
+                }
+
+                public static void createTable() throws DBException{
+                    new TaskModel().dbo.createTable();
+                }
+
+                /**
+                 *
+                 * @return
+                 */
+                public int getTaskId() {
+                    return taskId;
+                }
+
+                /**
+                 *
+                 * @param taskId
+                 * @throws InvalidInputException
+                 */
+                private void setTaskId(int taskId) throws InvalidInputException {
+                    if (taskId < 0) {
+                        throw new InvalidInputException("Task ID must be a positive integer.");
+                    }
+                    this.taskId = taskId;
+                }
+
+                /**
+                 *
+                 * @return
+                 */
+                public String getName() {
+                    return name;
+                }
+
+                /**
+                 *
+                 * @param name
+                 * @throws InvalidInputException
+                 */
+                public void setName(String name) throws InvalidInputException {
+                    if (name.length() > 50) {
+                        throw new InvalidInputException("Name cannot be longer than 50 characters.");
+                    }
+                    this.name = name.replaceAll("(\\r|\\n|\\t)", " "); // Replace tabs/newlines with spaces
+                }
+
+                /**
+                 *
+                 * @return
+                 */
+                public String getDescription() {
+                    return description;
+                }
+
+                /**
+                 *
+                 * @param description
+                 */
+                public void setDescription(String description) {
+                    this.description = description;
+                }
+
+                /**
+                 *
+                 * @return
+                 */
+                public int getProjectId() {
+                    return projectId;
+                }
+
+                /**
+                 *
+                 * @param projectId
+                 */
+                public void setProjectId(int projectId) throws InvalidInputException {
+                    if (projectId < 0) {
+                        throw new InvalidInputException("Project ID must be a positive integer.");
+                    }
+                    else if (projectId > 0) {
+                        try {
+                            ProjectModel.getById(projectId);
+                        } catch (ModelNotFoundException e) {
+                            throw new InvalidInputException("No project exists with ID " + projectId + ".");
+                        }
+                    }
+                    this.projectId = projectId;
+                }
+
+                /**
+                 * Get the task's budget
+                 * @return the task's budget
+                 */
+                public int getMostLikelyTimeToFinish(){return mostLikelyTimeToFinish;}
+
+                /**
+                 *
+                 * @param mostLikelyTimeToFinish is a factor of ten with a day unit
+                 * @throws InvalidInputException
+                 */
+                public void setMostLikelyTimeToFinish(int mostLikelyTimeToFinish) throws InvalidInputException {
+                    if (mostLikelyTimeToFinish < 0) {
+                        throw new InvalidInputException("Most likely time to finish must be a positive number");
+                    }
+                    this.mostLikelyTimeToFinish=mostLikelyTimeToFinish;
+                }
+
+                /**
+                 *
+                 * @return
+                 */
+                public int getPesimisticTimeToFinish(){return pessimisticTimeToFinish;}
+
+                /**
+                 *
+                 * @param pessimisticTimeToFinish is a factor of ten with a day unit
+                 * @throws InvalidInputException
+                 */
+                public void setPessimisticTimeToFinish(int pessimisticTimeToFinish) throws InvalidInputException {
+                    if ( pessimisticTimeToFinish < 0 ) {
+                        throw new InvalidInputException("Pessimistic time to finish must be a positive number");
+                    }
+                    this.pessimisticTimeToFinish=pessimisticTimeToFinish;
+                }
+                /**
+                 *
+                 * @return
+                 */
+                public int getOptimisticTimeToFinish(){return optimisticTimeToFinish;}
+
+                /**
+                 *
+                 * @param optimisticTimeToFinish is a factor of ten with a day unit
+                 * @throws InvalidInputException
+                 */
+                public void setOptimisticTimeToFinish(int optimisticTimeToFinish) throws InvalidInputException {
+                    if ( optimisticTimeToFinish < 0 ) {
+                        throw new InvalidInputException("Optimistic time to finish must be a positive number");
+                    }
+                    this.optimisticTimeToFinish=optimisticTimeToFinish;
+                }
+                /**
+                 *
+                 * @return
+                 */
+                public double getBudget() {
+                    return budget;
+                }
+
+                /**
+                 * Set the task's new budget
+                 * @param budget the task's new budget
+                 */
+                public void setBudget(double budget) throws InvalidInputException {
+                    if (budget < 0) {
+                        throw new InvalidInputException("Budget must be a positive number");
+                    }
+
+                    double projectTotalBudget = 0;
+                    double projectTasksBudget = 0;
+                    try {
+                        // Get project budget
+                        ProjectModel project = ProjectModel.getById(getProjectId());
+                        projectTotalBudget = project.getBudget();
+                    } catch (ModelNotFoundException e) {
+                        throw new InvalidInputException("Project w/ ID " + getProjectId() + " not found. Task project must be set " +
+                                "before setting the task budget");
+                    }
+                    try {
+                        // Get all project tasks budget
+                        List<TaskModel> projectTasks = TaskModel.getAllByProject(getProjectId());
+                        projectTasks = projectTasks.stream().filter(t -> !this.equals(t)).collect(Collectors.toList());
+                        projectTasksBudget = projectTasks.stream().mapToDouble(TaskModel::getBudget).sum();
+                        logger.debug("Total budget for current tasks of project " + projectId + " is " + projectTasksBudget);
+                    } catch (ModelNotFoundException e) {
+                        logger.debug("No tasks found for project " + projectId + ", leaving tasks budget at 0.");
+                    }
+
+                    double budgetDifference = projectTotalBudget - projectTasksBudget - budget;
+
+                    if (budgetDifference < 0) {
+                        throw new InvalidInputException("A budget of $" + budget + " for this task makes the actual project's " +
+                                "budget $" + Math.abs(budgetDifference) + " over the expected project budget of $" +
+                                projectTotalBudget);
+                    }
+
+                    this.budget = CurrencyUtils.roundToTwoDecimals(budget);
+                }
+
+                public Date getStartDate() {
+                    return startDate;
+                }
+
+                public String getStartDateString() {
+                    if (this.startDate != null) {
+                        return DateUtils.castDateToString(this.startDate);
+                    } else {
+                        return null;
+                    }
+                }
+
+                /**
+                 * Setter for Start date of project which is used in update method.
+                 * @param startDate updated date of project.
+                 * @throws InvalidInputException if the start date is after the deadline or the string is unable to be parsed.
+                 */
+                public void setStartDate(String startDate) throws InvalidInputException {
+                    try {
+                        setStartDate(DateUtils.castStringToDate(startDate));
+                    } catch (ParseException e) {
+                        throw new InvalidInputException("Invalid start date string " + startDate);
+                    }
+                }
+
+                /**
+                 * Setter for Start date of project which is used in update method.
+                 * @param startDate updated date of project.
+                 * @throws InvalidInputException if the start date is after the deadline.
+                 */
+                public void setStartDate(Date startDate) throws InvalidInputException {
+                    // Check task start is before task deadline
+                    if (deadline != null && startDate != null && startDate.after(deadline)) {
+                        throw new InvalidInputException("Start date must be before deadline.");
+                    }
+
+                    // Set null if start date argument is null
+                    if (startDate == null) {
+                        this.startDate = startDate;
+                        return;
+                    }
+
+                    // Check task start date is not before project start date
+                    Date projectStartDate = null;
+                    try {
+                        ProjectModel project = ProjectModel.getById(getProjectId());
+                        projectStartDate = project.getStartDate();
+                    } catch (ModelNotFoundException e) {
+                        throw new InvalidInputException("Project w/ ID " + getProjectId() + " not found. Task project must be set " +
+                                "before setting the task start date.");
+                    }
+                    if (projectStartDate == null) {
+                        throw new InvalidInputException("Must set project start date before setting task start date.");
+                    }
+                    if (startDate.before(projectStartDate)) {
+                        throw new InvalidInputException("Cannot set task start date (" + DateUtils.castDateToString(startDate) +
+                                " before actual project start date (" + DateUtils.castDateToString(projectStartDate) + ").");
+                    }
+
+                    this.startDate = DateUtils.filterDateToMidnight(startDate);
+                }
+
+                public void removeStartDate() {
+                    this.startDate = null;
+                }
+
+                public Date getDeadline() {
+                    return deadline;
+                }
+
+                public Date getActualStartDate(){
+                    return actualStartDate;
+                }
+
+                public Date getActualEndDate(){
+                    return actualEndDate;
+                }
+
+                public String getDeadlineString() {
+                    if (this.deadline != null) {
+                        return DateUtils.castDateToString(this.deadline);
+                    } else {
+                        return null;
+                    }
+                }
+
+                /**
+                 * Setter for Dead Line of project which is used in update method
+                 * @param deadline updated date of deadline
+                 * @throws InvalidInputException if the deadline is before the start date
+                 */
+                public void setDeadline(Date deadline) throws InvalidInputException {
+                    if (deadline != null) {
+                        if (startDate != null) {
+                            if (deadline.before(startDate)) {
+                                throw new InvalidInputException("Deadline must be after start date.");
+                            } else {
+                                this.deadline = DateUtils.filterDateToMidnight(deadline);
+                            }
+                        } else {
+                            throw new InvalidInputException("Cannot set actual deadline on task w/o start date");
+                        }
+
+                        // Check task deadline is not after project deadline
+                        Date projectDeadline = null;
+                        try {
+                            ProjectModel project = ProjectModel.getById(getProjectId());
+                            projectDeadline = project.getDeadline();
+                        } catch (ModelNotFoundException e) {
+                            throw new InvalidInputException("Project w/ ID " + getProjectId() + " not found. Task project must " +
+                                    "be set before setting the task deadline.");
+                        }
+                        if (projectDeadline == null) {
+                            throw new InvalidInputException("Must set project deadline before setting task deadline.");
+                        }
+                        if (deadline.after(projectDeadline)) {
+                            throw new InvalidInputException("Cannot set task deadline (" + DateUtils.castDateToString(deadline) +
+                                    " after actual project deadline (" + DateUtils.castDateToString(projectDeadline) + ").");
+                        }
+                    }
+
                     this.deadline = DateUtils.filterDateToMidnight(deadline);
                 }
-            } else {
-                throw new InvalidInputException("Cannot set actual deadline on task w/o start date");
-            }
 
-            // Check task deadline is not after project deadline
-            Date projectDeadline = null;
-            try {
-                ProjectModel project = ProjectModel.getById(getProjectId());
-                projectDeadline = project.getDeadline();
-            } catch (ModelNotFoundException e) {
-                throw new InvalidInputException("Project w/ ID " + getProjectId() + " not found. Task project must " +
-                        "be set before setting the task deadline.");
-            }
-            if (projectDeadline == null) {
-                throw new InvalidInputException("Must set project deadline before setting task deadline.");
-            }
-            if (deadline.after(projectDeadline)) {
-                throw new InvalidInputException("Cannot set task deadline (" + DateUtils.castDateToString(deadline) +
-                        " after actual project deadline (" + DateUtils.castDateToString(projectDeadline) + ").");
-            }
-        }
+                /**
+                 * Setter for Dead Line of project which is used in update method
+                 * @param deadline updated date of deadline
+                 * @throws InvalidInputException if the
+                 */
+                public void setDeadline(String deadline) throws InvalidInputException {
+                    try {
+                        setDeadline(DateUtils.castStringToDate(deadline));
+                    } catch (ParseException e) {
+                        throw new InvalidInputException("Invalid deadline string.");
+                    }
+                }
 
-        this.deadline = DateUtils.filterDateToMidnight(deadline);
-    }
+                public void removeDeadline() {
+                    this.deadline = null;
+                }
 
-    /**
-     * Setter for Dead Line of project which is used in update method
-     * @param deadline updated date of deadline
-     * @throws InvalidInputException if the
-     */
-    public void setDeadline(String deadline) throws InvalidInputException {
-        try {
-            setDeadline(DateUtils.castStringToDate(deadline));
-        } catch (ParseException e) {
-            throw new InvalidInputException("Invalid deadline string.");
-        }
-    }
+                public boolean isDone() {
+                    return done;
+                }
 
-    public void removeDeadline() {
-        this.deadline = null;
-    }
+                public void setDone(boolean done) {
+                    this.done = done;
+                }
 
-    public boolean isDone() {
-        return done;
-    }
+                public UserModel getAssignee() {
+                    return assignee;
+                }
 
-    public void setDone(boolean done) {
-        this.done = done;
-    }
+                public void setAssignee(UserModel assignee) throws InvalidInputException {
+                    if (assignee == null) {
+                        logger.debug("Set assignee given a null value, removing assignee.");
+                    }
+                    else if (assignee.getUserId() == 0) {
+                        throw new InvalidInputException("Trying to set assignee as user " +
+                                " ID of 0. User must be saved to database before assigning a task.");
+                    }
+                    else if (assignee.getUserId() < 0) {
+                        throw new InvalidInputException("User ID must be a positive integer");
+                    }
 
-    public UserModel getAssignee() {
-        return assignee;
-    }
+                    this.assignee = assignee;
+                }
 
-    public void setAssignee(UserModel assignee) throws InvalidInputException {
-        if (assignee == null) {
-            logger.debug("Set assignee given a null value, removing assignee.");
-        }
-        else if (assignee.getUserId() == 0) {
-            throw new InvalidInputException("Trying to set assignee as user " +
-            " ID of 0. User must be saved to database before assigning a task.");
-        }
-        else if (assignee.getUserId() < 0) {
-            throw new InvalidInputException("User ID must be a positive integer");
-        }
+                public void removeAssignee() {
+                    this.assignee = null;
+                }
 
-        this.assignee = assignee;
-    }
+                public void setAssignee(int assigneeUserId) throws InvalidInputException, ModelNotFoundException {
+                    if (assigneeUserId == 0) {
+                        throw new InvalidInputException("User ID cannot be 0");
+                    }
+                    else if (assigneeUserId < 0) {
+                        throw new InvalidInputException("User ID must be a positive integer");
+                    }
+                    else {
+                        this.assignee = UserModel.getById(assigneeUserId);
+                    }
+                }
 
-    public void removeAssignee() {
-        this.assignee = null;
-    }
+                public List<String> getTags() {
+                    return tags;
+                }
 
-    public void setAssignee(int assigneeUserId) throws InvalidInputException, ModelNotFoundException {
-        if (assigneeUserId == 0) {
-            throw new InvalidInputException("User ID cannot be 0");
-        }
-        else if (assigneeUserId < 0) {
-            throw new InvalidInputException("User ID must be a positive integer");
-        }
-        else {
-            this.assignee = UserModel.getById(assigneeUserId);
-        }
-    }
+                public void setTags(List<String> tags) {
+                    // TODO filter tags 50 chars
+                    this.tags = tags;
+                }
 
-    public List<String> getTags() {
-        return tags;
-    }
+                public String getTagsString() {
+                    return tags.stream().collect(Collectors.joining(" "));
+                }
 
-    public void setTags(List<String> tags) {
-        // TODO filter tags 50 chars
-        this.tags = tags;
-    }
+                public boolean addTag(String tag) {
+                    // TODO check validity 50 chars
+                    if (tags.stream().noneMatch(t -> t.equals(tag))) {
+                        tags.add(tag);
+                        return true;
+                    }
+                    return false;
+                }
 
-    public String getTagsString() {
-        return tags.stream().collect(Collectors.joining(" "));
-    }
+                public void addTagsFromString(String tagsString) {
+                    // TODO filter chars
+                    getTagsListFromString(tagsString).forEach(this::addTag);
+                }
 
-    public boolean addTag(String tag) {
-        // TODO check validity 50 chars
-        if (tags.stream().noneMatch(t -> t.equals(tag))) {
-            tags.add(tag);
-            return true;
-        }
-        return false;
-    }
+                public void removeTag(String tag) {
+                    tags.remove(tag);
+                }
 
-    public void addTagsFromString(String tagsString) {
-        // TODO filter chars
-        getTagsListFromString(tagsString).forEach(this::addTag);
-    }
+                @Override
+                public String toString() {
+                    String startDateStr = "";
+                    String deadlineStr = "";
+                    String assigneeStr = "";
+                    if (getStartDate() != null) startDateStr = DateUtils.castDateToString(getStartDate());
+                    if (getDeadline() != null) deadlineStr = DateUtils.castDateToString(getDeadline());
+                    if (getAssignee() != null) assigneeStr = getAssignee().toString();
+                    String tagsStr = getTags().stream().collect(Collectors.joining(" "));
+                    String dependenciesStr = getDependencies().stream().map(TaskModel::getName).collect(Collectors.joining(", "));
 
-    public void removeTag(String tag) {
-        tags.remove(tag);
-    }
+                    return "Task ID: " + getTaskId() + ", name: " + getName() + ", description: " + getDescription() +
+                            ", project ID: " + getProjectId() + ", budget: " + getBudget() + ", start date: " + startDateStr +
+                            ", deadline: " + deadlineStr + ", done: " + isDone() + ", manager user ID: " +
+                            assigneeStr + ", tags" + tagsStr + ", task dependencies: " + dependenciesStr;
+                }
 
-    @Override
-    public String toString() {
-        String startDateStr = "";
-        String deadlineStr = "";
-        String assigneeStr = "";
-        if (getStartDate() != null) startDateStr = DateUtils.castDateToString(getStartDate());
-        if (getDeadline() != null) deadlineStr = DateUtils.castDateToString(getDeadline());
-        if (getAssignee() != null) assigneeStr = getAssignee().toString();
-        String tagsStr = getTags().stream().collect(Collectors.joining(" "));
-        String dependenciesStr = getDependencies().stream().map(TaskModel::getName).collect(Collectors.joining(", "));
-
-        return "Task ID: " + getTaskId() + ", name: " + getName() + ", description: " + getDescription() +
-                ", project ID: " + getProjectId() + ", budget: " + getBudget() + ", start date: " + startDateStr +
-                ", deadline: " + deadlineStr + ", done: " + isDone() + ", manager user ID: " +
-                assigneeStr + ", tags" + tagsStr + ", task dependencies: " + dependenciesStr;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (!(obj instanceof TaskModel)) {
-            return false;
-        }
-        TaskModel other = (TaskModel) obj;
-        if (other.getTaskId() != getTaskId()) {
-            return false;
-        }
-        if (!equalsNullable(other.getName(), getName())) {
-            return false;
-        }
-        if (!equalsNullable(other.getDescription(), getDescription())) {
-            return false;
-        }
-        if (other.getProjectId() != getProjectId()) {
-            return false;
-        }
-        if (other.getBudget() != getBudget()) {
-            return false;
-        }
-        if (!equalsNullable(other.getStartDate(), getStartDate())) {
-            return false;
-        }
-        if (!equalsNullable(other.getDeadline(), getDeadline())) {
-            return false;
-        }
-        if (other.isDone() != isDone()) {
-            return false;
-        }
-        if (!equalsNullable(other.getAssignee(), getAssignee())) {
-            return false;
-        }
-        if (!equalsNullable(other.getTags(), getTags())) {
-            return false;
-        }
+                @Override
+                public boolean equals(Object obj) {
+                    if (obj == null) {
+                        return false;
+                    }
+                    if (!(obj instanceof TaskModel)) {
+                        return false;
+                    }
+                    TaskModel other = (TaskModel) obj;
+                    if (other.getTaskId() != getTaskId()) {
+                        return false;
+                    }
+                    if (!equalsNullable(other.getName(), getName())) {
+                        return false;
+                    }
+                    if (!equalsNullable(other.getDescription(), getDescription())) {
+                        return false;
+                    }
+                    if (other.getProjectId() != getProjectId()) {
+                        return false;
+                    }
+                    if (other.getBudget() != getBudget()) {
+                        return false;
+                    }
+                    if (!equalsNullable(other.getStartDate(), getStartDate())) {
+                        return false;
+                    }
+                    if (!equalsNullable(other.getDeadline(), getDeadline())) {
+                        return false;
+                    }
+                    if (other.isDone() != isDone()) {
+                        return false;
+                    }
+                    if (!equalsNullable(other.getAssignee(), getAssignee())) {
+                        return false;
+                    }
+                    if (!equalsNullable(other.getTags(), getTags())) {
+                        return false;
+                    }
 //        if (!equalsNullable(other.getDependencies(), getDependencies())) {
 //            return false;
 //        }
 
-        return true;
-    }
+                    return true;
+                }
 
-    public class TaskModelDBObject implements DBObject {
+                public class TaskModelDBObject implements DBObject {
 
-        private final Logger logger = LoggerFactory.getLogger(TaskModelDBObject.class);
+                    private final Logger logger = LoggerFactory.getLogger(TaskModelDBObject.class);
 
-        public static final String TABLE_NAME = "Task";
-        public static final String TASK_ID_COLUMN = "TaskID";
-        public static final String PROJECT_ID_COLUMN = "FKProjectID";
-        public static final String TASK_NAME_COLUMN = "TaskName";
-        public static final String DESCRIPTION_COLUMN = "TaskDescription";
-        public static final String START_DATE_COLUMN = "StartDate";
-        public static final String DEADLINE_COLUMN = "Deadline";
-        public static final String ACTUAL_START_DATE_COLUMN = "ActualStartDate";
-        public static final String ACTUAL_END_DATE_COLUMN= "ActualEndDate";
-        public static final String BUDGET_COLUMN = "Budget";
-        public static final String DONE_COLUMN = "Done";
-        public static final String TAGS_COLUMN = "Tags";
-        public static final String ASSIGNEE_USER_ID_COLUMN = "FKUserID";
-        public static final String MOST_LIKELY_TIME_TO_FINISH_COLUMN = "MostLikelyTimeToFinish";
-        public static final String PESSIMIST_TIME_TO_FINISH_COLUMN = "PessimistTimeToFinish";
-        public static final String OPTIMIST_TIME_TO_FINISH_COLUMN = "OptimistTimeToFinish";
+                    public static final String TABLE_NAME = "Task";
+                    public static final String TASK_ID_COLUMN = "TaskID";
+                    public static final String PROJECT_ID_COLUMN = "FKProjectID";
+                    public static final String TASK_NAME_COLUMN = "TaskName";
+                    public static final String DESCRIPTION_COLUMN = "TaskDescription";
+                    public static final String START_DATE_COLUMN = "StartDate";
+                    public static final String DEADLINE_COLUMN = "Deadline";
+                    public static final String ACTUAL_START_DATE_COLUMN = "ActualStartDate";
+                    public static final String ACTUAL_END_DATE_COLUMN= "ActualEndDate";
+                    public static final String BUDGET_COLUMN = "Budget";
+                    public static final String DONE_COLUMN = "Done";
+                    public static final String TAGS_COLUMN = "Tags";
+                    public static final String ASSIGNEE_USER_ID_COLUMN = "FKUserID";
+                    public static final String MOST_LIKELY_TIME_TO_FINISH_COLUMN = "MostLikelyTimeToFinish";
+                    public static final String PESSIMIST_TIME_TO_FINISH_COLUMN = "PessimistTimeToFinish";
+                    public static final String OPTIMIST_TIME_TO_FINISH_COLUMN = "OptimistTimeToFinish";
 
-        public static final String DEPENDENCIES_TABLE_NAME = "TaskDependency";
-        public static final String DEPENDENCIES_MAIN_TASK_COLUMN = "FKTaskID";
-        public static final String DEPENDENCIES_DEPENDS_ON_TASK_COLUMN = "DependOnTaskID";
+                    public static final String DEPENDENCIES_TABLE_NAME = "TaskDependency";
+                    public static final String DEPENDENCIES_MAIN_TASK_COLUMN = "FKTaskID";
+                    public static final String DEPENDENCIES_DEPENDS_ON_TASK_COLUMN = "DependOnTaskID";
 
-        private Database db;
+                    private Database db;
 
-        private TaskModelDBObject() {
-            try {
-                db = DatabaseFactory.getActiveDB();
-            } catch (DBException e) {
-                logger.error("Unable to read from database", e);
-            }
-        }
-
-        @Override
-        public String getTableName() {
-            return TABLE_NAME;
-        }
-
-        /**
-         * This method finds the last inserted id in the table.
-         * ID in the table is auto increment
-         * @return if there is no error last inserted id
-         * @throws DBException if there is an error
-         */
-        @Override
-        public int getLastInsertedId() throws DBException {
-            String sql="SELECT last_insert_rowid() AS tempID;";
-            try {
-                ResultSet rs= db.query(sql);
-                return (rs.getInt("tempID"));
-            } catch (SQLException e) {
-                logger.error("Unable to find last inserted id" + ". Query: " + sql, e);
-                throw new DBException(e);
-            }
-        }
-
-        /**
-         *
-         * @param sql
-         * @return
-         * @throws ModelNotFoundException
-         */
-        private TaskModel runSingleResultQuery(String sql) throws ModelNotFoundException {
-            TaskModel m = null;
-            try {
-                ResultSet rs =  db.query(sql);
-
-                if (rs.next()) {
-                    // Extract values
-                    int idTemp = rs.getInt(TASK_ID_COLUMN);
-                    String nameTemp = rs.getString(TASK_NAME_COLUMN);
-                    String descriptionTemp = rs.getString(DESCRIPTION_COLUMN);
-                    int projectIdTemp = rs.getInt(PROJECT_ID_COLUMN);
-                    String stDateTemp = rs.getString(START_DATE_COLUMN);
-                    String dlDateTemp = rs.getString(DEADLINE_COLUMN);
-                    String actualstDateTemp=rs.getString(ACTUAL_START_DATE_COLUMN);
-                    String actualendDateTemp=rs.getString(ACTUAL_END_DATE_COLUMN);
-                    int mostLikelyTimeTemp=rs.getInt(MOST_LIKELY_TIME_TO_FINISH_COLUMN);
-                    int pessimisticTimeTemp=rs.getInt(PESSIMIST_TIME_TO_FINISH_COLUMN);
-                    int optimistTimeTemp=rs.getInt(OPTIMIST_TIME_TO_FINISH_COLUMN);
-                    Date stDateTempDate;
-                    Date dlDateTempDate;
-                    try {
-                        stDateTempDate = DateUtils.castStringToDate(stDateTemp);
-                        dlDateTempDate = DateUtils.castStringToDate(dlDateTemp);
-                    } catch (ParseException e) {
-                        logger.error("Unable to parse Date from DB, this really shouldn't happen.");
-                        throw new ModelNotFoundException("Unable to parse Date from DB, this really shouldn't happen.", e);
-                    }
-                    double budgetTemp = rs.getFloat(BUDGET_COLUMN);
-                    boolean doneTemp = rs.getBoolean(DONE_COLUMN);
-                    int userIdTemp = rs.getInt(ASSIGNEE_USER_ID_COLUMN);
-                    UserModel assignee = null;
-
-                    // Set UserModel
-                    if (userIdTemp > 0) {
-                        String firstNameTemp = rs.getString(UserModel.UserModelDBObject.FIRST_NAME_COLUMN);
-                        String lastNameTemp = rs.getString(UserModel.UserModelDBObject.LAST_NAME_COLUMN);
-                        double salaryPerHourTemp = rs.getFloat(UserModel.UserModelDBObject.SALARY_PER_HOUR_COLUMN);
-
-                        assignee = new UserModel(userIdTemp, firstNameTemp, lastNameTemp, salaryPerHourTemp);
+                    private TaskModelDBObject() {
+                        try {
+                            db = DatabaseFactory.getActiveDB();
+                        } catch (DBException e) {
+                            logger.error("Unable to read from database", e);
+                        }
                     }
 
-                    String tagsTemp = rs.getString(TAGS_COLUMN);
-                    List<String> tagsListTemp;
-                    if (tagsTemp != null) {
-                        tagsListTemp = getTagsListFromString(tagsTemp);
+                    @Override
+                    public String getTableName() {
+                        return TABLE_NAME;
                     }
-                    else {
-                        tagsListTemp = new LinkedList<>();
+
+                    /**
+                     * This method finds the last inserted id in the table.
+                     * ID in the table is auto increment
+                     * @return if there is no error last inserted id
+                     * @throws DBException if there is an error
+                     */
+                    @Override
+                    public int getLastInsertedId() throws DBException {
+                        String sql="SELECT last_insert_rowid() AS tempID;";
+                        try {
+                            ResultSet rs= db.query(sql);
+                            return (rs.getInt("tempID"));
+                        } catch (SQLException e) {
+                            logger.error("Unable to find last inserted id" + ". Query: " + sql, e);
+                            throw new DBException(e);
+                        }
                     }
-                    m = new TaskModel(idTemp, nameTemp, descriptionTemp, projectIdTemp, budgetTemp, stDateTempDate, actualstDateTemp, actualendDateTemp
-                            dlDateTempDate, doneTemp, assignee, tagsListTemp, mostLikelyTimeTemp, pessimisticTimeTemp, optimistTimeTemp);
+
+                    /**
+                     *
+                     * @param sql
+                     * @return
+                     * @throws ModelNotFoundException
+                     */
+                    private TaskModel runSingleResultQuery(String sql) throws ModelNotFoundException {
+                        TaskModel m = null;
+                        try {
+                            ResultSet rs =  db.query(sql);
+
+                            if (rs.next()) {
+                                // Extract values
+                                int idTemp = rs.getInt(TASK_ID_COLUMN);
+                                String nameTemp = rs.getString(TASK_NAME_COLUMN);
+                                String descriptionTemp = rs.getString(DESCRIPTION_COLUMN);
+                                int projectIdTemp = rs.getInt(PROJECT_ID_COLUMN);
+                                String stDateTemp = rs.getString(START_DATE_COLUMN);
+                                String dlDateTemp = rs.getString(DEADLINE_COLUMN);
+                                String actualstDateTemp=rs.getString(ACTUAL_START_DATE_COLUMN);
+                                String actualendDateTemp=rs.getString(ACTUAL_END_DATE_COLUMN);
+                                int mostLikelyTimeTemp=rs.getInt(MOST_LIKELY_TIME_TO_FINISH_COLUMN);
+                                int pessimisticTimeTemp=rs.getInt(PESSIMIST_TIME_TO_FINISH_COLUMN);
+                                int optimistTimeTemp=rs.getInt(OPTIMIST_TIME_TO_FINISH_COLUMN);
+                                Date stDateTempDate;
+                                Date dlDateTempDate;
+                                try {
+                                    stDateTempDate = DateUtils.castStringToDate(stDateTemp);
+                                    dlDateTempDate = DateUtils.castStringToDate(dlDateTemp);
+                                } catch (ParseException e) {
+                                    logger.error("Unable to parse Date from DB, this really shouldn't happen.");
+                                    throw new ModelNotFoundException("Unable to parse Date from DB, this really shouldn't happen.", e);
+                                }
+                                double budgetTemp = rs.getFloat(BUDGET_COLUMN);
+                                boolean doneTemp = rs.getBoolean(DONE_COLUMN);
+                                int userIdTemp = rs.getInt(ASSIGNEE_USER_ID_COLUMN);
+                                UserModel assignee = null;
+
+                                // Set UserModel
+                                if (userIdTemp > 0) {
+                                    String firstNameTemp = rs.getString(UserModel.UserModelDBObject.FIRST_NAME_COLUMN);
+                                    String lastNameTemp = rs.getString(UserModel.UserModelDBObject.LAST_NAME_COLUMN);
+                                    double salaryPerHourTemp = rs.getFloat(UserModel.UserModelDBObject.SALARY_PER_HOUR_COLUMN);
+
+                                    assignee = new UserModel(userIdTemp, firstNameTemp, lastNameTemp, salaryPerHourTemp);
+                                }
+
+                                String tagsTemp = rs.getString(TAGS_COLUMN);
+                                List<String> tagsListTemp;
+                                if (tagsTemp != null) {
+                                    tagsListTemp = getTagsListFromString(tagsTemp);
+                                }
+                                else {
+                                    tagsListTemp = new LinkedList<>();
+                                }
+                                m = new TaskModel(idTemp, nameTemp, descriptionTemp, projectIdTemp, budgetTemp, stDateTempDate, dlDateTempDate, doneTemp, assignee, tagsListTemp, mostLikelyTimeTemp, pessimisticTimeTemp, optimistTimeTemp, actualStartDate, actualStartDate);
                 }
                 else {
                     logger.debug("DB query returned zero results");
@@ -959,7 +1003,7 @@ public class TaskModel extends AbstractModel {
                         tagsListTemp = new LinkedList<>();
                     }
                     taskList.add(new TaskModel(idTemp, nameTemp, descriptionTemp, projectIdTemp, budgetTemp,
-                            stDateTempDate, dlDateTempDate, doneTemp, assignee, tagsListTemp, mostLikelyTimeTemp, pessimisticTimeTemp, optimistTimeTemp));
+                            stDateTempDate, dlDateTempDate, doneTemp, assignee, tagsListTemp, mostLikelyTimeTemp, pessimisticTimeTemp, optimistTimeTemp, actualStartDate, actualStartDate));
                 }
 
                 if (taskList.isEmpty()) {
