@@ -240,16 +240,50 @@ public class TaskModel extends AbstractModel {
         return actualStartDate;
     }
 
+    public String getActualStartDateString() {
+        if (this.actualStartDate != null) {
+            return DateUtils.castDateToString(this.actualStartDate);
+        } else {
+            return null;
+        }
+    }
+
     public void setActualStartDate(Date startDate) {
         this.actualStartDate = startDate;
     }
+
+    public void setActualStartDate(String startDate) throws InvalidInputException {
+        try {
+            setActualStartDate(DateUtils.castStringToDate(startDate));
+        } catch (ParseException e) {
+            throw new InvalidInputException("Invalid actual start date string.");
+        }
+    }
+
+
 
     public Date getActualEndDate() {
         return actualEndDate;
     }
 
+    public String getActualEdnDateString() {
+        if (this.actualEndDate != null) {
+            return DateUtils.castDateToString(this.actualEndDate);
+        } else {
+            return null;
+        }
+    }
+
     public void setActualEndDate(Date endDate) {
         this.actualEndDate = endDate;
+    }
+
+    public void setActualEndDate(String endDate) throws InvalidInputException {
+        try {
+            setActualEndDate(DateUtils.castStringToDate(endDate));
+        } catch (ParseException e) {
+            throw new InvalidInputException("Invalid actual end date string.");
+        }
     }
 
     @Override
@@ -270,6 +304,8 @@ public class TaskModel extends AbstractModel {
         this.mostLikelyTimeToFinish = refreshed.getMostLikelyTimeToFinish();
         this.optimisticTimeToFinish = refreshed.getOptimisticTimeToFinish();
         this.pessimisticTimeToFinish = refreshed.getPesimisticTimeToFinish();
+        this.actualStartDate = refreshed.getActualStartDate();
+        this.actualEndDate = refreshed.getActualEndDate();
 
         updateObservers();
     }
