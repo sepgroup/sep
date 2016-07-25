@@ -3,7 +3,9 @@ COMP 354 Software Engineering Project
 
 ![circleci build](https://circleci.com/gh/sepgroup/sep.svg?style=shield&circle-token=d385fd0d02f477f4d43e017b70f88964b600578d)
 
-[![Travis-CI Build Status](https://travis-ci.org/sepgroup/sep.svg?branch=master)](https://travis-ci.org/sepgroup/sep)
+[![Travis](https://img.shields.io/travis/sepgroup/sep.svg?maxAge=2592000)](https://travis-ci.org/sepgroup/sep)
+
+[![Code Coverage](https://img.shields.io/codecov/c/github/sepgroup/sep/master.svg)](https://codecov.io/github/sepgroup/sep?branch=master)
 
 ## Description
 

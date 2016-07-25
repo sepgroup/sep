@@ -1,5 +1,6 @@
 apply plugin: 'java'
 apply from: "gradle/plugin/javafx.plugin"
+apply plugin: 'jacoco'
 
 compileJava {
     sourceCompatibility = '1.8'
@@ -35,7 +36,20 @@ test {
     testLogging {
         events "passed", "skipped", "failed", "standardOut", "standardError"
     }
+
+    jacoco {
+        excludes = ["**/jfree/**"]
+    }
 }
+
+jacocoTestReport {
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+}
+
+check.dependsOn jacocoTestReport
 
 javafx {
     appID 'SEP'
