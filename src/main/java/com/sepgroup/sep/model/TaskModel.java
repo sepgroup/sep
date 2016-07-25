@@ -229,6 +229,22 @@ public class TaskModel extends AbstractModel {
         return dependencies.remove(task);
     }
 
+    public Date getActualStartDate() {
+        return actualStartDate;
+    }
+
+    public void setActualStartDate(Date startDate) {
+        this.actualStartDate = startDate;
+    }
+
+    public Date getActualEndDate() {
+        return actualEndDate;
+    }
+
+    public void setActualEndDate(Date endDate) {
+        this.actualEndDate = endDate;
+    }
+
     @Override
     public void refreshData() throws ModelNotFoundException {
         TaskModel refreshed = getById(getTaskId());
