@@ -539,9 +539,9 @@ public class ProjectModelTest {
 
         //Creates tasks and assigns these to the project
         TaskModel t1 = new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 10000,
-                defaultStartDate, defaultDeadline, false, createdManager, 8, 9, 7);
+                defaultStartDate, defaultDeadline, false, createdManager, 8, 9, 7, defaultStartDate, defaultDeadline);
         TaskModel t2 = new TaskModel("T2", "Description of\n T2", createdProject.getProjectId(), 20000,
-                defaultStartDate, defaultDeadline, false, createdManager, 8, 9, 7);
+                defaultStartDate, defaultDeadline, false, createdManager, 8, 9, 7, defaultStartDate, defaultDeadline);
         
         List<TaskModel> taskList = createdProject.getTasks();
 

@@ -101,7 +101,7 @@ public class RandomizedTaskTests {
 
                 boolean done = random.nextBoolean();
 
-                tasksIn[i] = new TaskModel(name, description, projectID, budget, startDate, deadline, done, null, mostLikelyTime, pessimisticTime, optimisticTime);
+                tasksIn[i] = new TaskModel(name, description, projectID, budget, startDate, deadline, done, null, mostLikelyTime, pessimisticTime, optimisticTime, startDate, deadline);
                 tasksIn[i].setAssignee(userID);
                 tasksIn[i].persistData();
                 tasksOut[i] = TaskModel.getById(tasksIn[i].getTaskId());
