@@ -125,8 +125,7 @@ public class TaskModel extends AbstractModel {
      * @param tags
      */
     protected TaskModel(int taskId, String name, String description, int projectId, double budget, Date startDate,
-            Date deadline, boolean done, UserModel assignee, List<String> tags, int mostLikelyTimeToFinish, int pessimisticTimeToFinish,
-                        int optimisticTimeToFinish, Date actualStartDate, Date actualEndDate) {
+            Date deadline, boolean done, UserModel assignee, List<String> tags, int mostLikelyTimeToFinish, int pessimisticTimeToFinish, int optimisticTimeToFinish, Date actualStartDate, Date actualEndDate) {
         this();
         this.name = name;
         this.description = description;
@@ -930,7 +929,7 @@ public class TaskModel extends AbstractModel {
                         tagsListTemp = new LinkedList<>();
                     }
                     m = new TaskModel(idTemp, nameTemp, descriptionTemp, projectIdTemp, budgetTemp, stDateTempDate,
-                            dlDateTempDate, doneTemp, assignee, tagsListTemp, mostLikelyTimeTemp, pessimisticTimeTemp, optimistTimeTemp);
+                            dlDateTempDate, doneTemp, assignee, tagsListTemp, mostLikelyTimeTemp, pessimisticTimeTemp, optimistTimeTemp, actualStartDate, actualStartDate);
                 }
                 else {
                     logger.debug("DB query returned zero results");
@@ -1000,7 +999,7 @@ public class TaskModel extends AbstractModel {
                         tagsListTemp = new LinkedList<>();
                     }
                     taskList.add(new TaskModel(idTemp, nameTemp, descriptionTemp, projectIdTemp, budgetTemp,
-                            stDateTempDate, dlDateTempDate, doneTemp, assignee, tagsListTemp, mostLikelyTimeTemp, pessimisticTimeTemp, optimistTimeTemp));
+                            stDateTempDate, dlDateTempDate, doneTemp, assignee, tagsListTemp, mostLikelyTimeTemp, pessimisticTimeTemp, optimistTimeTemp, actualStartDate, actualStartDate));
                 }
 
                 if (taskList.isEmpty()) {
