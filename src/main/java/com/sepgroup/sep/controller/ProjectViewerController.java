@@ -188,17 +188,23 @@ public class ProjectViewerController extends AbstractController {
 			
 			for(int i = 0; i<model.getTasks().size();i++){
 				if (model.getTasks().get(i).isDone()){
-				s2.add(new Task(model.getTasks().get(i).getName(),
+				s2.add(new Task(String.valueOf(model.getTasks().get(i).getTaskId()),
 						new SimpleTimePeriod (date( model.getTasks().get(i).getStartDate()), date(model.getTasks().get(i).getDeadline()))));}
 
 			
 				else{						
 					
 					if ((model.getTasks().get(i).getStartDate()!=(null))&&(model.getTasks().get(i).getDeadline()!=(null))){
-				        s1.add(new Task(model.getTasks().get(i).getName(),
+				        s1.add(new Task(String.valueOf(model.getTasks().get(i).getTaskId()),
 						new SimpleTimePeriod(date( model.getTasks().get(i).getStartDate()), date(model.getTasks().get(i).getDeadline()))));
-				}}}
-			
+				}
+					else{
+						String title = "Info";
+			        String header = "Task with id " + model.getTasks().get(i).getTaskId() + " is missing start date/deadline";
+			        
+
+			       DialogCreator.showInfoDialog(title, header);}}
+			}
 			final TaskSeriesCollection collection = new TaskSeriesCollection();
 			collection.add(s1);
 			collection.add(s2);

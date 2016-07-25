@@ -68,7 +68,7 @@ import com.sepgroup.sep.model.ProjectModel;
 	    private JFreeChart createChart(final IntervalCategoryDataset dataset) {
 	        final JFreeChart chart = ChartFactory.createGanttChart(
 	            "Gantt Chart",  // chart title
-	            "Task",              // domain axis label
+	            "Task Id",              // domain axis label
 	            "Date",              // range axis label
 	            dataset,             // data
 	            true,                // include legend
