@@ -5,6 +5,7 @@ import com.sepgroup.sep.utils.DateUtils;
 import com.sun.javafx.tk.Toolkit;
 import org.junit.*;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -699,62 +700,93 @@ public class TaskModelTest {
 
     @Test
     public void setDeadline1() throws Exception {
+        TaskModel t1 = generateTestTask();
+        Date date = new Date(System.currentTimeMillis() + 9999*9999);
+        String stringDate = DateUtils.castDateToString(date);
+        t1.setDeadline(stringDate);
 
+        assertEquals(stringDate, DateUtils.castDateToString(t1.getDeadline()));
     }
 
     @Test
     public void removeDeadline() throws Exception {
+        TaskModel t1 = generateTestTask();
+        t1.removeDeadline();
+        assertEquals(null, t1.getDeadline());
 
     }
 
     @Test
     public void isDone() throws Exception {
-
+        TaskModel t1 = generateTestTask();
+        assertFalse(t1.isDone());
     }
 
     @Test
     public void setDone() throws Exception {
-
+        TaskModel t1 = generateTestTask();
+        t1.setDone(true);
+        assertTrue(t1.isDone());
     }
 
     @Test
     public void getAssignee() throws Exception {
-
+        TaskModel t1 = generateTestTask();
+        assertEquals(createdUser, t1.getAssignee());
     }
 
     @Test
     public void setAssignee() throws Exception {
-
+        TaskModel t1 = generateTestTask();
+        UserModel createdUser2 = new UserModel("FIRST", "LAST", 22.00);
+        createdUser2.persistData();
+        t1.setAssignee(createdUser2);
+        assertEquals(createdUser2, t1.getAssignee());
     }
 
     @Test
     public void removeAssignee() throws Exception {
-
+        TaskModel t1 = generateTestTask();
+        t1.removeAssignee();
+        assertEquals(null, t1.getAssignee());
     }
 
     @Test
     public void setAssignee1() throws Exception {
-
+        TaskModel t1 = generateTestTask();
+        UserModel user = new UserModel("FIRST", "LAST", 22.00);
+        user.persistData();
+        t1.setAssignee(user.getUserId());
+        assertEquals(user.getUserId(), t1.getAssignee().getUserId());
     }
 
     @Test
-    public void getTags() throws Exception {
-
+    public void setAndGetTags() throws Exception {
+        TaskModel t1 = generateTestTask();
+        List<String> tags = new ArrayList<String>();
+        tags.add("tag1");
+        tags.add("tag2");
+        t1.setTags(tags);
+        assertTrue(tags.equals(t1.getTags()));
     }
 
-    @Test
-    public void setTags() throws Exception {
 
-    }
 
     @Test
     public void getTagsString() throws Exception {
-
+        TaskModel t1 = generateTestTask();
+        List<String> tags = new ArrayList<String>();
+        tags.add("tag1");
+        tags.add("tag2");
+        t1.setTags(tags);
+        assertEquals("tag1 tag2", t1.getTagsString());
     }
 
     @Test
     public void addTag() throws Exception {
-
+        TaskModel t1 = generateTestTask();
+        t1.addTag("tag 1");
+        assertEquals("tag 1", t1.getTagsString());
     }
 
     @Test
@@ -764,6 +796,5 @@ public class TaskModelTest {
 
     @Test
     public void removeTag() throws Exception {
-
     }
 }
