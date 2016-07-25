@@ -33,6 +33,8 @@ public class TaskModel extends AbstractModel {
     private double budget;
     private Date startDate;
     private Date deadline;
+    private Date actualStartDate;
+    private Date actualEndDate;
     private boolean done;
     private UserModel assignee;
     private List<String> tags;
@@ -121,7 +123,7 @@ public class TaskModel extends AbstractModel {
      * @param tags
      */
     protected TaskModel(int taskId, String name, String description, int projectId, double budget, Date startDate,
-            Date deadline, boolean done, UserModel assignee, List<String> tags, int mostLikelyTimeToFinish, int pessimisticTimeToFinish, int optimisticTimeToFinish) {
+            Date deadline, Date actualStartDate, Date actualEndDate, boolean done, UserModel assignee, List<String> tags, int mostLikelyTimeToFinish, int pessimisticTimeToFinish, int optimisticTimeToFinish) {
         this();
         this.name = name;
         this.description = description;
@@ -129,6 +131,8 @@ public class TaskModel extends AbstractModel {
         this.budget = CurrencyUtils.roundToTwoDecimals(budget);
         this.startDate = startDate;
         this.deadline = deadline;
+        this.actualStartDate=actualStartDate;
+        this.actualEndDate=actualEndDate;
         this.done = done;
         this.assignee = assignee;
         this.tags = tags;
@@ -239,6 +243,8 @@ public class TaskModel extends AbstractModel {
         this.budget = CurrencyUtils.roundToTwoDecimals(refreshed.getBudget());
         this.startDate = refreshed.getStartDate();
         this.deadline = refreshed.getDeadline();
+        this.actualStartDate = refreshed.getActualStartDate();
+        this.actualEndDate = refreshed.getActualEndDate();
         this.done = refreshed.isDone();
         this.assignee = refreshed.getAssignee();
         this.tags = refreshed.getTags();
@@ -561,6 +567,14 @@ public class TaskModel extends AbstractModel {
         return deadline;
     }
 
+    public Date getActualStartDate(){
+        return actualStartDate;
+    }
+
+    public Date getActualEndDate(){
+        return actualEndDate;
+    }
+
     public String getDeadlineString() {
         if (this.deadline != null) {
             return DateUtils.castDateToString(this.deadline);
@@ -772,6 +786,8 @@ public class TaskModel extends AbstractModel {
         public static final String DESCRIPTION_COLUMN = "TaskDescription";
         public static final String START_DATE_COLUMN = "StartDate";
         public static final String DEADLINE_COLUMN = "Deadline";
+        public static final String ACTUAL_START_DATE_COLUMN = "ActualStartDate";
+        public static final String ACTUAL_END_DATE_COLUMN= "ActualEndDate";
         public static final String BUDGET_COLUMN = "Budget";
         public static final String DONE_COLUMN = "Done";
         public static final String TAGS_COLUMN = "Tags";
@@ -836,6 +852,8 @@ public class TaskModel extends AbstractModel {
                     int projectIdTemp = rs.getInt(PROJECT_ID_COLUMN);
                     String stDateTemp = rs.getString(START_DATE_COLUMN);
                     String dlDateTemp = rs.getString(DEADLINE_COLUMN);
+                    String actualstDateTemp=rs.getString(ACTUAL_START_DATE_COLUMN);
+                    String actualendDateTemp=rs.getString(ACTUAL_END_DATE_COLUMN);
                     int mostLikelyTimeTemp=rs.getInt(MOST_LIKELY_TIME_TO_FINISH_COLUMN);
                     int pessimisticTimeTemp=rs.getInt(PESSIMIST_TIME_TO_FINISH_COLUMN);
                     int optimistTimeTemp=rs.getInt(OPTIMIST_TIME_TO_FINISH_COLUMN);
@@ -870,7 +888,7 @@ public class TaskModel extends AbstractModel {
                     else {
                         tagsListTemp = new LinkedList<>();
                     }
-                    m = new TaskModel(idTemp, nameTemp, descriptionTemp, projectIdTemp, budgetTemp, stDateTempDate,
+                    m = new TaskModel(idTemp, nameTemp, descriptionTemp, projectIdTemp, budgetTemp, stDateTempDate, actualstDateTemp, actualendDateTemp
                             dlDateTempDate, doneTemp, assignee, tagsListTemp, mostLikelyTimeTemp, pessimisticTimeTemp, optimistTimeTemp);
                 }
                 else {
@@ -1308,6 +1326,8 @@ public class TaskModel extends AbstractModel {
             createTaskTableSql.append(TASK_NAME_COLUMN+" VARCHAR(50) NOT NULL"+",");
             createTaskTableSql.append(START_DATE_COLUMN+" DATE"+",");
             createTaskTableSql.append(DEADLINE_COLUMN+" DATE"+",");
+            createTaskTableSql.append(ACTUAL_START_DATE_COLUMN+" DATE"+",");
+            createTaskTableSql.append(ACTUAL_END_DATE_COLUMN+" DATE"+",");
             createTaskTableSql.append(BUDGET_COLUMN+" FLOAT CHECK("+BUDGET_COLUMN+" >= 0)"+",");
             createTaskTableSql.append(DONE_COLUMN+" BOOLEAN"+",");
             createTaskTableSql.append(TAGS_COLUMN+" TEXT"+",");
@@ -1322,6 +1342,7 @@ public class TaskModel extends AbstractModel {
             createTaskTableSql.append("FOREIGN KEY ("+PROJECT_ID_COLUMN+") REFERENCES Project(ProjectID) ON DELETE CASCADE"+",");
             createTaskTableSql.append("FOREIGN KEY ("+ASSIGNEE_USER_ID_COLUMN+") REFERENCES User(UserID) ON DELETE CASCADE"+",");
             createTaskTableSql.append("CONSTRAINT chk_date CHECK(" + DEADLINE_COLUMN + " >= "+START_DATE_COLUMN+"),");
+            createTaskTableSql.append("CONSTRAINT chk_actualdate CHECK(" + ACTUAL_END_DATE_COLUMN + " >= "+ACTUAL_START_DATE_COLUMN+"),");
             createTaskTableSql.append("CONSTRAINT chk_dateForPert CHECK(" + MOST_LIKELY_TIME_TO_FINISH_COLUMN + " >= "+ OPTIMIST_TIME_TO_FINISH_COLUMN +" AND "+ PESSIMIST_TIME_TO_FINISH_COLUMN +" >= "+ MOST_LIKELY_TIME_TO_FINISH_COLUMN + " AND "+ PESSIMIST_TIME_TO_FINISH_COLUMN +" >= "+ OPTIMIST_TIME_TO_FINISH_COLUMN +"));");
 //            System.out.print(createTaskTableSql);
             // Create task dependencies table query
