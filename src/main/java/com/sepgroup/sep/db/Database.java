@@ -13,7 +13,6 @@ import java.util.Map;
 public class Database {
 
     private static Logger logger = LoggerFactory.getLogger(Database.class);
-    private static Map<String, Database> activeDBs = new HashMap<>();
 
     /**
      * Path to the DB file
@@ -126,43 +125,6 @@ public class Database {
             logger.warn("DB connection was already closed");
         }
 	}
-
-    /**
-     * Get the instance of the DB from the path specified in the properties file (db.properties for main code,
-     * db-test.properties for testing code)
-     */
-    public static Database getActiveDB() throws DBException {
-        if (ConfigFactory.getProperty("configPath") == null) {
-            logger.debug("DB config path was not previously set, setting it now");
-            ConfigFactory.setProperty("configPath", "db.properties");
-        }
-        DBConfig cfg = ConfigFactory.create(DBConfig.class);
-        String activeDBPath = cfg.activeDbPath();
-        return getDB(activeDBPath);
-    }
-
-    /**
-     * Get the instance of the DB from the specified path
-     * @param dbPath the path to the specified DB
-     */
-    public static Database getDB(String dbPath) throws DBException {
-        logger.debug("Getting DB " + dbPath);
-        if (isDBActive(dbPath)) {
-            logger.debug("DB " + dbPath + " was already active, using same instance");
-            return activeDBs.get(dbPath);
-        }
-        else {
-            logger.debug("DB " + dbPath + " was not already active, creating instance");
-            Database newDb = new Database(dbPath);
-            activeDBs.put(dbPath, newDb);
-            return newDb;
-        }
-    }
-
-    public static boolean isDBActive(String dbPath) {
-        logger.debug("Checking if DB " + dbPath + " is active");
-        return activeDBs.get(dbPath) != null;
-    }
 
     public void dropTable(String tableName) throws DBException {
         try {

@@ -1,6 +1,7 @@
 package com.sepgroup.sep.model;
 
 import com.sepgroup.sep.db.DBException;
+import com.sepgroup.sep.db.DatabaseFactory;
 import com.sepgroup.sep.db.Database;
 import com.sepgroup.sep.utils.CurrencyUtils;
 import com.sepgroup.sep.utils.DateUtils;
@@ -787,7 +788,7 @@ public class TaskModel extends AbstractModel {
 
         private TaskModelDBObject() {
             try {
-                db = Database.getActiveDB();
+                db = DatabaseFactory.getActiveDB();
             } catch (DBException e) {
                 logger.error("Unable to read from database", e);
             }

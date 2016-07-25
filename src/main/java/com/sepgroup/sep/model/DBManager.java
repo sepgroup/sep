@@ -1,6 +1,7 @@
 package com.sepgroup.sep.model;
 
 import com.sepgroup.sep.db.DBException;
+import com.sepgroup.sep.db.DatabaseFactory;
 import com.sepgroup.sep.db.Database;
 
 /**
@@ -23,7 +24,7 @@ public class DBManager {
      * @throws DBException if tables could not be deleted
      */
     public static void dropAllDBTables() throws DBException {
-        Database db = Database.getActiveDB();
+        Database db = DatabaseFactory.getActiveDB();
         db.dropTable(ProjectModel.ProjectModelDBObject.TABLE_NAME);
         db.dropTable(TaskModel.TaskModelDBObject.TABLE_NAME);
         db.dropTable(TaskModel.TaskModelDBObject.DEPENDENCIES_TABLE_NAME);

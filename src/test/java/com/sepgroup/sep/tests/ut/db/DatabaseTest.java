@@ -1,5 +1,6 @@
 package com.sepgroup.sep.tests.ut.db;
 
+import com.sepgroup.sep.db.DatabaseFactory;
 import com.sepgroup.sep.db.Database;
 import com.sepgroup.sep.model.DBManager;
 import com.sepgroup.sep.model.ProjectModel;
@@ -35,22 +36,6 @@ public class DatabaseTest {
     }
 
     @Test
-    public void testGetDB() throws Exception {
-        db = Database.getDB(dbPath);
-
-        assertThat(db, notNullValue());
-        assertThat(db.getDbPath(), endsWith(dbPath));
-    }
-
-    @Test
-    public void testGetActiveDB() throws Exception {
-        db = Database.getActiveDB();
-
-        assertThat(db, notNullValue());
-        assertThat(db.getDbPath(), endsWith(dbPath));
-    }
-
-    @Test
     public void testDBInsertAndQuery() throws Exception {
         int insertedKey = insertProject();
         ResultSet rs = db.query("SELECT * FROM " + projectTableName + " WHERE " + projectIDColumn + "=" + insertedKey);
@@ -77,7 +62,7 @@ public class DatabaseTest {
 
     @Test
     public void testDBDelete() throws Exception {
-        createTables();
+        DBManager.createDBTablesIfNotExisting();
         int insertedKey = insertProject();
 
         db.update("DELETE FROM " + projectTableName + " WHERE " + projectIDColumn + "=" + insertedKey);
@@ -99,7 +84,7 @@ public class DatabaseTest {
 
     @Test
     public void testDBCreate() throws Exception {
-        db = Database.getDB(dbPath);
+        db = DatabaseFactory.getDB(dbPath);
         db.dropTable(projectTableName);
         ProjectModel.createTable();
 
@@ -109,12 +94,8 @@ public class DatabaseTest {
         assertThat(rs.next(), equalTo(true));
     }
 
-    private void createTables() throws Exception {
-        DBManager.createDBTablesIfNotExisting();
-    }
-
     private int insertProject() throws Exception {
-        db = Database.getDB(dbPath);
+        db = DatabaseFactory.getDB(dbPath);
         String sql = "INSERT INTO Project (" + projectNameColumn + ") VALUES ('" + expectedProjectName + "');";
         return db.insert(sql);
     }
