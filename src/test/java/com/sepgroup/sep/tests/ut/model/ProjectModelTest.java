@@ -542,8 +542,7 @@ public class ProjectModelTest {
                 defaultStartDate, defaultDeadline, false, createdManager, 8, 9, 7);
         TaskModel t2 = new TaskModel("T2", "Description of\n T2", createdProject.getProjectId(), 20000,
                 defaultStartDate, defaultDeadline, false, createdManager, 8, 9, 7);
-
-        //TODO figure out why tasks are not being assigned
+        
         List<TaskModel> taskList = createdProject.getTasks();
 
         //Tests that there are exactly two projects in the list

@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
@@ -11,17 +15,17 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="taskview" prefHeight="494.0" prefWidth="586.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sepgroup.sep.controller.TaskEditorController">
+<AnchorPane fx:id="taskview" prefHeight="494.0" prefWidth="655.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sepgroup.sep.controller.TaskEditorController">
     <children>
         <Label layoutX="208.0" layoutY="15.0" prefHeight="32.0" prefWidth="129.0" text="Edit Task">
             <font>
                 <Font name="System Bold" size="14.0" />
             </font></Label>
-        <Label layoutX="22.0" layoutY="117.0" prefHeight="32.0" prefWidth="74.0" text="Start Date">
+        <Label layoutX="22.0" layoutY="87.0" prefHeight="32.0" prefWidth="129.0" text="Expected Start Date">
             <font>
                 <Font name="System Bold" size="12.0" />
             </font></Label>
-        <Label layoutX="21.0" layoutY="84.0" prefHeight="32.0" prefWidth="129.0" text="Budget">
+        <Label layoutX="22.0" layoutY="151.0" prefHeight="32.0" prefWidth="129.0" text="Budget">
             <font>
                 <Font name="System Bold" size="12.0" />
             </font></Label>
@@ -29,7 +33,7 @@
             <font>
                 <Font name="System Bold" size="12.0" />
             </font></Label>
-        <Label layoutX="23.0" layoutY="149.0" prefHeight="32.0" prefWidth="63.0" text="Deadline">
+        <Label layoutX="23.0" layoutY="119.0" prefHeight="32.0" prefWidth="124.0" text="Expected End Date">
             <font>
                 <Font name="System Bold" size="12.0" />
             </font></Label>
@@ -45,10 +49,10 @@
             <font>
                 <Font name="System Bold" size="12.0" />
             </font></Button>
-        <TextField fx:id="editTaskNameField" layoutX="105.0" layoutY="55.0" />
-        <TextField fx:id="editTaskBudgetField" layoutX="105.0" layoutY="88.0" />
-        <DatePicker fx:id="editStartDateTaskField" layoutX="104.0" layoutY="120.0" prefHeight="25.0" prefWidth="149.0" />
-        <DatePicker fx:id="editDeadlineTaskField" layoutX="105.0" layoutY="152.0" prefHeight="25.0" prefWidth="149.0" />
+        <TextField fx:id="editTaskNameField" layoutX="150.0" layoutY="55.0" />
+        <TextField fx:id="editTaskBudgetField" layoutX="104.0" layoutY="156.0" />
+        <DatePicker fx:id="editExpectedStartDateTaskField" layoutX="150.0" layoutY="90.0" prefHeight="25.0" prefWidth="149.0" />
+        <DatePicker fx:id="editExpectedDeadlineTaskField" layoutX="150.0" layoutY="122.0" prefHeight="25.0" prefWidth="149.0" />
         <Label layoutX="22.0" layoutY="190.0" prefHeight="32.0" prefWidth="74.0" text="Assignee">
             <font>
                 <Font name="System Bold" size="12.0" />
@@ -66,15 +70,15 @@
           </font>
         </CheckBox>
         <Label fx:id="taskIdLabel" layoutX="285.0" layoutY="23.0" text="[Task id]" />
-        <ListView fx:id="dependenciesTaskList" layoutX="383.0" layoutY="96.0" onMouseClicked="#onDependencyTaskListSelected" prefHeight="74.0" prefWidth="156.0" />
-        <Label layoutX="409.0" layoutY="60.0" prefHeight="32.0" prefWidth="105.0" text="Dependencies">
+        <ListView fx:id="dependenciesTaskList" layoutX="388.0" layoutY="200.0" onMouseClicked="#onDependencyTaskListSelected" prefHeight="74.0" prefWidth="156.0" />
+        <Label layoutX="414.0" layoutY="169.0" prefHeight="32.0" prefWidth="105.0" text="Dependencies">
             <font>
                 <Font name="System Bold" size="12.0" />
             </font>
         </Label>
-        <ComboBox fx:id="dependenciesComboBox" layoutX="386.0" layoutY="235.0" onAction="#onDependenciesComboBoxSelected" prefWidth="150.0" />
-        <Button fx:id="addSelectedDependencyButton" disable="true" layoutX="400.0" layoutY="270.0" mnemonicParsing="false" onAction="#onAddDependencyClicked" text="Add Dependency" />
-        <Button fx:id="deleteSelectedDependencyButton" disable="true" layoutX="399.0" layoutY="179.0" mnemonicParsing="false" onAction="#onDeleteSelectedDependencyClicked" prefHeight="27.0" prefWidth="124.0" text="Delete Selected" />
+        <ComboBox fx:id="dependenciesComboBox" layoutX="388.0" layoutY="322.0" onAction="#onDependenciesComboBoxSelected" prefWidth="150.0" />
+        <Button fx:id="addSelectedDependencyButton" disable="true" layoutX="402.0" layoutY="356.0" mnemonicParsing="false" onAction="#onAddDependencyClicked" text="Add Dependency" />
+        <Button fx:id="deleteSelectedDependencyButton" disable="true" layoutX="403.0" layoutY="282.0" mnemonicParsing="false" onAction="#onDeleteSelectedDependencyClicked" prefHeight="27.0" prefWidth="124.0" text="Delete Selected" />
       <ComboBox fx:id="assigneeComboBox" layoutX="105.0" layoutY="193.0" prefWidth="150.0" />
       <Label layoutX="22.0" layoutY="295.0" prefHeight="32.0" prefWidth="150.0" text="Most Likely time to finish">
          <font>
@@ -109,5 +113,17 @@
             <Font name="System Bold" size="12.0" />
          </font>
       </Label>
+      <Label layoutX="328.0" layoutY="87.0" prefHeight="32.0" prefWidth="129.0" text="Actual Start Date">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </Label>
+      <Label layoutX="329.0" layoutY="119.0" prefHeight="32.0" prefWidth="124.0" text="Actual End Date">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </Label>
+      <DatePicker fx:id="editActualStartDateTaskField" layoutX="456.0" layoutY="90.0" prefHeight="25.0" prefWidth="149.0" />
+      <DatePicker fx:id="editActualEndDateTaskField" layoutX="456.0" layoutY="122.0" prefHeight="25.0" prefWidth="149.0" />
     </children>
 </AnchorPane>

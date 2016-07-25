@@ -38,9 +38,13 @@ public class TaskEditorController extends AbstractController {
 	@FXML
 	public TextField editTaskBudgetField;
 	@FXML
-	public DatePicker editStartDateTaskField;
+	public DatePicker editExpectedStartDateTaskField;
 	@FXML
-	public DatePicker editDeadlineTaskField;
+	public DatePicker editExpectedDeadlineTaskField;
+    @FXML
+    public DatePicker editActualStartDateTaskField;
+    @FXML
+    public DatePicker editActualEndDateTaskField;
 	@FXML
 	public ComboBox<UserModel> assigneeComboBox;
 	@FXML
@@ -102,11 +106,11 @@ public class TaskEditorController extends AbstractController {
             }
         }
 
-        // Start date
-        if (editStartDateTaskField.getValue() != null) {
-            Date startTaskDate;
+        // Expected Start date
+        if (editExpectedStartDateTaskField.getValue() != null) {
+            Date expectedStartTaskDate;
             try {
-                startTaskDate = DateUtils.castStringToDate(editStartDateTaskField.getValue().toString());
+                expectedStartTaskDate = DateUtils.castStringToDate(editExpectedStartDateTaskField.getValue().toString());
             } catch (ParseException e) {
                 String errorContent = "Unable to parse date from DatePicker, this really shouldn't happen.";
                 logger.error(errorContent);
@@ -114,7 +118,7 @@ public class TaskEditorController extends AbstractController {
                 return;
             }
             try {
-                model.setStartDate(startTaskDate);;
+                model.setStartDate(expectedStartTaskDate);
             } catch (InvalidInputException e) {
                 DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
                 return;
@@ -123,11 +127,11 @@ public class TaskEditorController extends AbstractController {
             model.removeStartDate();
         }
 
-        // Deadline
-        if (editDeadlineTaskField.getValue() != null) {
-            Date taskDeadline;
+        // Expected Deadline
+        if (editExpectedDeadlineTaskField.getValue() != null) {
+            Date expectedTaskDeadline;
             try {
-                taskDeadline = DateUtils.castStringToDate(editDeadlineTaskField.getValue().toString());
+                expectedTaskDeadline = DateUtils.castStringToDate(editExpectedDeadlineTaskField.getValue().toString());
             } catch (ParseException e) {
                 String errorContent = "Unable to parse date from DatePicker, this really shouldn't happen.";
                 logger.error(errorContent);
@@ -135,7 +139,7 @@ public class TaskEditorController extends AbstractController {
                 return;
             }
             try {
-                model.setDeadline(taskDeadline);;
+                model.setDeadline(expectedTaskDeadline);
             } catch (InvalidInputException e) {
                 DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
                 return;
@@ -143,6 +147,49 @@ public class TaskEditorController extends AbstractController {
         }
         else {
             model.removeDeadline();
+        }
+
+        // Actual Start date
+        if (editActualStartDateTaskField.getValue() != null) {
+            Date actualStartTaskDate;
+            try {
+                actualStartTaskDate = DateUtils.castStringToDate(editActualStartDateTaskField.getValue().toString());
+            } catch (ParseException e) {
+                String errorContent = "Unable to parse date from DatePicker, this really shouldn't happen.";
+                logger.error(errorContent);
+                DialogCreator.showErrorDialog("Unable to parse date", errorContent);
+                return;
+            }
+            try {
+                model.setActualStartDate(actualStartTaskDate);
+            } catch (InvalidInputException e) {
+                DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
+                return;
+            }
+        } else {
+            model.removeActualStartDate();
+        }
+
+        // Actual end date
+        if (editActualEndDateTaskField.getValue() != null) {
+            Date actualTaskDeadline;
+            try {
+                actualTaskDeadline = DateUtils.castStringToDate(editActualEndDateTaskField.getValue().toString());
+            } catch (ParseException e) {
+                String errorContent = "Unable to parse date from DatePicker, this really shouldn't happen.";
+                logger.error(errorContent);
+                DialogCreator.showErrorDialog("Unable to parse date", errorContent);
+                return;
+            }
+            try {
+                model.setActualEndDate(actualTaskDeadline);
+            } catch (InvalidInputException e) {
+                DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
+                return;
+            }
+        }
+        else {
+            model.removeActualEndDate();
         }
 
         // Budget
@@ -380,7 +427,7 @@ public class TaskEditorController extends AbstractController {
    		    if (model.getStartDate() != null) {
                 try {
                     LocalDate startDate = LocalDate.parse(model.getStartDateString());
-                    editStartDateTaskField.setValue(startDate);
+                    editExpectedStartDateTaskField.setValue(startDate);
                 } catch (DateTimeParseException e) {
                     DialogCreator.showExceptionDialog(e);
                 }
@@ -388,7 +435,23 @@ public class TaskEditorController extends AbstractController {
             if (model.getDeadline() != null) {
                 try {
                     LocalDate deadline = LocalDate.parse(model.getDeadlineString());
-                    editDeadlineTaskField.setValue(deadline);
+                    editExpectedDeadlineTaskField.setValue(deadline);
+                } catch (DateTimeParseException e) {
+                    DialogCreator.showExceptionDialog(e);
+                }
+            }
+            if (model.getActualStartDate() != null) {
+                try {
+                    LocalDate actualStartDate = LocalDate.parse(model.getActualStartDateString());
+                    editActualStartDateTaskField.setValue(actualStartDate);
+                } catch (DateTimeParseException e) {
+                    DialogCreator.showExceptionDialog(e);
+                }
+            }
+            if (model.getActualEndDate() != null) {
+                try {
+                    LocalDate actualDeadline = LocalDate.parse(model.getActualEndDateString());
+                    editActualEndDateTaskField.setValue(actualDeadline);
                 } catch (DateTimeParseException e) {
                     DialogCreator.showExceptionDialog(e);
                 }

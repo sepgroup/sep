@@ -247,7 +247,8 @@ public class TaskModel extends AbstractModel {
         }
     }
 
-    public void setActualStartDate(Date startDate) {
+    public void setActualStartDate(Date startDate) throws InvalidInputException {
+        // TODO validation
         this.actualStartDate = startDate;
     }
 
@@ -265,7 +266,7 @@ public class TaskModel extends AbstractModel {
         return actualEndDate;
     }
 
-    public String getActualEdnDateString() {
+    public String getActualEndDateString() {
         if (this.actualEndDate != null) {
             return DateUtils.castDateToString(this.actualEndDate);
         } else {
@@ -273,7 +274,8 @@ public class TaskModel extends AbstractModel {
         }
     }
 
-    public void setActualEndDate(Date endDate) {
+    public void setActualEndDate(Date endDate) throws InvalidInputException {
+        // TODO validation
         this.actualEndDate = endDate;
     }
 
@@ -615,6 +617,10 @@ public class TaskModel extends AbstractModel {
         this.startDate = null;
     }
 
+    public void removeActualStartDate() {
+        this.actualStartDate = null;
+    }
+
     public Date getDeadline() {
         return deadline;
     }
@@ -680,6 +686,10 @@ public class TaskModel extends AbstractModel {
 
     public void removeDeadline() {
         this.deadline = null;
+    }
+
+    public void removeActualEndDate() {
+        this.actualEndDate = null;
     }
 
     public boolean isDone() {
