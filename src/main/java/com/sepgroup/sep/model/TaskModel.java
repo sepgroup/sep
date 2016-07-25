@@ -40,6 +40,8 @@ public class TaskModel extends AbstractModel {
     private int mostLikelyTimeToFinish;
     private int pessimisticTimeToFinish;
     private int optimisticTimeToFinish;
+    private Date actualStartDate;
+    private Date actualEndDate;
 
     /**
      * Default constructor
@@ -76,7 +78,7 @@ public class TaskModel extends AbstractModel {
      * @throws InvalidInputException
      */
     public TaskModel(String name, String description, int projectId, double budget, Date startDate, Date deadline,
-            boolean done, UserModel assignee, int mostLikelyTimeToFinish, int pessimisticTimeToFinish, int optimisticTimeToFinish) throws InvalidInputException {
+            boolean done, UserModel assignee, int mostLikelyTimeToFinish, int pessimisticTimeToFinish, int optimisticTimeToFinish, Date actualStartDate, Date actualEndDate) throws InvalidInputException {
         this(name, description, projectId);
         setBudget(budget);
         setStartDate(startDate);
@@ -86,6 +88,8 @@ public class TaskModel extends AbstractModel {
         setMostLikelyTimeToFinish(mostLikelyTimeToFinish);
         setPessimisticTimeToFinish(pessimisticTimeToFinish);
         setOptimisticTimeToFinish(optimisticTimeToFinish);
+        setActualStartDate(actualStartDate);
+        setActualEndDate(actualEndDate);
     }
 
     /**
@@ -102,8 +106,8 @@ public class TaskModel extends AbstractModel {
      * @throws InvalidInputException
      */
     public TaskModel(String name, String description, int projectId, double budget, Date startDate, Date deadline,
-            boolean done, UserModel assignee, List<String> tags, int mostLikelyTimeToFinish, int pessimisticTimeToFinish, int optimisticTimeToFinish) throws InvalidInputException {
-        this(name, description, projectId, budget, startDate, deadline, done, assignee, mostLikelyTimeToFinish, pessimisticTimeToFinish, optimisticTimeToFinish);
+            boolean done, UserModel assignee, List<String> tags, int mostLikelyTimeToFinish, int pessimisticTimeToFinish, int optimisticTimeToFinish, Date actualStartDate, Date actualEndDate) throws InvalidInputException {
+        this(name, description, projectId, budget, startDate, deadline, done, assignee, mostLikelyTimeToFinish, pessimisticTimeToFinish, optimisticTimeToFinish, actualStartDate, actualEndDate);
         if (tags != null) setTags(tags);
     }
 
@@ -121,7 +125,8 @@ public class TaskModel extends AbstractModel {
      * @param tags
      */
     protected TaskModel(int taskId, String name, String description, int projectId, double budget, Date startDate,
-            Date deadline, boolean done, UserModel assignee, List<String> tags, int mostLikelyTimeToFinish, int pessimisticTimeToFinish, int optimisticTimeToFinish) {
+            Date deadline, boolean done, UserModel assignee, List<String> tags, int mostLikelyTimeToFinish, int pessimisticTimeToFinish,
+                        int optimisticTimeToFinish, Date actualStartDate, Date actualEndDate) {
         this();
         this.name = name;
         this.description = description;
@@ -136,6 +141,8 @@ public class TaskModel extends AbstractModel {
         this.mostLikelyTimeToFinish = mostLikelyTimeToFinish;
         this.pessimisticTimeToFinish = pessimisticTimeToFinish;
         this.optimisticTimeToFinish = optimisticTimeToFinish;
+        this.actualStartDate = actualStartDate;
+        this.actualEndDate = actualEndDate;
     }
 
     private static List<String> getTagsListFromString(String tagsString) {
