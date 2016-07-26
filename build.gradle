@@ -36,16 +36,19 @@ test {
     testLogging {
         events "passed", "skipped", "failed", "standardOut", "standardError"
     }
-
-    jacoco {
-        excludes = ["**/jfree/**"]
-    }
 }
 
 jacocoTestReport {
     reports {
         xml.enabled = true
         html.enabled = true
+    }
+    afterEvaluate {
+        classDirectories = files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                    '**/*jfree**'
+            ])
+        })
     }
 }
 
