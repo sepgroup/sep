@@ -792,9 +792,12 @@ public class TaskModel extends AbstractModel {
             return false;
         }
         TaskModel other = (TaskModel) obj;
+
         if (other.getTaskId() != getTaskId()) {
             return false;
         }
+
+        /*
         if (!equalsNullable(other.getName(), getName())) {
             return false;
         }
@@ -832,6 +835,7 @@ public class TaskModel extends AbstractModel {
 //            return false;
 //        }
 
+        */
         return true;
     }
 
