@@ -1224,8 +1224,8 @@ public class TaskModel extends AbstractModel {
             sql.append("," + BUDGET_COLUMN);
             if (getStartDate() != null) sql.append("," + START_DATE_COLUMN);
             if (getDeadline() != null) sql.append("," + DEADLINE_COLUMN);
-            if (getDeadline() != null) sql.append("," + ACTUAL_START_DATE_COLUMN);
-            if (getDeadline() != null) sql.append("," + ACTUAL_END_DATE_COLUMN);
+            if (getActualStartDate() != null) sql.append("," + ACTUAL_START_DATE_COLUMN);
+            if (getActualEndDate() != null) sql.append("," + ACTUAL_END_DATE_COLUMN);
             sql.append("," + DONE_COLUMN);
             if (getAssignee() != null) sql.append("," + ASSIGNEE_USER_ID_COLUMN);
             if (getTags().size() > 0) sql.append("," + TAGS_COLUMN);
