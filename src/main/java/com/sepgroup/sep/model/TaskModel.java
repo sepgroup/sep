@@ -852,7 +852,7 @@ public class TaskModel extends AbstractModel {
         public static final String DEPENDENCIES_MAIN_TASK_COLUMN = "FKTaskID";
         public static final String DEPENDENCIES_DEPENDS_ON_TASK_COLUMN = "DependOnTaskID";
         public static final String ACTUAL_START_DATE_COLUMN = "ActualStartDate";
-        public static final String ACTUAL_END_DATE_COLUMN = "ActualDeadline";
+        public static final String ACTUAL_END_DATE_COLUMN = "ActualEndDate";
 
         private Database db;
 
@@ -909,11 +909,18 @@ public class TaskModel extends AbstractModel {
                     int mostLikelyTimeTemp=rs.getInt(MOST_LIKELY_TIME_TO_FINISH_COLUMN);
                     int pessimisticTimeTemp=rs.getInt(PESSIMIST_TIME_TO_FINISH_COLUMN);
                     int optimistTimeTemp=rs.getInt(OPTIMIST_TIME_TO_FINISH_COLUMN);
+                    String actualStDateTemp = rs.getString(ACTUAL_START_DATE_COLUMN);
+                    String actualEndDateTemp = rs.getString(ACTUAL_END_DATE_COLUMN);
                     Date stDateTempDate;
                     Date dlDateTempDate;
+                    Date actualStDateTempDate;
+                    Date actualEndDateTempDate;
                     try {
                         stDateTempDate = DateUtils.castStringToDate(stDateTemp);
                         dlDateTempDate = DateUtils.castStringToDate(dlDateTemp);
+                        actualStDateTempDate=DateUtils.castStringToDate(actualStDateTemp);
+                        actualEndDateTempDate=DateUtils.castStringToDate(actualEndDateTemp);
+
                     } catch (ParseException e) {
                         logger.error("Unable to parse Date from DB, this really shouldn't happen.");
                         throw new ModelNotFoundException("Unable to parse Date from DB, this really shouldn't happen.", e);
@@ -941,7 +948,7 @@ public class TaskModel extends AbstractModel {
                         tagsListTemp = new LinkedList<>();
                     }
                     m = new TaskModel(idTemp, nameTemp, descriptionTemp, projectIdTemp, budgetTemp, stDateTempDate,
-                            dlDateTempDate, doneTemp, assignee, tagsListTemp, mostLikelyTimeTemp, pessimisticTimeTemp, optimistTimeTemp, actualStartDate, actualStartDate);
+                            dlDateTempDate, doneTemp, assignee, tagsListTemp, mostLikelyTimeTemp, pessimisticTimeTemp, optimistTimeTemp, actualStDateTempDate, actualEndDateTempDate);
                 }
                 else {
                     logger.debug("DB query returned zero results");
