@@ -188,7 +188,7 @@ public class ProjectViewerController extends AbstractController {
 			Date today = new Date();
 			
 			for(int i = 0; i<model.getTasks().size();i++){
-				if (!model.getTasks().get(i).isDone()){
+				if (!model.getTasks().get(i).isDone()&&(((model.getTasks().get(i).getActualEndDate()!=(null))&&(model.getTasks().get(i).getActualEndDate()!=(null))))){
 				s2.add(new Task(String.valueOf(model.getTasks().get(i).getTaskId()),
 						new SimpleTimePeriod (date(model.getTasks().get(i).getActualStartDate()), date(model.getTasks().get(i).getActualEndDate()))));}									
 					if ((model.getTasks().get(i).getStartDate()!=(null))&&(model.getTasks().get(i).getDeadline()!=(null))){
