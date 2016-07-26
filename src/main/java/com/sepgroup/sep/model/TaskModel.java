@@ -796,8 +796,6 @@ public class TaskModel extends AbstractModel {
         if (other.getTaskId() != getTaskId()) {
             return false;
         }
-
-        /*
         if (!equalsNullable(other.getName(), getName())) {
             return false;
         }
@@ -825,17 +823,11 @@ public class TaskModel extends AbstractModel {
         if (!equalsNullable(other.getTags(), getTags())) {
             return false;
         }
-        if (!equalsNullable(other.getActualEndDate(), getActualEndDate())) {
-            return false;
-        }
-        if (!equalsNullable(other.getActualStartDate(), getActualStartDate())) {
-            return false;
-        }
 //        if (!equalsNullable(other.getDependencies(), getDependencies())) {
 //            return false;
 //        }
 
-        */
+
         return true;
     }
 
