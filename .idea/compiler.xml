@@ -18,10 +18,5 @@
         <processorPath useClasspath="true" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="sep_main" target="1.8" />
-      <module name="sep_package" target="1.8" />
-      <module name="sep_test" target="1.8" />
-    </bytecodeTargetLevel>
   </component>
 </project>
