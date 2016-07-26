@@ -174,7 +174,7 @@ public class ProjectViewerController extends AbstractController {
         }
     }
     
-	public void onCreateGanttChartClicked() throws ModelNotFoundException, InvalidInputException {
+    public void onCreateGanttChartClicked() throws ModelNotFoundException, InvalidInputException {
 		final GanttController Gantt = new GanttController("Gantt Chart");
 		Gantt.pack();
 		RefineryUtilities.centerFrameOnScreen(Gantt);
@@ -184,16 +184,13 @@ public class ProjectViewerController extends AbstractController {
 	}       
 	public static IntervalCategoryDataset createDataset() throws ModelNotFoundException, InvalidInputException {
 			final TaskSeries s1 = new TaskSeries("Scheduled");
-			final TaskSeries s2 = new TaskSeries("Completed");
+			final TaskSeries s2 = new TaskSeries("Actual");
+			Date today = new Date();
 			
 			for(int i = 0; i<model.getTasks().size();i++){
-				if (model.getTasks().get(i).isDone()){
+				if (!model.getTasks().get(i).isDone()){
 				s2.add(new Task(String.valueOf(model.getTasks().get(i).getTaskId()),
-						new SimpleTimePeriod (date( model.getTasks().get(i).getStartDate()), date(model.getTasks().get(i).getDeadline()))));}
-
-			
-				else{						
-					
+						new SimpleTimePeriod (date(model.getTasks().get(i).getActualStartDate()), date(model.getTasks().get(i).getActualEndDate()))));}									
 					if ((model.getTasks().get(i).getStartDate()!=(null))&&(model.getTasks().get(i).getDeadline()!=(null))){
 				        s1.add(new Task(String.valueOf(model.getTasks().get(i).getTaskId()),
 						new SimpleTimePeriod(date( model.getTasks().get(i).getStartDate()), date(model.getTasks().get(i).getDeadline()))));
@@ -201,10 +198,10 @@ public class ProjectViewerController extends AbstractController {
 					else{
 						String title = "Info";
 			        String header = "Task with id " + model.getTasks().get(i).getTaskId() + " is missing start date/deadline";
-			        
+					
 
 			       DialogCreator.showInfoDialog(title, header);}}
-			}
+			
 			final TaskSeriesCollection collection = new TaskSeriesCollection();
 			collection.add(s1);
 			collection.add(s2);
