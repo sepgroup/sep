@@ -40,6 +40,8 @@ public class TaskModel extends AbstractModel {
     private int mostLikelyTimeToFinish;
     private int pessimisticTimeToFinish;
     private int optimisticTimeToFinish;
+    private Date actualStartDate;
+    private Date actualEndDate;
 
     /**
      * Default constructor
@@ -76,7 +78,7 @@ public class TaskModel extends AbstractModel {
      * @throws InvalidInputException
      */
     public TaskModel(String name, String description, int projectId, double budget, Date startDate, Date deadline,
-            boolean done, UserModel assignee, int mostLikelyTimeToFinish, int pessimisticTimeToFinish, int optimisticTimeToFinish) throws InvalidInputException {
+            boolean done, UserModel assignee, int mostLikelyTimeToFinish, int pessimisticTimeToFinish, int optimisticTimeToFinish, Date actualStartDate, Date actualEndDate) throws InvalidInputException {
         this(name, description, projectId);
         setBudget(budget);
         setStartDate(startDate);
@@ -86,6 +88,8 @@ public class TaskModel extends AbstractModel {
         setMostLikelyTimeToFinish(mostLikelyTimeToFinish);
         setPessimisticTimeToFinish(pessimisticTimeToFinish);
         setOptimisticTimeToFinish(optimisticTimeToFinish);
+        setActualStartDate(actualStartDate);
+        setActualEndDate(actualEndDate);
     }
 
     /**
@@ -102,8 +106,8 @@ public class TaskModel extends AbstractModel {
      * @throws InvalidInputException
      */
     public TaskModel(String name, String description, int projectId, double budget, Date startDate, Date deadline,
-            boolean done, UserModel assignee, List<String> tags, int mostLikelyTimeToFinish, int pessimisticTimeToFinish, int optimisticTimeToFinish) throws InvalidInputException {
-        this(name, description, projectId, budget, startDate, deadline, done, assignee, mostLikelyTimeToFinish, pessimisticTimeToFinish, optimisticTimeToFinish);
+            boolean done, UserModel assignee, List<String> tags, int mostLikelyTimeToFinish, int pessimisticTimeToFinish, int optimisticTimeToFinish, Date actualStartDate, Date actualEndDate) throws InvalidInputException {
+        this(name, description, projectId, budget, startDate, deadline, done, assignee, mostLikelyTimeToFinish, pessimisticTimeToFinish, optimisticTimeToFinish, actualStartDate, actualEndDate);
         if (tags != null) setTags(tags);
     }
 
@@ -121,7 +125,7 @@ public class TaskModel extends AbstractModel {
      * @param tags
      */
     protected TaskModel(int taskId, String name, String description, int projectId, double budget, Date startDate,
-            Date deadline, boolean done, UserModel assignee, List<String> tags, int mostLikelyTimeToFinish, int pessimisticTimeToFinish, int optimisticTimeToFinish) {
+            Date deadline, boolean done, UserModel assignee, List<String> tags, int mostLikelyTimeToFinish, int pessimisticTimeToFinish, int optimisticTimeToFinish, Date actualStartDate, Date actualEndDate) {
         this();
         this.name = name;
         this.description = description;
@@ -136,6 +140,8 @@ public class TaskModel extends AbstractModel {
         this.mostLikelyTimeToFinish = mostLikelyTimeToFinish;
         this.pessimisticTimeToFinish = pessimisticTimeToFinish;
         this.optimisticTimeToFinish = optimisticTimeToFinish;
+        this.actualStartDate = actualStartDate;
+        this.actualEndDate = actualEndDate;
     }
 
     private static List<String> getTagsListFromString(String tagsString) {
@@ -229,6 +235,58 @@ public class TaskModel extends AbstractModel {
         return dependencies.remove(task);
     }
 
+    public Date getActualStartDate() {
+        return actualStartDate;
+    }
+
+    public String getActualStartDateString() {
+        if (this.actualStartDate != null) {
+            return DateUtils.castDateToString(this.actualStartDate);
+        } else {
+            return null;
+        }
+    }
+
+    public void setActualStartDate(Date startDate) throws InvalidInputException {
+        // TODO validation
+        this.actualStartDate = DateUtils.filterDateToMidnight(startDate);
+    }
+
+    public void setActualStartDate(String startDate) throws InvalidInputException {
+        try {
+            setActualStartDate(DateUtils.castStringToDate(startDate));
+        } catch (ParseException e) {
+            throw new InvalidInputException("Invalid actual start date string.");
+        }
+    }
+
+
+
+    public Date getActualEndDate() {
+        return actualEndDate;
+    }
+
+    public String getActualEndDateString() {
+        if (this.actualEndDate != null) {
+            return DateUtils.castDateToString(this.actualEndDate);
+        } else {
+            return null;
+        }
+    }
+
+    public void setActualEndDate(Date endDate) throws InvalidInputException {
+        // TODO validation
+        this.actualEndDate = DateUtils.filterDateToMidnight(endDate);
+    }
+
+    public void setActualEndDate(String endDate) throws InvalidInputException {
+        try {
+            setActualEndDate(DateUtils.castStringToDate(endDate));
+        } catch (ParseException e) {
+            throw new InvalidInputException("Invalid actual end date string.");
+        }
+    }
+
     @Override
     public void refreshData() throws ModelNotFoundException {
         TaskModel refreshed = getById(getTaskId());
@@ -247,6 +305,8 @@ public class TaskModel extends AbstractModel {
         this.mostLikelyTimeToFinish = refreshed.getMostLikelyTimeToFinish();
         this.optimisticTimeToFinish = refreshed.getOptimisticTimeToFinish();
         this.pessimisticTimeToFinish = refreshed.getPesimisticTimeToFinish();
+        this.actualStartDate = refreshed.getActualStartDate();
+        this.actualEndDate = refreshed.getActualEndDate();
 
         updateObservers();
     }
@@ -557,6 +617,10 @@ public class TaskModel extends AbstractModel {
         this.startDate = null;
     }
 
+    public void removeActualStartDate() {
+        this.actualStartDate = null;
+    }
+
     public Date getDeadline() {
         return deadline;
     }
@@ -622,6 +686,10 @@ public class TaskModel extends AbstractModel {
 
     public void removeDeadline() {
         this.deadline = null;
+    }
+
+    public void removeActualEndDate() {
+        this.actualEndDate = null;
     }
 
     public boolean isDone() {
@@ -724,6 +792,7 @@ public class TaskModel extends AbstractModel {
             return false;
         }
         TaskModel other = (TaskModel) obj;
+
         if (other.getTaskId() != getTaskId()) {
             return false;
         }
@@ -758,6 +827,7 @@ public class TaskModel extends AbstractModel {
 //            return false;
 //        }
 
+
         return true;
     }
 
@@ -783,6 +853,8 @@ public class TaskModel extends AbstractModel {
         public static final String DEPENDENCIES_TABLE_NAME = "TaskDependency";
         public static final String DEPENDENCIES_MAIN_TASK_COLUMN = "FKTaskID";
         public static final String DEPENDENCIES_DEPENDS_ON_TASK_COLUMN = "DependOnTaskID";
+        public static final String ACTUAL_START_DATE_COLUMN = "ActualStartDate";
+        public static final String ACTUAL_END_DATE_COLUMN = "ActualEndDate";
 
         private Database db;
 
@@ -839,11 +911,18 @@ public class TaskModel extends AbstractModel {
                     int mostLikelyTimeTemp=rs.getInt(MOST_LIKELY_TIME_TO_FINISH_COLUMN);
                     int pessimisticTimeTemp=rs.getInt(PESSIMIST_TIME_TO_FINISH_COLUMN);
                     int optimistTimeTemp=rs.getInt(OPTIMIST_TIME_TO_FINISH_COLUMN);
+                    String actualStDateTemp = rs.getString(ACTUAL_START_DATE_COLUMN);
+                    String actualEndDateTemp = rs.getString(ACTUAL_END_DATE_COLUMN);
                     Date stDateTempDate;
                     Date dlDateTempDate;
+                    Date actualStDateTempDate;
+                    Date actualEndDateTempDate;
                     try {
                         stDateTempDate = DateUtils.castStringToDate(stDateTemp);
                         dlDateTempDate = DateUtils.castStringToDate(dlDateTemp);
+                        actualStDateTempDate=DateUtils.castStringToDate(actualStDateTemp);
+                        actualEndDateTempDate=DateUtils.castStringToDate(actualEndDateTemp);
+
                     } catch (ParseException e) {
                         logger.error("Unable to parse Date from DB, this really shouldn't happen.");
                         throw new ModelNotFoundException("Unable to parse Date from DB, this really shouldn't happen.", e);
@@ -871,7 +950,7 @@ public class TaskModel extends AbstractModel {
                         tagsListTemp = new LinkedList<>();
                     }
                     m = new TaskModel(idTemp, nameTemp, descriptionTemp, projectIdTemp, budgetTemp, stDateTempDate,
-                            dlDateTempDate, doneTemp, assignee, tagsListTemp, mostLikelyTimeTemp, pessimisticTimeTemp, optimistTimeTemp);
+                            dlDateTempDate, doneTemp, assignee, tagsListTemp, mostLikelyTimeTemp, pessimisticTimeTemp, optimistTimeTemp, actualStDateTempDate, actualEndDateTempDate);
                 }
                 else {
                     logger.debug("DB query returned zero results");
@@ -908,11 +987,17 @@ public class TaskModel extends AbstractModel {
                     int mostLikelyTimeTemp=rs.getInt(MOST_LIKELY_TIME_TO_FINISH_COLUMN);
                     int pessimisticTimeTemp=rs.getInt(PESSIMIST_TIME_TO_FINISH_COLUMN);
                     int optimistTimeTemp=rs.getInt(OPTIMIST_TIME_TO_FINISH_COLUMN);
+                    String actualStDateTemp = rs.getString(ACTUAL_START_DATE_COLUMN);
+                    String actualEndDateTemp = rs.getString(ACTUAL_END_DATE_COLUMN);
                     Date stDateTempDate;
                     Date dlDateTempDate;
+                    Date actualStDateTempDate;
+                    Date actualEndDateTempDate;
                     try {
                         stDateTempDate = DateUtils.castStringToDate(stDateTemp);
                         dlDateTempDate = DateUtils.castStringToDate(dlDateTemp);
+                        actualStDateTempDate=DateUtils.castStringToDate(actualStDateTemp);
+                        actualEndDateTempDate=DateUtils.castStringToDate(actualEndDateTemp);
                     } catch (ParseException e) {
                         logger.error("Unable to parse Date from DB, this really shouldn't happen.");
                         throw new ModelNotFoundException("Unable to parse Date from DB, this really shouldn't happen.",
@@ -941,7 +1026,7 @@ public class TaskModel extends AbstractModel {
                         tagsListTemp = new LinkedList<>();
                     }
                     taskList.add(new TaskModel(idTemp, nameTemp, descriptionTemp, projectIdTemp, budgetTemp,
-                            stDateTempDate, dlDateTempDate, doneTemp, assignee, tagsListTemp, mostLikelyTimeTemp, pessimisticTimeTemp, optimistTimeTemp));
+                            stDateTempDate, dlDateTempDate, doneTemp, assignee, tagsListTemp, mostLikelyTimeTemp, pessimisticTimeTemp, optimistTimeTemp, actualStDateTempDate, actualEndDateTempDate));
                 }
 
                 if (taskList.isEmpty()) {
@@ -1139,6 +1224,8 @@ public class TaskModel extends AbstractModel {
             sql.append("," + BUDGET_COLUMN);
             if (getStartDate() != null) sql.append("," + START_DATE_COLUMN);
             if (getDeadline() != null) sql.append("," + DEADLINE_COLUMN);
+            if (getActualStartDate() != null) sql.append("," + ACTUAL_START_DATE_COLUMN);
+            if (getActualEndDate() != null) sql.append("," + ACTUAL_END_DATE_COLUMN);
             sql.append("," + DONE_COLUMN);
             if (getAssignee() != null) sql.append("," + ASSIGNEE_USER_ID_COLUMN);
             if (getTags().size() > 0) sql.append("," + TAGS_COLUMN);
@@ -1153,6 +1240,8 @@ public class TaskModel extends AbstractModel {
             sql.append(",'" + getBudget() + "'");
             if (getStartDate() != null) sql.append(",'" + DateUtils.castDateToString(getStartDate()) + "'");
             if (getDeadline() != null) sql.append(",'" + DateUtils.castDateToString(getDeadline()) + "'");
+            if (getActualStartDate() != null) sql.append(",'" + DateUtils.castDateToString(getActualStartDate()) + "'");
+            if (getActualEndDate() != null) sql.append(",'" + DateUtils.castDateToString(getActualEndDate()) + "'");
             sql.append(",'" + (isDone() ? 1 : 0) + "'");
             if (getAssignee() != null) sql.append(",'" + getAssignee().getUserId() + "'");
             if (getTags().size() > 0)sql.append(",'" + getTagsString() + "'");
@@ -1197,6 +1286,10 @@ public class TaskModel extends AbstractModel {
                     (getStartDate() != null ? DateUtils.castDateToString(getStartDate()) : "NULL") + "' ");
             sql.append(", " + DEADLINE_COLUMN + "='" +
                     (getDeadline() != null ? DateUtils.castDateToString(getDeadline()) : "NULL") + "' ");
+            sql.append(", " + ACTUAL_START_DATE_COLUMN + "='" +
+                    (getActualStartDate() != null ? DateUtils.castDateToString(getActualStartDate()) : "NULL") + "' ");
+            sql.append(", " + ACTUAL_END_DATE_COLUMN + "='" +
+                    (getActualEndDate() != null ? DateUtils.castDateToString(getActualEndDate()) : "NULL") + "' ");
             sql.append(", " + DONE_COLUMN + "=" + (isDone() ? 1 : 0) + " ");
             sql.append(", " + ASSIGNEE_USER_ID_COLUMN + "=" +
                     (getAssignee() != null ? getAssignee().getUserId() : "0") + " ");
@@ -1308,6 +1401,8 @@ public class TaskModel extends AbstractModel {
             createTaskTableSql.append(TASK_NAME_COLUMN+" VARCHAR(50) NOT NULL"+",");
             createTaskTableSql.append(START_DATE_COLUMN+" DATE"+",");
             createTaskTableSql.append(DEADLINE_COLUMN+" DATE"+",");
+            createTaskTableSql.append(ACTUAL_START_DATE_COLUMN+" DATE"+",");
+            createTaskTableSql.append(ACTUAL_END_DATE_COLUMN+" DATE"+",");
             createTaskTableSql.append(BUDGET_COLUMN+" FLOAT CHECK("+BUDGET_COLUMN+" >= 0)"+",");
             createTaskTableSql.append(DONE_COLUMN+" BOOLEAN"+",");
             createTaskTableSql.append(TAGS_COLUMN+" TEXT"+",");
@@ -1322,7 +1417,9 @@ public class TaskModel extends AbstractModel {
             createTaskTableSql.append("FOREIGN KEY ("+PROJECT_ID_COLUMN+") REFERENCES Project(ProjectID) ON DELETE CASCADE"+",");
             createTaskTableSql.append("FOREIGN KEY ("+ASSIGNEE_USER_ID_COLUMN+") REFERENCES User(UserID) ON DELETE CASCADE"+",");
             createTaskTableSql.append("CONSTRAINT chk_date CHECK(" + DEADLINE_COLUMN + " >= "+START_DATE_COLUMN+"),");
-            createTaskTableSql.append("CONSTRAINT chk_dateForPert CHECK(" + MOST_LIKELY_TIME_TO_FINISH_COLUMN + " >= "+ OPTIMIST_TIME_TO_FINISH_COLUMN +" AND "+ PESSIMIST_TIME_TO_FINISH_COLUMN +" >= "+ MOST_LIKELY_TIME_TO_FINISH_COLUMN + " AND "+ PESSIMIST_TIME_TO_FINISH_COLUMN +" >= "+ OPTIMIST_TIME_TO_FINISH_COLUMN +"));");
+            createTaskTableSql.append("CONSTRAINT chk_actualdate CHECK(" + ACTUAL_END_DATE_COLUMN + " >= "+ACTUAL_START_DATE_COLUMN+")");
+//            createTaskTableSql.append("CONSTRAINT chk_dateForPert CHECK(" + MOST_LIKELY_TIME_TO_FINISH_COLUMN + " >= "+ OPTIMIST_TIME_TO_FINISH_COLUMN +" AND "+ PESSIMIST_TIME_TO_FINISH_COLUMN +" >= "+ MOST_LIKELY_TIME_TO_FINISH_COLUMN + " AND "+ PESSIMIST_TIME_TO_FINISH_COLUMN +" >= "+ OPTIMIST_TIME_TO_FINISH_COLUMN +")");
+            createTaskTableSql.append((");"));
 //            System.out.print(createTaskTableSql);
             // Create task dependencies table query
             StringBuilder createTaskDependenciesTableSql = new StringBuilder();
