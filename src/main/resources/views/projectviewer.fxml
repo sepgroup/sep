@@ -81,13 +81,13 @@
                   <Label fx:id="completeValueLabel" layoutX="366.0" layoutY="63.0" text="[ complete ]" />
                   <Label fx:id="completeLabel" layoutX="275.0" layoutY="63.0" text="Complete:" />
                   
-                              <Button fx:id="createGanttChartButton" layoutX="625.0" layoutY="9.0" mnemonicParsing="false" onAction="#onCreateGanttChartClicked" prefHeight="14.0" prefWidth="146.0" text="Create Gantt Chart" textFill="WHITE">
+                              <Button fx:id="createGanttChartButton" layoutX="634.0" layoutY="9.0" mnemonicParsing="false" onAction="#onCreateGanttChartClicked" prefHeight="14.0" prefWidth="146.0" text="Create Gantt Chart" textFill="WHITE">
                      <font>
                         <Font name="System Bold" size="14.0" />
                      </font>
                   </Button>
-                  <ComboBox fx:id="userFilterComboBox" layoutX="598.0" layoutY="50.0" onAction="#onUserFilterComboBoxClicked" prefHeight="27.0" prefWidth="200.0" />
-                  <Label layoutX="615.0" layoutY="55.0" text="Filter by user:" />
+                  <ComboBox fx:id="userFilterComboBox" layoutX="633.0" layoutY="49.0" onAction="#onUserFilterComboBoxClicked" prefHeight="29.0" prefWidth="147.0" />
+                  <Label layoutX="553.0" layoutY="55.0" text="Filter by user:" />
                   
                </children>
                <BorderPane.margin>
