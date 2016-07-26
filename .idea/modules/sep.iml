@@ -18,10 +18,11 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" scope="TEST" name="Gradle: org.hamcrest:hamcrest-core:1.3" level="project" />
     <orderEntry type="module-library" scope="PROVIDED">
       <library name="Gradle: jfxrt">
         <CLASSES>
-          <root url="jar:///usr/local/var/jenv/versions/oracle64-1.8.0.77/jre/lib/ext/jfxrt.jar!/" />
+          <root url="jar://$PATH_TO_JFXRT$!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
