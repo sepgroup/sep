@@ -1215,6 +1215,8 @@ public class TaskModel extends AbstractModel {
             sql.append("," + BUDGET_COLUMN);
             if (getStartDate() != null) sql.append("," + START_DATE_COLUMN);
             if (getDeadline() != null) sql.append("," + DEADLINE_COLUMN);
+            if (getDeadline() != null) sql.append("," + ACTUAL_START_DATE_COLUMN);
+            if (getDeadline() != null) sql.append("," + ACTUAL_END_DATE_COLUMN);
             sql.append("," + DONE_COLUMN);
             if (getAssignee() != null) sql.append("," + ASSIGNEE_USER_ID_COLUMN);
             if (getTags().size() > 0) sql.append("," + TAGS_COLUMN);
@@ -1229,6 +1231,8 @@ public class TaskModel extends AbstractModel {
             sql.append(",'" + getBudget() + "'");
             if (getStartDate() != null) sql.append(",'" + DateUtils.castDateToString(getStartDate()) + "'");
             if (getDeadline() != null) sql.append(",'" + DateUtils.castDateToString(getDeadline()) + "'");
+            if (getDeadline() != null) sql.append(",'" + DateUtils.castDateToString(getActualStartDate()) + "'");
+            if (getDeadline() != null) sql.append(",'" + DateUtils.castDateToString(getActualEndDate()) + "'");
             sql.append(",'" + (isDone() ? 1 : 0) + "'");
             if (getAssignee() != null) sql.append(",'" + getAssignee().getUserId() + "'");
             if (getTags().size() > 0)sql.append(",'" + getTagsString() + "'");
@@ -1273,6 +1277,10 @@ public class TaskModel extends AbstractModel {
                     (getStartDate() != null ? DateUtils.castDateToString(getStartDate()) : "NULL") + "' ");
             sql.append(", " + DEADLINE_COLUMN + "='" +
                     (getDeadline() != null ? DateUtils.castDateToString(getDeadline()) : "NULL") + "' ");
+            sql.append(", " + ACTUAL_START_DATE_COLUMN + "='" +
+                    (getStartDate() != null ? DateUtils.castDateToString(getActualStartDate()) : "NULL") + "' ");
+            sql.append(", " + ACTUAL_END_DATE_COLUMN + "='" +
+                    (getDeadline() != null ? DateUtils.castDateToString(getActualEndDate()) : "NULL") + "' ");
             sql.append(", " + DONE_COLUMN + "=" + (isDone() ? 1 : 0) + " ");
             sql.append(", " + ASSIGNEE_USER_ID_COLUMN + "=" +
                     (getAssignee() != null ? getAssignee().getUserId() : "0") + " ");
