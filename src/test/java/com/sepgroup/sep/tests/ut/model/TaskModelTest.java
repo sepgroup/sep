@@ -594,6 +594,58 @@ public class TaskModelTest {
         assertThat(t1.getStartDate(), equalTo(DateUtils.filterDateToMidnight(someDate)));
     }
 
+    @Test
+    public void testSetActualStartDate() throws Exception {
+        TaskModel t1 = generateTestTask();
+        Date someDate = new Date(System.currentTimeMillis() + 100);
+        t1.setActualStartDate(someDate);
+        assertThat(t1.getActualStartDate(), equalTo(DateUtils.filterDateToMidnight(someDate)));
+    }
+
+    @Test
+    public void testPersistActualStartDate() throws Exception {
+        TaskModel t1 = generateTestTask();
+        Date someDate = new Date(System.currentTimeMillis() + 100);
+        t1.setActualStartDate(someDate);
+        t1.persistData();
+        int tId = t1.getTaskId();
+
+        TaskModel fetchedTask = null;
+        try {
+            fetchedTask = TaskModel.getById(tId);
+        } catch (ModelNotFoundException e) {
+            fail(e.getMessage());
+        }
+
+        assertThat(t1.getActualStartDate(), equalTo(fetchedTask.getActualStartDate()));
+    }
+
+    @Test
+    public void testSetActualEndDate() throws Exception {
+        TaskModel t1 = generateTestTask();
+        Date someDate = new Date(System.currentTimeMillis() + 100);
+        t1.setActualEndDate(someDate);
+        assertThat(t1.getActualEndDate(), equalTo(DateUtils.filterDateToMidnight(someDate)));
+    }
+
+    @Test
+    public void testPersistActualEndDate() throws Exception {
+        TaskModel t1 = generateTestTask();
+        Date someDate = new Date(System.currentTimeMillis() + 100);
+        t1.setActualEndDate(someDate);
+        t1.persistData();
+        int tId = t1.getTaskId();
+
+        TaskModel fetchedTask = null;
+        try {
+            fetchedTask = TaskModel.getById(tId);
+        } catch (ModelNotFoundException e) {
+            fail(e.getMessage());
+        }
+
+        assertThat(t1.getActualEndDate(), equalTo(fetchedTask.getActualEndDate()));
+    }
+
     /**
      * Positive test verifying most likely time is saved & retrieved from DB
      * @throws Exception
