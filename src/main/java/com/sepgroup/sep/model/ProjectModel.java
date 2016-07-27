@@ -577,7 +577,7 @@ public class ProjectModel extends AbstractModel {
                 }
             }
             catch (SQLException e) {
-                logger.error("Unable to fetch projects for a manager user ID. Query: " + sql,
+                logger.error("Unable to fetch projects. Query: " + sql,
                         e);
                 throw new ModelNotFoundException(e);
             } finally {
@@ -596,6 +596,7 @@ public class ProjectModel extends AbstractModel {
             sql.append("SELECT * ");
             sql.append("FROM " + getTableName() + ";");
             logger.debug("Query: " + sql.toString());
+            // TODO update for project manager
 
             return runMultiResultQuery(sql.toString());
         }

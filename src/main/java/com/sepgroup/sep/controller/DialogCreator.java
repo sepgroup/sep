@@ -6,6 +6,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -21,6 +22,7 @@ public class DialogCreator {
         alert.setTitle(title);
         alert.setHeaderText(headerText);
         alert.setContentText(contentText);
+        alert.getDialogPane().getChildren().stream().filter(node -> node instanceof Label).forEach(node -> ((Label)node).setMinHeight(Region.USE_PREF_SIZE));
 
         return alert.showAndWait();
     }
@@ -30,6 +32,7 @@ public class DialogCreator {
         alert.setTitle("Error");
         alert.setHeaderText(headerText);
         alert.setContentText(contentText);
+        alert.getDialogPane().getChildren().stream().filter(node -> node instanceof Label).forEach(node -> ((Label)node).setMinHeight(Region.USE_PREF_SIZE));
 
         alert.showAndWait();
     }
@@ -39,6 +42,7 @@ public class DialogCreator {
         alert.setTitle("Warning");
         alert.setHeaderText(headerText);
         alert.setContentText(contentText);
+        alert.getDialogPane().getChildren().stream().filter(node -> node instanceof Label).forEach(node -> ((Label)node).setMinHeight(Region.USE_PREF_SIZE));
 
         alert.showAndWait();
     }
@@ -48,6 +52,7 @@ public class DialogCreator {
         alert.setTitle("Info");
         alert.setHeaderText(headerText);
         alert.setContentText(contentText);
+        alert.getDialogPane().getChildren().stream().filter(node -> node instanceof Label).forEach(node -> ((Label)node).setMinHeight(Region.USE_PREF_SIZE));
 
         alert.showAndWait();
     }
