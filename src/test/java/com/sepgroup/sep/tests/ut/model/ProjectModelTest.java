@@ -86,13 +86,10 @@ public class ProjectModelTest {
             createdProject.setDeadline(deadline);
             createdProject.setDone(done);
             createdProject.setProjectDescription(description);
-
-            //store variables
-            createdProject.persistData();
-
-            //assign manager to the project
             createdProject.setManager(manager);
 
+            //store project
+            createdProject.persistData();
 
             return createdProject;
         }
@@ -286,26 +283,24 @@ public class ProjectModelTest {
     /**
      * Tests that getAllByManager fails when no projects are assigned to the manager in question
      */
-    @Ignore
     @Test
     public void testGetAllByManager() throws Exception {
 
         // Create projects and assign managers to them
         ProjectModel createdProject1 = new ProjectModel();
         createdProject1.setName("Project A");
-        createdProject1.persistData();
         createdProject1.setManager(createdManager);
+        createdProject1.persistData();
 
         ProjectModel createdProject2 = new ProjectModel();
         createdProject2.setName("Project B");
-        createdProject2.persistData();
         createdProject2.setManager(createdManager);
-
+        createdProject2.persistData();
 
         ProjectModel createdProject3 = new ProjectModel();
         createdProject3.setName("Project C");
-        createdProject3.persistData();
         createdProject3.setManager(createdManager2);
+        createdProject3.persistData();
 
 
 //        System.out.println(createdManager.getUserId());
@@ -318,7 +313,7 @@ public class ProjectModelTest {
 
 
         //get projectList associated with manager2
-        List<ProjectModel> projectList2 = ProjectModel.getAllByManager(createdManager);
+        List<ProjectModel> projectList2 = ProjectModel.getAllByManager(createdManager2);
         assertEquals(1, projectList2.size());
 
     }

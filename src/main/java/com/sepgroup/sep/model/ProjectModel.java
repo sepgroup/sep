@@ -435,6 +435,9 @@ public class ProjectModel extends AbstractModel {
 
         private Database db;
 
+        /**
+         *
+         */
         private ProjectModelDBObject() {
             try {
                 db = DatabaseFactory.getActiveDB();
@@ -475,6 +478,12 @@ public class ProjectModel extends AbstractModel {
             return id;
         }
 
+        /**
+         *
+         * @param sql
+         * @return
+         * @throws ModelNotFoundException
+         */
         private ProjectModel runSingleResultQuery(String sql) throws ModelNotFoundException {
             ProjectModel p = null;
             try {
@@ -531,6 +540,12 @@ public class ProjectModel extends AbstractModel {
             return p;
         }
 
+        /**
+         *
+         * @param sql
+         * @return
+         * @throws ModelNotFoundException
+         */
         private List<ProjectModel> runMultiResultQuery(String sql) throws ModelNotFoundException {
             List<ProjectModel> projectList = new LinkedList<>();
             try {
@@ -590,44 +605,63 @@ public class ProjectModel extends AbstractModel {
             return projectList;
         }
 
+        /**
+         *
+         * @return
+         * @throws ModelNotFoundException
+         */
         @Override
         public List<ProjectModel> findAll() throws ModelNotFoundException {
-            StringBuilder sql = new StringBuilder();
-            sql.append("SELECT * ");
-            sql.append("FROM " + getTableName() + ";");
-            logger.debug("Query: " + sql.toString());
-            // TODO update for project manager
+            String sql = "SELECT * ";
+            sql += "FROM " + getTableName() + " ";
+            sql += "LEFT JOIN " + UserModel.UserModelDBObject.TABLE_NAME + " ";
+            sql += "ON " + UserModel.UserModelDBObject.TABLE_NAME + "." +
+                    UserModel.UserModelDBObject.USER_ID_COLUMN + "=" + TABLE_NAME + "." + MANAGER_USER_ID_COLUMN + " ";
+            sql += ";";
+            logger.debug("Query: " + sql);
 
-            return runMultiResultQuery(sql.toString());
+            return runMultiResultQuery(sql);
         }
 
         @Override
         public ProjectModel findById(int projectId) throws ModelNotFoundException {
             logger.debug("Building query for project ID " + projectId);
-            StringBuilder sql = new StringBuilder();
-            sql.append("SELECT * ");
-            sql.append("FROM " + getTableName() + " ");
-            sql.append("WHERE " + PROJECT_ID_COLUMN + "=" + projectId + ";");
-            logger.debug("Query: " + sql.toString());
+            String sql = "SELECT * ";
+            sql += "FROM " + getTableName() + " ";
+            sql += "LEFT JOIN " + UserModel.UserModelDBObject.TABLE_NAME + " ";
+            sql += "ON " + UserModel.UserModelDBObject.TABLE_NAME + "." +
+                    UserModel.UserModelDBObject.USER_ID_COLUMN + "=" + TABLE_NAME + "." + MANAGER_USER_ID_COLUMN + " ";
+            sql += "WHERE " + PROJECT_ID_COLUMN + "=" + projectId + " ";
+            sql += ";";
+            logger.debug("Query: " + sql);
 
-            return runSingleResultQuery(sql.toString());
+            return runSingleResultQuery(sql);
         }
 
+        /**
+         *
+         * @param managerUserId
+         * @return
+         * @throws ModelNotFoundException
+         */
         public List<ProjectModel> findAllByManager(int managerUserId) throws ModelNotFoundException {
             logger.debug("Building query for projects with manager user ID " + managerUserId);
-            StringBuilder sql = new StringBuilder();
-            sql.append("SELECT * ");
-            sql.append("FROM " + getTableName() + " ");
-            sql.append("WHERE " + MANAGER_USER_ID_COLUMN + "=" + managerUserId + ";");
-            logger.debug("Query: " + sql.toString());
+            String sql = "SELECT * ";
+            sql += "FROM " + getTableName() + " ";
+            sql += "LEFT JOIN " + UserModel.UserModelDBObject.TABLE_NAME + " ";
+            sql += "ON " + UserModel.UserModelDBObject.TABLE_NAME + "." +
+                    UserModel.UserModelDBObject.USER_ID_COLUMN + "=" + TABLE_NAME + "." + MANAGER_USER_ID_COLUMN + " ";
+            sql += "WHERE " + TABLE_NAME + "." + MANAGER_USER_ID_COLUMN + "=" + managerUserId + " ";
+            sql += ";";
+            logger.debug("Query: " + sql);
 
-            return runMultiResultQuery(sql.toString());
+            return runMultiResultQuery(sql);
         }
 
         /**
          * It fetches the data from database and make one linked list of project objects
          * @param sql asked sql statement from database
-         * @return Linklist of project objects
+         * @return Linked list of project objects
          */
         @Override
         public List<ProjectModel> findBySql(String sql) throws ModelNotFoundException, InvalidInputException {
