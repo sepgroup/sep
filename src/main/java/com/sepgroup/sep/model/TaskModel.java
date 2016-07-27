@@ -593,6 +593,8 @@ public class TaskModel extends AbstractModel {
             return;
         }
 
+        startDate = DateUtils.filterDateToMidnight(startDate);
+
         // Check task start date is not before project start date
         Date projectStartDate = null;
         try {
@@ -610,7 +612,7 @@ public class TaskModel extends AbstractModel {
                     " before actual project start date (" + DateUtils.castDateToString(projectStartDate) + ").");
         }
 
-        this.startDate = DateUtils.filterDateToMidnight(startDate);
+        this.startDate = startDate;
     }
 
     public void removeStartDate() {
@@ -640,6 +642,7 @@ public class TaskModel extends AbstractModel {
      */
     public void setDeadline(Date deadline) throws InvalidInputException {
         if (deadline != null) {
+            deadline = DateUtils.filterDateToMidnight(deadline);
             if (startDate != null) {
                 if (deadline.before(startDate)) {
                     throw new InvalidInputException("Deadline must be after start date.");
@@ -668,7 +671,7 @@ public class TaskModel extends AbstractModel {
             }
         }
 
-        this.deadline = DateUtils.filterDateToMidnight(deadline);
+        this.deadline = deadline;
     }
 
     /**

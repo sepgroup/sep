@@ -302,11 +302,6 @@ public class ProjectModelTest {
         createdProject3.setManager(createdManager2);
         createdProject3.persistData();
 
-
-//        System.out.println(createdManager.getUserId());
-//        System.out.println(createdManager2.getUserId());
-
-        //TODO find out why DB query provided no results
         //get projectList associated with manager1
         List<ProjectModel> projectList = ProjectModel.getAllByManager(createdManager);
         assertEquals(2, projectList.size());
@@ -524,26 +519,30 @@ public class ProjectModelTest {
         assertEquals(createdManager2, createdProject.getManager());
     }
 
-    @Ignore
     @Test
     public void testGetTasks() throws Exception {
-        //Creates a new project
+        // Creates a new project
         ProjectModel createdProject = new ProjectModel();
         createdProject.setName("Project H");
+        createdProject.setBudget(500);
+        createdProject.setStartDate(defaultStartDate);
+        createdProject.setDeadline(defaultDeadline);
         createdProject.persistData();
 
         //Creates tasks and assigns these to the project
-        TaskModel t1 = new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 10000,
+        TaskModel t1 = new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 100,
                 defaultStartDate, defaultDeadline, false, createdManager, 8, 9, 7, defaultStartDate, defaultDeadline);
-        TaskModel t2 = new TaskModel("T2", "Description of\n T2", createdProject.getProjectId(), 20000,
+        t1.persistData();
+        TaskModel t2 = new TaskModel("T2", "Description of\n T2", createdProject.getProjectId(), 200,
                 defaultStartDate, defaultDeadline, false, createdManager, 8, 9, 7, defaultStartDate, defaultDeadline);
-        
+        t2.persistData();
+
         List<TaskModel> taskList = createdProject.getTasks();
 
-        //Tests that there are exactly two projects in the list
-        assertThat(taskList.size(), isA(Integer.class));
+        // Tests that there are exactly two projects in the list
         assertEquals(2, taskList.size());
-
+        assertTrue(createdProject.getTasks().contains(t1));
+        assertTrue(createdProject.getTasks().contains(t2));
     }
 
     /**

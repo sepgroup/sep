@@ -108,7 +108,6 @@ public class TaskModelTest {
         assertThat(fetchedTask, equalTo(createdTask));
     }
 
-    @Ignore
     @Test
     public void testPersistDataWithTaskDependencies() throws Exception {
         TaskModel createdTask1 = new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 10000,
@@ -128,6 +127,7 @@ public class TaskModelTest {
             fail(e.getMessage());
         }
         assertThat(fetchedTask2, equalTo(createdTask2));
+        assertTrue(fetchedTask2.getDependencies().contains(createdTask1));
     }
 
     public void testGetLastInsertedId() throws Exception {
@@ -407,12 +407,23 @@ public class TaskModelTest {
         TaskModel.getById(tId);
     }
 
-    // TODO
-    @Ignore
     @Test
     public void testGetAllByProject() throws Exception {
+        // Create tasks
+        TaskModel t1 = new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 10000, defaultStartDate,
+                defaultDeadline, false, createdUser, 8, 9, 7, defaultStartDate, defaultDeadline);
+        TaskModel t2 = new TaskModel("T2", "Description of\n T2", createdProject2.getProjectId(), 10000, defaultStartDate,
+                defaultDeadline, false, createdUser, 8, 9, 7, defaultStartDate, defaultDeadline);
+        t1.persistData();
+        t2.persistData();
 
-        assertTrue(false);
+        List<TaskModel> createdProjectTasks = TaskModel.getAllByProject(createdProject);
+        assertThat(createdProjectTasks.size(), equalTo(1));
+        assertTrue(createdProjectTasks.contains(t1));
+
+        List<TaskModel> createdProject2Tasks = TaskModel.getAllByProject(createdProject2);
+        assertThat(createdProject2Tasks.size(), equalTo(1));
+        assertTrue(createdProject2Tasks.contains(t2));
     }
 
 
