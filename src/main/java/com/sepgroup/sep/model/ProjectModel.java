@@ -313,6 +313,39 @@ public class ProjectModel extends AbstractModel {
     }
 
     /**
+     * Determines if a project has a unique root task.
+     * @return True if and only if there is a single task in the project with no dependencies.
+     */
+    public boolean hasRoot()
+    {
+        List<TaskModel> tasks = null;
+
+        try
+        {
+            tasks = getTasks();
+        }
+        catch (ModelNotFoundException e)
+        {
+            e.printStackTrace();
+        }
+        catch (InvalidInputException e)
+        {
+            e.printStackTrace();
+        }
+
+        if (tasks.size() == 0)
+            return false;
+
+        int numRoots = 0;
+
+        for (final TaskModel task : tasks)
+            if (task.getDependencies().size() == 0)
+                numRoots++;
+
+        return numRoots == 1;
+    }
+
+    /**
      *
      * @return
      */
