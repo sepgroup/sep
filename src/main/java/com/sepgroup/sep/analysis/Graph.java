@@ -15,6 +15,7 @@ public class Graph {
     ArrayList<Node> nodes = new ArrayList<Node>();
     Node cursor;
     Node tempNode;
+
     int visitedCounter = 0;
 
     public Graph(){
@@ -31,6 +32,7 @@ public class Graph {
         tempNode = n;
     }
     public void addNode(Node n){
+        // ADD BINARY INSERTION
         nodes.add(n);
     }
     public void addDirectedEdge(Node a, Node b){
@@ -68,7 +70,23 @@ public class Graph {
         return null;
     }
 
+    public Node getNodeByID(int id){
+        // ADD BINARY SEARCH
+        for(Node n : nodes) {
+            if (n.getID() == id)
+                return n;
+        }
+        return null;
+    }
+    public void sort(){};
+    
+    public void printInfo(){
+       //System.out.println()
+        for(Node n: nodes){
 
+        }
+
+    }
 }
 
 

@@ -5,7 +5,6 @@ package com.sepgroup.sep.analysis;
  */
 import java.util.ArrayList;
 public class Node {
-    protected static int nextID = 0;
     protected int nodeID;
     protected int visitedCounter = 0;
 
@@ -16,18 +15,14 @@ public class Node {
 
 
     public Node(){
-        nodeID = nextID++;
     }
     public Node(Node n){
-        nodeID = nextID++;
         addInNode(n);
     }
     public Node(Data d){
-        nodeID = nextID++;
         setData(d);
     }
     public Node(Node n, Data d){
-        nodeID = nextID++;
         addInNode(n);
         setData(d);
     }
@@ -72,6 +67,9 @@ public class Node {
 
     void setData(Data d){
         data = d;
+    }
+    void setNodeID(int id){
+        nodeID = id;
     }
     int getID(){
         return nodeID;
