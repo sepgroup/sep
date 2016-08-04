@@ -3,6 +3,7 @@ import com.sepgroup.sep.analysis.Node;
 import com.sepgroup.sep.analysis.Data;
 
 import java.awt.*;
+import java.util.ArrayList;
 
 
 /**
@@ -14,9 +15,9 @@ public class PhysicsNode extends Node implements Physics,Drawable {
     double mass = 1;
     double charge = 1;
     int radius = 30;
-    Color color;
+    Color color = Color.BLUE;
 
-    double[] position = {0, 0};
+    double[] position = {0,0};
     double[] netForce = {0, 0};
     double[] acceleration = {0, 0};
     double[] velocity = {0, 0};
@@ -25,6 +26,15 @@ public class PhysicsNode extends Node implements Physics,Drawable {
 
     public PhysicsNode(Data d) {
         super(d);
+        int flip = Math.random()>0?1:-1;
+        int flip2 = Math.random()>0?1:-1;
+        setPosition(300+10*Math.random()*flip,300+10*Math.random()*flip);
+
+    }
+
+    public void setPosition(double x, double y){
+        position[0] = x;
+        position[1] = y;
     }
 
     public void addTensionForce() {
@@ -61,11 +71,13 @@ public class PhysicsNode extends Node implements Physics,Drawable {
     public void addToForce(double x, double y) {
         netForce[0] += x;
         netForce[1] += y;
+
     }
 
     private void applyForce() {
         acceleration[0] = netForce[0] / mass;
         acceleration[1] = netForce[1] / mass;
+
         netForce[0] = 0;
         netForce[1] = 0;
     }
@@ -76,6 +88,7 @@ public class PhysicsNode extends Node implements Physics,Drawable {
 
         velocity[0] *= 0.99993;
         velocity[1] *= 0.99993;
+
     }
 
     protected void applyVelocity() {
@@ -111,6 +124,7 @@ public class PhysicsNode extends Node implements Physics,Drawable {
     }
 
     public void draw(Graphics2D g) {
+    //    System.out.println("NODE: "+getID()+"\n\tPOSITION: "+(int)position[0]+","+(int)position[1]);
         g.setColor(color);
         int offset = -radius / 2;
 

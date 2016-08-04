@@ -54,12 +54,19 @@ public class Node {
     void removeOutNode(int id){
         removeNode(outNodes, id);
     }
+    void isolate(){
+        removeNode(inNodes,this);
+        removeNode(outNodes,this);
+        inNodes.clear();
+        outNodes.clear();
+    }
 
     // when removing a node, it's also necessary to remove all the adjacencies to it from other nodes to avoid null references
 
     void removeNode(ArrayList<Node> list, Node n){
         if(list.contains(n))
             list.remove(n);
+
     }
     void removeNode(ArrayList<Node> list,int id){
         for(Node n : list)
