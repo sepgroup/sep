@@ -1,10 +1,13 @@
 package com.sepgroup.sep;
 
+import com.sepgroup.sep.analysis.Graph;
+import com.sepgroup.sep.analysis.GraphDisplay.PhysicsGraph;
 import com.sepgroup.sep.controller.AbstractController;
 import com.sepgroup.sep.controller.DialogCreator;
 import com.sepgroup.sep.controller.WelcomeController;
 import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.model.DBManager;
+import com.sepgroup.sep.*;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -78,7 +81,8 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         launch(args);
-
+        Graph g = new PhysicsGraph(1);
+        g.printInfo();
       
     }
 }

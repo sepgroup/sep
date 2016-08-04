@@ -11,9 +11,9 @@ public class Graph {
 
     NodeIterator iterator = new NodeIterator();
     ArrayList<Node> nodes = new ArrayList<Node>();
-    private Node cursor;
-    private Node root;
-    private Node terminal;
+    protected Node cursor;
+    protected Node root;
+    protected Node terminal;
 
     int visitedCounter = 0;
 
@@ -21,6 +21,7 @@ public class Graph {
     }
     public Graph(int projectID){
         GraphFactory.makeGraph(projectID,this);
+
     }
     public void createNode(){
         Node n = new Node();
@@ -56,14 +57,35 @@ public class Graph {
         }
     }
 
+    public void findAndSetAllStates(){
+        for(Node n : nodes){
+            findAndSetState(n);
+        }
+    }
+    public void findAndSetState(Node n){
+        if(n.getInNodes().size()==0 && n.getOutNodes().size()==0)
+            n.setStatus(Node.STATES.ISOLATED);
+        else if(root!=null && n!=root && n.getInNodes().size()==0)
+            n.setStatus(Node.STATES.ORPHAN);
+        else if(terminal!=null && n!=terminal && n.getOutNodes().size()==0)
+            n.setStatus(Node.STATES.DEAD);
+        else if(hasCircularDependency(n))
+            n.setStatus(Node.STATES.CIRCULAR);
+        else
+            n.setStatus(Node.STATES.OK);
+
+    }
     public boolean hasCircularDependency(Node n){
         dfs(n);
         while(iterator.hasNext()){
-            if(iterator.next().getOutNodes().contains(n));
+            if(iterator.next().getOutNodes().contains(n)) {
+                n.setStatus(Node.STATES.CIRCULAR);
                 return true;
+            }
         }
         return false;
     }
+
 
     public void moveCursorTo(Node n){
         cursor = n;
@@ -94,7 +116,7 @@ public class Graph {
     public void sort(){};
 
     public void printInfo(){
-       System.out.println("# OF NODES: "+nodes.size()+"\n");
+       System.out.println("\n# OF NODES: "+nodes.size()+"\n");
         for(Node n: nodes){
             System.out.println("NODE: "+n.getID()+"\n\tDATA: "+ n.getData().task.getTaskId()+"\t");
                 for(Node m : n.getInNodes()){
@@ -106,6 +128,8 @@ public class Graph {
         }
 
     }
+
+    public void update(){}
 }
 
 

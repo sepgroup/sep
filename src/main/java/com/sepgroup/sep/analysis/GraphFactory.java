@@ -1,6 +1,7 @@
 package com.sepgroup.sep.analysis;
 
 
+import com.sepgroup.sep.analysis.GraphDisplay.PhysicsNode;
 import com.sepgroup.sep.model.ModelNotFoundException;
 import com.sepgroup.sep.model.TaskModel;
 
@@ -11,7 +12,7 @@ import java.util.List;
  */
 
 public class GraphFactory {
-    static boolean debugMode = true;
+    static boolean debugMode = false;
     private static Graph graph;
 
     /* this is the function we call to build graph,
@@ -43,7 +44,7 @@ public class GraphFactory {
         }
         for(TaskModel t : tasks){
             Data d = new Data(t);
-            Node n = new Node(d);
+            Node n = new PhysicsNode(d);
             n.setNodeID(t.getTaskId());
             graph.addNode(n);
 
