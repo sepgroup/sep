@@ -13,23 +13,22 @@ public class Graph {
     ArrayList<Node> iterator;
 
     ArrayList<Node> nodes = new ArrayList<Node>();
-    Node cursor;
-    Node tempNode;
+    private Node cursor;
+    private Node root;
+    private Node terminal;
 
     int visitedCounter = 0;
 
     public Graph(){
     }
     public Graph(int projectID){
-        GraphFactory.makeGraph(projectID);
+        GraphFactory.makeGraph(projectID,this);
     }
     public void createNode(){
         Node n = new Node();
-        tempNode = n;
     }
     public void creatNode(Data d){
         Node n = new Node(d);
-        tempNode = n;
     }
     public void addNode(Node n){
         // ADD BINARY INSERTION
@@ -78,12 +77,29 @@ public class Graph {
         }
         return null;
     }
-    public void sort(){};
-    
-    public void printInfo(){
-       //System.out.println()
-        for(Node n: nodes){
+    public Node getRoot(){
+        return root;
+    }
+    public Node getTerminal(){
+        return terminal;
+    }
 
+
+    public void findRoot(){
+        
+    }
+    public void sort(){};
+
+    public void printInfo(){
+       System.out.println("# OF NODES: "+nodes.size()+"\n");
+        for(Node n: nodes){
+            System.out.println("NODE: "+n.getID()+"\n\tDATA: "+ n.getData().task.getTaskId()+"\t");
+                for(Node m : n.getInNodes()){
+                    System.out.println("\tPARENT NODE: "+m.getID());
+                }
+                for(Node m : n.getOutNodes()){
+                    System.out.println("\tCHILD NODE: "+m.getID());
+                }
         }
 
     }

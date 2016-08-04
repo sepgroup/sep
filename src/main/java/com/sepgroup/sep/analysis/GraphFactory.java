@@ -11,19 +11,19 @@ import java.util.List;
  */
 
 public class GraphFactory {
+    static boolean debugMode = true;
     private static Graph graph;
 
     /* this is the function we call to build graph,
      * we pass the id of the project we want to build
      */
-    public static Graph makeGraph(int projectID){
-        graph = new Graph();
+    public static void makeGraph(int projectID,Graph g){
+        long t1 = System.currentTimeMillis();
+        graph = g;
         pullTasks(projectID);
         setAdjacents(projectID);
-        return graph;
-    }
-    private static void instantiate(){
-        graph = new Graph();
+        long t2 = System.currentTimeMillis();
+        System.out.println("Time to make graph: "+(t2-t1));
     }
 
     // pull each task related to the project and assign it to a node
@@ -31,6 +31,9 @@ public class GraphFactory {
         List<TaskModel> tasks = null;
         try {
              tasks = TaskModel.getAllByProject(projectID);
+
+            if(debugMode)
+                System.out.println("Got project 1, # OF TASKS: "+tasks.size());
         }
         catch(ModelNotFoundException E){
             System.out.println("Project"+ projectID +" Not Found");
@@ -41,6 +44,9 @@ public class GraphFactory {
             Node n = new Node(d);
             n.setNodeID(t.getTaskId());
             graph.addNode(n);
+
+                if(debugMode)
+                    System.out.println("added Node to graph");
         }
         //graph.sort();
     }
