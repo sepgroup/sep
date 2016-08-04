@@ -503,6 +503,15 @@ public class TaskModel extends AbstractModel {
         }
         this.optimisticTimeToFinish=optimisticTimeToFinish;
     }
+
+    public float getExpectedDuration()
+    {
+        final int a = getOptimisticTimeToFinish();
+        final int b = getMostLikelyTimeToFinish();
+        final int c = getPesimisticTimeToFinish();
+        return (a + 4.0f * b + c) / 6.0f;
+    }
+
     /**
      *
      * @return
