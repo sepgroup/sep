@@ -1,8 +1,8 @@
 package com.sepgroup.sep.model;
 
 import com.sepgroup.sep.db.DBException;
-import com.sepgroup.sep.db.DatabaseFactory;
 import com.sepgroup.sep.db.Database;
+import com.sepgroup.sep.db.DatabaseFactory;
 import com.sepgroup.sep.utils.CurrencyUtils;
 import com.sepgroup.sep.utils.DateUtils;
 import org.slf4j.Logger;
@@ -343,6 +343,51 @@ public class ProjectModel extends AbstractModel {
                 numRoots++;
 
         return numRoots == 1;
+    }
+
+    /**
+     * Retrieves the root task of the project, if there is one.
+     * @return The root task if it exists, null otherwise.
+     */
+    public TaskModel root()
+    {
+        List<TaskModel> tasks = null;
+
+        try
+        {
+            tasks = getTasks();
+        }
+        catch (ModelNotFoundException e)
+        {
+            e.printStackTrace();
+        }
+        catch (InvalidInputException e)
+        {
+            e.printStackTrace();
+        }
+
+        if (tasks.size() == 0)
+            return null;
+
+        TaskModel root = null;
+
+        for (final TaskModel task : tasks)
+        {
+            if (task.getDependencies().size() == 0)
+            {
+                if (root == null)
+                {
+                    root = task;
+                }
+                else
+                {
+                    root = null;
+                    break;
+                }
+            }
+        }
+
+        return root;
     }
 
     /**
