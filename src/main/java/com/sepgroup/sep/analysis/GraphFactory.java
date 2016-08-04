@@ -23,7 +23,9 @@ public class GraphFactory {
         pullTasks(projectID);
         setAdjacents(projectID);
         long t2 = System.currentTimeMillis();
-        System.out.println("Time to make graph: "+(t2-t1));
+
+        if(debugMode)
+            System.out.println("Time to make graph: "+(t2-t1));
     }
 
     // pull each task related to the project and assign it to a node

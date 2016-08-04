@@ -1,8 +1,7 @@
 package com.sepgroup.sep.analysis;
 
-
+import com.sepgroup.sep.analysis.GraphTools.NodeIterator;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 /**
  * Created by Demo on 7/29/2016.
@@ -10,8 +9,7 @@ import java.util.Iterator;
 public class Graph {
 
 
-    ArrayList<Node> iterator;
-
+    NodeIterator iterator = new NodeIterator();
     ArrayList<Node> nodes = new ArrayList<Node>();
     private Node cursor;
     private Node root;
@@ -58,15 +56,17 @@ public class Graph {
         }
     }
 
-    public void moveCursorTo(Node n){
-        cursor = n;
+    public boolean hasCircularDependency(Node n){
+        dfs(n);
+        while(iterator.hasNext()){
+            if(iterator.next().getOutNodes().contains(n));
+                return true;
+        }
+        return false;
     }
 
-    public Node next(){
-        if(iterator.size()>0) {
-            return iterator.remove(0);
-        }
-        return null;
+    public void moveCursorTo(Node n){
+        cursor = n;
     }
 
     public Node getNodeByID(int id){
@@ -86,7 +86,10 @@ public class Graph {
 
 
     public void findRoot(){
-        
+
+    }
+    public void findTerminal(){
+
     }
     public void sort(){};
 
