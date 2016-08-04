@@ -12,4 +12,8 @@ public class Data {
         task = t;
     }
 
+    public float earliestStart;
+    public float latestStart;
+    public float earliestFinish;
+    public float latestFinish;
 }

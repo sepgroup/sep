@@ -1,8 +1,7 @@
 package com.sepgroup.sep.analysis;
 
-
+import com.sepgroup.sep.analysis.GraphTools.NodeIterator;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 /**
  * Created by Demo on 7/29/2016.
@@ -10,26 +9,25 @@ import java.util.Iterator;
 public class Graph {
 
 
-    ArrayList<Node> iterator;
-
+    NodeIterator iterator = new NodeIterator();
     ArrayList<Node> nodes = new ArrayList<Node>();
-    Node cursor;
-    Node tempNode;
+    protected Node cursor;
+    protected Node root;
+    protected Node terminal;
 
     int visitedCounter = 0;
 
     public Graph(){
     }
     public Graph(int projectID){
-        GraphFactory.makeGraph(projectID);
+        GraphFactory.makeGraph(projectID,this);
+
     }
     public void createNode(){
         Node n = new Node();
-        tempNode = n;
     }
     public void creatNode(Data d){
         Node n = new Node(d);
-        tempNode = n;
     }
     public void addNode(Node n){
         // ADD BINARY INSERTION
@@ -59,6 +57,36 @@ public class Graph {
         }
     }
 
+    public void findAndSetAllStates(){
+        for(Node n : nodes){
+            findAndSetState(n);
+        }
+    }
+    public void findAndSetState(Node n){
+        if(n.getInNodes().size()==0 && n.getOutNodes().size()==0)
+            n.setStatus(Node.STATES.ISOLATED);
+        else if(root!=null && n!=root && n.getInNodes().size()==0)
+            n.setStatus(Node.STATES.ORPHAN);
+        else if(terminal!=null && n!=terminal && n.getOutNodes().size()==0)
+            n.setStatus(Node.STATES.DEAD);
+        else if(hasCircularDependency(n))
+            n.setStatus(Node.STATES.CIRCULAR);
+        else
+            n.setStatus(Node.STATES.OK);
+
+    }
+    public boolean hasCircularDependency(Node n){
+        dfs(n);
+        while(iterator.hasNext()){
+            if(iterator.next().getOutNodes().contains(n)) {
+                n.setStatus(Node.STATES.CIRCULAR);
+                return true;
+            }
+        }
+        return false;
+    }
+
+
     public void moveCursorTo(Node n){
         cursor = n;
     }
@@ -70,18 +98,34 @@ public class Graph {
         return null;
     }
 
-    public Node getNodeByID(int id){
+    public Node getNodeByID(int id) {
         // ADD BINARY SEARCH
-        for(Node n : nodes) {
+        for (Node n : nodes) {
             if (n.getID() == id)
                 return n;
         }
         return null;
     }
 
+    public Node getRoot(){
+        return root;
+    }
+
+    public Node getTerminal(){
+        return terminal;
+    }
+
+    public void findRoot(){
+
+    }
+
+    public void findTerminal(){
+
+    }
+
     public void sort(){
         mergeSort(nodes);
-    };
+    }
 
     public ArrayList<Node> mergeSort(ArrayList<Node> list)
     {
@@ -137,12 +181,20 @@ public class Graph {
     }
     
     public void printInfo(){
-       //System.out.println()
-//        for(Node n: nodes){
-
-//        }
+       System.out.println("\n# OF NODES: "+nodes.size()+"\n");
+        for(Node n: nodes){
+            System.out.println("NODE: "+n.getID()+"\n\tDATA: "+ n.getData().task.getTaskId()+"\t");
+                for(Node m : n.getInNodes()){
+                    System.out.println("\tPARENT NODE: "+m.getID());
+                }
+                for(Node m : n.getOutNodes()){
+                    System.out.println("\tCHILD NODE: "+m.getID());
+                }
+        }
 
     }
+
+    public void update(){}
 }
 
 
