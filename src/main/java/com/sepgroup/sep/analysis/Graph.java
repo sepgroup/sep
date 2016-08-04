@@ -30,8 +30,8 @@ public class Graph {
         Node n = new Node(d);
     }
     public void addNode(Node n){
-        // ADD BINARY INSERTION
-        nodes.add(n);
+        binaryInsertion(n, 0, nodes.size() - 1);
+//        nodes.add(n);
     }
     public void addDirectedEdge(Node a, Node b){
         a.addOutNode(b);
@@ -91,20 +91,61 @@ public class Graph {
         cursor = n;
     }
 
-    public Node next(){
-        if(iterator.size()>0) {
-            return iterator.remove(0);
-        }
-        return null;
-    }
-
-    public Node getNodeByID(int id) {
-        // ADD BINARY SEARCH
-        for (Node n : nodes) {
+    public Node getNodeByID(int id)
+    {
+        if(nodes.size() == 0)
+            return null;
+        else
+            return binarySearch(id, 0, nodes.size() - 1);
+/*        for (Node n : nodes) {
             if (n.getID() == id)
                 return n;
+        }*/
+    }
+
+    public Node binarySearch(int id, int min, int max)
+    {
+        int span = max - min;
+        int midPoint = (max + min) >> 1;
+
+        if(nodes.get(midPoint).getID() == id)
+        {
+            return nodes.get(midPoint);
         }
-        return null;
+        else if(span == 0)
+        {
+            return null;
+        }
+        else if(nodes.get(midPoint).getID() < id)
+        {
+            return binarySearch(id, min, midPoint);
+        }
+        else
+        {
+            return binarySearch(id, midPoint, max);
+        }
+    }
+
+    public void binaryInsertion(Node newNode, int min, int max)
+    {
+        int midPoint = (max + min) >> 1;
+
+        if(newNode.getID() > nodes.get(max).getID())
+        {
+            nodes.add(max, newNode);
+        }
+        else if(newNode.getID() < nodes.get(min).getID())
+        {
+            nodes.add(min, newNode);
+        }
+        else if(newNode.getID() > nodes.get(min).getID() && newNode.getID() < nodes.get(midPoint).getID())
+        {
+            binaryInsertion(newNode, min, midPoint);
+        }
+        else if(newNode.getID() > nodes.get(midPoint).getID() && newNode.getID() < nodes.get(max).getID())
+        {
+            binaryInsertion(newNode, midPoint, max);
+        }
     }
 
     public Node getRoot(){

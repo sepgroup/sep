@@ -55,6 +55,8 @@ public class Node {
         removeNode(outNodes, id);
     }
 
+    // when removing a node, it's also necessary to remove all the adjacencies to it from other nodes to avoid null references
+
     void removeNode(ArrayList<Node> list, Node n){
         if(list.contains(n))
             list.remove(n);
@@ -80,26 +82,23 @@ public class Node {
     STATES getState(){
         return state;
     }
-    int getID(){
+    public int getID(){
         return nodeID;
     }
-    Data getData(){
+    public Data getData(){
         return data;
     }
-    int getVisited(){
+    public int getVisited(){
         return visitedCounter;
     }
-    void setVisited(int v){
+    public void setVisited(int v){
         visitedCounter = v;
     }
 
-
-
-
-    ArrayList<Node> getInNodes(){
+    public ArrayList<Node> getInNodes(){
         return inNodes;
     }
-    ArrayList<Node> getOutNodes(){
+    public ArrayList<Node> getOutNodes(){
         return outNodes;
     }
 
