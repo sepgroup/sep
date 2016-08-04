@@ -78,13 +78,69 @@ public class Graph {
         }
         return null;
     }
-    public void sort(){};
+
+    public void sort(){
+        mergeSort(nodes);
+    };
+
+    public ArrayList<Node> mergeSort(ArrayList<Node> list)
+    {
+        if(list.size() <= 1)
+            return list;
+
+        ArrayList<Node> left = new ArrayList<Node>();
+        ArrayList<Node> right = new ArrayList<Node>();
+
+        for(int i = 0; i < list.size(); i++)
+            if(i % 2 == 1)
+                left.add(list.get(i));
+            else
+                right.add(list.get(i));
+
+        left = mergeSort(left);
+        right = mergeSort(right);
+
+        return merge(left, right);
+    }
+
+    public ArrayList<Node> merge(ArrayList<Node> left, ArrayList<Node> right)
+    {
+        ArrayList<Node> result = new ArrayList<Node>();
+
+        while(left.size() > 0 && right.size() > 0)
+        {
+            if(left.get(0).getID() <= right.get(0).getID())
+            {
+                result.add(left.get(0));
+                left.remove(0);
+            }
+            else
+            {
+                result.add(right.get(0));
+                right.remove(0);
+            }
+        }
+
+        while(left.size() > 0)
+        {
+            result.add(left.get(0));
+            left.remove(0);
+        }
+
+        while(right.size() > 0)
+        {
+            result.add(right.get(0));
+            right.remove(0);
+        }
+
+        return result;
+    }
     
     public void printInfo(){
        //System.out.println()
-        for(Node n: nodes){
+//        for(Node n: nodes){
 
-        }
+//        }
 
     }
 }
