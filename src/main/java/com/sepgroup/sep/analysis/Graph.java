@@ -46,6 +46,7 @@ public class Graph {
         visitedCounter++;
         depthFirstSearch(n);
     }
+
     public void depthFirstSearch(Node n){
         n.setVisited(visitedCounter);
         iterator.add(n);
@@ -219,6 +220,17 @@ public class Graph {
         }
 
         return result;
+    }
+
+    public boolean isConnected()
+    {
+        dfs(getRoot());
+
+        for(int i = 0; i < nodes.size(); i++)
+            if(nodes.get(i).visitedCounter != visitedCounter)
+                return false;
+
+        return true;
     }
     
     public void printInfo(){

@@ -15,8 +15,6 @@ public class Node {
     protected Data data;
     STATES state;
 
-
-
     public Node(){
     }
     public Node(Node n){

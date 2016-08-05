@@ -7,6 +7,8 @@ import com.sepgroup.sep.model.TaskModel;
  */
 public class Data extends TaskModel{
     public TaskModel task;
+    public int earliestFinish = 0;
+    public int latestFinish = 0;
 
     Data(){}
 

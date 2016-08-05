@@ -31,4 +31,8 @@ public class NodeIterator implements Iterator<Node>{
         list.clear();
     }
 
+    public boolean contains(Node n)
+    {
+        return list.contains(n);
+    }
 }
