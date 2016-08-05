@@ -10,7 +10,7 @@ public class Graph {
 
 
     NodeIterator iterator = new NodeIterator();
-    ArrayList<Node> nodes = new ArrayList<Node>();
+    public ArrayList<Node> nodes = new ArrayList<Node>();
     protected Node cursor;
     protected Node root;
     protected Node terminal;
@@ -30,8 +30,22 @@ public class Graph {
         Node n = new Node(d);
     }
     public void addNode(Node n){
-        binaryInsertion(n, 0, nodes.size() - 1);
-//        nodes.add(n);
+   //     binaryInsertion(n, 0, nodes.size() - 1);
+        nodes.add(n);
+    }
+    public void removeNode(int id){
+    //    removeNode(binarySearch(id, 0, nodes.size() - 1));
+        for(Node n : nodes){
+            if(n.getID()==id) {
+                removeNode(n);
+                break;
+            }
+        }
+
+    }
+    public void removeNode(Node n){
+        n.isolate();
+        nodes.remove(n);
     }
     public void addDirectedEdge(Node a, Node b){
         a.addOutNode(b);
@@ -66,9 +80,9 @@ public class Graph {
     public void findAndSetState(Node n){
         if(n.getInNodes().size()==0 && n.getOutNodes().size()==0)
             n.setStatus(Node.STATES.ISOLATED);
-        else if(root!=null && n!=root && n.getInNodes().size()==0)
+        else if(n!=root && n.getInNodes().size()==0)
             n.setStatus(Node.STATES.ORPHAN);
-        else if(terminal!=null && n!=terminal && n.getOutNodes().size()==0)
+        else if(n!=terminal && n.getOutNodes().size()==0)
             n.setStatus(Node.STATES.DEAD);
         else if(hasCircularDependency(n))
             n.setStatus(Node.STATES.CIRCULAR);
@@ -94,14 +108,15 @@ public class Graph {
 
     public Node getNodeByID(int id)
     {
-        if(nodes.size() == 0)
-            return null;
-        else
-            return binarySearch(id, 0, nodes.size() - 1);
-/*        for (Node n : nodes) {
+     //   if(nodes.size() == 0)
+      //      return null;
+      //  else
+        //    return binarySearch(id, 0, nodes.size() - 1);
+        for (Node n : nodes) {
             if (n.getID() == id)
                 return n;
-        }*/
+        }
+        return null;
     }
 
     public Node binarySearch(int id, int min, int max)

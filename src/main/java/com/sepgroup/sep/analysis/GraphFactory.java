@@ -25,8 +25,6 @@ public class GraphFactory {
         setAdjacents(projectID);
         long t2 = System.currentTimeMillis();
 
-        if(debugMode)
-            System.out.println("Time to make graph: "+(t2-t1));
     }
 
     // pull each task related to the project and assign it to a node
@@ -35,8 +33,6 @@ public class GraphFactory {
         try {
              tasks = TaskModel.getAllByProject(projectID);
 
-            if(debugMode)
-                System.out.println("Got project 1, # OF TASKS: "+tasks.size());
         }
         catch(ModelNotFoundException E){
             System.out.println("Project"+ projectID +" Not Found");
@@ -47,9 +43,6 @@ public class GraphFactory {
             Node n = new PhysicsNode(d);
             n.setNodeID(t.getTaskId());
             graph.addNode(n);
-
-                if(debugMode)
-                    System.out.println("added Node to graph");
         }
         //graph.sort();
     }
