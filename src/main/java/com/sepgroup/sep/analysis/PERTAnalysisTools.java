@@ -30,7 +30,7 @@ public final class PERTAnalysisTools {
         GraphFactory.makeGraph(projectId, newGraph);
 
         forwardPass(newGraph.getRoot(), 0);
-        backwardPass(newGraph.getTerminal(), newGraph.getTerminal().getData().earliestFinish);
+        backwardPass(newGraph.getTerminal(), (int)newGraph.getTerminal().getData().earliestFinish);
 
         // Calculate the total variance for each path and obtain the smallest (least slack)
         // Then calculate probability with the std dev
@@ -84,7 +84,7 @@ public final class PERTAnalysisTools {
         ArrayList<Node> minNodes = new ArrayList<Node>();
         for(Node nextNode: nextNodes)
         {
-            int slack = nextNode.getData().latestFinish - nextNode.getData().earliestFinish;
+            int slack = (int)(nextNode.getData().latestFinish - nextNode.getData().earliestFinish);
             if(slack < min)
             {
                 min = slack;
