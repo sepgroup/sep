@@ -47,6 +47,22 @@ public class PhysicsGraph extends Graph implements Physics,Drawable {
             ((PhysicsNode)n).step();
 
     }
+
+    public void setStateProperties(){
+        for(Node n : nodes){
+            PhysicsNode p = (PhysicsNode)n;
+            p.findColor();
+            if(p.getState() == Node.STATES.ISOLATED) {
+                p.setAnchor(true);
+                p.disablePhysics();
+            }
+            else
+            {
+                p.setAnchor(false);
+                p.enablePhysics();
+            }
+        }
+    }
     public void draw(Graphics2D g){
         for(Node n : nodes)
             ((PhysicsNode)n).draw(g);

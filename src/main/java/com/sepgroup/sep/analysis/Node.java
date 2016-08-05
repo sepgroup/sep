@@ -5,7 +5,7 @@ package com.sepgroup.sep.analysis;
  */
 import java.util.ArrayList;
 public class Node {
-    enum STATES{OK,DEAD,CIRCULAR,ORPHAN,ISOLATED};
+    public enum STATES{OK,DEAD,CIRCULAR,ORPHAN,ISOLATED};
     protected int nodeID;
     protected int visitedCounter = 0;
 
@@ -86,7 +86,7 @@ public class Node {
     void setStatus(STATES s){
         state = s;
     }
-    STATES getState(){
+    public STATES getState(){
         return state;
     }
     public int getID(){

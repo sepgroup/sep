@@ -79,9 +79,9 @@ public class Graph {
     public void findAndSetState(Node n){
         if(n.getInNodes().size()==0 && n.getOutNodes().size()==0)
             n.setStatus(Node.STATES.ISOLATED);
-        else if(root!=null && n!=root && n.getInNodes().size()==0)
+        else if(n!=root && n.getInNodes().size()==0)
             n.setStatus(Node.STATES.ORPHAN);
-        else if(terminal!=null && n!=terminal && n.getOutNodes().size()==0)
+        else if(n!=terminal && n.getOutNodes().size()==0)
             n.setStatus(Node.STATES.DEAD);
         else if(hasCircularDependency(n))
             n.setStatus(Node.STATES.CIRCULAR);

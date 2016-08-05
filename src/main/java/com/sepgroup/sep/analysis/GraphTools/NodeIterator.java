@@ -10,8 +10,12 @@ import java.util.Iterator;
  */
 public class NodeIterator implements Iterator<Node>{
     protected ArrayList<Node> list;
-    public NodeIterator(){};
     int index = 0;
+
+    public NodeIterator(){
+        list = new ArrayList<>();
+    }
+
     public NodeIterator(ArrayList<Node> list){
         this.list = list;
     }

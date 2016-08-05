@@ -8,6 +8,8 @@ import java.util.ArrayList;
  */
 public class GraphDisplayController implements KeyInputController{
     public Display display;
+    public boolean animate = true;
+    public boolean needsGraphUpdate = true;
     PhysicsGraph graph;
     ArrayList<Integer> keyDown = new ArrayList<Integer>(10);
 
@@ -33,12 +35,22 @@ public class GraphDisplayController implements KeyInputController{
         display.addRenderObject(draw);
     }
 
+    public void graphUpdate(){
+        graph.findAndSetAllStates();
+        graph.setStateProperties();
+        needsGraphUpdate = false;
+    }
 
-    public void update(){
+    public void PhysicsUpdate(){
         doKeyActions();
         display.repaint();
         graph.step();
-
+    }
+    public void update(){
+       if(needsGraphUpdate)
+            graphUpdate();
+        if(animate)
+            PhysicsUpdate();
     }
 
     void doKeyActions(){

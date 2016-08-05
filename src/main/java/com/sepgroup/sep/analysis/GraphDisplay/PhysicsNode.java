@@ -15,6 +15,7 @@ public class PhysicsNode extends Node implements Physics,Drawable {
     double mass = 1;
     double charge = 1;
     int radius = 30;
+    boolean hasPhysics = true;
     Color color = Color.BLUE;
 
     double[] position = {0,0};
@@ -32,39 +33,55 @@ public class PhysicsNode extends Node implements Physics,Drawable {
 
     }
 
+    public void enablePhysics(){
+        hasPhysics = true;
+    }
+    public void disablePhysics(){
+        hasPhysics = false;
+    }
+    public boolean getPhysics(){
+        return hasPhysics;
+    }
     public void setPosition(double x, double y){
         position[0] = x;
         position[1] = y;
     }
 
     public void addTensionForce() {
-        for (int i = 0; i < outNodes.size(); i++) {
-            PhysicsNode nextNode = (PhysicsNode) outNodes.get(i);
-            double direction[] = {nextNode.position[0] - position[0], nextNode.position[1] - position[1]};
-            //double depthLength = 100*(nextNode.getDepth() - getDepth());
-            double length = Math.sqrt(direction[0] * direction[0] + direction[1] * direction[1]);
-            direction[0] /= length;
-            direction[1] /= length;
-            double forceMultiplier = hooksConstant * length;
-            if (length < 5 * radius) { // (depth-children.get(i).depth)*
-                forceMultiplier *= -1;
+        if(hasPhysics){
+            for (int i = 0; i < outNodes.size(); i++) {
+                PhysicsNode nextNode = (PhysicsNode) outNodes.get(i);
+                if (nextNode.getPhysics()) {
+                    double direction[] = {nextNode.position[0] - position[0], nextNode.position[1] - position[1]};
+                    //double depthLength = 100*(nextNode.getDepth() - getDepth());
+                    double length = Math.sqrt(direction[0] * direction[0] + direction[1] * direction[1]);
+                    direction[0] /= length;
+                    direction[1] /= length;
+                    double forceMultiplier = hooksConstant * length;
+                    if (length < 5 * radius) { // (depth-children.get(i).depth)*
+                        forceMultiplier *= -1;
+                    }
+
+
+                    addToForce(direction[0] * forceMultiplier, direction[1] * forceMultiplier);
+                    nextNode.addToForce(-direction[0] * forceMultiplier, -direction[1] * forceMultiplier);
+                }
             }
-
-
-            addToForce(direction[0] * forceMultiplier, direction[1] * forceMultiplier);
-            nextNode.addToForce(-direction[0] * forceMultiplier, -direction[1] * forceMultiplier);
-
         }
     }
 
     public void addStaticForce(PhysicsNode node) {
-        double direction[] = {node.position[0] - position[0], node.position[1] - position[1]};
-        double length = Math.sqrt(direction[0] * direction[0] + direction[1] * direction[1]);
-        direction[0] /= length;
-        direction[1] /= length;
-        double forceMultiplier = coulombsConstant * charge * node.charge / (length * length);
-        addToForce(-direction[0] * forceMultiplier, -direction[1] * forceMultiplier);
-        node.addToForce(direction[0] * forceMultiplier, direction[1] * forceMultiplier);
+        if(hasPhysics) {
+            if(node.getPhysics()) {
+                double direction[] = {-node.position[0] - position[0], node.position[1] - position[1]};
+                double length = Math.sqrt(direction[0] * direction[0] + direction[1] * direction[1]);
+                direction[0] /= length;
+                direction[1] /= length;
+                double forceMultiplier = coulombsConstant * charge * node.charge / (length * length);
+                addToForce(-direction[0] * forceMultiplier, -direction[1] * forceMultiplier);
+                node.addToForce(direction[0] * forceMultiplier, direction[1] * forceMultiplier);
+            }
+        }
 
     }
 
@@ -104,6 +121,7 @@ public class PhysicsNode extends Node implements Physics,Drawable {
         }
     }
 
+
     public void jiggle(double heat) {
         int flip = Math.random() > 0.5 ? 1 : -1;
         int flip2 = Math.random() > 0.5 ? 1 : -1;
@@ -121,6 +139,23 @@ public class PhysicsNode extends Node implements Physics,Drawable {
 
     public void setAnchor(boolean set) {
         isAnchored = set;
+    }
+
+    public void findColor(){
+        STATES i = getState();
+        switch(i){
+            case OK: color = Color.BLUE;
+                break;
+            case DEAD: color = Color.GRAY;
+                break;
+            case CIRCULAR: color = Color.ORANGE;
+                break;
+            case ORPHAN: color = Color.GREEN;
+                break;
+            case ISOLATED: color = Color.BLACK;
+                break;
+        }
+        System.out.println("State is "+i);
     }
 
     public void draw(Graphics2D g) {
