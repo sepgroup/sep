@@ -8,7 +8,7 @@ import java.util.Iterator;
 /**
  * Created by HP on 8/3/2016.
  */
-public class NodeIterator implements Iterator<Node>{
+public class NodeIterator implements Iterator<Node> {
     protected ArrayList<Node> list;
     int index = 0;
 

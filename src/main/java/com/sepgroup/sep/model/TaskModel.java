@@ -509,7 +509,7 @@ public class TaskModel extends AbstractModel {
         final int a = getOptimisticTimeToFinish();
         final int b = getMostLikelyTimeToFinish();
         final int c = getPesimisticTimeToFinish();
-        return (a + 4.0f * b + c) / 6.0f;
+        return (a + 4f * b + c) / 6f;
     }
 
     /**

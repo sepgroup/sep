@@ -1,7 +1,9 @@
 package com.sepgroup.sep.analysis;
 
 import com.sepgroup.sep.analysis.GraphTools.NodeIterator;
+
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Demo on 7/29/2016.
@@ -10,23 +12,22 @@ public class Graph {
 
 
     NodeIterator iterator = new NodeIterator();
-    public ArrayList<Node> nodes = new ArrayList<Node>();
+    public List<Node> nodes = new ArrayList<Node>();
     protected Node cursor;
     protected Node root;
     protected Node terminal;
 
     int visitedCounter = 0;
 
-    public Graph(){
-    }
-    public Graph(int projectID){
-        GraphFactory.makeGraph(projectID,this);
+    public Graph () {}
 
+    public Graph(int projectID) {
+        GraphFactory.makeGraph(projectID, this);
     }
     public void createNode(){
         Node n = new Node();
     }
-    public void creatNode(Data d){
+    public void createNode(Data d){
         Node n = new Node(d);
     }
     public void addNode(Node n){
@@ -184,13 +185,13 @@ public class Graph {
         mergeSort(nodes);
     }
 
-    public ArrayList<Node> mergeSort(ArrayList<Node> list)
+    public List<Node> mergeSort(List<Node> list)
     {
         if(list.size() <= 1)
             return list;
 
-        ArrayList<Node> left = new ArrayList<Node>();
-        ArrayList<Node> right = new ArrayList<Node>();
+        List<Node> left = new ArrayList<>();
+        List<Node> right = new ArrayList<>();
 
         for(int i = 0; i < list.size(); i++)
             if(i % 2 == 1)
@@ -204,7 +205,7 @@ public class Graph {
         return merge(left, right);
     }
 
-    public ArrayList<Node> merge(ArrayList<Node> left, ArrayList<Node> right)
+    public List<Node> merge(List<Node> left, List<Node> right)
     {
         ArrayList<Node> result = new ArrayList<Node>();
 
@@ -263,6 +264,15 @@ public class Graph {
     }
 
     public void update(){}
+
+    public void updateTaskTimes(){
+        final Node root = getRoot();
+        root.forwardPass();
+
+        final Node terminal = getTerminal();
+        terminal.data.latestFinish = terminal.data.earliestFinish;
+        terminal.backwardsPass();
+    }
 }
 
 

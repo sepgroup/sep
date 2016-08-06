@@ -74,7 +74,6 @@ public class Node {
             }
     }
 
-
     void setData(Data d){
         data = d;
     }
@@ -107,5 +106,42 @@ public class Node {
         return outNodes;
     }
 
+
+    public void forwardPass() {
+        data.earliestFinish =
+                (data.earliestStart = latestOfEarliestParentFinishes()) + data.task.getExpectedDuration();
+        outNodes.forEach(Node::forwardPass);
+    }
+
+    public void backwardsPass() {
+        float earliest = earliestOfLatestParentFinishes();
+        if (earliest < Float.MAX_VALUE)
+            data.latestFinish = earliest;
+
+        data.latestStart = data.latestFinish - data.task.getExpectedDuration();
+        inNodes.forEach(Node::backwardsPass);
+    }
+
+    private float latestOfEarliestParentFinishes() {
+        float max = 0.0f;
+
+        for (final Node parent : inNodes) {
+            if (parent.data.earliestFinish > max)
+                max = parent.data.earliestFinish;
+        }
+
+        return max;
+    }
+
+    private float earliestOfLatestParentFinishes() {
+        float min = Float.MAX_VALUE;
+
+        for (final Node parent : outNodes) {
+            if (parent.data.latestFinish < min)
+                min = parent.data.latestFinish;
+        }
+
+        return min;
+    }
 
 }
