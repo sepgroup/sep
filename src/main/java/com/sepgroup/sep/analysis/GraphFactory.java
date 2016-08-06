@@ -35,7 +35,7 @@ public class GraphFactory {
 
         }
         catch(ModelNotFoundException E){
-            System.out.println("Project"+ projectID +" Not Found");
+            System.out.println("Project " + projectID + " Not Found");
             return;
         }
         for(TaskModel t : tasks){

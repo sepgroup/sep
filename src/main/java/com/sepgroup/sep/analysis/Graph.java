@@ -1,21 +1,28 @@
 package com.sepgroup.sep.analysis;
 
 import com.sepgroup.sep.analysis.GraphTools.NodeIterator;
+import com.sepgroup.sep.model.ModelNotFoundException;
+import com.sepgroup.sep.model.ProjectModel;
+import com.sepgroup.sep.model.TaskModel;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
+ * Tracks all dependency information for the tasks of a single project.
  * Created by Demo on 7/29/2016.
+ *
  */
 public class Graph {
 
-
     NodeIterator iterator = new NodeIterator();
-    public List<Node> nodes = new ArrayList<Node>();
+    public List<Node> nodes = new ArrayList<>();
     protected Node cursor;
     protected Node root;
     protected Node terminal;
+
+    protected ProjectModel project;
 
     int visitedCounter = 0;
 
@@ -23,13 +30,24 @@ public class Graph {
 
     public Graph(int projectID) {
         GraphFactory.makeGraph(projectID, this);
+        try {
+            project = ProjectModel.getById(projectID);
+        } catch (ModelNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        root = new Node(project.root());
     }
+
+
     public void createNode(){
         Node n = new Node();
     }
+
     public void createNode(Data d){
         Node n = new Node(d);
     }
+
     public void addNode(Node n){
    //     binaryInsertion(n, 0, nodes.size() - 1);
         nodes.add(n);
@@ -120,6 +138,14 @@ public class Graph {
         return null;
     }
 
+    public Node getNode(final TaskModel task) {
+        for (final Node node : nodes) {
+            if (node.data.task == task)
+                return node;
+        }
+        return null;
+    }
+
     public Node binarySearch(int id, int min, int max)
     {
         int span = max - min;
@@ -135,7 +161,7 @@ public class Graph {
         }
         else if(nodes.get(midPoint).getID() < id)
         {
-            return binarySearch(id, min, midPoint);
+         return binarySearch(id, min, midPoint);
         }
         else
         {
@@ -165,20 +191,38 @@ public class Graph {
         }
     }
 
-    public Node getRoot(){
-        return root;
-    }
+    public Node getRoot() { return root == null ? root = findRoot() : root; }
 
     public Node getTerminal(){
-        return terminal;
+        return terminal == null ? terminal = findTerminal() : terminal;
     }
 
-    public void findRoot(){
+    protected Node findRoot() { return new Node(project.root()); }
 
+    protected Node findTerminal() {
+        TaskModel potentialTerminal = nodes.get(0).data.task;
+        for (final Node node : nodes) {
+            if (ancestorsContainNode(node.data.task, potentialTerminal))
+                potentialTerminal = node.data.task;
+        }
+        return getNode(potentialTerminal);
     }
 
-    public void findTerminal(){
+    private boolean ancestorsContainNode(final TaskModel task, final TaskModel target) {
+        Collection<TaskModel> parents = task.getDependencies();
 
+        if (parents.size() == 0)
+            return false;
+        if (parents.contains(target))
+            return true;
+
+        boolean ancestorsContain = false;
+        for (final TaskModel parent : parents) {
+            if (ancestorsContainNode(parent, target))
+                ancestorsContain |= true;
+        }
+
+        return ancestorsContain;
     }
 
     public void sort(){
@@ -273,6 +317,6 @@ public class Graph {
         terminal.data.latestFinish = terminal.data.earliestFinish;
         terminal.backwardsPass();
     }
+
+    public boolean isTerminalNode(final Node node) { return getTerminal() == node; }
 }
-
-

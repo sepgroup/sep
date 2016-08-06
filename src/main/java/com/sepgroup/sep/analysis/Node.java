@@ -3,6 +3,9 @@ package com.sepgroup.sep.analysis;
 /**
  * Created by Demo on 7/29/2016.
  */
+
+import com.sepgroup.sep.model.TaskModel;
+
 import java.util.ArrayList;
 public class Node {
     public enum STATES{OK,DEAD,CIRCULAR,ORPHAN,ISOLATED};
@@ -22,6 +25,9 @@ public class Node {
     }
     public Node(Data d){
         setData(d);
+    }
+    public Node(TaskModel task) {
+        this(new Data(task));
     }
     public Node(Node n, Data d){
         addInNode(n);
@@ -144,4 +150,11 @@ public class Node {
         return min;
     }
 
+    public boolean equals(final Object other) {
+        if (other.getClass() != getClass())
+            return false;
+
+        final Node otherNode = (Node) other;
+        return otherNode.data.task == data.task;
+    }
 }
