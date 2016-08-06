@@ -35,8 +35,6 @@ public class Graph {
         } catch (ModelNotFoundException e) {
             e.printStackTrace();
         }
-
-        root = new Node(project.root());
     }
 
 

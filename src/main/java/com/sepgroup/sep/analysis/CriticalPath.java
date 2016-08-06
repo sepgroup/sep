@@ -10,10 +10,16 @@ public final class CriticalPath {
 	private CriticalPath() {}
 
 	/**
-	 * Computes the set of critical paths in a given project.
-	 * @param graph The graph of the project to compute the critical paths of.
+	 * Computes the set of critical paths in a given project. A critical path is an ordered collection of tasks with
+	 * greater expected duration than all other paths in the project.
+	 * @param projectID The ID number of the project to compute the critical paths of.
 	 * @return The set of critical paths.
 	 */
+
+	public static Collection<TaskNodePath> computeCriticalPaths(final int projectID) {
+		return computeCriticalPaths(new Graph(projectID));
+	}
+
 	public static Collection<TaskNodePath> computeCriticalPaths(final Graph graph) {
 		return getCriticalPathsStartingFrom(graph.getRoot());
 	}
