@@ -51,8 +51,6 @@ public class ProjectViewerController extends AbstractController {
     @FXML
     public Label completeValueLabel;
     @FXML
-    public Label plannedValueValueLabel;
-    @FXML
     public TableView<ListableTaskModel> taskTableView;
     @FXML
     public TableColumn<ListableTaskModel, Integer> taskIdColumn;
@@ -104,9 +102,6 @@ public class ProjectViewerController extends AbstractController {
             if (model.getDeadline() != null) deadlineValueLabel.setText(model.getDeadlineString());
             budgetValueLabel.setText(Double.toString(model.getBudget()));
             completeValueLabel.setText(model.isDone() ? "Yes" : "No");
-
-            // Earned value analysis
-            plannedValueValueLabel.setText(Double.toString(model.getPlannedValue()));
 
             // Populate manager
             String managerName;

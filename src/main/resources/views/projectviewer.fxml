@@ -79,9 +79,7 @@
                   <Label fx:id="budgetValueLabel" layoutX="366.0" layoutY="35.0" text="[ budget ]" />
                   <Label fx:id="budgetLabel" layoutX="275.0" layoutY="35.0" text="Budget" />
                   <Label fx:id="completeValueLabel" layoutX="366.0" layoutY="63.0" text="[ complete ]" />
-                   <Label fx:id="completeLabel" layoutX="275.0" layoutY="63.0" text="Complete:" />
-                   <Label fx:id="plannedValueValueLabel" layoutX="366.0" layoutY="80.0" text="[ plannedValue ]" />
-                   <Label fx:id="plannedValueLabel" layoutX="275.0" layoutY="80.0" text="Planned value:" />
+                  <Label fx:id="completeLabel" layoutX="275.0" layoutY="63.0" text="Complete:" />
                   
                               <Button fx:id="createGanttChartButton" layoutX="634.0" layoutY="9.0" mnemonicParsing="false" onAction="#onCreateGanttChartClicked" prefHeight="14.0" prefWidth="146.0" text="Create Gantt Chart" textFill="WHITE">
                      <font>
