@@ -51,7 +51,8 @@ jacocoTestReport {
         classDirectories = files(classDirectories.files.collect {
             fileTree(dir: it, exclude: [
                     '**/*jfree**',
-                    '**/controller/**'
+                    '**/controller/**',
+                    '**/analysis/GraphDisplay/**'
             ])
         })
     }
