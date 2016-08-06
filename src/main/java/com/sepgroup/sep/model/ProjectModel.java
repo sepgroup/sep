@@ -349,20 +349,14 @@ public class ProjectModel extends AbstractModel {
      * Retrieves the root task of the project, if there is one.
      * @return The root task if it exists, null otherwise.
      */
-    public TaskModel root()
-    {
+    public TaskModel root() {
         List<TaskModel> tasks = null;
 
-        try
-        {
+        try {
             tasks = getTasks();
-        }
-        catch (ModelNotFoundException e)
-        {
+        } catch (ModelNotFoundException e) {
             e.printStackTrace();
-        }
-        catch (InvalidInputException e)
-        {
+        } catch (InvalidInputException e) {
             e.printStackTrace();
         }
 
@@ -371,16 +365,11 @@ public class ProjectModel extends AbstractModel {
 
         TaskModel root = null;
 
-        for (final TaskModel task : tasks)
-        {
-            if (task.getDependencies().size() == 0)
-            {
-                if (root == null)
-                {
+        for (final TaskModel task : tasks) {
+            if (task.getDependencies().size() == 0) {
+                if (root == null) {
                     root = task;
-                }
-                else
-                {
+                } else {
                     root = null;
                     break;
                 }
@@ -444,6 +433,60 @@ public class ProjectModel extends AbstractModel {
     public List<TaskModel> getTasks() throws ModelNotFoundException, InvalidInputException {
         return TaskModel.getAllByProject(getProjectId());
     }
+
+    public List<TaskModel> getTasksUnsafe() {
+        List<TaskModel> tasks = null;
+        try {
+            tasks = getTasks();
+        } catch (ModelNotFoundException e) {
+            e.printStackTrace();
+        } catch (InvalidInputException e) {
+            e.printStackTrace();
+        }
+        return tasks;
+    }
+
+    /**
+     * Total budget of all tasks in the project.
+     * @return
+     */
+    public double getBudgetAtCompletion() {
+        return getTasksUnsafe().stream().mapToDouble(t -> t.getBudget()).sum();
+    }
+
+    /**
+     * Total budget of all completed tasks in the project.
+     * @return
+     */
+    public double getEarnedValue() {
+        final List<TaskModel> tasks = getTasksUnsafe();
+        double pv = 0.0;
+        for (final TaskModel task : tasks) {
+            if (task.isDone())
+                pv += task.getBudget();
+        }
+        return pv;
+    }
+
+    public double getPercentComplete() {
+        return getEarnedValue() / getBudgetAtCompletion() * 100.0;
+    }
+
+    public double getPlannedValue() { return getTasksUnsafe().stream().mapToDouble(t -> t.getPlannedValue()).sum(); }
+
+    public double getActualCost() { return getTasksUnsafe().stream().mapToDouble(t -> t.getActualCost()).sum(); }
+
+    public double getCostVariance() { return getEarnedValue() - getActualCost(); }
+
+    public double getScheduleVariance() { return getEarnedValue() - getPlannedValue(); }
+
+    public double getCostPerformanceIndex() { return getEarnedValue() / getActualCost(); }
+
+    public double getSchedulePerformanceIndex() { return getEarnedValue() / getPlannedValue(); }
+
+    public double getEstimateAtCompletion() { return getBudgetAtCompletion() / getCostPerformanceIndex(); }
+
+    public double getEstimateToComplete() { return getEstimateAtCompletion() - getActualCost(); }
 
     @Override
 	public String toString() {

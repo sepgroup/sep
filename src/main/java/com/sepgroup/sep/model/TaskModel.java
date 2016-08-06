@@ -239,6 +239,10 @@ public class TaskModel extends AbstractModel {
         return actualStartDate;
     }
 
+    public double getActualDurationInDays() {
+        return (actualEndDate.toInstant().getEpochSecond() - actualStartDate.toInstant().getEpochSecond()) / (60 * 60 * 24);
+    }
+
     public String getActualStartDateString() {
         if (this.actualStartDate != null) {
             return DateUtils.castDateToString(this.actualStartDate);
@@ -519,6 +523,16 @@ public class TaskModel extends AbstractModel {
     public double getBudget() {
         return budget;
     }
+
+    /**
+     * The actual cost of the task.
+     * @return
+     */
+    public double getActualCost() { return assignee.getSalaryPerHour() * getActualDurationInDays() * 8; }
+
+    public double getPlannedValue() { return shouldBeDone() ? budget : 0.0; }
+
+    public boolean shouldBeDone() { return new Date().after(getDeadline()); }
 
     /**
      * Set the task's new budget
