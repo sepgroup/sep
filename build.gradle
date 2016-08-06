@@ -51,7 +51,7 @@ jacocoTestReport {
         classDirectories = files(classDirectories.files.collect {
             fileTree(dir: it, exclude: [
                     '**/*jfree**',
-                    '**/com.sepgroup.sep/controller/**'
+                    '**/controller/**'
             ])
         })
     }
