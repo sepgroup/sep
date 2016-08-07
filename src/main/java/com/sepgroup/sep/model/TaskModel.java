@@ -240,6 +240,8 @@ public class TaskModel extends AbstractModel {
     }
 
     public double getActualDurationInDays() {
+        if (actualEndDate == null || actualStartDate == null)
+            return 0.0;
         return (actualEndDate.toInstant().getEpochSecond() - actualStartDate.toInstant().getEpochSecond()) / (60 * 60 * 24);
     }
 
@@ -532,7 +534,7 @@ public class TaskModel extends AbstractModel {
 
     public double getPlannedValue() { return shouldBeDone() ? budget : 0.0; }
 
-    public boolean shouldBeDone() { return false;}//new Date().after(getDeadline()); }
+    public boolean shouldBeDone() { return getDeadline() != null && new Date().after(getDeadline()); }
 
     /**
      * Set the task's new budget
