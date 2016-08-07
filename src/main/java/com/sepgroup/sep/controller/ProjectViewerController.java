@@ -199,8 +199,8 @@ public class ProjectViewerController extends AbstractController {
         if (e.getClickCount() == 2) {
             ListableTaskModel selectedListableTask = taskTableView.getSelectionModel().getSelectedItem();
             if (selectedListableTask != null) {
-//                TaskEditorController tec = (TaskEditorController) Main.setPrimaryScene(TaskEditorController.getFxmlPath());
-                TaskViewerController tec = (TaskViewerController) Main.setPrimaryScene(TaskViewerController.getFxmlPath());
+                TaskEditorController tec = (TaskEditorController) Main.setPrimaryScene(TaskEditorController.getFxmlPath());
+//                TaskViewerController tec = (TaskViewerController) Main.setPrimaryScene(TaskViewerController.getFxmlPath());
                 tec.setModel(selectedListableTask.getModel());
                 tec.setReturnProject(model);
             }
