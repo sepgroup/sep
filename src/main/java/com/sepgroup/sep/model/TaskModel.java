@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * Represents a single task or activity belonging to a project.
  * Created by jeremybrown on 2016-05-18.
  */
 public class TaskModel extends AbstractModel {
@@ -235,14 +236,22 @@ public class TaskModel extends AbstractModel {
         return dependencies.remove(task);
     }
 
+    /**
+     * The date the task has actually started in reality, if applicable.
+     * @return The actual start date of the task, if it has been set; null otherwise.
+     */
     public Date getActualStartDate() {
         return actualStartDate;
     }
 
+    /**
+     * The actual duration of the task in days, if both actual start and end dates have been set.
+     * @return The actual duration of the task, if it exists; zero otherwise.
+     */
     public double getActualDurationInDays() {
-        if (actualEndDate == null || actualStartDate == null)
-            return 0.0;
-        return (actualEndDate.toInstant().getEpochSecond() - actualStartDate.toInstant().getEpochSecond()) / (60 * 60 * 24);
+        return actualEndDate == null || actualStartDate == null
+                ? 0.0
+                : (actualEndDate.toInstant().getEpochSecond() - actualStartDate.toInstant().getEpochSecond()) / (60 * 60 * 24);
     }
 
     public String getActualStartDateString() {
@@ -527,13 +536,22 @@ public class TaskModel extends AbstractModel {
     }
 
     /**
-     * The actual cost of the task.
-     * @return
+     * The actual cost of the task. We assume that the only cost involved in completing a task is in paying the assigned
+     * employee his or her salary for eight horus a day for the duration of the task.
+     * @return The actual cost of the task if there is an assigned user, zero otherwise.
      */
     public double getActualCost() { return assignee == null ? 0.0 : assignee.getSalaryPerHour() * getActualDurationInDays() * 8; }
 
+    /**
+     * Returns the planned value of the task.
+     * @return the planned budget for the task if it should have been completed by now, and zero otherwise.
+     */
     public double getPlannedValue() { return shouldBeDone() ? budget : 0.0; }
 
+    /**
+     * Should the task have been completed by now?
+     * @return True if and only if the current date is after the planned deadline of the task.
+     */
     public boolean shouldBeDone() { return getDeadline() != null && new Date().after(getDeadline()); }
 
     /**
