@@ -19,8 +19,23 @@ public class GraphDisplayController implements KeyInputController{
     public void pressEvent(KeyEvent e){
         if(!keyDown.contains(e.getKeyCode()))
             keyDown.add(new Integer(e.getKeyCode()));
+
+        if(e.getKeyCode() == KeyEvent.VK_SPACE){
+            graph.moveCursor();
+        }
+        if(e.getKeyCode() == KeyEvent.VK_L){
+            graph.lockCursor();
+        }
+        if(e.getKeyCode() == KeyEvent.VK_I){
+            graph.printInfo();
+        }
+        if(e.getKeyCode() == KeyEvent.VK_D){
+            graph.depthSections = !graph.depthSections;
+            graph.update();
+        }
     }
     public void releaseEvent(KeyEvent e){
+
         keyDown.remove(new Integer(e.getKeyCode()));
     }
 
@@ -36,8 +51,8 @@ public class GraphDisplayController implements KeyInputController{
     }
 
     public void graphUpdate(){
-        graph.findAndSetAllStates();
-        graph.setStateProperties();
+     //   graph.findAndSetAllStates();
+     //   graph.setStateProperties();
         needsGraphUpdate = false;
     }
 
@@ -54,20 +69,33 @@ public class GraphDisplayController implements KeyInputController{
     }
 
     void doKeyActions(){
-        int velX = 0, velY = 0;
+        double velX = 0, velY = 0;
+        double speed = 0.001;
+        double heat = 0.0001;
         if(keyDown.contains(KeyEvent.VK_UP)){
-            velY--;
+            velY-=speed;
         }
         if(keyDown.contains(KeyEvent.VK_DOWN)){
-            velY++;
+            velY+=speed;
         }
         if(keyDown.contains(KeyEvent.VK_LEFT)){
-            velX--;
+            velX-=speed;
         }
         if(keyDown.contains(KeyEvent.VK_RIGHT)){
-            velX++;
+            velX+=speed;
         }
-        if(velX!=0 || velY!=0)
-            graph.shiftAll(velX,velY);
+        if(velX!=0 || velY!=0) {
+            if(keyDown.contains(KeyEvent.VK_SHIFT))
+                graph.shiftAll(velX, velY);
+            else
+                graph.shiftCursor(velX,velY);
+        }
+
+        if(keyDown.contains(KeyEvent.VK_H)){
+            graph.jiggle(heat*200);
+        }
+        if(keyDown.contains(KeyEvent.VK_J)){
+            graph.jiggle(heat);
+        }
     }
 }

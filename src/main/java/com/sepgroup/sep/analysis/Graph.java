@@ -1,57 +1,31 @@
 package com.sepgroup.sep.analysis;
 
 import com.sepgroup.sep.analysis.GraphTools.NodeIterator;
-import com.sepgroup.sep.model.ModelNotFoundException;
-import com.sepgroup.sep.model.ProjectModel;
-import com.sepgroup.sep.model.TaskModel;
-
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 /**
- * Tracks all dependency information for the tasks of a single project.
  * Created by Demo on 7/29/2016.
- *
  */
 public class Graph {
 
+
     NodeIterator iterator = new NodeIterator();
-    public List<Node> nodes = new ArrayList<>();
+    public ArrayList<Node> nodes = new ArrayList<Node>();
+    private int cursorPosition = -1;
     protected Node cursor;
     protected Node root;
     protected Node terminal;
 
-    protected ProjectModel project;
 
-    int visitedCounter = 0;
-
-    public Graph () {}
-
-    public Graph(int projectID) {
-        GraphFactory.makeGraph(projectID, this);
-        try {
-            project = ProjectModel.getById(projectID);
-        } catch (ModelNotFoundException e) {
-            e.printStackTrace();
-        }
+    public Graph(){
     }
-
-
-    public void createNode(){
-        Node n = new Node();
+    public Graph(int projectID){
+        GraphFactory.makeGraph(projectID,this);
     }
-
-    public void createNode(Data d){
-        Node n = new Node(d);
-    }
-
     public void addNode(Node n){
-   //     binaryInsertion(n, 0, nodes.size() - 1);
         nodes.add(n);
     }
     public void removeNode(int id){
-    //    removeNode(binarySearch(id, 0, nodes.size() - 1));
         for(Node n : nodes){
             if(n.getID()==id) {
                 removeNode(n);
@@ -68,45 +42,50 @@ public class Graph {
         a.addOutNode(b);
         b.addInNode(a);
     }
-    public void addFreeEdge(Node a, Node b){
+    public void addNonDirectedEdge(Node a, Node b){
         addDirectedEdge(a,b);
         addDirectedEdge(b,a);
     }
     public void dfs(Node n){
         iterator.clear();
-        visitedCounter++;
+        Node.incrementCounter();
         depthFirstSearch(n);
     }
 
     public void depthFirstSearch(Node n){
-        n.setVisited(visitedCounter);
+        n.setVisited();
         iterator.add(n);
         ArrayList<Node> list = n.getOutNodes();
         for(Node node : list){
-            if(node.getVisited()!=visitedCounter){
+            if(!node.wasVisited()){
                 depthFirstSearch(node);
             }
         }
     }
 
     public void findAndSetAllStates(){
+
         for(Node n : nodes){
             findAndSetState(n);
         }
     }
     public void findAndSetState(Node n){
-        if(n.getInNodes().size()==0 && n.getOutNodes().size()==0)
-            n.setStatus(Node.STATES.ISOLATED);
-        else if(n!=root && n.getInNodes().size()==0)
-            n.setStatus(Node.STATES.ORPHAN);
-        else if(n!=terminal && n.getOutNodes().size()==0)
-            n.setStatus(Node.STATES.DEAD);
-        else if(hasCircularDependency(n))
-            n.setStatus(Node.STATES.CIRCULAR);
-        else
-            n.setStatus(Node.STATES.OK);
+        if(n.getState()!=Node.STATES.ROOT && n.getState()!=Node.STATES.TERMINAL ) {
 
+            if (n.getInNodes().size() == 0 && n.getOutNodes().size() == 0)
+                n.setStatus(Node.STATES.ISOLATED);
+            else if (n != root && n.getInNodes().size() == 0)
+                n.setStatus(Node.STATES.ORPHAN);
+            else if (n != terminal && n.getOutNodes().size() == 0)
+                n.setStatus(Node.STATES.DEAD);
+            else if (hasCircularDependency(n))
+                n.setStatus(Node.STATES.CIRCULAR);
+            else
+                n.setStatus(Node.STATES.OK);
+
+        }
     }
+    public void setStateProperties(){};
     public boolean hasCircularDependency(Node n){
         dfs(n);
         while(iterator.hasNext()){
@@ -122,13 +101,16 @@ public class Graph {
     public void moveCursorTo(Node n){
         cursor = n;
     }
+    public void moveCursor(){
+        if(cursorPosition<nodes.size()-1)
+            cursorPosition++;
+        else
+            cursorPosition = 0;
+        cursor = nodes.get(cursorPosition);
+    }
 
     public Node getNodeByID(int id)
     {
-     //   if(nodes.size() == 0)
-      //      return null;
-      //  else
-        //    return binarySearch(id, 0, nodes.size() - 1);
         for (Node n : nodes) {
             if (n.getID() == id)
                 return n;
@@ -136,148 +118,15 @@ public class Graph {
         return null;
     }
 
-    public Node getNode(final TaskModel task) {
-        for (final Node node : nodes) {
-            if (node.data.task == task)
-                return node;
-        }
-        return null;
+
+    public Node getRoot(){
+        return root;
     }
-
-    public Node binarySearch(int id, int min, int max)
-    {
-        int span = max - min;
-        int midPoint = (max + min) >> 1;
-
-        if(nodes.get(midPoint).getID() == id)
-        {
-            return nodes.get(midPoint);
-        }
-        else if(span == 0)
-        {
-            return null;
-        }
-        else if(nodes.get(midPoint).getID() < id)
-        {
-         return binarySearch(id, min, midPoint);
-        }
-        else
-        {
-            return binarySearch(id, midPoint, max);
-        }
-    }
-
-    public void binaryInsertion(Node newNode, int min, int max)
-    {
-        int midPoint = (max + min) >> 1;
-
-        if(newNode.getID() > nodes.get(max).getID())
-        {
-            nodes.add(max, newNode);
-        }
-        else if(newNode.getID() < nodes.get(min).getID())
-        {
-            nodes.add(min, newNode);
-        }
-        else if(newNode.getID() > nodes.get(min).getID() && newNode.getID() < nodes.get(midPoint).getID())
-        {
-            binaryInsertion(newNode, min, midPoint);
-        }
-        else if(newNode.getID() > nodes.get(midPoint).getID() && newNode.getID() < nodes.get(max).getID())
-        {
-            binaryInsertion(newNode, midPoint, max);
-        }
-    }
-
-    public Node getRoot() { return root == null ? root = findRoot() : root; }
-
     public Node getTerminal(){
-        return terminal == null ? terminal = findTerminal() : terminal;
+        return terminal;
     }
-
-    protected Node findRoot() { return new Node(project.root()); }
-
-    protected Node findTerminal() {
-        TaskModel potentialTerminal = nodes.get(0).data.task;
-        for (final Node node : nodes) {
-            if (ancestorsContainNode(node.data.task, potentialTerminal))
-                potentialTerminal = node.data.task;
-        }
-        return getNode(potentialTerminal);
-    }
-
-    private boolean ancestorsContainNode(final TaskModel task, final TaskModel target) {
-        Collection<TaskModel> parents = task.getDependencies();
-
-        if (parents.size() == 0)
-            return false;
-        if (parents.contains(target))
-            return true;
-
-        boolean ancestorsContain = false;
-        for (final TaskModel parent : parents) {
-            if (ancestorsContainNode(parent, target))
-                ancestorsContain |= true;
-        }
-
-        return ancestorsContain;
-    }
-
-    public void sort(){
-        mergeSort(nodes);
-    }
-
-    public List<Node> mergeSort(List<Node> list)
-    {
-        if(list.size() <= 1)
-            return list;
-
-        List<Node> left = new ArrayList<>();
-        List<Node> right = new ArrayList<>();
-
-        for(int i = 0; i < list.size(); i++)
-            if(i % 2 == 1)
-                left.add(list.get(i));
-            else
-                right.add(list.get(i));
-
-        left = mergeSort(left);
-        right = mergeSort(right);
-
-        return merge(left, right);
-    }
-
-    public List<Node> merge(List<Node> left, List<Node> right)
-    {
-        ArrayList<Node> result = new ArrayList<Node>();
-
-        while(left.size() > 0 && right.size() > 0)
-        {
-            if(left.get(0).getID() <= right.get(0).getID())
-            {
-                result.add(left.get(0));
-                left.remove(0);
-            }
-            else
-            {
-                result.add(right.get(0));
-                right.remove(0);
-            }
-        }
-
-        while(left.size() > 0)
-        {
-            result.add(left.get(0));
-            left.remove(0);
-        }
-
-        while(right.size() > 0)
-        {
-            result.add(right.get(0));
-            right.remove(0);
-        }
-
-        return result;
+    public Node getCursor(){
+        return cursor;
     }
 
     public boolean isConnected()
@@ -285,7 +134,7 @@ public class Graph {
         dfs(getRoot());
 
         for(int i = 0; i < nodes.size(); i++)
-            if(nodes.get(i).visitedCounter != visitedCounter)
+            if(nodes.get(i).wasVisited())
                 return false;
 
         return true;
@@ -294,7 +143,8 @@ public class Graph {
     public void printInfo(){
        System.out.println("\n# OF NODES: "+nodes.size()+"\n");
         for(Node n: nodes){
-            System.out.println("NODE: "+n.getID()+"\n\tDATA: "+ n.getData().task.getTaskId()+"\t");
+            System.out.println("NODE: "+n.getID()+"\n\tDATA: "+ n.getData().task.getTaskId()+"\n\tSTATE: "+n.getState());
+            System.out.println("\tDEPTH:  "+n.getDepth());
                 for(Node m : n.getInNodes()){
                     System.out.println("\tPARENT NODE: "+m.getID());
                 }
@@ -304,17 +154,10 @@ public class Graph {
         }
 
     }
-
-    public void update(){}
-
-    public void updateTaskTimes(){
-        final Node root = getRoot();
-        root.forwardPass();
-
-        final Node terminal = getTerminal();
-        terminal.data.latestFinish = terminal.data.earliestFinish;
-        terminal.backwardsPass();
+    public void update(){
+        root.restDepth();
+        findAndSetAllStates();
     }
-
-    public boolean isTerminalNode(final Node node) { return getTerminal() == node; }
 }
+
+

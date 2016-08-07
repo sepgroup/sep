@@ -1,6 +1,6 @@
 package com.sepgroup.sep.analysis;
 
-
+import com.sepgroup.sep.analysis.GraphDisplay.PhysicsGraph;
 import com.sepgroup.sep.analysis.GraphDisplay.PhysicsNode;
 import com.sepgroup.sep.model.ModelNotFoundException;
 import com.sepgroup.sep.model.TaskModel;
@@ -13,22 +13,21 @@ import java.util.List;
 
 public class GraphFactory {
     static boolean debugMode = false;
-    private static Graph graph;
 
     /* this is the function we call to build graph,
      * we pass the id of the project we want to build
      */
-    public static void makeGraph(int projectID,Graph g){
-        long t1 = System.currentTimeMillis();
-        graph = g;
-        pullTasks(projectID);
-        setAdjacents(projectID);
-        long t2 = System.currentTimeMillis();
+    public static void makeGraph(int projectID,Graph graph){
+        pullTasks(projectID,graph);
+        setAdjacents(projectID,graph);
+        setStates(graph);
+        setEndpoints(projectID,graph);
+        setStates(graph);
 
     }
 
     // pull each task related to the project and assign it to a node
-    private static void pullTasks(int projectID){
+    private static void pullTasks(int projectID,Graph graph){
         List<TaskModel> tasks = null;
         try {
              tasks = TaskModel.getAllByProject(projectID);
@@ -44,11 +43,10 @@ public class GraphFactory {
             n.setNodeID(t.getTaskId());
             graph.addNode(n);
         }
-        //graph.sort();
     }
 
     // set adjacencies between each task using nodes
-    private static void setAdjacents(int projectID){
+    private static void setAdjacents(int projectID,Graph graph ){
         List<TaskModel> dependencies = null;
             for(Node n : graph.nodes){
                 dependencies = n.getData().task.getDependencies();
@@ -57,5 +55,33 @@ public class GraphFactory {
                 }
             }
 
+    }
+    private static void setStates(Graph graph){
+        graph.findAndSetAllStates();
+        graph.setStateProperties();
+    }
+    private static void setEndpoints(int projectID,Graph graph){
+        try {
+            TaskModel t1 = new TaskModel("Start", "Start of project", projectID);
+            TaskModel t2 = new TaskModel("End", "End of project", projectID);
+            graph.root = new PhysicsNode(new Data(t1) );
+            graph.terminal = new PhysicsNode(new Data(t2));
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+
+        graph.root.setStatus(Node.STATES.ROOT);
+        graph.terminal.setStatus(Node.STATES.TERMINAL);
+
+        for(Node n : graph.nodes){
+            if(n.getState() == Node.STATES.ORPHAN)
+                graph.addDirectedEdge(graph.root,n);
+            else if(n.getState() == Node.STATES.DEAD)
+                graph.addDirectedEdge(n,graph.terminal);
+        }
+
+        graph.addNode(graph.root);
+        graph.addNode(graph.terminal);
     }
 }

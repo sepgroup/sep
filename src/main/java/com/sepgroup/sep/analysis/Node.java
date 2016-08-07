@@ -8,9 +8,12 @@ import com.sepgroup.sep.model.TaskModel;
 
 import java.util.ArrayList;
 public class Node {
-    public enum STATES{OK,DEAD,CIRCULAR,ORPHAN,ISOLATED};
+    public enum STATES{OK,DEAD,CIRCULAR,ORPHAN,ISOLATED,ROOT,TERMINAL};
     protected int nodeID;
+    private static int globalVisitedCounter = 1;
+
     protected int visitedCounter = 0;
+    private int depth = -1;
 
     protected ArrayList<Node> outNodes = new ArrayList<Node>();
     protected ArrayList<Node> inNodes = new ArrayList<Node>();
@@ -98,11 +101,17 @@ public class Node {
     public Data getData(){
         return data;
     }
-    public int getVisited(){
-        return visitedCounter;
+    public int getDepth(){
+        return depth;
     }
-    public void setVisited(int v){
-        visitedCounter = v;
+    public boolean wasVisited(){
+        return visitedCounter == globalVisitedCounter;
+    }
+    public void setVisited(){
+        visitedCounter = globalVisitedCounter;
+    }
+    static public void incrementCounter(){
+        globalVisitedCounter++;
     }
 
     public ArrayList<Node> getInNodes(){
@@ -156,5 +165,34 @@ public class Node {
 
         final Node otherNode = (Node) other;
         return otherNode.data.task == data.task;
+    }
+
+    public void restDepth(){
+        if(getState() == STATES.ROOT){
+            depthUpdate();
+        }
+
+    }
+    private void depthUpdate(){
+        setVisited();
+        if(getState() == STATES.ROOT) {
+            incrementCounter();
+            setVisited();
+            depth = 0;
+
+        }
+        else
+        {
+            int max = -1;
+            for(Node n : inNodes){
+                if(n.depth>max)
+                    max = n.depth;
+            }
+            depth = max+1;
+        }
+        for(Node n : outNodes) {
+            if(!n.wasVisited())
+                n.depthUpdate();
+        }
     }
 }
