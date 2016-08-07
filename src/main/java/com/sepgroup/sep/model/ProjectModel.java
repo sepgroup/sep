@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -434,12 +435,12 @@ public class ProjectModel extends AbstractModel {
         return TaskModel.getAllByProject(getProjectId());
     }
 
-    public List<TaskModel> getTasksUnsafe() {
+    public List<TaskModel> getTasksExceptionSafe() {
         List<TaskModel> tasks = null;
         try {
             tasks = getTasks();
         } catch (ModelNotFoundException e) {
-            e.printStackTrace();
+            tasks = new ArrayList<>();
         } catch (InvalidInputException e) {
             e.printStackTrace();
         }
@@ -451,7 +452,7 @@ public class ProjectModel extends AbstractModel {
      * @return
      */
     public double getBudgetAtCompletion() {
-        return getTasksUnsafe().stream().mapToDouble(t -> t.getBudget()).sum();
+        return getTasksExceptionSafe().stream().mapToDouble(t -> t.getBudget()).sum();
     }
 
     /**
@@ -459,7 +460,7 @@ public class ProjectModel extends AbstractModel {
      * @return
      */
     public double getEarnedValue() {
-        final List<TaskModel> tasks = getTasksUnsafe();
+        final List<TaskModel> tasks = getTasksExceptionSafe();
         double pv = 0.0;
         for (final TaskModel task : tasks) {
             if (task.isDone())
@@ -468,13 +469,13 @@ public class ProjectModel extends AbstractModel {
         return pv;
     }
 
-    public double getPercentComplete() {
-        return getEarnedValue() / getBudgetAtCompletion() * 100.0;
-    }
+    public double getPercentScheduledCompletion() { return getPlannedValue() / getBudgetAtCompletion() * 100.0; }
 
-    public double getPlannedValue() { return getTasksUnsafe().stream().mapToDouble(t -> t.getPlannedValue()).sum(); }
+    public double getPercentComplete() { return getEarnedValue() / getBudgetAtCompletion() * 100.0; }
 
-    public double getActualCost() { return getTasksUnsafe().stream().mapToDouble(t -> t.getActualCost()).sum(); }
+    public double getPlannedValue() { return getTasksExceptionSafe().stream().mapToDouble(t -> t.getPlannedValue()).sum(); }
+
+    public double getActualCost() { return getTasksExceptionSafe().stream().mapToDouble(t -> t.getActualCost()).sum(); }
 
     public double getCostVariance() { return getEarnedValue() - getActualCost(); }
 

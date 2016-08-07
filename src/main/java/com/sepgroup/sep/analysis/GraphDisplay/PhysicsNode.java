@@ -10,13 +10,14 @@ import java.util.ArrayList;
  * Created by HP on 8/3/2016.
  */
 public class PhysicsNode extends Node implements Physics,Drawable {
-    static double coulombsConstant = 0.04;
+    static double coulombsConstant = 0.05;
     static double hooksConstant = 0.00000001;
+    static double jiggleFactor = 0.99993;
     double mass = 1;
     double charge = 1;
     int radius = 30;
     boolean hasPhysics = true;
-    Color color = Color.BLUE;
+    Color color;
 
     double[] position = {0,0};
     double[] netForce = {0, 0};
@@ -58,7 +59,8 @@ public class PhysicsNode extends Node implements Physics,Drawable {
                     direction[0] /= length;
                     direction[1] /= length;
                     double forceMultiplier = hooksConstant * length;
-                    if (length < 5 * radius) { // (depth-children.get(i).depth)*
+                   // if (length < 5 * radius) { // (depth-children.get(i).depth)*
+                    if(length < 100 *(getDepth() - outNodes.get(i).getDepth())){
                         forceMultiplier *= -1;
                     }
 
@@ -73,7 +75,7 @@ public class PhysicsNode extends Node implements Physics,Drawable {
     public void addStaticForce(PhysicsNode node) {
         if(hasPhysics) {
             if(node.getPhysics()) {
-                double direction[] = {-node.position[0] - position[0], node.position[1] - position[1]};
+                double direction[] = {node.position[0] - position[0], node.position[1] - position[1]};
                 double length = Math.sqrt(direction[0] * direction[0] + direction[1] * direction[1]);
                 direction[0] /= length;
                 direction[1] /= length;
@@ -103,8 +105,8 @@ public class PhysicsNode extends Node implements Physics,Drawable {
         velocity[0] += acceleration[0];
         velocity[1] += acceleration[1];
 
-        velocity[0] *= 0.99993;
-        velocity[1] *= 0.99993;
+        velocity[0] *= jiggleFactor;
+        velocity[1] *= jiggleFactor;
 
     }
 
@@ -113,6 +115,7 @@ public class PhysicsNode extends Node implements Physics,Drawable {
         position[1] += velocity[1];
     }
 
+
     public void step() {
         applyForce();
         applyAcceleration();
@@ -120,7 +123,6 @@ public class PhysicsNode extends Node implements Physics,Drawable {
             applyVelocity();
         }
     }
-
 
     public void jiggle(double heat) {
         int flip = Math.random() > 0.5 ? 1 : -1;
@@ -140,7 +142,9 @@ public class PhysicsNode extends Node implements Physics,Drawable {
     public void setAnchor(boolean set) {
         isAnchored = set;
     }
-
+    public boolean getAnchor(){
+        return isAnchored;
+    }
     public void findColor(){
         STATES i = getState();
         switch(i){
@@ -154,12 +158,14 @@ public class PhysicsNode extends Node implements Physics,Drawable {
                 break;
             case ISOLATED: color = Color.BLACK;
                 break;
+            case ROOT: color = Color.CYAN;
+                break;
+            case TERMINAL: color = Color.MAGENTA;
+                break;
         }
-        System.out.println("State is "+i);
     }
 
     public void draw(Graphics2D g) {
-    //    System.out.println("NODE: "+getID()+"\n\tPOSITION: "+(int)position[0]+","+(int)position[1]);
         g.setColor(color);
         int offset = -radius / 2;
 

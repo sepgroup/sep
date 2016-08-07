@@ -528,7 +528,7 @@ public class TaskModel extends AbstractModel {
      * The actual cost of the task.
      * @return
      */
-    public double getActualCost() { return assignee.getSalaryPerHour() * getActualDurationInDays() * 8; }
+    public double getActualCost() { return assignee == null ? 0.0 : assignee.getSalaryPerHour() * getActualDurationInDays() * 8; }
 
     public double getPlannedValue() { return shouldBeDone() ? budget : 0.0; }
 
