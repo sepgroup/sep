@@ -1,8 +1,8 @@
 package com.sepgroup.sep;
 
-//import com.sepgroup.sep.analysis.Graph;
-//import com.sepgroup.sep.analysis.GraphDisplay.GraphDisplayController;
-//import com.sepgroup.sep.analysis.GraphDisplay.PhysicsGraph;
+import com.sepgroup.sep.analysis.Graph;
+import com.sepgroup.sep.analysis.GraphDisplay.GraphDisplayController;
+import com.sepgroup.sep.analysis.GraphDisplay.PhysicsGraph;
 import com.sepgroup.sep.controller.AbstractController;
 import com.sepgroup.sep.controller.DialogCreator;
 import com.sepgroup.sep.controller.WelcomeController;
@@ -82,14 +82,14 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         launch(args);
-//        PhysicsGraph g = new PhysicsGraph(1);
-//        GraphDisplayController gdc = new GraphDisplayController();
-//        gdc.setGraph(g);
-//        gdc.addRenderObject(g);
-//        g.printInfo();
-//        while(true){
-//            gdc.update();
-//        }
+        PhysicsGraph g = new PhysicsGraph(4);
+        GraphDisplayController gdc = new GraphDisplayController();
+        gdc.setGraph(g);
+        gdc.addRenderObject(g);
+        g.printInfo();
+        while(true){
+            gdc.update();
+        }
 
     }
 }

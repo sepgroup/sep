@@ -10,8 +10,8 @@ import java.util.ArrayList;
  * Created by HP on 8/3/2016.
  */
 public class PhysicsNode extends Node implements Physics,Drawable {
-    static double coulombsConstant = 0.05;
-    static double hooksConstant = 0.00000001;
+    static double coulombsConstant = 0.01;
+    static double hooksConstant = 0.00000003;
     static double jiggleFactor = 0.99993;
     double mass = 1;
     double charge = 1;
@@ -124,6 +124,10 @@ public class PhysicsNode extends Node implements Physics,Drawable {
         }
     }
 
+    public void setCharge(){
+        charge = inNodes.size() + outNodes.size();
+
+    }
     public void jiggle(double heat) {
         int flip = Math.random() > 0.5 ? 1 : -1;
         int flip2 = Math.random() > 0.5 ? 1 : -1;

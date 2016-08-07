@@ -2,6 +2,7 @@ package com.sepgroup.sep.analysis.GraphDisplay;
 
 import com.sepgroup.sep.analysis.Graph;
 import com.sepgroup.sep.analysis.GraphDisplay.PhysicsNode;
+import com.sepgroup.sep.analysis.GraphFactory;
 import com.sepgroup.sep.analysis.Node;
 
 
@@ -15,9 +16,8 @@ public class PhysicsGraph extends Graph implements Physics,Drawable {
     public boolean depthSections = false;
 
     public PhysicsGraph(int projectID){
-
-        super(projectID);
-
+        super();
+        GraphFactory.makeGraph(projectID,this);
         for(Node n : nodes){
             PhysicsNode t = (PhysicsNode)n;
             setPositions(t);
@@ -77,6 +77,12 @@ public class PhysicsGraph extends Graph implements Physics,Drawable {
             }
         }
     }
+    public void setCharges(){
+        for(Node n : nodes){
+            PhysicsNode t = (PhysicsNode)n;
+            t.setCharge();
+        }
+    }
 
     public void jiggle(double heat){
         for(Node n : nodes){
@@ -127,6 +133,7 @@ public class PhysicsGraph extends Graph implements Physics,Drawable {
         root.restDepth();
         findAndSetAllStates();
         setStateProperties();
+        setCharges();
         if(depthSections)
             moveToSections();
     }
