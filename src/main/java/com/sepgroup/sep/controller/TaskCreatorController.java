@@ -176,7 +176,7 @@ public class TaskCreatorController extends AbstractController {
                 return;
             }
             try {
-                createdTask.setMostLikelyTimeToFinish(pessimistic);
+                createdTask.setPessimisticTimeToFinish(pessimistic);
             } catch (InvalidInputException e) {
                 DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
                 return;
@@ -193,7 +193,7 @@ public class TaskCreatorController extends AbstractController {
                 return;
             }
             try {
-                createdTask.setMostLikelyTimeToFinish(optimist);
+                createdTask.setOptimisticTimeToFinish(optimist);
             } catch (InvalidInputException e) {
                 DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
                 return;

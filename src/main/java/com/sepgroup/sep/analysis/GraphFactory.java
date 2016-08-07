@@ -21,10 +21,20 @@ public class GraphFactory {
     public static void makeGraph(int projectID,Graph g){
         long t1 = System.currentTimeMillis();
         graph = g;
+        try {
+            graph.root = new Node(new TaskModel("Start", "Start of project", projectID));
+            graph.terminal = new Node(new TaskModel("End", "End of project", projectID));
+            graph.addNode(graph.root);
+
+        }
+        catch(Exception e)
+        {
+            return;
+        }
         pullTasks(projectID);
         setAdjacents(projectID);
+        graph.findAndSetAllStates();
         long t2 = System.currentTimeMillis();
-
     }
 
     // pull each task related to the project and assign it to a node
@@ -50,12 +60,13 @@ public class GraphFactory {
     // set adjacencies between each task using nodes
     private static void setAdjacents(int projectID){
         List<TaskModel> dependencies = null;
-            for(Node n : graph.nodes){
-                dependencies = n.getData().task.getDependencies();
-                for(TaskModel t:dependencies){
-                    graph.addDirectedEdge(graph.getNodeByID(t.getTaskId()),n);
-                }
+        for(Node n : graph.nodes){
+            dependencies = n.getData().task.getDependencies();
+            for(TaskModel t:dependencies){
+                graph.addDirectedEdge(graph.getNodeByID(t.getTaskId()),n);
             }
+        }
+
 
     }
 }

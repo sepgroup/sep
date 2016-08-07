@@ -89,9 +89,10 @@ public class TaskEditorController extends AbstractController {
         } catch (ModelNotFoundException e) {
             logger.warn("Tried to refresh existing model that did not exist, this shouldn't happen.");
         }
-        // Return to project viewer
-        ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(ProjectViewerController.getFxmlPath());
-        pvc.setModel(project);
+        // Return to task viewer
+        TaskViewerController tvc = (TaskViewerController) Main.setPrimaryScene(TaskViewerController.getFxmlPath());
+        tvc.setModel(model);
+        tvc.setReturnProject(project);
     }
 
     @FXML
@@ -322,9 +323,10 @@ public class TaskEditorController extends AbstractController {
             return;
         }
 
-        // Return to project viewer
-        ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(ProjectViewerController.getFxmlPath());
-        pvc.setModel(project);
+        // Return to task viewer
+        TaskViewerController tvc = (TaskViewerController) Main.setPrimaryScene(TaskViewerController.getFxmlPath());
+        tvc.setModel(model);
+        tvc.setReturnProject(project);
     }
 
     /**
@@ -420,6 +422,7 @@ public class TaskEditorController extends AbstractController {
    	    if (this.model != null) {
    		    taskIdLabel.setText(String.valueOf(model.getTaskId()));
    		    if (model.getName() != null) editTaskNameField.setText(model.getName());
+            if (model.getDescription() != null) taskDescriptionArea.setText(String.valueOf(model.getDescription()));
             editTaskBudgetField.setText(String.valueOf(model.getBudget()));
             editMostLikelyTime.setText(String.valueOf(model.getMostLikelyTimeToFinish()));
             editPessimisticTime.setText(String.valueOf(model.getPesimisticTimeToFinish()));

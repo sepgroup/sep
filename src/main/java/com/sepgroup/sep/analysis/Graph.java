@@ -144,51 +144,6 @@ public class Graph {
         return null;
     }
 
-    public Node binarySearch(int id, int min, int max)
-    {
-        int span = max - min;
-        int midPoint = (max + min) >> 1;
-
-        if(nodes.get(midPoint).getID() == id)
-        {
-            return nodes.get(midPoint);
-        }
-        else if(span == 0)
-        {
-            return null;
-        }
-        else if(nodes.get(midPoint).getID() < id)
-        {
-         return binarySearch(id, min, midPoint);
-        }
-        else
-        {
-            return binarySearch(id, midPoint, max);
-        }
-    }
-
-    public void binaryInsertion(Node newNode, int min, int max)
-    {
-        int midPoint = (max + min) >> 1;
-
-        if(newNode.getID() > nodes.get(max).getID())
-        {
-            nodes.add(max, newNode);
-        }
-        else if(newNode.getID() < nodes.get(min).getID())
-        {
-            nodes.add(min, newNode);
-        }
-        else if(newNode.getID() > nodes.get(min).getID() && newNode.getID() < nodes.get(midPoint).getID())
-        {
-            binaryInsertion(newNode, min, midPoint);
-        }
-        else if(newNode.getID() > nodes.get(midPoint).getID() && newNode.getID() < nodes.get(max).getID())
-        {
-            binaryInsertion(newNode, midPoint, max);
-        }
-    }
-
     public Node getRoot() { return root == null ? root = findRoot() : root; }
 
     public Node getTerminal(){

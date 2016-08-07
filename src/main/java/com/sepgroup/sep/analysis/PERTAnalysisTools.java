@@ -14,7 +14,7 @@ import java.util.Date;
 public final class PERTAnalysisTools {
     private PERTAnalysisTools(){};
 
-    public static void pertAnalysis(Node currentTask) {
+    public static void pertAnalysis(Node currentTask, int days) {
         int projectId = currentTask.getData().task.getProjectId();
         ProjectModel project;
 
@@ -32,8 +32,30 @@ public final class PERTAnalysisTools {
         forwardPass(newGraph.getRoot(), 0);
         backwardPass(newGraph.getTerminal(), (int)newGraph.getTerminal().getData().earliestFinish);
 
-        // Calculate the total variance for each path and obtain the smallest (least slack)
-        // Then calculate probability with the std dev
+        ArrayList<ArrayList<Node>> criticalPaths = new ArrayList<ArrayList<Node>>();
+        criticalPaths.add(new ArrayList<Node>());
+
+        backTrack(criticalPaths, criticalPaths.get(criticalPaths.size() - 1), currentTask);
+
+        double minVariance = Double.MAX_VALUE;
+        ArrayList<Node> minSlackCriticalPath = null;
+
+        for(int i = 0; i < criticalPaths.size(); i++)
+        {
+            double totalVariance = 0;
+            for (int j = 0; j < criticalPaths.get(i).size(); j++) {
+                totalVariance += taskVariance(criticalPaths.get(i).get(j).getData().task);
+            }
+
+            if(totalVariance < minVariance)
+            {
+                minVariance = totalVariance;
+                minSlackCriticalPath =  criticalPaths.get(i);
+            }
+        }
+
+        System.out.println(minSlackCriticalPath);
+        System.out.println(zScore(days - (currentTask.getData().earliestFinish + currentTask.getData().latestFinish) / 2, minVariance));
     }
 
     private static void forwardPass(Node currentNode, int timeSoFar)
