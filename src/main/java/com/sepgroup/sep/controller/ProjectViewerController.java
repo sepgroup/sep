@@ -51,6 +51,26 @@ public class ProjectViewerController extends AbstractController {
     @FXML
     public Label completeValueLabel;
     @FXML
+    public Label pvValueLabel;
+    @FXML
+    public Label evValueLabel;
+    @FXML
+    public Label bacValueLabel;
+    @FXML
+    public Label pscValueLabel;
+    @FXML
+    public Label acValueLabel;
+    @FXML
+    public Label pcValueLabel;
+    @FXML
+    public Label cvValueLabel;
+    @FXML
+    public Label svValueLabel;
+    @FXML
+    public Label cpiValueLabel;
+    @FXML
+    public Label spiValueLabel;
+    @FXML
     public TableView<ListableTaskModel> taskTableView;
     @FXML
     public TableColumn<ListableTaskModel, Integer> taskIdColumn;
@@ -102,6 +122,18 @@ public class ProjectViewerController extends AbstractController {
             if (model.getDeadline() != null) deadlineValueLabel.setText(model.getDeadlineString());
             budgetValueLabel.setText(Double.toString(model.getBudget()));
             completeValueLabel.setText(model.isDone() ? "Yes" : "No");
+
+            // Populate earned value analysis box
+            pvValueLabel.setText(Double.toString(model.getPlannedValue()));
+            evValueLabel.setText(Double.toString(model.getEarnedValue()));
+            bacValueLabel.setText(Double.toString(model.getBudgetAtCompletion()));
+            pscValueLabel.setText(Double.toString(model.getPercentScheduledCompletion()));
+            acValueLabel.setText(Double.toString(model.getActualCost()));
+            pcValueLabel.setText(Double.toString(model.getPercentComplete()));
+            cvValueLabel.setText(Double.toString(model.getCostVariance()));
+            svValueLabel.setText(Double.toString(model.getScheduleVariance()));
+            cpiValueLabel.setText(Double.toString(model.getCostPerformanceIndex()));
+            spiValueLabel.setText(Double.toString(model.getSchedulePerformanceIndex()));
 
             // Populate manager
             String managerName;

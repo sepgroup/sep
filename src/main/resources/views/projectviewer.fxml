@@ -48,7 +48,7 @@
           </Menu>
         </menus>
       </MenuBar>
-      <BorderPane fx:id="projectInfoPane" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="166.0" prefWidth="1100.0">
+      <BorderPane fx:id="projectInfoPane" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="299.0" prefWidth="1100.0">
          <top>
             <Text fx:id="projectNameText" strokeType="OUTSIDE" strokeWidth="0.0" text="Project Name" BorderPane.alignment="CENTER">
                <font>
@@ -88,6 +88,27 @@
                   </Button>
                   <ComboBox fx:id="userFilterComboBox" layoutX="633.0" layoutY="49.0" onAction="#onUserFilterComboBoxClicked" prefHeight="29.0" prefWidth="147.0" />
                   <Label layoutX="553.0" layoutY="55.0" text="Filter by user:" />
+                  <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="120.0" layoutX="-13.0" layoutY="114.0" stroke="BLUE" strokeType="INSIDE" width="824.0" />
+                  <Label fx:id="pvLabel" layoutX="20.0" layoutY="128.0" text="Planned value:" />
+                  <Label fx:id="pvValueLabel" layoutX="217.0" layoutY="127.0" text="[ pv ]" />
+                  <Label fx:id="evLabel" layoutX="20.0" layoutY="150.0" text="Earned value:" />
+                  <Label fx:id="evValueLabel" layoutX="218.0" layoutY="150.0" text="[ ev ]" />
+                  <Label fx:id="bacLabel" layoutX="19.0" layoutY="171.0" text="Budget at completion:" />
+                  <Label fx:id="bacValueLabel" layoutX="217.0" layoutY="173.0" text="[ bac ]" />
+                  <Label fx:id="pscLabel" layoutX="22.0" layoutY="193.0" text="Percent scheduled for completion:" />
+                  <Label fx:id="pscValueLabel" layoutX="216.0" layoutY="192.0" text="[ psc ]" />
+                  <Label fx:id="acLabel" layoutX="277.0" layoutY="128.0" text="Actual cost:" />
+                  <Label fx:id="acValueLabel" layoutX="376.0" layoutY="128.0" text="[ ac ]" />
+                  <Label fx:id="pcLabel" layoutX="276.0" layoutY="150.0" text="Percent complete:" />
+                  <Label fx:id="pcValueLabel" layoutX="376.0" layoutY="149.0" text="[ pc ]" />
+                  <Label fx:id="cvValueLabel" layoutX="446.0" layoutY="129.0" text="Cost variance:" />
+                  <Label fx:id="svValueLabel" layoutX="444.0" layoutY="151.0" text="Schedule variance:" />
+                  <Label fx:id="cpiValueLabel" layoutX="445.0" layoutY="173.0" text="Cost performance index:" />
+                  <Label fx:id="spiLabel" layoutX="443.0" layoutY="202.0" text="Schedule performance index:" />
+                  <Label fx:id="cvValueLabel" layoutX="669.0" layoutY="126.0" text="[ cv ]" />
+                  <Label fx:id="svValueLabel" layoutX="669.0" layoutY="151.0" text="[ sv ]" />
+                  <Label fx:id="cpiValueLabel" layoutX="668.0" layoutY="173.0" text="[ cpi ]" />
+                  <Label fx:id="spiValueLabel" layoutX="668.0" layoutY="200.0" text="[ spi ]" />
                   
                </children>
                <BorderPane.margin>
