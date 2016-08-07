@@ -1,12 +1,11 @@
 package com.sepgroup.sep.analysis;
 
-import com.sepgroup.sep.model.*;
-import com.sepgroup.sep.analysis.*;
+import com.sepgroup.sep.model.ModelNotFoundException;
+import com.sepgroup.sep.model.ProjectModel;
+import com.sepgroup.sep.model.TaskModel;
 
-import java.util.Collection;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Date;
 
 /**
  * Created by Andres Gonzalez on 2016-08-03.
@@ -14,7 +13,8 @@ import java.util.Date;
 public final class PERTAnalysisTools {
     private PERTAnalysisTools(){};
 
-    public static double pertAnalysis(TaskModel currentTask, int days) throws ModelNotFoundException{
+    public static double pertAnalysis(TaskModel currentTask, int days) throws ModelNotFoundException
+    {
         int projectId = currentTask.getProjectId();
         ProjectModel project;
 
