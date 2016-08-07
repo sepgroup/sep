@@ -14,17 +14,11 @@ import java.util.Date;
 public final class PERTAnalysisTools {
     private PERTAnalysisTools(){};
 
-    public static void pertAnalysis(Node currentTask, int days) {
-        int projectId = currentTask.getData().task.getProjectId();
+    public static double pertAnalysis(TaskModel currentTask, int days) throws ModelNotFoundException{
+        int projectId = currentTask.getProjectId();
         ProjectModel project;
 
-        try {
-            project = ProjectModel.getById(projectId);
-        }
-        catch(Exception e)
-        {
-            return;
-        }
+        project = ProjectModel.getById(projectId);
 
         Graph newGraph = new Graph();
         GraphFactory.makeGraph(projectId, newGraph);
@@ -35,7 +29,9 @@ public final class PERTAnalysisTools {
         ArrayList<ArrayList<Node>> criticalPaths = new ArrayList<ArrayList<Node>>();
         criticalPaths.add(new ArrayList<Node>());
 
-        backTrack(criticalPaths, criticalPaths.get(criticalPaths.size() - 1), currentTask);
+        Node currentNode = newGraph.getNodeByID(currentTask.getTaskId());
+
+        backTrack(criticalPaths, criticalPaths.get(criticalPaths.size() - 1), currentNode);
 
         double minVariance = Double.MAX_VALUE;
         ArrayList<Node> minSlackCriticalPath = null;
@@ -44,9 +40,10 @@ public final class PERTAnalysisTools {
         {
             double totalVariance = 0;
             for (int j = 0; j < criticalPaths.get(i).size(); j++) {
-                totalVariance += taskVariance(criticalPaths.get(i).get(j).getData().task);
+                double taskVariance = taskVariance(criticalPaths.get(i).get(j).getData().task);
+                totalVariance += taskVariance;
+                System.out.print(taskVariance + " ");
             }
-
             if(totalVariance < minVariance)
             {
                 minVariance = totalVariance;
@@ -54,15 +51,22 @@ public final class PERTAnalysisTools {
             }
         }
 
-        System.out.println(minSlackCriticalPath);
-        System.out.println(zScore(days - (currentTask.getData().earliestFinish + currentTask.getData().latestFinish) / 2, minVariance));
+        double expectedTime = (double)(currentNode.getData().earliestFinish + currentNode.getData().latestFinish) / 2;
+
+        double sum = 0;
+        for(double i = 0; i <= days; i += 0.001) {
+            double prob = probability(i - expectedTime, Math.sqrt(minVariance));
+            prob *= 0.001;
+            sum += prob;
+        }
+        return sum;
     }
 
     private static void forwardPass(Node currentNode, int timeSoFar)
     {
         timeSoFar += currentNode.getData().getExpectedDuration();
 
-        if(timeSoFar > currentNode.getData().earliestFinish)
+        if(timeSoFar >= currentNode.getData().earliestFinish)
             currentNode.getData().earliestFinish = timeSoFar;
         else
             return;
@@ -76,14 +80,14 @@ public final class PERTAnalysisTools {
     {
         timeSoFar -= currentNode.getData().getExpectedDuration();
 
-        if(timeSoFar < currentNode.getData().latestFinish)
+        if(timeSoFar <= currentNode.getData().latestFinish)
             currentNode.getData().latestFinish = timeSoFar;
         else
             return;
 
         List<Node> nextNodes = currentNode.getInNodes();
         for(Node nextNode: nextNodes)
-            forwardPass(nextNode, timeSoFar);
+            backwardPass(nextNode, timeSoFar);
     }
 
     private static ArrayList<ArrayList<Node>> getCriticalPath(Graph graph, Node targetNode)
@@ -140,5 +144,10 @@ public final class PERTAnalysisTools {
     private static double zScore(double timeDifference, double standardDeviation)
     {
         return timeDifference / standardDeviation;
+    }
+
+    private static double probability(double timeDifference, double standardDeviation)
+    {
+        return Math.exp(- Math.pow(timeDifference / standardDeviation, 2) / 2) / (standardDeviation * Math.sqrt(2 * 3.14159));
     }
 }

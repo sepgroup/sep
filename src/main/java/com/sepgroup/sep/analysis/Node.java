@@ -195,4 +195,9 @@ public class Node {
                 n.depthUpdate();
         }
     }
+
+    public String toString()
+    {
+        return data.task.getName();
+    }
 }

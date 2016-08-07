@@ -39,7 +39,7 @@ public class GraphFactory {
         }
         for(TaskModel t : tasks){
             Data d = new Data(t);
-            Node n = new PhysicsNode(d);
+            Node n = new Node(d);
             n.setNodeID(t.getTaskId());
             graph.addNode(n);
         }

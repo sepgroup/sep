@@ -22,6 +22,10 @@ import javafx.scene.control.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.ZoneId;
+import java.time.Period;
+import com.sepgroup.sep.analysis.PERTAnalysisTools;
+
 /**
  * Created by Andres Gonzalez on 2016-08-06.
  */
@@ -72,10 +76,27 @@ public class TaskViewerController extends AbstractController {
 
     @FXML
     public void onPERTClicked() {
-        System.out.println(pertDate.getValue());
         if(pertDate.getValue() != null)
         {
-            pertPercentage.setStyle("-fx-text-inner-color: red;");
+            if(!model.shouldBeDone())
+            {
+                LocalDate projectStartDate = project.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                LocalDate expectedFinishingDate = pertDate.getValue();
+
+                Period diff = Period.between(projectStartDate, expectedFinishingDate);
+                double dayDifference = diff.getDays() + diff.getMonths() * 30 + diff.getYears() * 365;
+                System.out.println(dayDifference);
+
+                try {
+                    pertPercentage.setText(String.format("%.2f", PERTAnalysisTools.pertAnalysis(model, (int)dayDifference) * 100)
+                            + "% chance of finishing this task within " + dayDifference + " days of start of project");
+                }
+                catch(Exception e)
+                {
+                    DialogCreator.showExceptionDialog(e);
+                }
+            }
+
             pertPercentage.setVisible(true);
             pertPercentage.setManaged(true);
         }
