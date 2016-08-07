@@ -532,7 +532,7 @@ public class TaskModel extends AbstractModel {
 
     public double getPlannedValue() { return shouldBeDone() ? budget : 0.0; }
 
-    public boolean shouldBeDone() { return false; } //new Date().after(getDeadline()); }
+    public boolean shouldBeDone() { return false;}//new Date().after(getDeadline()); }
 
     /**
      * Set the task's new budget
