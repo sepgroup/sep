@@ -15,17 +15,20 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="taskview" prefHeight="560.0" prefWidth="548.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sepgroup.sep.controller.TaskViewerController">
+<AnchorPane fx:id="taskview" prefHeight="560.0" prefWidth="820.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sepgroup.sep.controller.TaskViewerController">
     <children>
         <Label fx:id="nameLabel" alignment="CENTER" layoutX="31.0" layoutY="16.0" prefHeight="32.0" prefWidth="385.0" text="[name]" textAlignment="CENTER">
             <font>
-                <Font name="System Bold" size="32.0" />
+                <Font name="System Bold" size="28.0" />
             </font></Label>
         <Button layoutX="322.0" layoutY="468.0" mnemonicParsing="false" onAction="#onCancelClicked" prefHeight="60.0" prefWidth="105.0" text="Cancel" textFill="WHITE">
             <font>
                 <Font name="System Bold" size="12.0" />
             </font></Button>
-        <Label fx:id="taskIdLabel" layoutX="472.0" layoutY="27.0" prefHeight="17.0" prefWidth="62.0" text="[Task id]" />
+        <Label fx:id="taskIdLabel" layoutX="463.0" layoutY="27.0" prefHeight="17.0" prefWidth="62.0" text="[Task id]">
+         <font>
+            <Font size="14.0" />
+         </font></Label>
       <Label layoutX="37.0" layoutY="195.0" prefHeight="32.0" prefWidth="123.0" text="Expected Duration">
          <font>
             <Font name="System Bold" size="12.0" />
@@ -70,5 +73,33 @@
             </Label>
          </children>
       </Pane>
+      <TabPane layoutX="557.0" layoutY="36.0" prefHeight="464.0" prefWidth="244.0" tabClosingPolicy="UNAVAILABLE">
+        <tabs>
+          <Tab fx:id="dependenciesTab" text="Dependencies">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <ListView fx:id="dependenciesList" onMouseClicked="#onDependenciesListSelected" prefHeight="431.0" prefWidth="244.0" />
+                     </children>
+                  </AnchorPane>
+            </content>
+          </Tab>
+          <Tab fx:id="dependentsTab" text="Dependents">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <ListView fx:id="dependentsList" onMouseClicked="#onDependentsListSelected" prefHeight="431.0" prefWidth="244.0" />
+                     </children>
+                  </AnchorPane>
+            </content>
+          </Tab>
+        </tabs>
+      </TabPane>
+      <Label fx:id="assignee" layoutX="127.0" layoutY="272.0" prefHeight="17.0" prefWidth="277.0" text="[User Name]" />
+      <Label fx:id="assigneeLabel" layoutX="37.0" layoutY="264.0" prefHeight="32.0" prefWidth="62.0" text="Assignee">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </Label>
     </children>
 </AnchorPane>

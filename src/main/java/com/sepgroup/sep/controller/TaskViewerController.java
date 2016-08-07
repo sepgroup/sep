@@ -17,14 +17,16 @@ import com.sepgroup.sep.utils.DateUtils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.control.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.time.ZoneId;
 import java.time.Period;
-import com.sepgroup.sep.analysis.PERTAnalysisTools;
+import com.sepgroup.sep.analysis.*;
 
 /**
  * Created by Andres Gonzalez on 2016-08-06.
@@ -51,9 +53,20 @@ public class TaskViewerController extends AbstractController {
     @FXML
     public Label pertPercentage;
     @FXML
+    public Label assigneeLabel;
+    @FXML
+    public Label assignee;
+    @FXML
     public Pane pertInfo;
     @FXML
     public DatePicker pertDate;
+    @FXML
+    public ListView<ListableTaskModel> dependenciesList;
+    @FXML
+    public ListView<ListableTaskModel> dependentsList;
+
+    private ListableTaskModel selectedTask;
+    private ListableTaskModel selectedPotentialTask;
 
     public TaskViewerController() {
         setCssPath("/style/stylesheet.css");
@@ -119,6 +132,8 @@ public class TaskViewerController extends AbstractController {
         nameLabel.setText(String.valueOf(model.getName()));
         budget.setText("$" + String.valueOf(String.format("%.2f", model.getBudget())));
         expectedDuration.setText(String.valueOf(String.format("%.2f", model.getExpectedDuration())) + " day" + (model.getExpectedDuration() > 1 ? "s": ""));
+        if(model.getAssignee() != null)
+            assignee.setText(String.valueOf(model.getAssignee()));
 
         if(model.getDescription() != null && !model.getDescription().equals(""))
             description.setText(model.getDescription());
@@ -136,5 +151,57 @@ public class TaskViewerController extends AbstractController {
             status.setText("Completed");
         else
             status.setText("In Progress - Behind Schedule");
+
+        refreshCurrentDependenciesList();
+        refreshCurrentDependentList();
+    }
+
+    @FXML
+    public void onDependenciesListSelected(MouseEvent e) {
+        selectedTask = dependenciesList.getSelectionModel().getSelectedItem();
+        if (e.getClickCount() == 2) {
+            if (selectedTask != null) {
+                TaskViewerController tvc = (TaskViewerController) Main.setPrimaryScene(TaskViewerController.getFxmlPath());
+                tvc.setModel(selectedTask.getModel());
+                tvc.setReturnProject(project);
+            }
+        }
+    }
+
+    @FXML
+    public void onDependentsListSelected(MouseEvent e) {
+        selectedTask = dependentsList.getSelectionModel().getSelectedItem();
+        if (e.getClickCount() == 2) {
+            if (selectedTask != null) {
+                TaskViewerController tvc = (TaskViewerController) Main.setPrimaryScene(TaskViewerController.getFxmlPath());
+                tvc.setModel(selectedTask.getModel());
+                tvc.setReturnProject(project);
+            }
+        }
+    }
+
+    private void refreshCurrentDependenciesList() {
+        List<ListableTaskModel> dependenciesObservableList = new LinkedList<>();
+        dependenciesObservableList.addAll(model.getDependencies().stream()
+                .map(ListableTaskModel::new)
+                .collect(Collectors.toList()));
+        ObservableList<ListableTaskModel> dependencies = FXCollections.observableList(dependenciesObservableList);
+        dependenciesList.setItems(dependencies);
+    }
+
+    private void refreshCurrentDependentList() {
+        List<ListableTaskModel> dependentsObservableList = new LinkedList<>();
+        Graph newGraph = new Graph();
+        GraphFactory.makeGraph(model.getProjectId(), newGraph);
+
+        ArrayList<Node> outNodes = newGraph.getNodeByID(model.getTaskId()).getOutNodes();
+        ArrayList<TaskModel> outTasks = new ArrayList<TaskModel>();
+
+        for(Node n: outNodes)
+            outTasks.add(n.getData().task);
+
+        dependentsObservableList.addAll(outTasks.stream().map(ListableTaskModel::new).collect(Collectors.toList()));
+        ObservableList<ListableTaskModel> dependents = FXCollections.observableList(dependentsObservableList);
+        dependentsList.setItems(dependents);
     }
 }

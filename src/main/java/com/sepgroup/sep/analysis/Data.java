@@ -6,7 +6,7 @@ import com.sepgroup.sep.model.TaskModel;
  * Created by Demo on 8/3/2016.
  */
 public class Data {
-    TaskModel task;
+    public TaskModel task;
     Data(){}
     Data(TaskModel t){
         task = t;

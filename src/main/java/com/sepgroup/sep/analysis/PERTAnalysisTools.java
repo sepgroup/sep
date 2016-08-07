@@ -42,7 +42,6 @@ public final class PERTAnalysisTools {
             for (int j = 0; j < criticalPaths.get(i).size(); j++) {
                 double taskVariance = taskVariance(criticalPaths.get(i).get(j).getData().task);
                 totalVariance += taskVariance;
-                System.out.print(taskVariance + " ");
             }
             if(totalVariance < minVariance)
             {

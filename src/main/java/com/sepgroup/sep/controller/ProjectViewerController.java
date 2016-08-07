@@ -120,20 +120,20 @@ public class ProjectViewerController extends AbstractController {
             if (model.getProjectDescription() != null) projectDescriptionTextArea.setText(model.getProjectDescription());
             if (model.getStartDate() != null) startDateValueLabel.setText(model.getStartDateString());
             if (model.getDeadline() != null) deadlineValueLabel.setText(model.getDeadlineString());
-            budgetValueLabel.setText(Double.toString(model.getBudget()));
+            budgetValueLabel.setText("$" + String.format("%.2f", model.getBudget()));
             completeValueLabel.setText(model.isDone() ? "Yes" : "No");
 
             // Populate earned value analysis box
-            pvValueLabel.setText(Double.toString(model.getPlannedValue()));
-            evValueLabel.setText(Double.toString(model.getEarnedValue()));
-            bacValueLabel.setText(Double.toString(model.getBudgetAtCompletion()));
-            pscValueLabel.setText(Double.toString(model.getPercentScheduledCompletion()));
-            acValueLabel.setText(Double.toString(model.getActualCost()));
-            pcValueLabel.setText(Double.toString(model.getPercentComplete()));
-            cvValueLabel.setText(Double.toString(model.getCostVariance()));
-            svValueLabel.setText(Double.toString(model.getScheduleVariance()));
-            cpiValueLabel.setText(Double.toString(model.getCostPerformanceIndex()));
-            spiValueLabel.setText(Double.toString(model.getSchedulePerformanceIndex()));
+            pvValueLabel.setText("$" + String.format("%.2f", model.getPlannedValue()));
+            evValueLabel.setText("$" + String.format("%.2f", model.getEarnedValue()));
+            bacValueLabel.setText("$" + String.format("%.2f", model.getBudgetAtCompletion()));
+            pscValueLabel.setText(String.format("%.2f", model.getPercentScheduledCompletion()) + "%");
+            acValueLabel.setText("$" + String.format("%.2f", model.getActualCost()));
+            pcValueLabel.setText(String.format("%.2f", model.getPercentComplete()) + "%");
+            cvValueLabel.setText("$" + String.format("%.2f", model.getCostVariance()));
+            svValueLabel.setText(String.format("%.2f", model.getScheduleVariance()) + " days");
+            cpiValueLabel.setText(String.format("%.2f", model.getCostPerformanceIndex()));
+            spiValueLabel.setText(String.format("%.2f", model.getSchedulePerformanceIndex()));
 
             // Populate manager
             String managerName;
@@ -199,10 +199,9 @@ public class ProjectViewerController extends AbstractController {
         if (e.getClickCount() == 2) {
             ListableTaskModel selectedListableTask = taskTableView.getSelectionModel().getSelectedItem();
             if (selectedListableTask != null) {
-//                TaskEditorController tec = (TaskEditorController) Main.setPrimaryScene(TaskEditorController.getFxmlPath());
-                TaskViewerController tec = (TaskViewerController) Main.setPrimaryScene(TaskViewerController.getFxmlPath());
-                tec.setModel(selectedListableTask.getModel());
-                tec.setReturnProject(model);
+                TaskViewerController tvc = (TaskViewerController) Main.setPrimaryScene(TaskViewerController.getFxmlPath());
+                tvc.setModel(selectedListableTask.getModel());
+                tvc.setReturnProject(model);
             }
         }
     }
@@ -214,8 +213,12 @@ public class ProjectViewerController extends AbstractController {
 		Gantt.setVisible(true);
 
 
-	}       
-	public static IntervalCategoryDataset createDataset() throws ModelNotFoundException, InvalidInputException {
+	}
+
+    public void onGraphViewClicked() throws ModelNotFoundException, InvalidInputException {
+    }
+
+    public static IntervalCategoryDataset createDataset() throws ModelNotFoundException, InvalidInputException {
 			final TaskSeries s1 = new TaskSeries("Scheduled");
 			final TaskSeries s2 = new TaskSeries("Actual");
 			Date today = new Date();
@@ -305,7 +308,7 @@ public class ProjectViewerController extends AbstractController {
     public void showInfo() {
         String headerText = "SEP Version 0.1.";
 		String contentText = "Team Members: \nJeremy Brown \nAli Zoghi \nCharles Tondreau-Alin \nNicola Polesana"
-				+ "\nAndres Gonzales \nDemo Kioussis \nJustin Watley \nMark Chmilar \nVince Fugnitto"
+				+ "\nAndres Gonzalez \nDemo Kioussis \nJustin Watley \nMark Chmilar \nVince Fugnitto"
 				+ "\nMichael Deom";
 
         DialogCreator.showInfoDialog(headerText, contentText);
