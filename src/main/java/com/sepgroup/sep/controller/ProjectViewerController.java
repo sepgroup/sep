@@ -218,17 +218,17 @@ public class ProjectViewerController extends AbstractController {
 	}
 
     public void onGraphViewClicked() throws ModelNotFoundException, InvalidInputException {
-//        TaskCreatorController tcc = (TaskCreatorController) Main.setPrimaryScene(TaskCreatorController.getFxmlPath());
-//        tcc.setReturnProject(model);
+        GraphViewController gvc = (GraphViewController) Main.setPrimaryScene(GraphViewController.getFxmlPath());
+        gvc.setReturnProject(model);
 
-        PhysicsGraph g = new PhysicsGraph(model.getProjectId());
+/*        PhysicsGraph g = new PhysicsGraph(model.getProjectId());
         GraphDisplayController gdc = new GraphDisplayController();
         gdc.setGraph(g);
         gdc.addRenderObject(g);
 
         for(int i = 0; i < 100000; i++){
             gdc.update();
-        }
+        }*/
     }
 
     public static IntervalCategoryDataset createDataset() throws ModelNotFoundException, InvalidInputException {

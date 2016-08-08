@@ -27,6 +27,10 @@ public class GraphViewController extends AbstractController{
         return fxmlPath;
     }
 
+    public void setReturnProject(ProjectModel p) {
+        project = p;
+    }
+
     public void update() {
 
     }

@@ -64,6 +64,8 @@ public class TaskViewerController extends AbstractController {
     public ListView<ListableTaskModel> dependenciesList;
     @FXML
     public ListView<ListableTaskModel> dependentsList;
+    @FXML
+    public Button editButton;
 
     private ListableTaskModel selectedTask;
     private ListableTaskModel selectedPotentialTask;
@@ -152,6 +154,9 @@ public class TaskViewerController extends AbstractController {
         else
             status.setText("In Progress - Behind Schedule");
 
+        if(model.getTaskId() < 0)
+            editButton.setDisable(true);
+
         refreshCurrentDependenciesList();
         refreshCurrentDependentList();
     }
@@ -197,7 +202,7 @@ public class TaskViewerController extends AbstractController {
         ArrayList<Node> outNodes = newGraph.getNodeByID(model.getTaskId()).getOutNodes();
         ArrayList<TaskModel> outTasks = new ArrayList<TaskModel>();
 
-        for(Node n: outNodes)
+        for (Node n : outNodes)
             outTasks.add(n.getData().task);
 
         dependentsObservableList.addAll(outTasks.stream().map(ListableTaskModel::new).collect(Collectors.toList()));
