@@ -1,8 +1,8 @@
 package com.sepgroup.sep.model;
 
 import com.sepgroup.sep.db.DBException;
-import com.sepgroup.sep.db.DatabaseFactory;
 import com.sepgroup.sep.db.Database;
+import com.sepgroup.sep.db.DatabaseFactory;
 import com.sepgroup.sep.utils.CurrencyUtils;
 import com.sepgroup.sep.utils.DateUtils;
 import org.slf4j.Logger;
@@ -11,10 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -756,9 +753,24 @@ public class TaskModel extends AbstractModel {
         return done;
     }
 
-    public void setDone(boolean done) {
+    public void setDone(boolean done) throws InvalidInputException {
+    	if (done && !allAncestorsAreDone()) {
+    		throw new InvalidInputException("TaskModel " + taskId + " - " + name + " cannot be marked complete - some ancestors are not marked complete.");
+		}
         this.done = done;
     }
+
+    public boolean allAncestorsAreDone() {
+    	Collection<TaskModel> parents = getDependencies();
+		boolean allDone = true;
+		if (!parents.isEmpty()) {
+			for (final TaskModel parent : parents) {
+				allDone &= parent.isDone() && parent.allAncestorsAreDone();
+			}
+		}
+		return allDone;
+	}
+
 
     public UserModel getAssignee() {
         return assignee;
