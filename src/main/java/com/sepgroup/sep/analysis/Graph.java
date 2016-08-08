@@ -2,6 +2,8 @@ package com.sepgroup.sep.analysis;
 
 import com.sepgroup.sep.analysis.GraphTools.NodeIterator;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Created by Demo on 7/29/2016.
@@ -40,7 +42,6 @@ public class Graph {
     }
     public void addDirectedEdge(Node a, Node b){
         a.addOutNode(b);
-        b.addInNode(a);
     }
     public void addNonDirectedEdge(Node a, Node b){
         addDirectedEdge(a,b);
@@ -97,10 +98,23 @@ public class Graph {
         return false;
     }
 
+    public void setCriticalNodes(){
+        for(Node n : nodes)
+            n.setCritical(false);
+        Collection<TaskNodePath> paths = CriticalPath.computeCriticalPaths(this);
+        System.out.println("Paths: "+paths.size());
+        for(TaskNodePath t : paths){
 
-    public void moveCursorTo(Node n){
-        cursor = n;
+            List<Node> l = t.toList();
+            System.out.println("\tpath sizes: "+l.size());
+
+            for(Node n : l){
+                System.out.println("\tNODE ID: "+n.getID());
+                n.setCritical(true);
+            }
+        }
     }
+
     public void moveCursor(){
         if(cursorPosition<nodes.size()-1)
             cursorPosition++;
@@ -157,6 +171,7 @@ public class Graph {
     public void update(){
         root.restDepth();
         findAndSetAllStates();
+        setCriticalNodes();
     }
 }
 

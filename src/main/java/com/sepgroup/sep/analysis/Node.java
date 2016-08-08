@@ -41,50 +41,39 @@ public class Node {
     }
 
     void addInNode(Node n){
-        addNode(inNodes,n);
+        if(!inNodes.contains(n)) {
+            inNodes.add(n);
+            n.outNodes.add(this);
+        }
     }
     void addOutNode(Node n){
-        addNode(outNodes,n);
-    }
-    void addNode(ArrayList<Node> list, Node n){
-        if(!list.contains(n)) {
-            list.add(n);
+        if(!outNodes.contains(n)) {
+            outNodes.add(n);
+            n.inNodes.add(this);
         }
-
-    }
-    void removeInNode(Node n){
-        removeNode(inNodes,n);
-    }
-    void removeInNode(int id){
-        removeNode(inNodes, id);
-    }
-    void removeOutNode(Node n){
-        removeNode(outNodes,n);
-    }
-    void removeOutNode(int id){
-        removeNode(outNodes, id);
-    }
-    void isolate(){
-        removeNode(inNodes,this);
-        removeNode(outNodes,this);
-        inNodes.clear();
-        outNodes.clear();
     }
 
-    // when removing a node, it's also necessary to remove all the adjacencies to it from other nodes to avoid null references
+    public  void removeInNode(Node n){
+       if(inNodes.contains(n)){
+            inNodes.remove(n);
+            n.outNodes.remove(this);
+        }
+    }
+    public void removeOutNode(Node n){
+        if(outNodes.contains(n)){
+            outNodes.remove(n);
+            n.inNodes.remove(this);
+        }
+    }
 
-    void removeNode(ArrayList<Node> list, Node n){
-        if(list.contains(n))
-            list.remove(n);
+    public  void isolate(){
+        for(Node n : inNodes)
+            n.removeOutNode(this);
+        for(Node n : outNodes)
+            n.removeInNode(this);
 
     }
-    void removeNode(ArrayList<Node> list,int id){
-        for(Node n : list)
-            if(n.nodeID == id) {
-                list.remove(n);
-                break;
-            }
-    }
+
 
     void setData(Data d){
         data = d;

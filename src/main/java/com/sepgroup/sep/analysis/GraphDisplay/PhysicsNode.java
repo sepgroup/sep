@@ -36,12 +36,10 @@ public class PhysicsNode extends Node implements Physics,Drawable {
 
     }
 
-    public void enablePhysics(){
-        hasPhysics = true;
+    public void setPhysics(boolean set){
+        hasPhysics = set;
     }
-    public void disablePhysics(){
-        hasPhysics = false;
-    }
+
     public boolean getPhysics(){
         return hasPhysics;
     }
@@ -163,9 +161,9 @@ public class PhysicsNode extends Node implements Physics,Drawable {
     }
     public void findColor(){
         if(getCritical())
-            color = Color.red;
+            color = new Color(233,136,146);
        else
-            color = Color.blue;
+            color = new Color(192,229,213);
     }
 
 

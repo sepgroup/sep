@@ -24,9 +24,7 @@ public class Display extends JFrame {
     ArrayList<Drawable> renderObjects = new ArrayList<>(5);
     KeyInputController keyController;
     JPanel masterPanel;
-    JLabel coulombs;
-    JLabel hooks;
-    static Color background = Color.WHITE;
+    static Color background = new Color(133,110,122);
     public Display()
     {
         super("Test");

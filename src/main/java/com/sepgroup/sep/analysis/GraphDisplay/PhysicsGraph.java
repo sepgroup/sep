@@ -64,16 +64,16 @@ public class PhysicsGraph extends Graph implements Physics,Drawable {
             p.findColor();
             if(p.getState() == Node.STATES.ISOLATED) {
                 p.setAnchor(true);
-                p.disablePhysics();
+                p.setPhysics(false);
             }
             else if(p.getState() == Node.STATES.ROOT || p.getState() == Node.STATES.TERMINAL){
                 p.setAnchor(true);
-                p.enablePhysics();
+                p.setPhysics(true);
             }
             else
             {
                 p.setAnchor(false);
-                p.enablePhysics();
+                p.setPhysics(true);
             }
         }
     }
@@ -143,7 +143,7 @@ public class PhysicsGraph extends Graph implements Physics,Drawable {
         for(Node n : nodes){
             ((PhysicsNode)n).draw(g);
         }
-        g.setColor(Color.RED);
+        g.setColor(new Color(230,150,100));
         if(cursor!=null) {
             PhysicsNode t = (PhysicsNode) cursor;
             int offset = -t.radius / 2;
@@ -156,6 +156,7 @@ public class PhysicsGraph extends Graph implements Physics,Drawable {
         root.restDepth();
         findAndSetAllStates();
         setStateProperties();
+        setCriticalNodes();
         setCharges();
         if(depthSections)
             moveToSections();

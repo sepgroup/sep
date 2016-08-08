@@ -42,6 +42,21 @@ public class PhysicsGraphController implements KeyInputController{
             graph.depthSections = !graph.depthSections;
             graph.update();
         }
+        if(e.getKeyCode() == KeyEvent.VK_P)
+            ((PhysicsNode)graph.getCursor()).setPhysics(!((PhysicsNode)graph.getCursor()).getPhysics());
+
+        if(e.getKeyCode() == KeyEvent.VK_T){
+            if(graph.getCursor().getOutNodes().contains(graph.getTerminal()))
+                graph.getCursor().removeOutNode(graph.getTerminal());
+            else
+                graph.addDirectedEdge(graph.getCursor(),graph.getTerminal());
+        }
+        if(e.getKeyCode() == KeyEvent.VK_R){
+            if(graph.getCursor().getInNodes().contains(graph.getRoot()))
+                graph.getCursor().removeInNode(graph.getRoot());
+            else
+                graph.addDirectedEdge(graph.getRoot(),graph.getCursor());
+        }
     }
     public void releaseEvent(KeyEvent e){
 
@@ -61,32 +76,29 @@ public class PhysicsGraphController implements KeyInputController{
     }
 
 
-    private void PhysicsUpdate(){
+    private void update(){
         doKeyActions();
         if(display!=null)
             display.repaint();
         graph.step();
     }
-    private void update(){
-        PhysicsUpdate();
-    }
+
     private void moveToEdge(){
         graph.moveToEdge();
     }
 
     public void positionNodes(){
-        for(int i = 0; i<1000000;i++){
+        graph.update();
+       // for(int i = 0; i<1000000;i++){
+        while(true){
             update();
         }
-        moveToEdge();
-        graph.setRelativePosition();
+        //moveToEdge();
+        //graph.setRelativePosition();
 
     }
     private void setCriticalNodes(){
-        Collection<TaskNodePath> paths = CriticalPath.computeCriticalPaths(graph);
-       // for(TaskNodePath t : paths){
-
-        //}
+        graph.setCriticalNodes();
     }
     public PhysicsGraph getGraph(){
         return graph;

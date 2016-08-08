@@ -80,7 +80,7 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         launch(args);
-       // PhysicsGraphController pgc = new PhysicsGraphController(true,4);
+      //  PhysicsGraphController pgc = new PhysicsGraphController(true,1);
        // pgc.positionNodes();
     }
 
