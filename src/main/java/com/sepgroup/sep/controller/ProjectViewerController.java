@@ -226,10 +226,11 @@ public class ProjectViewerController extends AbstractController {
         gdc.setGraph(g);
         gdc.addRenderObject(g);
 
-        for(int i = 0; i < 100000; i++){
-            gdc.update();
-        }*/
-    }
+        while(!g.isDone()){
+        ///for(int i = 0; i < 1000000; i++){
+                gdc.update();
+            }
+        }
 
     public static IntervalCategoryDataset createDataset() throws ModelNotFoundException, InvalidInputException {
 			final TaskSeries s1 = new TaskSeries("Scheduled");

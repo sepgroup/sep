@@ -111,6 +111,15 @@ public class PhysicsGraph extends Graph implements Physics,Drawable {
                 ((PhysicsNode) n).step();
         }
     }
+    public boolean isDone(){
+        for(Node n : nodes){
+            PhysicsNode t = (PhysicsNode)n;
+            if(t.isMoving())
+                return false;
+        }
+        return true;
+
+    }
 
 
 

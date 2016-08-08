@@ -31,6 +31,7 @@ public class Node {
     }
     public Node(TaskModel task) {
         this(new Data(task));
+        setNodeID(task.getTaskId());
     }
     public Node(Node n, Data d){
         addInNode(n);

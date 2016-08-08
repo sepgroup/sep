@@ -88,13 +88,12 @@ public class GraphFactory {
     }
     private static void makeEndpoints(int projectID,Graph graph){
         try {
-            TaskModel t1 = new TaskModel("Start", "Start of project", projectID);
-            TaskModel t2 = new TaskModel("End", "End of project", projectID);
+            TaskModel t1 = new TaskModel("Start", "Start of project", projectID,-1);
+            TaskModel t2 = new TaskModel("End", "End of project", projectID,-2);
             graph.root = new Node(new Data(t1) );
-            graph.terminal = new Node(new Data(t2));
             graph.root.setNodeID(-1);
+            graph.terminal = new Node(new Data(t2));
             graph.terminal.setNodeID(-2);
-
         }
         catch(Exception e){
             e.printStackTrace();
@@ -103,12 +102,10 @@ public class GraphFactory {
     }
     private static void makeEndpoints(int projectID,PhysicsGraph graph){
         try {
-            TaskModel t1 = new TaskModel("Start", "Start of project", projectID);
-            TaskModel t2 = new TaskModel("End", "End of project", projectID);
+            TaskModel t1 = new TaskModel("Start", "Start of project", projectID,-1);
+            TaskModel t2 = new TaskModel("End", "End of project", projectID,-2);
             graph.root = new PhysicsNode(new Data(t1) );
             graph.terminal = new PhysicsNode(new Data(t2));
-            graph.root.setNodeID(-1);
-            graph.terminal.setNodeID(-2);
 
         }
         catch(Exception e){
