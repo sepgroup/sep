@@ -24,6 +24,8 @@ public class Node {
     STATES state;
 
     private boolean isCritical;
+    private boolean isDone;
+
 
     public Button myButton;
     public ArrayList<Line> inArrows = new ArrayList<Line>();
@@ -167,6 +169,13 @@ public class Node {
 
     public void setCritical(boolean set){
         isCritical = set;
+    }
+    public void setDone(){
+        if(data!=null)
+            isDone = data.task.isDone();
+    }
+    public boolean getIsDone(){
+        return isDone;
     }
     public boolean getCritical(){
         return isCritical;

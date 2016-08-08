@@ -114,6 +114,10 @@ public class Graph {
             }
         }
     }
+    public void setDone(){
+        for(Node n : nodes)
+            n.setDone();
+    }
 
     public void moveCursor(){
         if(cursorPosition<nodes.size()-1)
@@ -172,6 +176,7 @@ public class Graph {
         root.restDepth();
         findAndSetAllStates();
         setCriticalNodes();
+        setDone();
     }
 }
 
