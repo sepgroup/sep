@@ -1,6 +1,8 @@
 package com.sepgroup.sep.controller;
 
 import com.sepgroup.sep.Main;
+import com.sepgroup.sep.analysis.GraphDisplay.GraphDisplayController;
+import com.sepgroup.sep.analysis.GraphDisplay.PhysicsGraph;
 import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.model.*;
 import javafx.collections.FXCollections;
@@ -216,6 +218,17 @@ public class ProjectViewerController extends AbstractController {
 	}
 
     public void onGraphViewClicked() throws ModelNotFoundException, InvalidInputException {
+//        TaskCreatorController tcc = (TaskCreatorController) Main.setPrimaryScene(TaskCreatorController.getFxmlPath());
+//        tcc.setReturnProject(model);
+
+        PhysicsGraph g = new PhysicsGraph(model.getProjectId());
+        GraphDisplayController gdc = new GraphDisplayController();
+        gdc.setGraph(g);
+        gdc.addRenderObject(g);
+
+        for(int i = 0; i < 100000; i++){
+            gdc.update();
+        }
     }
 
     public static IntervalCategoryDataset createDataset() throws ModelNotFoundException, InvalidInputException {

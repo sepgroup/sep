@@ -23,7 +23,7 @@ import java.io.IOException;
 public class Main extends Application {
 
     private static Logger logger = LoggerFactory.getLogger(Main.class);
-    private static int screenMinHeight = 560;
+    private static int screenMinHeight = 700;
     private static int screenMinWidth = 1100;
     private static int screenMaxHeight = 800;
     private static int screenMaxWidth = 1500;
@@ -82,14 +82,5 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         launch(args);
-        PhysicsGraph g = new PhysicsGraph(4);
-        GraphDisplayController gdc = new GraphDisplayController();
-        gdc.setGraph(g);
-        gdc.addRenderObject(g);
-        g.printInfo();
-        while(true){
-            gdc.update();
-        }
-
     }
 }
