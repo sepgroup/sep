@@ -123,6 +123,12 @@ public class PhysicsNode extends Node implements Physics,Drawable {
             applyVelocity();
         }
     }
+    public boolean isMoving(){
+        double delta = 0.0000000000000005;
+        if((velocity[0]>delta || velocity[0]<-delta) || (velocity[1]>delta || velocity[1]<-delta))
+            return true;
+        return false;
+    }
 
     public void setCharge(){
         charge = inNodes.size() + outNodes.size();
