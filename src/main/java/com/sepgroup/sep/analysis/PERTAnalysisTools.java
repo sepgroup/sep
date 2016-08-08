@@ -23,15 +23,9 @@ public final class PERTAnalysisTools {
         Graph newGraph = new Graph();
         GraphFactory.makeGraph(projectId, newGraph);
 
-        forwardPass(newGraph.getRoot(), 0);
-        backwardPass(newGraph.getTerminal(), (int)newGraph.getTerminal().getData().earliestFinish);
-
-        ArrayList<ArrayList<Node>> criticalPaths = new ArrayList<ArrayList<Node>>();
-        criticalPaths.add(new ArrayList<Node>());
-
         Node currentNode = newGraph.getNodeByID(currentTask.getTaskId());
 
-        backTrack(criticalPaths, criticalPaths.get(criticalPaths.size() - 1), currentNode);
+        ArrayList<ArrayList<Node>> criticalPaths = getCriticalPath(newGraph, currentNode);
 
         double minVariance = Double.MAX_VALUE;
         ArrayList<Node> minSlackCriticalPath = null;
@@ -89,8 +83,11 @@ public final class PERTAnalysisTools {
             backwardPass(nextNode, timeSoFar);
     }
 
-    private static ArrayList<ArrayList<Node>> getCriticalPath(Graph graph, Node targetNode)
+    public static ArrayList<ArrayList<Node>> getCriticalPath(Graph graph, Node targetNode)
     {
+        forwardPass(graph.getRoot(), 0);
+        backwardPass(graph.getTerminal(), (int)graph.getTerminal().getData().earliestFinish);
+
         ArrayList<ArrayList<Node>> allPaths = new ArrayList<ArrayList<Node>>();
 
         allPaths.add(new ArrayList<Node>());
@@ -123,6 +120,7 @@ public final class PERTAnalysisTools {
         int i = 0;
         for(Node node: minNodes)
         {
+            node.setCritical(true);
             if (i > 0)
             {
                 paths.add(new ArrayList<Node>(currentPath));
@@ -147,6 +145,6 @@ public final class PERTAnalysisTools {
 
     private static double probability(double timeDifference, double standardDeviation)
     {
-        return Math.exp(- Math.pow(timeDifference / standardDeviation, 2) / 2) / (standardDeviation * Math.sqrt(2 * 3.14159));
+        return (standardDeviation == 0 ? 0 : Math.exp(- Math.pow(timeDifference / standardDeviation, 2) / 2) / (standardDeviation * Math.sqrt(2 * 3.14159)));
     }
 }

@@ -58,3 +58,37 @@
 .button:hover {
     -fx-background-color: linear-gradient(#2A5058, #61a2b1);
 }
+
+.graph-button {
+    -fx-effect: dropshadow(two-pass-box , darkgray, 10, 0.0 , 4, 5);
+    -fx-background-color: #50C878;
+    -fx-background-radius: 15 15 15 15;
+    -fx-background-insets: 2 2 2 2 ;
+    -fx-color:white;
+    -fx-text-align: center;
+}
+
+.graph-button:hover {
+    -fx-background-color: linear-gradient(#2A5058, #61a2b1);
+}
+
+.critical-path-button {
+    -fx-effect: dropshadow(two-pass-box , darkgray, 10, 0.0 , 4, 5);
+    -fx-background-color: #FF5C5C;
+    -fx-background-radius: 15 15 15 15;
+    -fx-background-insets: 2 2 2 2 ;
+    -fx-color:white;
+    -fx-text-align: center;
+}
+
+.line {
+    -fx-stroke-width: 3px;
+}
+
+.critical-path-line {
+    -fx-stroke: #FF5C5C;
+}
+
+.critical-path-button:hover {
+    -fx-background-color: linear-gradient(#2A5058, #61a2b1);
+}
