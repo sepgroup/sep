@@ -80,9 +80,13 @@ public class PhysicsGraphController implements KeyInputController{
         }
         moveToEdge();
         graph.setRelativePosition();
+
     }
     private void setCriticalNodes(){
         Collection<TaskNodePath> paths = CriticalPath.computeCriticalPaths(graph);
+       // for(TaskNodePath t : paths){
+
+        //}
     }
     public PhysicsGraph getGraph(){
         return graph;

@@ -10,7 +10,7 @@ import java.awt.*;
 import java.util.ArrayList;
 
 /**
- * Created by HP on 8/3/2016.
+ * Created by Demo on 8/3/2016.
  */
 public class PhysicsGraph extends Graph implements Physics,Drawable {
     public boolean depthSections = false;
@@ -57,7 +57,6 @@ public class PhysicsGraph extends Graph implements Physics,Drawable {
             PhysicsNode t = (PhysicsNode)n;
             t.shift(x,y);
         }
-        System.out.println("SHIFTED BY: "+x+","+y);
     }
     public void setStateProperties(){
         for(Node n : nodes){
@@ -135,7 +134,7 @@ public class PhysicsGraph extends Graph implements Physics,Drawable {
         }
         for(Node n : nodes){
             PhysicsNode t = (PhysicsNode)n;
-
+            t.setRelativePosition(maxX,maxY);
         }
 
     }

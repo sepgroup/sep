@@ -25,7 +25,7 @@ public class PhysicsNode extends Node implements Physics,Drawable {
     double[] velocity = {0, 0};
     boolean isAnchored = false;
 
-    double[] relativePosition = {-1,-1};
+    private double[] relativePosition = {-1,-1};
 
 
     public PhysicsNode(Data d) {
@@ -162,23 +162,10 @@ public class PhysicsNode extends Node implements Physics,Drawable {
         return isAnchored;
     }
     public void findColor(){
-        STATES i = getState();
-        switch(i){
-            case OK: color = Color.BLUE;
-                break;
-            case DEAD: color = Color.GRAY;
-                break;
-            case CIRCULAR: color = Color.ORANGE;
-                break;
-            case ORPHAN: color = Color.GREEN;
-                break;
-            case ISOLATED: color = Color.BLACK;
-                break;
-            case ROOT: color = Color.CYAN;
-                break;
-            case TERMINAL: color = Color.MAGENTA;
-                break;
-        }
+        if(getCritical())
+            color = Color.red;
+       else
+            color = Color.blue;
     }
 
 
