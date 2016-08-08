@@ -1,20 +1,29 @@
 package com.sepgroup.sep.analysis.GraphDisplay;
 
+import java.util.Collection;
+
+import com.sepgroup.sep.analysis.CriticalPath;
+import com.sepgroup.sep.analysis.TaskNodePath;
+
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
 /**
- * Created by HP on 8/4/2016.
+ * Created by Demo on 8/4/2016.
  */
-public class GraphDisplayController implements KeyInputController{
-    public Display display;
-    public boolean animate = true;
-    public boolean needsGraphUpdate = true;
-    PhysicsGraph graph;
-    ArrayList<Integer> keyDown = new ArrayList<Integer>(10);
+public class PhysicsGraphController implements KeyInputController{
+    private Display display;
+    private PhysicsGraph graph;
+    private ArrayList<Integer> keyDown = new ArrayList<Integer>(10);
 
-    public GraphDisplayController(){
-        setDisplay(new Display());
+    public PhysicsGraphController(boolean display,int projectID){
+
+        graph = new PhysicsGraph(projectID);
+        if(display) {
+            setDisplay(new Display());
+            addRenderObject(graph);
+        }
+
     }
     public void pressEvent(KeyEvent e){
         if(!keyDown.contains(e.getKeyCode()))
@@ -39,35 +48,45 @@ public class GraphDisplayController implements KeyInputController{
         keyDown.remove(new Integer(e.getKeyCode()));
     }
 
-    public void setDisplay(Display d){
+    private void setDisplay(Display d){
         display = d;
         d.keyController = this;
     }
-   public  void setGraph(PhysicsGraph g){
+    private  void setGraph(PhysicsGraph g){
         graph = g;
     }
-    public void addRenderObject(Drawable draw){
-        display.addRenderObject(draw);
+    private void addRenderObject(Drawable draw){
+        if(display!=null)
+            display.addRenderObject(draw);
     }
 
-    public void graphUpdate(){
-     //   graph.findAndSetAllStates();
-     //   graph.setStateProperties();
-        needsGraphUpdate = false;
-    }
 
-    public void PhysicsUpdate(){
+    private void PhysicsUpdate(){
         doKeyActions();
-        display.repaint();
+        if(display!=null)
+            display.repaint();
         graph.step();
     }
-    public void update(){
-       if(needsGraphUpdate)
-            graphUpdate();
-        if(animate)
-            PhysicsUpdate();
+    private void update(){
+        PhysicsUpdate();
+    }
+    private void moveToEdge(){
+        graph.moveToEdge();
     }
 
+    public void positionNodes(){
+        for(int i = 0; i<1000000;i++){
+            update();
+        }
+        moveToEdge();
+        graph.setRelativePosition();
+    }
+    private void setCriticalNodes(){
+        Collection<TaskNodePath> paths = CriticalPath.computeCriticalPaths(graph);
+    }
+    public PhysicsGraph getGraph(){
+        return graph;
+    }
     void doKeyActions(){
         double velX = 0, velY = 0;
         double speed = 0.001;

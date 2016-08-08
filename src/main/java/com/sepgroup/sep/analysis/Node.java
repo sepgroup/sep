@@ -21,6 +21,8 @@ public class Node {
     protected Data data;
     STATES state;
 
+    private boolean isCritical;
+
     public Node(){
     }
     public Node(Node n){
@@ -168,6 +170,12 @@ public class Node {
         return otherNode.data.task == data.task;
     }
 
+    public void setCritical(boolean set){
+        isCritical = set;
+    }
+    public boolean getCritical(){
+        return isCritical;
+    }
     public void restDepth(){
         if(getState() == STATES.ROOT){
             depthUpdate();

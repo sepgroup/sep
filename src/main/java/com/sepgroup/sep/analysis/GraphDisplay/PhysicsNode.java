@@ -25,6 +25,8 @@ public class PhysicsNode extends Node implements Physics,Drawable {
     double[] velocity = {0, 0};
     boolean isAnchored = false;
 
+    double[] relativePosition = {-1,-1};
+
 
     public PhysicsNode(Data d) {
         super(d);
@@ -86,6 +88,10 @@ public class PhysicsNode extends Node implements Physics,Drawable {
         }
 
     }
+    public void shift(double x, double y){
+        position[0]+=x;
+        position[1]+=y;
+    }
 
     public void addToForce(double x, double y) {
         netForce[0] += x;
@@ -123,12 +129,7 @@ public class PhysicsNode extends Node implements Physics,Drawable {
             applyVelocity();
         }
     }
-    public boolean isMoving(){
-        double delta = 0.0000000000000005;
-        if((velocity[0]>delta || velocity[0]<-delta) || (velocity[1]>delta || velocity[1]<-delta))
-            return true;
-        return false;
-    }
+
 
     public void setCharge(){
         charge = inNodes.size() + outNodes.size();
@@ -142,11 +143,16 @@ public class PhysicsNode extends Node implements Physics,Drawable {
         velocity[1] += heat * Math.random() * flip2;
     }
 
-    public void killMomentum() {
 
-        velocity[0] = 0;
-        velocity[1] = 0;
-
+    public void setRelativePosition(double maxX,double maxY){
+        relativePosition[0] = position[0]/maxX;
+        relativePosition[1] = position[1]/maxY;
+    }
+    public double getRelX(){
+        return relativePosition[0];
+    }
+    public double getRelY(){
+        return relativePosition[1];
     }
 
     public void setAnchor(boolean set) {
@@ -174,6 +180,7 @@ public class PhysicsNode extends Node implements Physics,Drawable {
                 break;
         }
     }
+
 
     public void draw(Graphics2D g) {
         g.setColor(color);

@@ -43,7 +43,7 @@ public class PhysicsGraph extends Graph implements Physics,Drawable {
     public void shiftCursor(double x, double y){
         if(cursor!=null){
             PhysicsNode t = (PhysicsNode)cursor;
-            t.setPosition(t.position[0]+x,t.position[1]+y);
+            t.shift(x,y);
         }
 
     }
@@ -55,8 +55,9 @@ public class PhysicsGraph extends Graph implements Physics,Drawable {
     public void shiftAll(double x, double y){
         for(Node n : nodes){
             PhysicsNode t = (PhysicsNode)n;
-            t.setPosition(t.position[0]+x,t.position[1]+y);
+            t.shift(x,y);
         }
+        System.out.println("SHIFTED BY: "+x+","+y);
     }
     public void setStateProperties(){
         for(Node n : nodes){
@@ -111,17 +112,33 @@ public class PhysicsGraph extends Graph implements Physics,Drawable {
                 ((PhysicsNode) n).step();
         }
     }
-    public boolean isDone(){
+
+    public void moveToEdge(){
+        double minX = 100000, minY = 1000000;
         for(Node n : nodes){
             PhysicsNode t = (PhysicsNode)n;
-            if(t.isMoving())
-                return false;
+            if(t.position[0]<minX)
+                minX = t.position[0];
+            if(t.position[1]<minY)
+                minY = t.position[1];
         }
-        return true;
+            shiftAll(-minX,-minY);
+    }
+    public void setRelativePosition(){
+        double maxX = 0, maxY = 0;
+        for(Node n : nodes){
+            PhysicsNode t = (PhysicsNode)n;
+            if(t.position[0]>maxX)
+                maxX = t.position[0];
+            if(t.position[1]>maxY)
+                maxY = t.position[1];
+        }
+        for(Node n : nodes){
+            PhysicsNode t = (PhysicsNode)n;
+
+        }
 
     }
-
-
 
     public void draw(Graphics2D g){
         for(Node n : nodes){
@@ -134,8 +151,6 @@ public class PhysicsGraph extends Graph implements Physics,Drawable {
 
             g.fillOval((int) t.position[0] + offset, (int) t.position[1] + offset, t.radius, t.radius);
         }
-
-
     }
 
     public void update(){
