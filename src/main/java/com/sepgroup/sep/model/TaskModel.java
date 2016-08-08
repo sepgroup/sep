@@ -71,6 +71,20 @@ public class TaskModel extends AbstractModel {
      * @param name
      * @param description
      * @param projectId
+     */
+    public TaskModel(String name, String description, int projectId, int taskId) throws InvalidInputException {
+        this();
+        setName(name);
+        setDescription(description);
+        setProjectId(projectId);
+        setTaskId(taskId);
+    }
+
+    /**
+     *
+     * @param name
+     * @param description
+     * @param projectId
      * @param budget
      * @param startDate
      * @param deadline
