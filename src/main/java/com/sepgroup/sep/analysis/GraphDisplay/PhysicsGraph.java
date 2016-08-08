@@ -154,7 +154,7 @@ public class PhysicsGraph extends Graph implements Physics,Drawable {
         }
         for(Node n : nodes){
             PhysicsNode t = (PhysicsNode)n;
-            t.setRelativePosition(maxX,maxY);
+            t.setRelativePosition(maxX,maxY+100);
         }
 
     }
