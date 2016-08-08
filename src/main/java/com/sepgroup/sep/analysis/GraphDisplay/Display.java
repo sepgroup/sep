@@ -31,18 +31,16 @@ public class Display extends JFrame {
     {
         super("Test");
         setSize(1200,800);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setResizable(true);
         masterPanel = new GPanel();
-        coulombs = new JLabel("COULOMBS: "+ PhysicsNode.coulombsConstant+"\t");
-        hooks = new JLabel("HOOKS: "+ PhysicsNode.hooksConstant+"\t");
-        masterPanel.add(coulombs);
-        masterPanel.add(hooks);
         add(masterPanel);
         setVisible(true);
 
     }
-
+    public JPanel getDisplay(){
+        return masterPanel;
+    }
     public void addRenderObject(Drawable d){
         if(!renderObjects.contains(d))
             renderObjects.add(d);
