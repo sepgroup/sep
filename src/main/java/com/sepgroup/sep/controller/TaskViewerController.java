@@ -186,10 +186,18 @@ public class TaskViewerController extends AbstractController {
     }
 
     private void refreshCurrentDependenciesList() {
+        List<ListableTaskModel> dependentsObservableList = new LinkedList<>();
+        Graph newGraph = new Graph();
+        GraphFactory.makeGraph(model.getProjectId(), newGraph);
+
+        ArrayList<Node> outNodes = newGraph.getNodeByID(model.getTaskId()).getInNodes();
+        ArrayList<TaskModel> inTasks = new ArrayList<TaskModel>();
+
+        for (Node n : outNodes)
+            inTasks.add(n.getData().task);
+
         List<ListableTaskModel> dependenciesObservableList = new LinkedList<>();
-        dependenciesObservableList.addAll(model.getDependencies().stream()
-                .map(ListableTaskModel::new)
-                .collect(Collectors.toList()));
+        dependenciesObservableList.addAll(inTasks.stream().map(ListableTaskModel::new).collect(Collectors.toList()));
         ObservableList<ListableTaskModel> dependencies = FXCollections.observableList(dependenciesObservableList);
         dependenciesList.setItems(dependencies);
     }

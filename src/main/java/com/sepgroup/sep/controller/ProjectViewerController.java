@@ -212,16 +212,11 @@ public class ProjectViewerController extends AbstractController {
 		Gantt.pack();
 		RefineryUtilities.centerFrameOnScreen(Gantt);
 		Gantt.setVisible(true);
-
-
 	}
 
     public void onGraphViewClicked() throws ModelNotFoundException, InvalidInputException {
         GraphViewController gvc = (GraphViewController) Main.setPrimaryScene(GraphViewController.getFxmlPath());
         gvc.setReturnProject(model);
-
-        PhysicsGraphController pgc = new PhysicsGraphController(true,model.getProjectId());
-        pgc.positionNodes();
     }
 
 
@@ -249,7 +244,7 @@ public class ProjectViewerController extends AbstractController {
 			collection.add(s1);
 			collection.add(s2);
 			return collection;
-		}
+    }
 
 	private static Date date(final Date date) {
 

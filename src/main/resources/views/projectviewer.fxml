@@ -115,7 +115,7 @@
                   <Label fx:id="svValueLabel" layoutX="701.0" layoutY="148.0" text="[ sv ]" />
                   <Label fx:id="cpiValueLabel" layoutX="700.0" layoutY="170.0" text="[ cpi ]" />
                   <Label fx:id="spiValueLabel" layoutX="700.0" layoutY="197.0" text="[ spi ]" />
-                  <Button fx:id="graphView" layoutX="683.0" mnemonicParsing="false" onAction="#onGraphViewClicked" prefHeight="28.0" prefWidth="110.0" text="Graph View" textFill="WHITE">
+                  <Button fx:id="graphViewButton" layoutX="683.0" mnemonicParsing="false" onAction="#onGraphViewClicked" prefHeight="28.0" prefWidth="110.0" text="Graph View" textFill="WHITE">
                      <font>
                         <Font name="System Bold" size="14.0" />
                      </font>
