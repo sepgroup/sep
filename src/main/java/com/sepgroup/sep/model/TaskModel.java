@@ -77,7 +77,7 @@ public class TaskModel extends AbstractModel {
         setName(name);
         setDescription(description);
         setProjectId(projectId);
-        setTaskId(taskId);
+        this.taskId = taskId;
     }
 
     /**
