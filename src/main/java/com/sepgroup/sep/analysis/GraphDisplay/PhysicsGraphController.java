@@ -87,14 +87,15 @@ public class PhysicsGraphController implements KeyInputController{
         graph.update();
         loadSequentially();
         for(int i = 0; i<10000;i++){
-       // while(true){
+        //while(true){
             update();
-          //  if(reset){
-          //      loadSequentially();
-          //      reset = false;
-          //  }
+            if(reset){
+                loadSequentially();
+                reset = false;
+            }
         }
         moveToEdge();
+        pushPositions(graph.getRoot());
         graph.setRelativePosition();
     }
     private void loadSequentially(){
@@ -136,6 +137,18 @@ public class PhysicsGraphController implements KeyInputController{
             n.getOutNodes().remove(graph.getTerminal());
         else
             graph.addDirectedEdge(n,graph.getTerminal());
+    }
+
+    protected void pushPositions(Node currentNode)
+    {
+        for(Node n: currentNode.getOutNodes()) {
+            double diffX = ((PhysicsNode)n).position[0] - ((PhysicsNode)currentNode).position[0];
+
+            if(diffX < 1000)
+                ((PhysicsNode)n).position[0] = ((PhysicsNode)currentNode).position[0] + 1000;
+
+            pushPositions(n);
+        }
     }
 
     public PhysicsGraph getGraph(){

@@ -304,7 +304,7 @@ public class GraphViewController extends AbstractController{
                 graphArea.getChildren().add(new NodeButton(taskIdString + n.getData().task.getName() + assignee));
                 NodeButton button = (NodeButton) graphArea.getChildren().get(graphArea.getChildren().size() - 1);
                 button.setLayoutX(graphArea.getPrefWidth() * (1 - relativeWidth) * ((PhysicsNode) n).getRelX());
-                button.setLayoutY(graphArea.getPrefHeight() * (1 - relativeHeight) * 1.5 * ((PhysicsNode) n).getRelY());
+                button.setLayoutY(graphArea.getPrefHeight() * (1 - relativeHeight)  * ((PhysicsNode) n).getRelY());
                 button.setDimensions(relativeWidth * graphArea.getPrefWidth(), relativeHeight * graphArea.getPrefHeight());
                 button.setContentDisplay(ContentDisplay.TOP);
 
@@ -315,7 +315,7 @@ public class GraphViewController extends AbstractController{
                             button.getLayoutX() + button.getMinWidth(),
                             button.getLayoutY() + button.getMinHeight() / 2,
                             graphArea.getPrefWidth() * (1 - relativeWidth) * ((PhysicsNode) outNode).getRelX(),
-                            graphArea.getPrefHeight() * (1 - relativeHeight) * 1.5 * ((PhysicsNode) outNode).getRelY() + button.getMinHeight() / 2);
+                            graphArea.getPrefHeight() * (1 - relativeHeight) * ((PhysicsNode) outNode).getRelY() + button.getMinHeight() / 2);
 
                     graphArea.getChildren().add(newLine);
                     button.addOutNode(newLine);
