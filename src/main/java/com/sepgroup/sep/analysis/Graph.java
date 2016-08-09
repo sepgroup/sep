@@ -33,7 +33,6 @@ public class Graph {
                 break;
             }
         }
-
     }
     public void removeNode(Node n){
         n.isolate();
@@ -117,11 +116,6 @@ public class Graph {
         return false;
     }
 
-    public void setDone(){
-        for(Node n : nodes)
-            n.setDone();
-    }
-
     public void moveCursor(){
         if(cursorPosition<nodes.size()-1)
             cursorPosition++;
@@ -178,7 +172,6 @@ public class Graph {
     public void update(){
         root.restDepth();
         findAndSetAllStates();
-        setDone();
     }
 }
 

@@ -17,6 +17,7 @@ public class PhysicsGraphController implements KeyInputController{
     private Display display;
     private PhysicsGraph graph;
     private ArrayList<Integer> keyDown = new ArrayList<Integer>(10);
+    private boolean reset = false;
 
     public PhysicsGraphController(boolean display,int projectID){
 
@@ -41,8 +42,7 @@ public class PhysicsGraphController implements KeyInputController{
             graph.printInfo();
         }
         if(e.getKeyCode() == KeyEvent.VK_D){
-            graph.depthSections = !graph.depthSections;
-            graph.update();
+            reset = true;
         }
         if(e.getKeyCode() == KeyEvent.VK_P)
             ((PhysicsNode)graph.getCursor()).setPhysics(!((PhysicsNode)graph.getCursor()).getPhysics());
@@ -86,12 +86,16 @@ public class PhysicsGraphController implements KeyInputController{
     public void positionNodes(){
         graph.update();
         loadSequentially();
-       // for(int i = 0; i<1000000;i++){
-        while(true){
+        for(int i = 0; i<10000;i++){
+       // while(true){
             update();
+          //  if(reset){
+          //      loadSequentially();
+          //      reset = false;
+          //  }
         }
-    //   moveToEdge();
-     //   graph.setRelativePosition();
+        moveToEdge();
+        graph.setRelativePosition();
     }
     private void loadSequentially(){
         graph.disableAllPhysics();
@@ -101,7 +105,7 @@ public class PhysicsGraphController implements KeyInputController{
             Node n = graph.iterator.next();
             if(!n.equals(graph.getRoot()) && !n.equals(graph.getTerminal())) {
                 loadNode(n);
-                for (int i = 0; i < 1000000; i++)
+                for (int i = 0; i < 100000; i++)
                     update();
             }
         }
