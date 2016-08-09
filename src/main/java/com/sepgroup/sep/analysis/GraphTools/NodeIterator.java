@@ -13,7 +13,7 @@ public class NodeIterator implements Iterator<Node> {
     int index = 0;
 
     public NodeIterator(){
-        list = new ArrayList<>();
+        list = new ArrayList<>(10);
     }
 
     public NodeIterator(ArrayList<Node> list){
@@ -26,13 +26,15 @@ public class NodeIterator implements Iterator<Node> {
         return list.size()>index;
     }
     public Node next(){
-        if(hasNext())
+        if(hasNext()) {
             return list.get(index++);
+        }
         else
             return null;
     }
     public void clear(){
         list.clear();
+        index = 0;
     }
 
     public boolean contains(Node n)

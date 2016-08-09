@@ -1,18 +1,12 @@
 package com.sepgroup.sep.controller;
 
-import java.text.ParseException;
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.sepgroup.sep.Main;
-import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.model.*;
-import com.sepgroup.sep.utils.DateUtils;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -43,7 +37,7 @@ public class TaskViewerController extends AbstractController {
     @FXML
     public Label nameLabel;
     @FXML
-    public Label description;
+    public TextArea taskDescriptionArea;
     @FXML
     public Label status;
     @FXML
@@ -58,6 +52,20 @@ public class TaskViewerController extends AbstractController {
     public Label assignee;
     @FXML
     public Pane pertInfo;
+    @FXML
+    public Label mostLikelyDurationLabel;
+    @FXML
+    public Label optimisticDurationLabel;
+    @FXML
+    public Label actualStartDateLabel;
+    @FXML
+    public Label actualEndDateLabel;
+    @FXML
+    public Label expectedStartDateLabel;
+    @FXML
+    public Label expectedEndDateLabel;
+    @FXML
+    public Label pessimisticDurationLabel;
     @FXML
     public DatePicker pertDate;
     @FXML
@@ -134,15 +142,32 @@ public class TaskViewerController extends AbstractController {
         nameLabel.setText(String.valueOf(model.getName()));
         budget.setText("$" + String.valueOf(String.format("%.2f", model.getBudget())));
         expectedDuration.setText(String.valueOf(String.format("%.2f", model.getExpectedDuration())) + " day" + (model.getExpectedDuration() > 1 ? "s": ""));
-        if(model.getAssignee() != null)
+        if(model.getAssignee() != null) {
+            logger.info("assignee not null");
             assignee.setText(String.valueOf(model.getAssignee()));
+        }
+        else {
+            logger.info("assignee null");
+            assignee.setText("[ none ]");
+        }
 
         if(model.getDescription() != null && !model.getDescription().equals(""))
-            description.setText(model.getDescription());
+            taskDescriptionArea.setText(model.getDescription());
         else {
-            description.setVisible(false);
-            description.setManaged(false);
+            taskDescriptionArea.setVisible(false);
+            taskDescriptionArea.setManaged(false);
         }
+
+        // Durations
+        pessimisticDurationLabel.setText(Integer.toString(model.getPesimisticTimeToFinish()));
+        optimisticDurationLabel.setText(Integer.toString(model.getOptimisticTimeToFinish()));
+        mostLikelyDurationLabel.setText(Integer.toString(model.getMostLikelyTimeToFinish()));
+
+        // actual / expected dates
+        actualStartDateLabel.setText(model.getActualStartDateString());
+        actualEndDateLabel.setText(model.getActualEndDateString());
+        expectedStartDateLabel.setText(model.getStartDateString());
+        expectedEndDateLabel.setText(model.getDeadlineString());
 
         status.setText("In Progress");
         if(!model.isDone() && !model.shouldBeDone()) {
@@ -208,10 +233,7 @@ public class TaskViewerController extends AbstractController {
         GraphFactory.makeGraph(model.getProjectId(), newGraph);
 
         ArrayList<Node> outNodes = newGraph.getNodeByID(model.getTaskId()).getOutNodes();
-        ArrayList<TaskModel> outTasks = new ArrayList<TaskModel>();
-
-        for (Node n : outNodes)
-            outTasks.add(n.getData().task);
+        ArrayList<TaskModel> outTasks = outNodes.stream().map(n -> n.getData().task).collect(Collectors.toCollection(ArrayList::new));
 
         dependentsObservableList.addAll(outTasks.stream().map(ListableTaskModel::new).collect(Collectors.toList()));
         ObservableList<ListableTaskModel> dependents = FXCollections.observableList(dependentsObservableList);

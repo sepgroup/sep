@@ -1,9 +1,8 @@
 package com.sepgroup.sep.analysis;
 
 import com.sepgroup.sep.analysis.GraphTools.NodeIterator;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+
+import java.util.*;
 
 /**
  * Created by Demo on 7/29/2016.
@@ -11,7 +10,7 @@ import java.util.List;
 public class Graph {
 
 
-    NodeIterator iterator = new NodeIterator();
+    public NodeIterator iterator = new NodeIterator();
     public ArrayList<Node> nodes = new ArrayList<Node>();
     private int cursorPosition = -1;
     protected Node cursor;
@@ -64,6 +63,26 @@ public class Graph {
         }
     }
 
+    public void bfs(Node n){
+        iterator.clear();
+        Node.incrementCounter();
+        ArrayDeque<Node> q = new ArrayDeque<>();
+        n.setVisited();
+        breadthFirstSearch(q,n);
+    }
+    public void breadthFirstSearch(ArrayDeque<Node> q, Node n) {
+        iterator.add(n);
+        ArrayList<Node> list = n.getOutNodes();
+        for(Node node : list){
+            if(!node.wasVisited()){
+                node.setVisited();
+                q.add(node);
+            }
+        }
+        if(q.size()>0) {
+            breadthFirstSearch(q, q.remove());
+        }
+    }
     public void findAndSetAllStates(){
 
         for(Node n : nodes){
@@ -98,22 +117,6 @@ public class Graph {
         return false;
     }
 
-    public void setCriticalNodes(){
-        for(Node n : nodes)
-            n.setCritical(false);
-        Collection<TaskNodePath> paths = CriticalPath.computeCriticalPaths(this);
-        System.out.println("Paths: "+paths.size());
-        for(TaskNodePath t : paths){
-
-            List<Node> l = t.toList();
-            System.out.println("\tpath sizes: "+l.size());
-
-            for(Node n : l){
-                System.out.println("\tNODE ID: "+n.getID());
-                n.setCritical(true);
-            }
-        }
-    }
     public void setDone(){
         for(Node n : nodes)
             n.setDone();
@@ -175,7 +178,6 @@ public class Graph {
     public void update(){
         root.restDepth();
         findAndSetAllStates();
-        setCriticalNodes();
         setDone();
     }
 }
