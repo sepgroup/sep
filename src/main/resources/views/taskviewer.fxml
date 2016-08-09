@@ -15,13 +15,13 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="taskview" prefHeight="560.0" prefWidth="820.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sepgroup.sep.controller.TaskViewerController">
+<AnchorPane fx:id="taskview" prefHeight="613.0" prefWidth="820.0" xmlns="http://javafx.com/javafx/null" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sepgroup.sep.controller.TaskViewerController">
     <children>
         <Label fx:id="nameLabel" alignment="CENTER" layoutX="31.0" layoutY="16.0" prefHeight="32.0" prefWidth="385.0" text="[name]" textAlignment="CENTER">
             <font>
                 <Font name="System Bold" size="28.0" />
             </font></Label>
-        <Button layoutX="322.0" layoutY="468.0" mnemonicParsing="false" onAction="#onCancelClicked" prefHeight="60.0" prefWidth="105.0" text="Cancel" textFill="WHITE">
+        <Button layoutX="322.0" layoutY="522.0" mnemonicParsing="false" onAction="#onCancelClicked" prefHeight="40.0" prefWidth="105.0" text="Cancel" textFill="WHITE">
             <font>
                 <Font name="System Bold" size="12.0" />
             </font></Button>
@@ -29,31 +29,34 @@
          <font>
             <Font size="14.0" />
          </font></Label>
-      <Label layoutX="37.0" layoutY="195.0" prefHeight="32.0" prefWidth="123.0" text="Expected Duration">
+      <Label layoutX="37.0" layoutY="182.0" prefHeight="32.0" prefWidth="123.0" text="Expected Duration">
          <font>
             <Font name="System Bold" size="12.0" />
          </font>
       </Label>
-      <Label fx:id="expectedDuration" layoutX="175.0" layoutY="203.0" prefHeight="17.0" prefWidth="148.0" text="[Duration]" />
-      <Button fx:id="editButton" layoutX="127.0" layoutY="468.0" mnemonicParsing="false" onAction="#onEditClicked" prefHeight="60.0" prefWidth="105.0" text="Edit" textFill="WHITE">
+      <Label fx:id="expectedDuration" layoutX="175.0" layoutY="190.0" prefHeight="17.0" prefWidth="90.0" text="[Duration]" />
+      <Button fx:id="editButton" layoutX="127.0" layoutY="522.0" mnemonicParsing="false" onAction="#onEditClicked" prefHeight="40.0" prefWidth="105.0" text="Edit" textFill="WHITE">
          <font>
             <Font name="System Bold" size="12.0" />
          </font>
       </Button>
-      <Label fx:id="budgetLabel" layoutX="37.0" layoutY="163.0" prefHeight="32.0" prefWidth="62.0" text="Budget">
+      <Label fx:id="budgetLabel" layoutX="37.0" layoutY="150.0" prefHeight="32.0" prefWidth="62.0" text="Budget">
          <font>
             <Font name="System Bold" size="12.0" />
          </font>
       </Label>
-      <Label fx:id="budget" layoutX="99.0" layoutY="171.0" prefHeight="17.0" prefWidth="105.0" text="[Budget]" />
-      <Label fx:id="statusLabel" layoutX="37.0" layoutY="227.0" prefHeight="32.0" prefWidth="49.0" text="Status">
+      <Label fx:id="budget" layoutX="99.0" layoutY="158.0" prefHeight="17.0" prefWidth="105.0" text="[Budget]" />
+      <Label fx:id="statusLabel" layoutX="37.0" layoutY="245.0" prefHeight="32.0" prefWidth="49.0" text="Status">
          <font>
             <Font name="System Bold" size="12.0" />
          </font>
       </Label>
-      <Label fx:id="status" layoutX="99.0" layoutY="235.0" prefHeight="17.0" prefWidth="277.0" text="[Status]" />
-      <Label fx:id="description" alignment="TOP_LEFT" layoutX="41.0" layoutY="87.0" prefHeight="60.0" prefWidth="484.0" text="[Description]" />
-      <Pane fx:id="pertInfo" focusTraversable="true" layoutX="29.0" layoutY="304.0" prefHeight="158.0" prefWidth="506.0" visible="false">
+      <Label fx:id="status" layoutX="99.0" layoutY="252.0" prefHeight="17.0" prefWidth="264.0" text="[Status]" />
+      <Label fx:id="description" alignment="TOP_LEFT" layoutX="40.0" layoutY="66.0" prefHeight="10.0" prefWidth="82.0" text="Description">
+         <font>
+            <Font name="System Bold" size="13.0" />
+         </font></Label>
+      <Pane fx:id="pertInfo" focusTraversable="true" layoutX="29.0" layoutY="347.0" prefHeight="167.0" prefWidth="506.0" visible="false">
          <children>
               <Button layoutX="295.0" layoutY="18.0" mnemonicParsing="false" onAction="#onPERTClicked" prefHeight="40.0" prefWidth="203.0" text="P.E.R.T. Analysis" textFill="WHITE">
                   <font>
@@ -66,7 +69,7 @@
                </font>
             </Label>
             <DatePicker fx:id="pertDate" layoutX="76.0" layoutY="25.0" />
-            <Label fx:id="pertPercentage" layoutX="14.0" layoutY="81.0" prefHeight="60.0" prefWidth="484.0" text="[PERT Percentage]" visible="false">
+            <Label fx:id="pertPercentage" layoutX="10.0" layoutY="81.0" prefHeight="60.0" prefWidth="484.0" text="[PERT Percentage]" visible="false">
                <font>
                   <Font size="14.0" />
                </font>
@@ -95,11 +98,54 @@
           </Tab>
         </tabs>
       </TabPane>
-      <Label fx:id="assignee" layoutX="127.0" layoutY="272.0" prefHeight="17.0" prefWidth="277.0" text="[User Name]" />
-      <Label fx:id="assigneeLabel" layoutX="37.0" layoutY="264.0" prefHeight="32.0" prefWidth="62.0" text="Assignee">
+      <Label fx:id="assignee" layoutX="120.0" layoutY="223.0" prefHeight="17.0" prefWidth="137.0" text="[User Name]" />
+      <Label fx:id="assigneeLabel" layoutX="37.0" layoutY="214.0" prefHeight="32.0" prefWidth="62.0" text="Assignee">
          <font>
             <Font name="System Bold" size="12.0" />
          </font>
       </Label>
+      <TextArea fx:id="taskDescriptionArea" layoutX="39.0" layoutY="87.0" prefHeight="60.0" prefWidth="484.0" />
+      <Label layoutX="34.0" layoutY="281.0" text="Expected Start Date">
+         <font>
+            <Font name="System Bold" size="13.0" />
+         </font>
+      </Label>
+      <Label layoutX="284.0" layoutY="281.0" prefHeight="17.0" prefWidth="115.0" text="Actual Start Date">
+          <font>
+              <Font name="System Bold" size="13.0" />
+          </font>
+      </Label>
+      <Label layoutX="34.0" layoutY="315.0" prefHeight="17.0" prefWidth="132.0" text="Expected End Date">
+         <font>
+            <Font name="System Bold" size="13.0" />
+         </font>
+      </Label>
+      <Label layoutX="284.0" layoutY="314.0" prefHeight="17.0" prefWidth="115.0" text="Actual End Date">
+         <font>
+            <Font name="System Bold" size="13.0" />
+         </font>
+      </Label>
+      <Label fx:id="expectedStartDateLabel" layoutX="188.0" layoutY="281.0" prefHeight="17.0" prefWidth="82.0" text="[exp start]" />
+      <Label fx:id="actualStartDateLabel" layoutX="411.0" layoutY="281.0" prefHeight="17.0" prefWidth="82.0" text="[act start]" />
+      <Label fx:id="expectedEndDateLabel" layoutX="188.0" layoutY="315.0" prefHeight="17.0" prefWidth="82.0" text="[exp end]" />
+      <Label fx:id="actualEndDateLabel" layoutX="411.0" layoutY="314.0" prefHeight="17.0" prefWidth="82.0" text="[act end]" />
+      <Label layoutX="284.0" layoutY="159.0" prefHeight="17.0" prefWidth="147.0" text="Most Likely Duration">
+         <font>
+            <Font name="System Bold" size="13.0" />
+         </font>
+      </Label>
+      <Label layoutX="284.0" layoutY="191.0" prefHeight="17.0" prefWidth="147.0" text="Pessimistic Duration">
+         <font>
+            <Font name="System Bold" size="13.0" />
+         </font>
+      </Label>
+      <Label layoutX="284.0" layoutY="223.0" prefHeight="17.0" prefWidth="147.0" text="Optimistic Duration">
+         <font>
+            <Font name="System Bold" size="13.0" />
+         </font>
+      </Label>
+      <Label fx:id="mostLikelyDurationLabel" layoutX="441.0" layoutY="159.0" prefHeight="17.0" prefWidth="82.0" text="[ml dur]" />
+      <Label fx:id="pessimisticDurationLabel" layoutX="441.0" layoutY="191.0" prefHeight="17.0" prefWidth="82.0" text="[pess dur]" />
+      <Label fx:id="optimisticDurationLabel" layoutX="441.0" layoutY="223.0" prefHeight="17.0" prefWidth="82.0" text="[opt dur]" />
     </children>
 </AnchorPane>

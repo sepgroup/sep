@@ -286,8 +286,6 @@ public class TaskModel extends AbstractModel {
         }
     }
 
-
-
     public Date getActualEndDate() {
         return actualEndDate;
     }
@@ -895,10 +893,6 @@ public class TaskModel extends AbstractModel {
         if (!equalsNullable(other.getTags(), getTags())) {
             return false;
         }
-//        if (!equalsNullable(other.getDependencies(), getDependencies())) {
-//            return false;
-//        }
-
 
         return true;
     }
