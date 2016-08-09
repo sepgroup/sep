@@ -1,5 +1,16 @@
 package com.sepgroup.sep.controller;
 
+import com.sepgroup.sep.Main;
+import com.sepgroup.sep.db.DBException;
+import com.sepgroup.sep.model.*;
+import com.sepgroup.sep.utils.DateUtils;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -8,18 +19,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import com.sepgroup.sep.Main;
-import com.sepgroup.sep.db.DBException;
-import com.sepgroup.sep.model.*;
-import com.sepgroup.sep.utils.DateUtils;
-
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Created by jeremybrown on 2016-06-01.
@@ -312,7 +311,14 @@ public class TaskEditorController extends AbstractController {
         model.setDescription(taskDescriptionArea.getText());
 
         // Complete
-        model.setDone(completeCheckBox.isSelected());
+        try {
+            model.setDone(completeCheckBox.isSelected());
+        } catch (final InvalidInputException e) {
+            logger.error(e.getMessage(), e);
+            DialogCreator.showErrorDialog("Invalid input", e.getLocalizedMessage());
+            return;
+        }
+
 
         // Persist updated model
         try {

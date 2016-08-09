@@ -528,15 +528,15 @@ public class ProjectModel extends AbstractModel {
         if (other.getName() != null && name != null && !other.getName().equals(this.name)) {
             return false;
         }
-        try {
-            if (other.getTasks() != null && getTasks() != null && other.getTasks().equals(this.getTasks())) {
-                return false;
-            }
-        } catch (ModelNotFoundException e) {
-            logger.debug("Hacky, ignoring for now.", e);
-        } catch (InvalidInputException e) {
-            logger.error("I was lazy...", e);
-        }
+//        try {
+//            if (other.getTasks() != null && getTasks() != null && other.getTasks().equals(this.getTasks())) {
+//                return false;
+//            }
+//        } catch (ModelNotFoundException e) {
+//            logger.debug("Hacky, ignoring for now.", e);
+//        } catch (InvalidInputException e) {
+//            logger.error("I was lazy...", e);
+//        }
 
         return true;
     }
