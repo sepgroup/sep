@@ -15,13 +15,13 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="taskview" prefHeight="613.0" prefWidth="820.0" xmlns="http://javafx.com/javafx/null" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sepgroup.sep.controller.TaskViewerController">
+<AnchorPane fx:id="taskview" prefHeight="613.0" prefWidth="820.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sepgroup.sep.controller.TaskViewerController">
     <children>
         <Label fx:id="nameLabel" alignment="CENTER" layoutX="31.0" layoutY="16.0" prefHeight="32.0" prefWidth="385.0" text="[name]" textAlignment="CENTER">
             <font>
                 <Font name="System Bold" size="28.0" />
             </font></Label>
-        <Button layoutX="322.0" layoutY="522.0" mnemonicParsing="false" onAction="#onCancelClicked" prefHeight="40.0" prefWidth="105.0" text="Cancel" textFill="WHITE">
+        <Button layoutX="205.0" layoutY="522.0" mnemonicParsing="false" onAction="#onCancelClicked" prefHeight="40.0" prefWidth="105.0" text="Detailed View" textFill="WHITE">
             <font>
                 <Font name="System Bold" size="12.0" />
             </font></Button>
@@ -35,7 +35,7 @@
          </font>
       </Label>
       <Label fx:id="expectedDuration" layoutX="175.0" layoutY="190.0" prefHeight="17.0" prefWidth="90.0" text="[Duration]" />
-      <Button fx:id="editButton" layoutX="127.0" layoutY="522.0" mnemonicParsing="false" onAction="#onEditClicked" prefHeight="40.0" prefWidth="105.0" text="Edit" textFill="WHITE">
+      <Button fx:id="editButton" layoutX="68.0" layoutY="522.0" mnemonicParsing="false" onAction="#onEditClicked" prefHeight="40.0" prefWidth="105.0" text="Edit" textFill="WHITE">
          <font>
             <Font name="System Bold" size="12.0" />
          </font>
@@ -58,17 +58,12 @@
          </font></Label>
       <Pane fx:id="pertInfo" focusTraversable="true" layoutX="29.0" layoutY="347.0" prefHeight="167.0" prefWidth="506.0" visible="false">
          <children>
-              <Button layoutX="295.0" layoutY="18.0" mnemonicParsing="false" onAction="#onPERTClicked" prefHeight="40.0" prefWidth="203.0" text="P.E.R.T. Analysis" textFill="WHITE">
-                  <font>
-                      <Font name="System Bold" size="12.0" />
-                  </font>
-            </Button>
-            <Label fx:id="finishBy" layoutX="14.0" layoutY="22.0" prefHeight="32.0" prefWidth="62.0" text="Finish By">
+            <Label fx:id="pertAnalysis" layoutX="10.0" layoutY="23.0" prefHeight="32.0" prefWidth="162.0" text="P.E.R.T. Analysis">
                <font>
-                  <Font name="System Bold" size="12.0" />
+                  <Font name="System Bold" size="18.0" />
                </font>
             </Label>
-            <DatePicker fx:id="pertDate" layoutX="76.0" layoutY="25.0" />
+            <DatePicker fx:id="pertDate" layoutX="253.0" layoutY="25.0" onAction="#onDateChanged" />
             <Label fx:id="pertPercentage" layoutX="10.0" layoutY="81.0" prefHeight="60.0" prefWidth="484.0" text="[PERT Percentage]" visible="false">
                <font>
                   <Font size="14.0" />
@@ -76,7 +71,7 @@
             </Label>
          </children>
       </Pane>
-      <TabPane layoutX="557.0" layoutY="36.0" prefHeight="464.0" prefWidth="244.0" tabClosingPolicy="UNAVAILABLE">
+      <TabPane layoutX="556.0" layoutY="66.0" prefHeight="464.0" prefWidth="244.0" tabClosingPolicy="UNAVAILABLE">
         <tabs>
           <Tab fx:id="dependenciesTab" text="Dependencies">
             <content>
@@ -147,5 +142,10 @@
       <Label fx:id="mostLikelyDurationLabel" layoutX="441.0" layoutY="159.0" prefHeight="17.0" prefWidth="82.0" text="[ml dur]" />
       <Label fx:id="pessimisticDurationLabel" layoutX="441.0" layoutY="191.0" prefHeight="17.0" prefWidth="82.0" text="[pess dur]" />
       <Label fx:id="optimisticDurationLabel" layoutX="441.0" layoutY="223.0" prefHeight="17.0" prefWidth="82.0" text="[opt dur]" />
+      <Button layoutX="347.0" layoutY="522.0" mnemonicParsing="false" onAction="#onGraphViewClicked" prefHeight="40.0" prefWidth="105.0" text="Graph View" textFill="WHITE">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </Button>
     </children>
 </AnchorPane>

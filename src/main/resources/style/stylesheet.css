@@ -100,7 +100,7 @@
 }
 
 .line {
-    -fx-stroke: white;
+    -fx-stroke: black;
     -fx-stroke-width: 2px;
 }
 

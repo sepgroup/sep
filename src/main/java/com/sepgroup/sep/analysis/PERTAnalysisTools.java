@@ -23,14 +23,14 @@ public final class PERTAnalysisTools {
         Graph newGraph = new Graph();
         GraphFactory.makeGraph(projectId, newGraph);
 
-        setPasses(newGraph, days);
+        setPasses(newGraph);
 
         Node currentNode = newGraph.getNodeByID(currentTask.getTaskId());
         ArrayList<ArrayList<Node>> criticalPaths = getCriticalPath(newGraph, currentNode);
         return calculateProbability(criticalPaths, currentNode, days);
     }
 
-    public static void setPasses(Graph newGraph, int days) throws ModelNotFoundException
+    public static void setPasses(Graph newGraph)
     {
         forwardPass(newGraph.getRoot(), 0);
         backwardPass(newGraph.getTerminal(), (int)newGraph.getTerminal().getData().earliestFinish);
@@ -58,8 +58,10 @@ public final class PERTAnalysisTools {
         double expectedTime = (double)(currentNode.getData().earliestFinish + currentNode.getData().latestFinish) / 2;
 
         double sum = 0;
+        double stDev = Math.sqrt(minVariance);
+
         for(double i = 0; i <= days; i += 0.001) {
-            double prob = probability(i - expectedTime, Math.sqrt(minVariance));
+            double prob = probability(i - expectedTime, stDev);
             prob *= 0.001;
             sum += prob;
         }
@@ -96,8 +98,9 @@ public final class PERTAnalysisTools {
 
     public static ArrayList<ArrayList<Node>> getCriticalPath(Graph graph, Node targetNode)
     {
-        ArrayList<ArrayList<Node>> allPaths = new ArrayList<ArrayList<Node>>();
+        clearCritical(graph);
 
+        ArrayList<ArrayList<Node>> allPaths = new ArrayList<ArrayList<Node>>();
         allPaths.add(new ArrayList<Node>());
 
         backTrack(allPaths, allPaths.get(0), targetNode);
@@ -108,37 +111,47 @@ public final class PERTAnalysisTools {
     private static void backTrack(ArrayList<ArrayList<Node>> paths, ArrayList<Node> currentPath, Node currentNode)
     {
         currentPath.add(0, currentNode);
+        currentNode.setCritical(true);
 
         ArrayList<Node> nextNodes = currentNode.getInNodes();
-        int min = Integer.MAX_VALUE;
+        double minSlack = Integer.MAX_VALUE;
+        double maxTime = Integer.MIN_VALUE;
         ArrayList<Node> minNodes = new ArrayList<Node>();
+
         for(Node nextNode: nextNodes)
         {
-            int slack = (int)(nextNode.getData().latestFinish - nextNode.getData().earliestFinish);
-            if(slack < min)
+            double slack = (int)(nextNode.getData().latestFinish - nextNode.getData().earliestFinish);
+            if(nextNode.getData().latestFinish > maxTime)
             {
-                min = slack;
+                maxTime = nextNode.getData().latestFinish;
+                minSlack = slack;
                 minNodes.clear();
                 minNodes.add(nextNode);
             }
-            else if(slack == min)
-                minNodes.add(nextNode);
+            if(nextNode.getData().latestFinish == maxTime)
+            {
+                if(slack < minSlack)
+                {
+                    minSlack = slack;
+                    minNodes.clear();
+                    minNodes.add(nextNode);
+                }
+                else if(slack == minSlack)
+                    minNodes.add(nextNode);
+            }
         }
 
-        int i = 0;
         for(Node node: minNodes)
         {
-            node.setCritical(true);
-            if (i > 0)
-            {
-                paths.add(new ArrayList<Node>(currentPath));
-                backTrack(paths, paths.get(paths.size() - 1), node);
-            }
-            else
-                backTrack(paths, currentPath, node);
-
-            i++;
+            backTrack(paths, currentPath, node);
         }
+
+    }
+
+    private static void clearCritical(Graph g)
+    {
+        for(Node n: g.nodes)
+            n.setCritical(false);
     }
 
     private static double taskVariance(TaskModel task)
@@ -153,6 +166,6 @@ public final class PERTAnalysisTools {
 
     private static double probability(double timeDifference, double standardDeviation)
     {
-        return (standardDeviation == 0 ? 0 : Math.exp(- Math.pow(timeDifference / standardDeviation, 2) / 2) / (standardDeviation * Math.sqrt(2 * 3.14159)));
+        return Math.exp(- Math.pow(timeDifference / standardDeviation, 2) / 2) / (standardDeviation * Math.sqrt(2 * 3.14159));
     }
 }

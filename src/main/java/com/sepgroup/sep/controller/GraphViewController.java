@@ -28,6 +28,7 @@ import javafx.event.EventHandler;
 import javafx.scene.control.ContentDisplay;
 
 import java.time.LocalDate;
+import java.util.Date;
 import java.time.Period;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -38,17 +39,20 @@ import java.util.ArrayList;
 public class GraphViewController extends AbstractController{
 
     class CustomArrow extends Line {
-        Polygon tip;
+        Polygon tip = new Polygon();
 
         protected CustomArrow(double x1, double y1, double x2, double y2) {
             super(x1, y1, x2, y2);
             recalculateTip();
+            graphArea.getChildren().add(tip);
         }
 
         public void updateOrigin(int x1, int y1)
         {
             this.setStartX(x1);
             this.setStartY(y1);
+
+            recalculateTip();
         }
 
         public void updateTip(int x2, int y2)
@@ -66,7 +70,8 @@ public class GraphViewController extends AbstractController{
             double trianglePosX = getStartX() + distanceFromOrigin * Math.cos(angle);
             double trianglePosY = getStartY() + distanceFromOrigin * Math.sin(angle);
 
-            tip = new Polygon();
+            tip.getPoints().clear();
+
             tip.getPoints().addAll(new Double[]{trianglePosX + 10 * Math.cos(angle), trianglePosY + 10 * Math.sin(angle),
                     trianglePosX - 5 * Math.sin(angle), trianglePosY + 5 * Math.cos(angle),
                     trianglePosX + 5 * Math.sin(angle), trianglePosY - 5 * Math.cos(angle)});
@@ -191,13 +196,36 @@ public class GraphViewController extends AbstractController{
         }
 
         for(Node n: graph.nodes) {
+            n.myButton.setStyle("");
             n.myButton.getStyleClass().clear();
             n.myButton.getStyleClass().add("button");
-            if (n.getData().task.isDone()) {
+
+            LocalDate date = project.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            boolean supposedToHaveStarted = LocalDate.now().isAfter(date);
+
+            if (n.getData().task.isDone() || (n == graph.getRoot() && supposedToHaveStarted))
                 n.myButton.getStyleClass().add("done-button");
-            }
             else
-                n.myButton.getStyleClass().add("graph-button");
+            {
+                boolean inProgress = supposedToHaveStarted;
+
+                if(supposedToHaveStarted)
+                    for(Node inNode: n.getInNodes())
+                        if(!inNode.getData().task.isDone() && inNode != graph.getRoot())
+                        {
+                            inProgress = false;
+                            break;
+                        }
+
+                if(inProgress) {
+                    if(n.getData().task.shouldBeDone())
+                        n.myButton.getStyleClass().add("critical-path-button");
+                    else
+                        n.myButton.getStyleClass().add("meh-button");
+                }
+                else
+                    n.myButton.getStyleClass().add("graph-button");
+            }
         }
 
         cPView.setSelected(false);
@@ -212,9 +240,11 @@ public class GraphViewController extends AbstractController{
             return;
         }
 
+        PERTAnalysisTools.setPasses(graph);
         PERTAnalysisTools.getCriticalPath(graph, graph.getTerminal());
 
         for(Node n: graph.nodes) {
+            n.myButton.setStyle("");
             n.myButton.getStyleClass().clear();
             n.myButton.getStyleClass().add("button");
             if (n.getCritical())
@@ -264,41 +294,50 @@ public class GraphViewController extends AbstractController{
         Period diff = Period.between(projectStartDate, expectedFinishingDate);
         double dayDifference = diff.getDays() + diff.getMonths() * 30 + diff.getYears() * 365;
 
-        PERTAnalysisTools.setPasses(graph, (int) dayDifference);
+        PERTAnalysisTools.setPasses(graph);
 
         for(Node n: graph.nodes) {
             ArrayList<ArrayList<Node>> criticalPaths = PERTAnalysisTools.getCriticalPath(graph, n);
             double prob = PERTAnalysisTools.calculateProbability(criticalPaths, n, (int)dayDifference);
-
+            n.myButton.setStyle("");
             n.myButton.getStyleClass().clear();
             n.myButton.getStyleClass().add("button");
 
-            if (prob < 0.4)
-                n.myButton.getStyleClass().add("critical-path-button");
-            else if(prob < 0.6)
-                n.myButton.getStyleClass().add("meh-button");
+            int r;
+            int g;
+            String redGreen;
+            if(prob < 0.5)
+            {
+                r = 255;
+                g = (int)(210 * prob + 150);
+            }
             else
-                n.myButton.getStyleClass().add("graph-button");
+            {
+                g = 255;
+                r = (int)(210 * (1 - prob) + 150);
+            }
+
+            redGreen = String.valueOf(r) + ", " + String.valueOf(g);
+
+            n.myButton.setStyle("-fx-background-color: rgb(" + redGreen + ", 150); ");
         }
     }
 
     public void update() {
         try {
-            graphArea.setStyle("-fx-background-color: #856E7A");
+            graphArea.setStyle("-fx-background-image: url(\"grid.jpg\");");
 
             PhysicsGraphController pgc = new PhysicsGraphController(false, project.getProjectId());
             pgc.positionNodes();
 
             this.graph = pgc.getGraph();
 
-            //System.out.print(CriticalPath.computeCriticalPaths(pgc.getGraph()));
-
             double relativeWidth = 0.5 / pgc.getGraph().getTerminal().getDepth();
             double relativeHeight = 0.1;
             for (Node n : pgc.getGraph().nodes) {
                 String assignee = "", taskIdString = "";
                 if(n.getData().task.getAssignee() != null && n.getData().task.getAssignee().getFullName() != null)
-                    assignee = "\n" + n.getData().task.getAssignee().getFullName();
+                    assignee = "\r" + n.getData().task.getAssignee().getFullName();
                 if(n.getData().task.getTaskId() > 0)
                     taskIdString = n.getData().task.getTaskId() + ": ";
                 graphArea.getChildren().add(new NodeButton(taskIdString + n.getData().task.getName() + assignee));
@@ -306,7 +345,6 @@ public class GraphViewController extends AbstractController{
                 button.setLayoutX(graphArea.getPrefWidth() * (1 - relativeWidth) * ((PhysicsNode) n).getRelX());
                 button.setLayoutY(graphArea.getPrefHeight() * (1 - relativeHeight)  * ((PhysicsNode) n).getRelY());
                 button.setDimensions(relativeWidth * graphArea.getPrefWidth(), relativeHeight * graphArea.getPrefHeight());
-                button.setContentDisplay(ContentDisplay.TOP);
 
                 n.myButton = button;
 

@@ -98,7 +98,7 @@ public class TaskViewerController extends AbstractController {
     }
 
     @FXML
-    public void onPERTClicked() {
+    public void onDateChanged() {
         if(pertDate.getValue() != null)
         {
             if(!model.shouldBeDone())
@@ -144,6 +144,13 @@ public class TaskViewerController extends AbstractController {
         TaskEditorController tec = (TaskEditorController) Main.setPrimaryScene(TaskEditorController.getFxmlPath());
         tec.setModel(model);
         tec.setReturnProject(project);
+    }
+
+    @FXML
+    public void onGraphViewClicked()
+    {
+        GraphViewController gvc = (GraphViewController) Main.setPrimaryScene(GraphViewController.getFxmlPath());
+        gvc.setReturnProject(project);
     }
 
     public void setModel(TaskModel t) {
