@@ -52,7 +52,7 @@ jacocoTestReport {
             fileTree(dir: it, exclude: [
                     '**/*jfree**',
                     '**/controller/**',
-                    '**/analysis/GraphDisplay/**'
+                    '**/analysis/**'
             ])
         })
     }
