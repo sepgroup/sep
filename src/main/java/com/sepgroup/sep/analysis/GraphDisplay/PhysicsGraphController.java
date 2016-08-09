@@ -86,17 +86,17 @@ public class PhysicsGraphController implements KeyInputController{
     public void positionNodes(){
         graph.update();
         loadSequentially();
-        for(int i = 0; i<10000;i++){
-        //while(true){
+      //  for(int i = 0; i<10000;i++){
+        while(true){
             update();
             if(reset){
                 loadSequentially();
                 reset = false;
             }
         }
-        moveToEdge();
-        pushPositions(graph.getRoot());
-        graph.setRelativePosition();
+        //moveToEdge();
+        //pushPositions(graph.getRoot());
+       // graph.setRelativePosition();
     }
     private void loadSequentially(){
         graph.disableAllPhysics();
@@ -134,7 +134,7 @@ public class PhysicsGraphController implements KeyInputController{
     }
     private void linkUnlinkNodeToTerminal(Node n){
         if(n.getOutNodes().contains(graph.getTerminal()))
-            n.removeInNode(graph.getTerminal());
+            n.removeOutNode(graph.getTerminal());
         else
             graph.addDirectedEdge(n,graph.getTerminal());
     }
