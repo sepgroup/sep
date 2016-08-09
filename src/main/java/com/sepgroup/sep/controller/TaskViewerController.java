@@ -103,12 +103,25 @@ public class TaskViewerController extends AbstractController {
         {
             if(!model.shouldBeDone())
             {
-                LocalDate projectStartDate = project.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                LocalDate projectStartDate = null;
+                try {
+                    projectStartDate = project.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                }
+                catch(NullPointerException e)
+                {
+                    DialogCreator.showErrorDialog("Project Start Date Not Set", "This project's start date has not been set. P.E.R.T." +
+                                                    " analysis cannot be performed without it.");
+                    return;
+                }
+                catch(Exception e)
+                {
+                    DialogCreator.showExceptionDialog(e);
+                    return;
+                }
                 LocalDate expectedFinishingDate = pertDate.getValue();
 
                 Period diff = Period.between(projectStartDate, expectedFinishingDate);
                 double dayDifference = diff.getDays() + diff.getMonths() * 30 + diff.getYears() * 365;
-                System.out.println(dayDifference);
 
                 try {
                     pertPercentage.setText(String.format("%.2f", PERTAnalysisTools.pertAnalysis(model, (int)dayDifference) * 100)
@@ -117,6 +130,7 @@ public class TaskViewerController extends AbstractController {
                 catch(Exception e)
                 {
                     DialogCreator.showExceptionDialog(e);
+                    return;
                 }
             }
 

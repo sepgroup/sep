@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
 
 import javafx.scene.layout.Pane;
 import javafx.scene.control.Button;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.DatePicker;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
 import javafx.scene.transform.Rotate;
@@ -25,6 +27,9 @@ import javafx.scene.input.MouseDragEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.ContentDisplay;
 
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.ZoneId;
 import java.util.ArrayList;
 
 /**
@@ -120,10 +125,19 @@ public class GraphViewController extends AbstractController{
     private static Logger logger = LoggerFactory.getLogger(TaskViewerController.class);
     private static final String fxmlPath = "/views/graphview.fxml";
     private ProjectModel project;
+    private Graph graph;
     private double deltaX, deltaY;
 
     @FXML
     public Pane graphArea;
+    @FXML
+    public RadioButton normalView;
+    @FXML
+    public RadioButton cPView;
+    @FXML
+    public RadioButton pertView;
+    @FXML
+    public DatePicker pertDate;
 
     public GraphViewController() {
         setCssPath("/style/stylesheet.css");
@@ -146,12 +160,136 @@ public class GraphViewController extends AbstractController{
         pvc.setModel(project);
     }
 
+    @FXML
+    public void onDateChanged()
+    {
+        if(pertView.isSelected())
+        {
+            try {
+                PERTItAll();
+            }
+            catch (NullPointerException e) {
+                pertView.setSelected(false);
+                DialogCreator.showErrorDialog("Project Start Date Not Set", "This project's start date has not been set. P.E.R.T." +
+                        " analysis cannot be performed without it.");
+                return;
+            }
+            catch (Exception e) {
+                pertView.setSelected(false);
+                DialogCreator.showExceptionDialog(e);
+                return;
+            }
+        }
+    }
+
+    @FXML
+    public void onNormalSelected() {
+        if(!normalView.isSelected())
+        {
+            normalView.setSelected(true);
+            return;
+        }
+
+        for(Node n: graph.nodes) {
+            n.myButton.getStyleClass().clear();
+            n.myButton.getStyleClass().add("button");
+            if (n.getData().task.isDone()) {
+                n.myButton.getStyleClass().add("done-button");
+            }
+            else
+                n.myButton.getStyleClass().add("graph-button");
+        }
+
+        cPView.setSelected(false);
+        pertView.setSelected(false);
+    }
+
+    @FXML
+    public void onCPSelected() {
+        if(!cPView.isSelected())
+        {
+            cPView.setSelected(true);
+            return;
+        }
+
+        PERTAnalysisTools.getCriticalPath(graph, graph.getTerminal());
+
+        for(Node n: graph.nodes) {
+            n.myButton.getStyleClass().clear();
+            n.myButton.getStyleClass().add("button");
+            if (n.getCritical())
+                n.myButton.getStyleClass().add("critical-path-button");
+            else
+                n.myButton.getStyleClass().add("graph-button");
+        }
+
+        normalView.setSelected(false);
+        pertView.setSelected(false);
+    }
+
+    @FXML
+    public void onPERTSelected() {
+        if(!pertView.isSelected())
+        {
+            pertView.setSelected(true);
+            return;
+        }
+
+        try {
+            PERTItAll();
+        }
+        catch (NullPointerException e) {
+            DialogCreator.showErrorDialog("Project Start Date Not Set", "This project's start date has not been set. P.E.R.T." +
+                    " analysis cannot be performed without it.");
+            pertView.setSelected(false);
+            return;
+        }
+        catch (Exception e) {
+            pertView.setSelected(false);
+            DialogCreator.showExceptionDialog(e);
+            return;
+        }
+
+        normalView.setSelected(false);
+        cPView.setSelected(false);
+    }
+
+    private void PERTItAll() throws Exception
+    {
+        LocalDate projectStartDate = null;
+        LocalDate expectedFinishingDate = null;
+
+        projectStartDate = project.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        expectedFinishingDate = pertDate.getValue();
+        Period diff = Period.between(projectStartDate, expectedFinishingDate);
+        double dayDifference = diff.getDays() + diff.getMonths() * 30 + diff.getYears() * 365;
+
+        PERTAnalysisTools.setPasses(graph, (int) dayDifference);
+
+        for(Node n: graph.nodes) {
+            ArrayList<ArrayList<Node>> criticalPaths = PERTAnalysisTools.getCriticalPath(graph, n);
+            double prob = PERTAnalysisTools.calculateProbability(criticalPaths, n, (int)dayDifference);
+
+            n.myButton.getStyleClass().clear();
+            n.myButton.getStyleClass().add("button");
+
+            if (prob < 0.4)
+                n.myButton.getStyleClass().add("critical-path-button");
+            else if(prob < 0.6)
+                n.myButton.getStyleClass().add("meh-button");
+            else
+                n.myButton.getStyleClass().add("graph-button");
+        }
+    }
+
     public void update() {
         try {
+            graphArea.setStyle("-fx-background-color: #856E7A");
+
             PhysicsGraphController pgc = new PhysicsGraphController(false, project.getProjectId());
             pgc.positionNodes();
 
-            PERTAnalysisTools.getCriticalPath(pgc.getGraph(), pgc.getGraph().getTerminal());
+            this.graph = pgc.getGraph();
 
             //System.out.print(CriticalPath.computeCriticalPaths(pgc.getGraph()));
 
@@ -166,14 +304,9 @@ public class GraphViewController extends AbstractController{
                 graphArea.getChildren().add(new NodeButton(taskIdString + n.getData().task.getName() + assignee));
                 NodeButton button = (NodeButton) graphArea.getChildren().get(graphArea.getChildren().size() - 1);
                 button.setLayoutX(graphArea.getPrefWidth() * (1 - relativeWidth) * ((PhysicsNode) n).getRelX());
-                button.setLayoutY(graphArea.getPrefHeight() * (1 - relativeHeight) * ((PhysicsNode) n).getRelY());
+                button.setLayoutY(graphArea.getPrefHeight() * (1 - relativeHeight) * 1.5 * ((PhysicsNode) n).getRelY());
                 button.setDimensions(relativeWidth * graphArea.getPrefWidth(), relativeHeight * graphArea.getPrefHeight());
                 button.setContentDisplay(ContentDisplay.TOP);
-
-                if (((PhysicsNode) n).getCritical())
-                    button.getStyleClass().add("critical-path-button");
-                else
-                    button.getStyleClass().add("graph-button");
 
                 n.myButton = button;
 
@@ -182,7 +315,7 @@ public class GraphViewController extends AbstractController{
                             button.getLayoutX() + button.getMinWidth(),
                             button.getLayoutY() + button.getMinHeight() / 2,
                             graphArea.getPrefWidth() * (1 - relativeWidth) * ((PhysicsNode) outNode).getRelX(),
-                            graphArea.getPrefHeight() * (1 - relativeHeight) * ((PhysicsNode) outNode).getRelY() + button.getMinHeight() / 2);
+                            graphArea.getPrefHeight() * (1 - relativeHeight) * 1.5 * ((PhysicsNode) outNode).getRelY() + button.getMinHeight() / 2);
 
                     graphArea.getChildren().add(newLine);
                     button.addOutNode(newLine);
@@ -237,6 +370,9 @@ public class GraphViewController extends AbstractController{
                             }
                 }
             }
+
+            normalView.setSelected(true);
+            onNormalSelected();
         }
         catch(Exception e)
         {

@@ -61,7 +61,7 @@
 
 .graph-button {
     -fx-effect: dropshadow(two-pass-box , darkgray, 10, 0.0 , 4, 5);
-    -fx-background-color: #50C878;
+    -fx-background-color: #C0E5D5;
     -fx-background-radius: 15 15 15 15;
     -fx-background-insets: 2 2 2 2 ;
     -fx-color:white;
@@ -74,19 +74,39 @@
 
 .critical-path-button {
     -fx-effect: dropshadow(two-pass-box , darkgray, 10, 0.0 , 4, 5);
-    -fx-background-color: #FF5C5C;
+    -fx-background-color: #E98892;
     -fx-background-radius: 15 15 15 15;
     -fx-background-insets: 2 2 2 2 ;
     -fx-color:white;
     -fx-text-align: center;
 }
 
+.meh-button {
+    -fx-effect: dropshadow(two-pass-box , darkgray, 10, 0.0 , 4, 5);
+        -fx-background-color: #F0E68C;
+        -fx-background-radius: 15 15 15 15;
+        -fx-background-insets: 2 2 2 2 ;
+        -fx-color:white;
+        -fx-text-align: center;
+}
+
+.done-button {
+    -fx-effect: dropshadow(two-pass-box , darkgray, 10, 0.0 , 4, 5);
+        -fx-background-color: #87CEEB;
+        -fx-background-radius: 15 15 15 15;
+        -fx-background-insets: 2 2 2 2 ;
+        -fx-color:white;
+        -fx-text-align: center;
+}
+
 .line {
-    -fx-stroke-width: 3px;
+    -fx-stroke: white;
+    -fx-stroke-width: 2px;
 }
 
 .critical-path-line {
-    -fx-stroke: #FF5C5C;
+    -fx-stroke: #E98892;
+    -fx-stroke-width: 3px;
 }
 
 .critical-path-button:hover {

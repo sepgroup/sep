@@ -23,10 +23,21 @@ public final class PERTAnalysisTools {
         Graph newGraph = new Graph();
         GraphFactory.makeGraph(projectId, newGraph);
 
+        setPasses(newGraph, days);
+
         Node currentNode = newGraph.getNodeByID(currentTask.getTaskId());
-
         ArrayList<ArrayList<Node>> criticalPaths = getCriticalPath(newGraph, currentNode);
+        return calculateProbability(criticalPaths, currentNode, days);
+    }
 
+    public static void setPasses(Graph newGraph, int days) throws ModelNotFoundException
+    {
+        forwardPass(newGraph.getRoot(), 0);
+        backwardPass(newGraph.getTerminal(), (int)newGraph.getTerminal().getData().earliestFinish);
+    }
+
+    public static double calculateProbability(ArrayList<ArrayList<Node>> criticalPaths, Node currentNode, int days)
+    {
         double minVariance = Double.MAX_VALUE;
         ArrayList<Node> minSlackCriticalPath = null;
 
@@ -85,9 +96,6 @@ public final class PERTAnalysisTools {
 
     public static ArrayList<ArrayList<Node>> getCriticalPath(Graph graph, Node targetNode)
     {
-        forwardPass(graph.getRoot(), 0);
-        backwardPass(graph.getTerminal(), (int)graph.getTerminal().getData().earliestFinish);
-
         ArrayList<ArrayList<Node>> allPaths = new ArrayList<ArrayList<Node>>();
 
         allPaths.add(new ArrayList<Node>());

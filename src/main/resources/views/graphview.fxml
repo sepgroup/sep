@@ -11,7 +11,22 @@
 <Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="1100.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sepgroup.sep.controller.GraphViewController">
    <children>
       <Button fx:id="backButton" layoutX="28.0" layoutY="20.0" mnemonicParsing="false" onAction="#onBackButtonClicked" prefHeight="36.0" prefWidth="102.0" text="Back" />
-      <Pane fx:id="graphArea" layoutX="27.0" layoutY="67.0" prefHeight="608.0" prefWidth="1029.0" />
-      <DatePicker layoutX="838.0" layoutY="30.0" prefHeight="27.0" prefWidth="217.0" />
+      <Pane fx:id="graphArea" layoutX="27.0" layoutY="67.0" prefHeight="540.0" prefWidth="1029.0" />
+      <DatePicker fx:id="pertDate" layoutX="838.0" layoutY="30.0" onAction="#onDateChanged" prefHeight="27.0" prefWidth="217.0" />
+      <RadioButton fx:id="cPView" layoutX="458.0" layoutY="619.0" mnemonicParsing="false" onAction="#onCPSelected" prefHeight="38.0" prefWidth="187.0" text="Critical Path">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </RadioButton>
+      <RadioButton fx:id="pertView" layoutX="732.0" layoutY="619.0" mnemonicParsing="false" onAction="#onPERTSelected" prefHeight="39.0" prefWidth="134.0" text="P.E.R.T">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </RadioButton>
+      <RadioButton fx:id="normalView" layoutX="199.0" layoutY="618.0" mnemonicParsing="false" onAction="#onNormalSelected" prefHeight="38.0" prefWidth="116.0" text="Normal">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </RadioButton>
    </children>
 </Pane>
