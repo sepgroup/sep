@@ -93,6 +93,28 @@ public class TaskModelTest {
     }
 
     @Test
+    public void testPersistDataUpdate() throws Exception {
+        TaskModel createdTask = new TaskModel("TX", "Description of\n TX", createdProject.getProjectId(), 10000,
+                defaultStartDate, defaultDeadline, false, createdUser, 8, 9, 7, defaultStartDate, defaultDeadline);
+        createdTask.persistData();
+        int beforeUpdateId = createdTask.getTaskId();
+        String updatedName="TXT";
+        createdTask.setName(updatedName);
+        createdTask.persistData();
+        int afterUpdateId = createdTask.getTaskId();
+        TaskModel fetchedTaskBefore = null;
+        TaskModel fetchedTaskAfter=null;
+        try {
+            fetchedTaskBefore = TaskModel.getById(beforeUpdateId);
+            fetchedTaskAfter = TaskModel.getById(afterUpdateId);
+        } catch (ModelNotFoundException e) {
+            fail(e.getMessage());
+        }
+
+        assertThat(fetchedTaskBefore, equalTo(fetchedTaskAfter));
+    }
+
+    @Test
     public void testPersistData() throws Exception {
         TaskModel createdTask = new TaskModel("TX", "Description of\n TX", createdProject.getProjectId(), 10000,
                 defaultStartDate, defaultDeadline, false, createdUser, 8, 9, 7, defaultStartDate, defaultDeadline);
@@ -542,6 +564,11 @@ public class TaskModelTest {
         createdTask.setBudget(-100.0);
     }
 
+    @Test(expected = InvalidInputException.class)
+    public void testSetHugeBudget() throws Exception {
+        TaskModel createdTask = new TaskModel("TTDD", "Description of\n TTDD", createdProject.getProjectId());
+        createdTask.setBudget(100000.1);
+    }
     /**
      * Negative test to check whether budget can be set with value that would make the project's actual budget surpass
      * its set budget.
@@ -859,5 +886,33 @@ public class TaskModelTest {
 
     @Test
     public void removeTag() throws Exception {
+    }
+    @Test
+    public void testShouldBeDone()throws Exception{
+        TaskModel ts1=generateTestTask();
+        ts1.setStartDate(new Date(System.currentTimeMillis() - 5 * 9999*9999));
+        ts1.setDeadline(new Date(System.currentTimeMillis() + 1 * 9999*9999));
+        boolean expectedResult=ts1.shouldBeDone();
+        assertFalse(expectedResult);
+    }
+    @Test
+    public void testGetPlannedValuePositive() throws Exception{
+        TaskModel ts1=generateTestTask();
+        ts1.setStartDate(new Date(System.currentTimeMillis() - 5 * 9999*9999));
+        ts1.setDeadline(new Date(System.currentTimeMillis() - 1 * 9999*9999));
+        double actualValue=400;
+        ts1.setBudget(actualValue);
+        double expectedResult=ts1.getPlannedValue();
+        assertThat(expectedResult, equalTo(actualValue));
+    }
+    @Test
+    public void testGetPlannedValueNegetive() throws Exception{
+        TaskModel ts1=generateTestTask();
+        ts1.setStartDate(new Date(System.currentTimeMillis() - 5 * 9999*9999));
+        ts1.setDeadline(new Date(System.currentTimeMillis() + 1 * 9999*9999));
+        double actualValue=0;
+        ts1.setBudget(actualValue);
+        double expectedResult=ts1.getPlannedValue();
+        assertThat(expectedResult, equalTo(actualValue));
     }
 }

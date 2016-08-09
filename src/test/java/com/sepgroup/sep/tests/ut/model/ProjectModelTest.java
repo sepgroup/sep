@@ -51,6 +51,15 @@ public class ProjectModelTest {
 
     }
 
+    private TaskModel generateSimpleTestTask(int projectId) {
+        TaskModel t1 = null;
+        try {
+            t1 = new TaskModel("T1", "Description of T1",projectId);
+        } catch (Exception e) {
+
+        }
+        return t1;
+    }
     /**
      * Clears any projects stored to the database during a testcase
      * @throws Exception
@@ -122,7 +131,29 @@ public class ProjectModelTest {
         }
         assertThat(fetchedProject, equalTo(createdProject));
     }
-
+    /**
+     * Positive test to ensure that Persist Data function update when the id is exists
+     */
+    @Test
+    public void testPersistDataUpdate() throws Exception {
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setName("Project X");
+        createdProject.persistData();
+        int pIdBeforeUpdate = createdProject.getProjectId();
+        String updatedName="Project Y";
+        createdProject.setName(updatedName);
+        createdProject.persistData();
+        int pIdAfterUpdate=createdProject.getProjectId();
+        ProjectModel fetchedProjectBefore = null;
+        ProjectModel fetchedProjectAfter = null;
+        try {
+            fetchedProjectBefore = ProjectModel.getById(pIdBeforeUpdate);
+            fetchedProjectAfter = ProjectModel.getById(pIdAfterUpdate);
+        } catch (ModelNotFoundException e) {
+            fail(e.getMessage());
+        }
+        assertThat(fetchedProjectBefore, equalTo(fetchedProjectAfter));
+    }
     /**
      * Negative test to ensure that Persist Data function will not work when at least a name is not specified
      * TODO catch the exception message or associate it to exception
@@ -165,6 +196,136 @@ public class ProjectModelTest {
 
         assertThat(createdProject, equalTo(fetchedProject));
 
+    }
+
+    /**
+     * the sum of tasks budget would be the same as the one which is calculated in project
+     * @throws Exception
+     */
+    @Test
+    public void testGetBudgetAtCompletion() throws Exception{
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setName("Project Y");
+        createdProject.setBudget(2000);
+        createdProject.persistData();
+        int pId = createdProject.getProjectId();
+        TaskModel ts1=generateSimpleTestTask(pId);
+        ts1.setBudget(400);
+        ts1.persistData();
+        TaskModel ts2=generateSimpleTestTask(pId);
+        ts2.setBudget(600);
+        ts2.persistData();
+        double ActualBudget=ts1.getBudget()+ts2.getBudget();
+        double ExpectedBudget= createdProject.getBudgetAtCompletion();
+        assertThat(ExpectedBudget, equalTo(ActualBudget));
+    }
+
+    /**
+     * the sum of completed tasks budget would be the same as the one which is calculated in project
+     * @throws Exception
+     */
+    @Test
+    public void testGetEarnedValue() throws Exception{
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setName("Project Y");
+        createdProject.setBudget(2000);
+        createdProject.persistData();
+        int pId = createdProject.getProjectId();
+        TaskModel ts1=generateSimpleTestTask(pId);
+        ts1.setBudget(400);
+        ts1.setDone(false);
+        ts1.persistData();
+        TaskModel ts2=generateSimpleTestTask(pId);
+        ts2.setBudget(600);
+        ts2.setDone(true);
+        ts2.persistData();
+        TaskModel ts3=generateSimpleTestTask(pId);
+        ts3.setBudget(500);
+        ts3.setDone(true);
+        ts3.persistData();
+        double ActualBudget=ts2.getBudget()+ts3.getBudget();
+        double ExpectedBudget= createdProject.getEarnedValue();
+        assertThat(ExpectedBudget, equalTo(ActualBudget));
+    }
+
+    @Test
+    public void testGetPercentScheduledCompletion() throws Exception{
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setName("Project Y");
+        createdProject.setBudget(2000);
+        createdProject.setStartDate(new Date(System.currentTimeMillis() - 6 * 9999*9999));
+        createdProject.setDeadline(new Date(System.currentTimeMillis() + 5 * 9999*9999));
+        createdProject.persistData();
+        int pId = createdProject.getProjectId();
+        TaskModel ts1=generateSimpleTestTask(pId);
+        ts1.setBudget(400);
+        ts1.setStartDate(new Date(System.currentTimeMillis() - 4 * 9999*9999));
+        ts1.setDeadline(new Date(System.currentTimeMillis() - 2 * 9999*9999));
+        ts1.persistData();
+        TaskModel ts2=generateSimpleTestTask(pId);
+        ts2.setStartDate(new Date(System.currentTimeMillis() - 4 * 9999*9999));
+        ts2.setDeadline(new Date(System.currentTimeMillis() - 2 * 9999*9999));
+        ts2.setBudget(600);
+        ts2.persistData();
+        double Actual=(createdProject.getPlannedValue()/createdProject.getBudgetAtCompletion())*100.0;
+        double Expected= createdProject.getPercentScheduledCompletion();
+        assertThat(Expected, equalTo(Actual));
+    }
+
+    /**
+     * the sum of ShuldbeDone tasks budget would be the same as the one which is calculated in project
+     * @throws Exception
+     */
+    @Test
+    public void testGetPlannedValueFirst() throws Exception{
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setName("Project Y");
+        createdProject.setBudget(2000);
+        createdProject.setStartDate(new Date(System.currentTimeMillis() - 6 * 9999*9999));
+        createdProject.setDeadline(new Date(System.currentTimeMillis() + 5 * 9999*9999));
+        createdProject.persistData();
+        int pId = createdProject.getProjectId();
+        TaskModel ts1=generateSimpleTestTask(pId);
+        ts1.setStartDate(new Date(System.currentTimeMillis() - 4 * 9999*9999));
+        ts1.setDeadline(new Date(System.currentTimeMillis() - 1 * 9999*9999));
+        ts1.setBudget(400);
+        ts1.persistData();
+        TaskModel ts2=generateSimpleTestTask(pId);
+        ts2.setStartDate(new Date(System.currentTimeMillis() - 4 * 9999*9999));
+        ts2.setDeadline(new Date(System.currentTimeMillis() - 1 * 9999*9999));
+        ts2.setBudget(200);
+        ts2.persistData();
+        double ActualBudget=ts1.getBudget()+ts2.getBudget();
+        double ExpectedBudget= createdProject.getPlannedValue();
+        assertThat(ExpectedBudget, equalTo(ActualBudget));
+    }
+
+    /**
+     * the sum of ShuldbeDone tasks budget would be the same as the one which is calculated in project
+     * @throws Exception
+     */
+    @Test
+    public void testGetPlannedValueSecond() throws Exception{
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setName("Project Y");
+        createdProject.setBudget(2000);
+        createdProject.setStartDate(new Date(System.currentTimeMillis() - 6 * 9999*9999));
+        createdProject.setDeadline(new Date(System.currentTimeMillis() + 11 * 9999*9999));
+        createdProject.persistData();
+        int pId = createdProject.getProjectId();
+        TaskModel ts1=generateSimpleTestTask(pId);
+        ts1.setStartDate(new Date(System.currentTimeMillis() - 4 * 9999*9999));
+        ts1.setDeadline(new Date(System.currentTimeMillis() - 1 * 9999*9999));
+        ts1.setBudget(400);
+        ts1.persistData();
+        TaskModel ts2=generateSimpleTestTask(pId);
+        ts2.setStartDate(new Date(System.currentTimeMillis() - 4 * 9999*9999));
+        ts2.setDeadline(new Date(System.currentTimeMillis() + 10 * 9999*9999));
+        ts2.setBudget(200);
+        ts2.persistData();
+        double ActualBudget=ts1.getBudget();
+        double ExpectedBudget= createdProject.getPlannedValue();
+        assertThat(ExpectedBudget, equalTo(ActualBudget));
     }
 
     /**
