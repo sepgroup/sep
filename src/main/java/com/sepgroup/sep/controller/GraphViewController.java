@@ -143,6 +143,12 @@ public class GraphViewController extends AbstractController{
     public RadioButton pertView;
     @FXML
     public DatePicker pertDate;
+    @FXML
+    public Pane progressLegend;
+    @FXML
+    public Pane cPLegend;
+    @FXML
+    public Pane pertLegend;
 
     public GraphViewController() {
         setCssPath("/style/stylesheet.css");
@@ -195,41 +201,57 @@ public class GraphViewController extends AbstractController{
             return;
         }
 
-        for(Node n: graph.nodes) {
-            n.myButton.setStyle("");
-            n.myButton.getStyleClass().clear();
-            n.myButton.getStyleClass().add("button");
-
-            LocalDate date = project.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            boolean supposedToHaveStarted = LocalDate.now().isAfter(date);
-
-            if (n.getData().task.isDone() || (n == graph.getRoot() && supposedToHaveStarted))
-                n.myButton.getStyleClass().add("done-button");
-            else
-            {
-                boolean inProgress = supposedToHaveStarted;
-
-                if(supposedToHaveStarted)
-                    for(Node inNode: n.getInNodes())
-                        if(!inNode.getData().task.isDone() && inNode != graph.getRoot())
-                        {
-                            inProgress = false;
-                            break;
-                        }
-
-                if(inProgress) {
-                    if(n.getData().task.shouldBeDone())
-                        n.myButton.getStyleClass().add("critical-path-button");
-                    else
-                        n.myButton.getStyleClass().add("meh-button");
-                }
-                else
-                    n.myButton.getStyleClass().add("graph-button");
-            }
-        }
+        boolean wasCPSelected = cPView.isSelected();
+        boolean wasPERTSelected = pertView.isSelected();
 
         cPView.setSelected(false);
         pertView.setSelected(false);
+
+        cPLegend.setVisible(false);
+        pertLegend.setVisible(false);
+        progressLegend.setVisible(true);
+
+        try {
+            for (Node n : graph.nodes) {
+                n.myButton.setStyle("");
+                n.myButton.getStyleClass().clear();
+                n.myButton.getStyleClass().add("button");
+
+                LocalDate date = project.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                boolean supposedToHaveStarted = LocalDate.now().isAfter(date);
+
+                if (n.getData().task.isDone() || (n == graph.getRoot() && supposedToHaveStarted))
+                    n.myButton.getStyleClass().add("done-button");
+                else {
+                    boolean inProgress = supposedToHaveStarted;
+
+                    if (supposedToHaveStarted)
+                        for (Node inNode : n.getInNodes())
+                            if (!inNode.getData().task.isDone() && inNode != graph.getRoot()) {
+                                inProgress = false;
+                                break;
+                            }
+
+                    if (inProgress) {
+                        if (n.getData().task.shouldBeDone())
+                            n.myButton.getStyleClass().add("critical-path-button");
+                        else
+                            n.myButton.getStyleClass().add("meh-button");
+                    } else
+                        n.myButton.getStyleClass().add("graph-button");
+                }
+            }
+        }
+        catch(Exception e)
+        {
+            normalView.setSelected(false);
+            progressLegend.setVisible(false);
+            cPView.setSelected(wasCPSelected);
+            pertView.setSelected(wasPERTSelected);
+            cPLegend.setVisible(wasCPSelected);
+            pertLegend.setVisible(wasPERTSelected);
+            DialogCreator.showExceptionDialog(e);
+        }
     }
 
     @FXML
@@ -240,21 +262,40 @@ public class GraphViewController extends AbstractController{
             return;
         }
 
-        PERTAnalysisTools.setPasses(graph);
-        PERTAnalysisTools.getCriticalPath(graph, graph.getTerminal());
-
-        for(Node n: graph.nodes) {
-            n.myButton.setStyle("");
-            n.myButton.getStyleClass().clear();
-            n.myButton.getStyleClass().add("button");
-            if (n.getCritical())
-                n.myButton.getStyleClass().add("critical-path-button");
-            else
-                n.myButton.getStyleClass().add("graph-button");
-        }
+        boolean wasProgressSelected = normalView.isSelected();
+        boolean wasPERTSelected = pertView.isSelected();
 
         normalView.setSelected(false);
         pertView.setSelected(false);
+
+        progressLegend.setVisible(false);
+        pertLegend.setVisible(false);
+        cPLegend.setVisible(true);
+
+        try {
+            PERTAnalysisTools.setPasses(graph);
+            PERTAnalysisTools.getCriticalPath(graph, graph.getTerminal());
+
+            for (Node n : graph.nodes) {
+                n.myButton.setStyle("");
+                n.myButton.getStyleClass().clear();
+                n.myButton.getStyleClass().add("button");
+                if (n.getCritical())
+                    n.myButton.getStyleClass().add("critical-path-button");
+                else
+                    n.myButton.getStyleClass().add("graph-button");
+            }
+        }
+        catch(Exception e)
+        {
+            cPView.setSelected(false);
+            cPLegend.setVisible(false);
+            normalView.setSelected(wasProgressSelected);
+            pertView.setSelected(wasPERTSelected);
+            progressLegend.setVisible(wasProgressSelected);
+            pertLegend.setVisible(wasPERTSelected);
+            DialogCreator.showExceptionDialog(e);
+        }
     }
 
     @FXML
@@ -265,23 +306,41 @@ public class GraphViewController extends AbstractController{
             return;
         }
 
+        boolean wasProgressSelected = normalView.isSelected();
+        boolean wasCPSelected = cPView.isSelected();
+
+        normalView.setSelected(false);
+        cPView.setSelected(false);
+
+        progressLegend.setVisible(false);
+        cPLegend.setVisible(false);
+        pertLegend.setVisible(true);
+
         try {
             PERTItAll();
         }
         catch (NullPointerException e) {
+            pertView.setSelected(false);
+            pertLegend.setVisible(false);
+            normalView.setSelected(wasProgressSelected);
+            cPView.setSelected(wasCPSelected);
+            progressLegend.setVisible(wasProgressSelected);
+            cPLegend.setVisible(wasCPSelected);
+
             DialogCreator.showErrorDialog("Project Start Date Not Set", "This project's start date has not been set. P.E.R.T." +
                     " analysis cannot be performed without it.");
-            pertView.setSelected(false);
             return;
         }
         catch (Exception e) {
             pertView.setSelected(false);
+            pertLegend.setVisible(false);
+            normalView.setSelected(wasProgressSelected);
+            cPView.setSelected(wasCPSelected);
+            progressLegend.setVisible(wasProgressSelected);
+            cPLegend.setVisible(wasCPSelected);
             DialogCreator.showExceptionDialog(e);
             return;
         }
-
-        normalView.setSelected(false);
-        cPView.setSelected(false);
     }
 
     private void PERTItAll() throws Exception
@@ -325,8 +384,6 @@ public class GraphViewController extends AbstractController{
 
     public void update() {
         try {
-            graphArea.setStyle("-fx-background-image: url(\"grid.jpg\");");
-
             PhysicsGraphController pgc = new PhysicsGraphController(false, project.getProjectId());
             pgc.positionNodes();
 

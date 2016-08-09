@@ -105,11 +105,13 @@ public final class PERTAnalysisTools {
 
         backTrack(allPaths, allPaths.get(0), targetNode);
 
+        System.out.println(allPaths);
         return allPaths;
     }
 
     private static void backTrack(ArrayList<ArrayList<Node>> paths, ArrayList<Node> currentPath, Node currentNode)
     {
+
         currentPath.add(0, currentNode);
         currentNode.setCritical(true);
 
@@ -128,7 +130,7 @@ public final class PERTAnalysisTools {
                 minNodes.clear();
                 minNodes.add(nextNode);
             }
-            if(nextNode.getData().latestFinish == maxTime)
+            else if(nextNode.getData().latestFinish == maxTime)
             {
                 if(slack < minSlack)
                 {
@@ -141,9 +143,16 @@ public final class PERTAnalysisTools {
             }
         }
 
+        ArrayList<Node> pathTillNow = new ArrayList<Node>(currentPath);
+        int i = 0;
         for(Node node: minNodes)
         {
+            if(i > 0) {
+                currentPath = new ArrayList<Node>(pathTillNow);
+                paths.add(currentPath);
+            }
             backTrack(paths, currentPath, node);
+            i++;
         }
 
     }
@@ -156,7 +165,7 @@ public final class PERTAnalysisTools {
 
     private static double taskVariance(TaskModel task)
     {
-        return Math.pow((task.getPesimisticTimeToFinish() - task.getOptimisticTimeToFinish()) / 6, 2);
+        return Math.pow(((double)task.getPesimisticTimeToFinish() - (double)task.getOptimisticTimeToFinish()) / 6, 2);
     }
 
     private static double zScore(double timeDifference, double standardDeviation)
