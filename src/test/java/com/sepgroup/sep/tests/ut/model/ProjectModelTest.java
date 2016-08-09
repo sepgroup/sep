@@ -5,6 +5,7 @@ import com.sepgroup.sep.model.*;
 import com.sepgroup.sep.utils.DateUtils;
 import org.junit.*;
 
+import javax.jws.soap.SOAPBinding;
 import java.util.Date;
 import java.util.List;
 
@@ -271,7 +272,63 @@ public class ProjectModelTest {
         double Expected= createdProject.getPercentScheduledCompletion();
         assertThat(Expected, equalTo(Actual));
     }
+    @Test
+    public void testGetPercentComplete()throws Exception{
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setName("Project Y");
+        createdProject.setBudget(2000);
+        createdProject.setStartDate(new Date(System.currentTimeMillis() - 6 * 9999*9999));
+        createdProject.setDeadline(new Date(System.currentTimeMillis() + 5 * 9999*9999));
+        createdProject.persistData();
+        int pId = createdProject.getProjectId();
+        TaskModel ts1=generateSimpleTestTask(pId);
+        ts1.setBudget(400);
+        ts1.setDone(true);
+        ts1.persistData();
+        TaskModel ts2=generateSimpleTestTask(pId);
+        ts2.setBudget(600);
+        ts2.setDone(true);
+        ts2.persistData();
+        double Actual=(createdProject.getEarnedValue()/createdProject.getBudgetAtCompletion())*100.0;
+        double Expected= createdProject.getPercentComplete();
+        assertThat(Expected, equalTo(Actual));
+    }
 
+    /**
+     * sum all actual cost of task (actual cost=
+     * @throws Exception
+     */
+    @Test
+    public void testGetActualCost() throws Exception{
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setName("Project Y");
+        createdProject.setBudget(2000);
+        createdProject.setStartDate(new Date(System.currentTimeMillis() - 6 * 9999*9999));
+        createdProject.setDeadline(new Date(System.currentTimeMillis() + 5 * 9999*9999));
+        createdProject.persistData();
+        int pId = createdProject.getProjectId();
+        TaskModel ts1=generateSimpleTestTask(pId);
+        ts1.setBudget(400);
+        ts1.setActualStartDate(new Date(System.currentTimeMillis() - 5 * 9999*9999));
+        ts1.setActualEndDate(new Date(System.currentTimeMillis() - 3 * 9999*9999));
+        ts1.setDone(true);
+        UserModel us1=new UserModel("us1", "test", 20);
+        us1.persistData();
+        ts1.setAssignee(us1.getUserId());
+        ts1.persistData();
+        TaskModel ts2=generateSimpleTestTask(pId);
+        ts2.setBudget(600);
+        ts2.setActualStartDate(new Date(System.currentTimeMillis() - 4 * 9999*9999));
+        ts2.setActualEndDate(new Date(System.currentTimeMillis() - 2 * 9999*9999));
+        ts2.setDone(true);
+        UserModel us2=new UserModel("us2", "test", 15);
+        us2.persistData();
+        ts2.setAssignee(us2.getUserId());
+        ts2.persistData();
+        double Actual=(ts1.getActualCost()+ts2.getActualCost());
+        double Expected= createdProject.getActualCost();
+        assertThat(Expected, equalTo(Actual));
+    }
     /**
      * the sum of ShuldbeDone tasks budget would be the same as the one which is calculated in project
      * @throws Exception

@@ -756,11 +756,23 @@ public class TaskModel extends AbstractModel {
     }
 
     public boolean isDone() {
-        return done;
+        if(this.actualEndDate!=null && (new Date().compareTo(this.actualEndDate)>=0)){
+            return true;
+        }else{
+            return false;
+        }
     }
 
     public void setDone(boolean done) {
-        this.done = done;
+        if(done==true && this.isDone()==false){
+            this.actualEndDate=new Date();
+            this.done = done;
+        }else if(done==false && this.isDone()==true){
+            this.actualEndDate=null;
+            this.done=false;
+        }else{
+            this.done=done;
+        }
     }
 
     public UserModel getAssignee() {
