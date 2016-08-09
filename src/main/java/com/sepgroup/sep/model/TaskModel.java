@@ -200,6 +200,16 @@ public class TaskModel extends AbstractModel {
         }
     }
 
+    /**
+     * Makes this task a dependency of the specified task.
+     * @param t
+     * @throws TaskDependencyException
+     */
+    public void makeDependencyOf(TaskModel t) throws TaskDependencyException {
+        t.addDependency(this);
+//        t.persistData();
+    }
+
     private void internalAddDependency(TaskModel task) {
         try {
             addDependency(task);

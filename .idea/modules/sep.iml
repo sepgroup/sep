@@ -21,7 +21,7 @@
     <orderEntry type="module-library" scope="PROVIDED">
       <library name="Gradle: jfxrt">
         <CLASSES>
-          <root url="jar://C:/Program Files/Java/jdk1.8.0_91/jre/lib/ext/jfxrt.jar!/" />
+          <root url="jar:///usr/local/var/jenv/versions/oracle64-1.8.0.77/jre/lib/ext/jfxrt.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
