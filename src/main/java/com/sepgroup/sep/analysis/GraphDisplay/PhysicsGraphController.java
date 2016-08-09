@@ -128,13 +128,13 @@ public class PhysicsGraphController implements KeyInputController{
     }
     private void linkUnlinkRootToNode(Node n){
         if(n.getInNodes().contains(graph.getRoot()))
-           n.getInNodes().remove(graph.getRoot());
+           n.removeInNode(graph.getRoot());
         else
             graph.addDirectedEdge(graph.getRoot(),n);
     }
     private void linkUnlinkNodeToTerminal(Node n){
         if(n.getOutNodes().contains(graph.getTerminal()))
-            n.getOutNodes().remove(graph.getTerminal());
+            n.removeInNode(graph.getTerminal());
         else
             graph.addDirectedEdge(n,graph.getTerminal());
     }
