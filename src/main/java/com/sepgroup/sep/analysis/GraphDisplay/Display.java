@@ -29,7 +29,7 @@ public class Display extends JFrame {
     {
         super("Test");
         setSize(1200,800);
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
         setResizable(true);
         masterPanel = new GPanel();
         add(masterPanel);

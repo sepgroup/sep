@@ -55,7 +55,6 @@ public class PhysicsGraph extends Graph implements Physics,Drawable {
  //                   ((PhysicsNode) n).position[1] = ((PhysicsNode) currentNode).position[1] + 1000 * Math.signum(diffY);
  //           }
 
-
             pushPositions(n);
         }
     }
@@ -76,6 +75,22 @@ public class PhysicsGraph extends Graph implements Physics,Drawable {
         for(Node n : nodes){
             PhysicsNode t = (PhysicsNode)n;
             t.shift(x,y);
+        }
+    }
+    public void disableAllPhysics(){
+        for(Node n : nodes) {
+            PhysicsNode p = (PhysicsNode) n;
+            if(!p.equals(root) && !p.equals(terminal)) {
+                p.setPhysics(false);
+                p.setAnchor(true);
+            }
+        }
+    }
+    public void positionAllNodes(double x, double y){
+        for(Node n : nodes) {
+            PhysicsNode p = (PhysicsNode) n;
+            if(!p.equals(root) && !p.equals(terminal))
+                p.setPosition(x,y);
         }
     }
     public void setStateProperties(){
@@ -156,7 +171,6 @@ public class PhysicsGraph extends Graph implements Physics,Drawable {
             PhysicsNode t = (PhysicsNode)n;
             t.setRelativePosition(maxX,maxY+100);
         }
-
     }
 
     public void draw(Graphics2D g){
@@ -176,7 +190,6 @@ public class PhysicsGraph extends Graph implements Physics,Drawable {
         root.restDepth();
         findAndSetAllStates();
         setStateProperties();
-        setCriticalNodes();
         setCharges();
         if(depthSections)
             moveToSections();
