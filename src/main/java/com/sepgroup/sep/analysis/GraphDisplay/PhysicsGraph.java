@@ -41,6 +41,18 @@ public class PhysicsGraph extends Graph implements Physics,Drawable {
         }
     }
 
+    protected void pushPositions(Node currentNode)
+    {
+        for(Node n: currentNode.getOutNodes()) {
+            double diffX = ((PhysicsNode)n).position[0] - ((PhysicsNode)currentNode).position[0];
+
+            if(diffX < 1000)
+                ((PhysicsNode)n).position[0] = ((PhysicsNode)currentNode).position[0] + 1000;
+
+            pushPositions(n);
+        }
+    }
+
     public void shiftCursor(double x, double y){
         if(cursor!=null){
             PhysicsNode t = (PhysicsNode)cursor;
