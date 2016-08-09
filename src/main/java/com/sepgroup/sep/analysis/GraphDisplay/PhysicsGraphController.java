@@ -86,17 +86,18 @@ public class PhysicsGraphController implements KeyInputController{
     public void positionNodes(){
         graph.update();
         loadSequentially();
-      //  for(int i = 0; i<10000;i++){
-        while(true){
+        for(int i = 0; i<10000;i++){
             update();
             if(reset){
                 loadSequentially();
                 reset = false;
             }
+            if(display!=null)
+                i = 0;
         }
-        //moveToEdge();
-        //pushPositions(graph.getRoot());
-       // graph.setRelativePosition();
+        moveToEdge();
+        pushPositions(graph.getRoot());
+        graph.setRelativePosition();
     }
     private void loadSequentially(){
         graph.disableAllPhysics();
