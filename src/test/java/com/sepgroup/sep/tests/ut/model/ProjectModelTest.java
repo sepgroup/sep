@@ -61,6 +61,7 @@ public class ProjectModelTest {
         }
         return t1;
     }
+
     /**
      * Clears any projects stored to the database during a testcase
      * @throws Exception
@@ -293,9 +294,176 @@ public class ProjectModelTest {
         double Expected= createdProject.getPercentComplete();
         assertThat(Expected, equalTo(Actual));
     }
-
+    @Test
+    public void testGetCostVariance() throws Exception{
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setName("Project Y");
+        createdProject.setBudget(2000);
+        createdProject.setStartDate(new Date(System.currentTimeMillis() - 6 * 9999*9999));
+        createdProject.setDeadline(new Date(System.currentTimeMillis() + 5 * 9999*9999));
+        createdProject.persistData();
+        int pId = createdProject.getProjectId();
+        TaskModel ts1=generateSimpleTestTask(pId);
+        ts1.setBudget(400);
+        ts1.setDone(false);
+        ts1.persistData();
+        UserModel us1=new UserModel("us1", "test1", 15);
+        us1.persistData();
+        ts1.setAssignee(us1.getUserId());
+        ts1.persistData();
+        TaskModel ts2=generateSimpleTestTask(pId);
+        ts2.setBudget(600);
+        ts2.setDone(true);
+        ts2.setActualStartDate(new Date(System.currentTimeMillis() - 3 * 9999*9999));
+        ts2.persistData();
+        UserModel us2=new UserModel("us2", "test2", 10);
+        us2.persistData();
+        ts2.setAssignee(us2.getUserId());
+        ts2.persistData();
+        double Expected=(createdProject.getEarnedValue()-createdProject.getActualCost());
+        double Actual= createdProject.getCostVariance();
+        assertThat(Expected, equalTo(Actual));
+    }
+    @Test
+    public void testGetScheduleVariance() throws Exception{
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setName("Project Y");
+        createdProject.setBudget(2000);
+        createdProject.setStartDate(new Date(System.currentTimeMillis() - 6 * 9999*9999));
+        createdProject.setDeadline(new Date(System.currentTimeMillis() + 5 * 9999*9999));
+        createdProject.persistData();
+        int pId = createdProject.getProjectId();
+        TaskModel ts1=generateSimpleTestTask(pId);
+        ts1.setBudget(400);
+        ts1.setActualStartDate(new Date(System.currentTimeMillis() - 5 * 9999*9999));
+        ts1.setDone(true);
+        ts1.persistData();
+        TaskModel ts2=generateSimpleTestTask(pId);
+        ts2.setStartDate(new Date(System.currentTimeMillis() - 5 * 9999*9999));
+        ts2.setDeadline(new Date(System.currentTimeMillis() - 3 * 9999*9999));
+        ts2.setBudget(600);
+        ts2.setDone(false);
+        ts2.persistData();
+        double Expected=(createdProject.getEarnedValue()-createdProject.getPlannedValue());
+        double Actual= createdProject.getScheduleVariance();
+        assertThat(Expected, equalTo(Actual));
+    }
+    @Test
+    public void testGetCostPerformanceIndex() throws Exception{
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setName("Project Y");
+        createdProject.setBudget(2000);
+        createdProject.setStartDate(new Date(System.currentTimeMillis() - 6 * 9999*9999));
+        createdProject.setDeadline(new Date(System.currentTimeMillis() + 5 * 9999*9999));
+        createdProject.persistData();
+        int pId = createdProject.getProjectId();
+        TaskModel ts1=generateSimpleTestTask(pId);
+        ts1.setBudget(400);
+        ts1.setDone(false);
+        ts1.persistData();
+        UserModel us1=new UserModel("us1", "test1", 15);
+        us1.persistData();
+        ts1.setAssignee(us1.getUserId());
+        ts1.persistData();
+        TaskModel ts2=generateSimpleTestTask(pId);
+        ts2.setBudget(600);
+        ts2.setDone(true);
+        ts2.setActualStartDate(new Date(System.currentTimeMillis() - 3 * 9999*9999));
+        ts2.persistData();
+        UserModel us2=new UserModel("us2", "test2", 10);
+        us2.persistData();
+        ts2.setAssignee(us2.getUserId());
+        ts2.persistData();
+        double Expected=(createdProject.getEarnedValue()/createdProject.getActualCost());
+        double Actual= createdProject.getCostPerformanceIndex();
+        assertThat(Expected, equalTo(Actual));
+    }
+    @Test
+    public void testGetSchedulePerformanceIndex() throws Exception{
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setName("Project Y");
+        createdProject.setBudget(2000);
+        createdProject.setStartDate(new Date(System.currentTimeMillis() - 6 * 9999*9999));
+        createdProject.setDeadline(new Date(System.currentTimeMillis() + 5 * 9999*9999));
+        createdProject.persistData();
+        int pId = createdProject.getProjectId();
+        TaskModel ts1=generateSimpleTestTask(pId);
+        ts1.setBudget(400);
+        ts1.setActualStartDate(new Date(System.currentTimeMillis() - 5 * 9999*9999));
+        ts1.setDone(true);
+        ts1.persistData();
+        TaskModel ts2=generateSimpleTestTask(pId);
+        ts2.setStartDate(new Date(System.currentTimeMillis() - 5 * 9999*9999));
+        ts2.setDeadline(new Date(System.currentTimeMillis() - 3 * 9999*9999));
+        ts2.setBudget(600);
+        ts2.setDone(false);
+        ts2.persistData();
+        double Expected=(createdProject.getEarnedValue()/createdProject.getPlannedValue());
+        double Actual= createdProject.getSchedulePerformanceIndex();
+        assertThat(Expected, equalTo(Actual));
+    }
+    @Test
+    public void testGetEstimateAtCompletion() throws Exception{
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setName("Project Y");
+        createdProject.setBudget(2000);
+        createdProject.setStartDate(new Date(System.currentTimeMillis() - 6 * 9999*9999));
+        createdProject.setDeadline(new Date(System.currentTimeMillis() + 5 * 9999*9999));
+        createdProject.persistData();
+        int pId = createdProject.getProjectId();
+        TaskModel ts1=generateSimpleTestTask(pId);
+        ts1.setBudget(400);
+        ts1.setDone(false);
+        ts1.persistData();
+        UserModel us1=new UserModel("us1", "test1", 15);
+        us1.persistData();
+        ts1.setAssignee(us1.getUserId());
+        ts1.persistData();
+        TaskModel ts2=generateSimpleTestTask(pId);
+        ts2.setBudget(600);
+        ts2.setDone(true);
+        ts2.setActualStartDate(new Date(System.currentTimeMillis() - 3 * 9999*9999));
+        ts2.persistData();
+        UserModel us2=new UserModel("us2", "test2", 10);
+        us2.persistData();
+        ts2.setAssignee(us2.getUserId());
+        ts2.persistData();
+        double Expected=(createdProject.getBudgetAtCompletion()/createdProject.getCostPerformanceIndex());
+        double Actual= createdProject.getEstimateAtCompletion();
+        assertThat(Expected, equalTo(Actual));
+    }
+    @Test
+    public void testGetEstimateToComplete() throws Exception{
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setName("Project Y");
+        createdProject.setBudget(2000);
+        createdProject.setStartDate(new Date(System.currentTimeMillis() - 6 * 9999*9999));
+        createdProject.setDeadline(new Date(System.currentTimeMillis() + 5 * 9999*9999));
+        createdProject.persistData();
+        int pId = createdProject.getProjectId();
+        TaskModel ts1=generateSimpleTestTask(pId);
+        ts1.setBudget(400);
+        ts1.setDone(false);
+        ts1.persistData();
+        UserModel us1=new UserModel("us1", "test1", 15);
+        us1.persistData();
+        ts1.setAssignee(us1.getUserId());
+        ts1.persistData();
+        TaskModel ts2=generateSimpleTestTask(pId);
+        ts2.setBudget(600);
+        ts2.setDone(true);
+        ts2.setActualStartDate(new Date(System.currentTimeMillis() - 3 * 9999*9999));
+        ts2.persistData();
+        UserModel us2=new UserModel("us2", "test2", 10);
+        us2.persistData();
+        ts2.setAssignee(us2.getUserId());
+        ts2.persistData();
+        double Expected=(createdProject.getEstimateAtCompletion()-createdProject.getActualCost());
+        double Actual= createdProject.getEstimateToComplete();
+        assertThat(Expected, equalTo(Actual));
+    }
     /**
-     * sum all actual cost of task (actual cost=
+     * sum all actual cost of task (actual cost related to the salary of user and hours of work on the task
      * @throws Exception
      */
     @Test
@@ -330,7 +498,7 @@ public class ProjectModelTest {
         assertThat(Expected, equalTo(Actual));
     }
     /**
-     * the sum of ShuldbeDone tasks budget would be the same as the one which is calculated in project
+     * the sum of ShouldbeDone tasks budget would be the same as the one which is calculated in project
      * @throws Exception
      */
     @Test
