@@ -93,6 +93,31 @@ public class GraphViewController extends AbstractController{
             setLayoutX(posX);
             setLayoutY(posY);
             setDimensions(width, height);
+
+            setOnMouseClicked(new EventHandler<MouseEvent>() {
+                public void handle(MouseEvent event) {
+                    if (event.getClickCount() == 2) {
+                        TaskViewerController tvc = (TaskViewerController) Main.setPrimaryScene(TaskViewerController.getFxmlPath());
+                        tvc.setModel(taskNode.getData().task);
+                        tvc.setReturnProject(project);
+                    }
+                }
+            });
+
+            setOnMousePressed(new EventHandler<MouseEvent>() {
+                public void handle(MouseEvent event) {
+                    deltaX = event.getX();
+                    deltaY = event.getY();
+                }
+            });
+
+            setOnMouseDragged(new EventHandler<MouseEvent>() {
+                public void handle(MouseEvent mouseEvent) {
+                    setLayoutX(mouseEvent.getSceneX() - graphArea.getLayoutX() - deltaX);
+                    setLayoutY(mouseEvent.getSceneY() - graphArea.getLayoutY() - deltaY);
+                    updateRelations();
+                }
+            });
         }
 
         protected void addInNode(CustomArrow inNode)
@@ -131,25 +156,6 @@ public class GraphViewController extends AbstractController{
             setMinHeight(y);
             setMaxWidth(x);
             setMaxHeight(y);
-        }
-
-        public void onMouseClicked(MouseEvent event) {
-            if(event.getClickCount() == 2) {
-                TaskViewerController tvc = (TaskViewerController) Main.setPrimaryScene(TaskViewerController.getFxmlPath());
-                tvc.setModel(taskNode.getData().task);
-                tvc.setReturnProject(project);
-            }
-        }
-
-        public void onMousePressed(MouseEvent event) {
-            deltaX = event.getX();
-            deltaY = event.getY();
-        }
-
-        public void nMouseDragged(MouseEvent mouseEvent) {
-            setLayoutX(mouseEvent.getSceneX() - graphArea.getLayoutX() - deltaX);
-            setLayoutY(mouseEvent.getSceneY() - graphArea.getLayoutY() - deltaY);
-            updateRelations();
         }
     }
 
