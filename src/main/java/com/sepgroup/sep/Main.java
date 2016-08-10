@@ -74,7 +74,6 @@ public class Main extends Application {
         }
         AbstractController actualController = loader.getController();
         parent.getStylesheets().add(actualController.getClass().getResource(actualController.getCssPath()).toExternalForm());
-
         return actualController;
     }
 

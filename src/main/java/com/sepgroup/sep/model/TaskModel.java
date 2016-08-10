@@ -347,6 +347,7 @@ public class TaskModel extends AbstractModel {
 
     @Override
     public void persistData() throws DBException {
+        super.persistData();
         if (getName() == null || getName().equals("") || getProjectId() == 0) {
             logger.error("Name & project ID must be set to persist model to DB");
             throw new DBException("Name & project ID must be set to persist model to DB");

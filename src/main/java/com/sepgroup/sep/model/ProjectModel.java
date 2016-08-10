@@ -19,6 +19,7 @@ import java.util.List;
 public class ProjectModel extends AbstractModel {
 
     private static Logger logger = LoggerFactory.getLogger(ProjectModel.class);
+    public static List<TaskModel> tempTasks;
 
     private ProjectModelDBObject dbo;
 
@@ -103,6 +104,7 @@ public class ProjectModel extends AbstractModel {
 
     @Override
     public void persistData() throws DBException {
+        super.persistData();
         if (this.name == null || this.name.replaceAll(" ", "").equals("")) {
             logger.error("Project name must be set to persist model to DB");
             throw new DBException("Project name must be set to persist model to DB");
@@ -432,7 +434,10 @@ public class ProjectModel extends AbstractModel {
      * @return a list of tasks associated to this project
      */
     public List<TaskModel> getTasks() throws ModelNotFoundException, InvalidInputException {
-        return TaskModel.getAllByProject(getProjectId());
+        if(tempTasks == null)
+            tempTasks = TaskModel.getAllByProject(getProjectId());
+
+        return tempTasks;
     }
 
     public List<TaskModel> getTasksExceptionSafe() {

@@ -43,8 +43,10 @@ public class GraphViewController extends AbstractController{
 
         protected CustomArrow(double x1, double y1, double x2, double y2) {
             super(x1, y1, x2, y2);
-            recalculateTip();
+            graphArea.getChildren().add(this);
             graphArea.getChildren().add(tip);
+            recalculateTip();
+            getStyleClass().add("line");
         }
 
         public void updateOrigin(int x1, int y1)
@@ -81,10 +83,16 @@ public class GraphViewController extends AbstractController{
     class NodeButton extends Button {
         ArrayList<CustomArrow> inNodes = new ArrayList<CustomArrow>();
         ArrayList<CustomArrow> outNodes = new ArrayList<CustomArrow>();
+        Node taskNode;
 
-        protected NodeButton(String name)
+        protected NodeButton(Node taskNode, double posX, double posY, double width, double height)
         {
-            super(name);
+            super(taskNode.getData().task.getName());
+            graphArea.getChildren().add(this);
+            taskNode.myButton = this;
+            setLayoutX(posX);
+            setLayoutY(posY);
+            setDimensions(width, height);
         }
 
         protected void addInNode(CustomArrow inNode)
@@ -123,6 +131,25 @@ public class GraphViewController extends AbstractController{
             setMinHeight(y);
             setMaxWidth(x);
             setMaxHeight(y);
+        }
+
+        public void onMouseClicked(MouseEvent event) {
+            if(event.getClickCount() == 2) {
+                TaskViewerController tvc = (TaskViewerController) Main.setPrimaryScene(TaskViewerController.getFxmlPath());
+                tvc.setModel(taskNode.getData().task);
+                tvc.setReturnProject(project);
+            }
+        }
+
+        public void onMousePressed(MouseEvent event) {
+            deltaX = event.getX();
+            deltaY = event.getY();
+        }
+
+        public void nMouseDragged(MouseEvent mouseEvent) {
+            setLayoutX(mouseEvent.getSceneX() - graphArea.getLayoutX() - deltaX);
+            setLayoutY(mouseEvent.getSceneY() - graphArea.getLayoutY() - deltaY);
+            updateRelations();
         }
     }
 
@@ -200,7 +227,7 @@ public class GraphViewController extends AbstractController{
             normalView.setSelected(true);
             return;
         }
-
+        
         boolean wasCPSelected = cPView.isSelected();
         boolean wasPERTSelected = pertView.isSelected();
 
@@ -384,6 +411,7 @@ public class GraphViewController extends AbstractController{
 
     public void update() {
         try {
+            ProjectModel.tempTasks = null;
             PhysicsGraphController pgc = new PhysicsGraphController(false, project.getProjectId());
             pgc.positionNodes();
 
@@ -397,57 +425,24 @@ public class GraphViewController extends AbstractController{
                     assignee = "\r" + n.getData().task.getAssignee().getFullName();
                 if(n.getData().task.getTaskId() > 0)
                     taskIdString = n.getData().task.getTaskId() + ": ";
-                graphArea.getChildren().add(new NodeButton(taskIdString + n.getData().task.getName() + assignee));
-                NodeButton button = (NodeButton) graphArea.getChildren().get(graphArea.getChildren().size() - 1);
-                button.setLayoutX(graphArea.getPrefWidth() * (1 - relativeWidth) * ((PhysicsNode) n).getRelX());
-                button.setLayoutY(graphArea.getPrefHeight() * (1 - relativeHeight)  * ((PhysicsNode) n).getRelY());
-                button.setDimensions(relativeWidth * graphArea.getPrefWidth(), relativeHeight * graphArea.getPrefHeight());
-
-                n.myButton = button;
+                NodeButton button = new NodeButton(n, graphArea.getPrefWidth() * (1 - relativeWidth) * ((PhysicsNode) n).getRelX(),
+                                                    graphArea.getPrefHeight() * (1 - relativeHeight)  * ((PhysicsNode) n).getRelY(),
+                                                    relativeWidth * graphArea.getPrefWidth(), relativeHeight * graphArea.getPrefHeight());
 
                 for (Node outNode : n.getOutNodes()) {
                     CustomArrow newLine = new CustomArrow(
-                            button.getLayoutX() + button.getMinWidth(),
-                            button.getLayoutY() + button.getMinHeight() / 2,
+                            button.getLayoutX() + button.getMinWidth(), button.getLayoutY() + button.getMinHeight() / 2,
                             graphArea.getPrefWidth() * (1 - relativeWidth) * ((PhysicsNode) outNode).getRelX(),
                             graphArea.getPrefHeight() * (1 - relativeHeight) * ((PhysicsNode) outNode).getRelY() + button.getMinHeight() / 2);
 
-                    graphArea.getChildren().add(newLine);
                     button.addOutNode(newLine);
                     n.outArrows.add(newLine);
                     outNode.inArrows.add(newLine);
-
-                    newLine.getStyleClass().add("line");
 
                     if (((PhysicsNode) n).getCritical() && ((PhysicsNode) outNode).getCritical()) {
                         newLine.getStyleClass().add("critical-path-line");
                     }
                 }
-
-                button.setOnMouseClicked(new EventHandler<MouseEvent>() {
-                    public void handle(MouseEvent event) {
-                        if(event.getClickCount() == 2) {
-                            TaskViewerController tvc = (TaskViewerController) Main.setPrimaryScene(TaskViewerController.getFxmlPath());
-                            tvc.setModel(n.getData().task);
-                            tvc.setReturnProject(project);
-                        }
-                    }
-                });
-
-                button.setOnMousePressed(new EventHandler<MouseEvent>() {
-                    public void handle(MouseEvent event) {
-                        deltaX = event.getX();
-                        deltaY = event.getY();
-                    }
-                });
-
-                button.setOnMouseDragged(new EventHandler<MouseEvent>() {
-                    public void handle(MouseEvent mouseEvent) {
-                        button.setLayoutX(mouseEvent.getSceneX() - graphArea.getLayoutX() - deltaX);
-                        button.setLayoutY(mouseEvent.getSceneY() - graphArea.getLayoutY() - deltaY);
-                        button.updateRelations();
-                    }
-                });
             }
 
             for (Node n : pgc.getGraph().nodes) {

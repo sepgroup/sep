@@ -9,7 +9,9 @@ public abstract class AbstractModel extends Observable {
 
     public abstract void refreshData() throws ModelNotFoundException, InvalidInputException;
 
-    public abstract void persistData() throws DBException;
+    public void persistData() throws DBException {
+        ProjectModel.tempTasks = null;
+    };
 
     public abstract void deleteData() throws DBException;
 

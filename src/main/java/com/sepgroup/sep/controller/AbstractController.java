@@ -33,4 +33,5 @@ public abstract class AbstractController implements Observer {
     public void setCssPath(String css) {
         this.CssPath = css;
     }
+
 }
