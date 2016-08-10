@@ -116,13 +116,21 @@ public class Database {
         conn.commit();
         s.close();
     }
-	public void closeConnection() throws SQLException {
+
+    /**
+     * Closes the current DB connection.
+     * @return true if the connection was closed, false if the connection was already closed.
+     * @throws SQLException
+     */
+	public boolean closeConnection() throws SQLException {
         if (conn != null && !conn.isClosed()) {
             logger.debug("Closing DB connection to " + getDbPath());
             conn.close();
+            return true;
         }
         else {
             logger.warn("DB connection was already closed");
+            return false;
         }
 	}
 

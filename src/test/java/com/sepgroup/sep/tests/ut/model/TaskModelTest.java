@@ -24,8 +24,8 @@ public class TaskModelTest {
     private static Date defaultDeadline = new Date(System.currentTimeMillis() + 2* 9999*9999);
 
     private ProjectModel createdProject,createdProject2;
-    private Date createdProjectStartDate = new Date(System.currentTimeMillis() - 5 * 9999*9999);
-    private Date createdProjectDeadline = new Date(System.currentTimeMillis() + 5 * 9999*9999);
+    private static Date createdProjectStartDate = new Date(System.currentTimeMillis() - 5 * 9999*9999);
+    private static Date createdProjectDeadline = new Date(System.currentTimeMillis() + 5 * 9999*9999);
     private UserModel createdUser;
 
     @BeforeClass
