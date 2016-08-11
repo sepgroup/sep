@@ -35,6 +35,7 @@ public class ProjectModel extends AbstractModel {
     private boolean done;
     private UserModel manager;
     private String projectDescription;
+    private static double MaxBudgetProject=10000000;
 
 	/**
 	 * Default constructor
@@ -204,6 +205,9 @@ public class ProjectModel extends AbstractModel {
 	public void setBudget(double budget) throws InvalidInputException {
         if (budget < 0) {
             throw new InvalidInputException("Budget must be a positive number.");
+        }
+        if(budget > MaxBudgetProject){
+            throw new InvalidInputException("Budget must be a less than"+  MaxBudgetProject+ "$.");
         }
 		this.budget = CurrencyUtils.roundToTwoDecimals(budget);
 	}

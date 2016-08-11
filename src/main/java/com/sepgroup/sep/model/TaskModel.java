@@ -43,7 +43,7 @@ public class TaskModel extends AbstractModel {
     private int optimisticTimeToFinish;
     private Date actualStartDate;
     private Date actualEndDate;
-
+    private static double MaxBudgetTast=100000;
     /**
      * Default constructor
      */
@@ -576,6 +576,9 @@ public class TaskModel extends AbstractModel {
         if (budget < 0) {
             throw new InvalidInputException("Budget must be a positive number");
         }
+        if(budget > MaxBudgetTast){
+            throw new InvalidInputException("Budget must be less than "+MaxBudgetTast+"$.");
+        }
 
         double projectTotalBudget = 0;
         double projectTasksBudget = 0;
@@ -753,11 +756,23 @@ public class TaskModel extends AbstractModel {
     }
 
     public boolean isDone() {
-        return done;
+        if(this.actualEndDate!=null && (new Date().compareTo(this.actualEndDate)>=0)){
+            return true;
+        }else{
+            return false;
+        }
     }
 
     public void setDone(boolean done) {
-        this.done = done;
+        if(done==true && this.isDone()==false){
+            this.actualEndDate=new Date();
+            this.done = done;
+        }else if(done==false && this.isDone()==true){
+            this.actualEndDate=null;
+            this.done=false;
+        }else{
+            this.done=done;
+        }
     }
 
     public UserModel getAssignee() {
