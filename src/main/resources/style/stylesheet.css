@@ -1,16 +1,19 @@
 .root{
-	
 	-fx-background-color: white;
 }
 
 #projectview{
-	-fx-background-image:url("Manager.jpg");
+-fx-background-image:url("background2.png");
+-fx-background-height: auto;
+-fx-background-size: cover;
+-fx-backround-position: center;
 }
 
 #projectcreator{
--fx-background-image:url("newproject.jpg");
--fx-background-repeat:stretch;
--fx-background-position:top right;
+-fx-background-image:url("background2.png");
+-fx-background-height: auto;
+-fx-background-size: cover;
+-fx-backround-position: center;
 }
 
 #projecteditor{
@@ -30,16 +33,6 @@
 	
 }
 
-.button {
-    -fx-effect: dropshadow(two-pass-box , darkgray, 10, 0.0 , 4, 5);
-    -fx-background-color: #3366FF;
-    -fx-background-radius: 15 15 15 15;
-    -fx-background-insets: 2 2 2 2 ;
-    -fx-color:white;
-		
-}
-
-
 .table-view .column-header .label {
     -fx-text-fill: white;
     -fx-background-color: #3366FF;
@@ -47,16 +40,17 @@
 }
 
 .button {
-    -fx-effect: dropshadow(two-pass-box , darkgray, 10, 0.0 , 4, 5);
-    -fx-background-color: #3366FF;
-    -fx-background-radius: 15 15 15 15;
-    -fx-background-insets: 2 2 2 2 ;
-    -fx-color:white;
-		
+-fx-background-color: linear-gradient(#0066cc, #093d9e);
+-fx-background-radius: 5;
+-fx-background-insets: 0;
+-fx-text-fill: white;
 }
 
 .button:hover {
-    -fx-background-color: linear-gradient(#2A5058, #61a2b1);
+-fx-background-color: linear-gradient(#0066cc, #093d9e);
+-fx-background-radius: 5;
+-fx-background-insets: 0;
+-fx-text-fill: white;
 }
 
 .graph-button {
@@ -118,4 +112,10 @@
     -fx-border-style: solid;
     -fx-border-width: 5px;
     -fx-border-radius: 15;
+}
+
+.welcome-list{
+-fx-border-insets: 2 0 0 0;
+  -fx-border-color: -fx-text-box-border;
+  -fx-border-width: 2;
 }
