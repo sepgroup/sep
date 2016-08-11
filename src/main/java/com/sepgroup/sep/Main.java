@@ -74,14 +74,13 @@ public class Main extends Application {
         }
         AbstractController actualController = loader.getController();
         parent.getStylesheets().add(actualController.getClass().getResource(actualController.getCssPath()).toExternalForm());
-
         return actualController;
     }
 
     public static void main(String[] args) {
         launch(args);
-      //  PhysicsGraphController pgc = new PhysicsGraphController(true,1);
-       // pgc.positionNodes();
+        //PhysicsGraphController pgc = new PhysicsGraphController(true,1);
+        //pgc.positionNodes();
     }
 
 }

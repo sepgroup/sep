@@ -2,7 +2,6 @@ package com.sepgroup.sep.tests.ut.model;
 
 import com.sepgroup.sep.model.*;
 import com.sepgroup.sep.utils.DateUtils;
-import com.sun.javafx.tk.Toolkit;
 import org.junit.*;
 
 import java.util.ArrayList;
@@ -25,8 +24,8 @@ public class TaskModelTest {
     private static Date defaultDeadline = new Date(System.currentTimeMillis() + 2* 9999*9999);
 
     private ProjectModel createdProject,createdProject2;
-    private Date createdProjectStartDate = new Date(System.currentTimeMillis() - 5 * 9999*9999);
-    private Date createdProjectDeadline = new Date(System.currentTimeMillis() + 5 * 9999*9999);
+    private static Date createdProjectStartDate = new Date(System.currentTimeMillis() - 5 * 9999*9999);
+    private static Date createdProjectDeadline = new Date(System.currentTimeMillis() + 5 * 9999*9999);
     private UserModel createdUser;
 
     @BeforeClass
@@ -91,6 +90,7 @@ public class TaskModelTest {
         TaskModel t2 = new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 10000,
                 defaultStartDate, defaultDeadline, false, createdUser, 8, 9, 7, defaultStartDate, defaultDeadline);
         assertFalse(t1.equals(t2));
+<<<<<<< HEAD
     }
 
     @Test
@@ -113,6 +113,8 @@ public class TaskModelTest {
         }
 
         assertThat(fetchedTaskBefore, equalTo(fetchedTaskAfter));
+=======
+>>>>>>> 3e6ec61c9e33eb08530dc74f695c2ec8ef1ba982
     }
 
     @Test
@@ -151,6 +153,21 @@ public class TaskModelTest {
         }
         assertThat(fetchedTask2, equalTo(createdTask2));
         assertTrue(fetchedTask2.getDependencies().contains(createdTask1));
+    }
+
+    @Test
+    public void testMakeDependencyOf() throws Exception {
+        TaskModel t1 = new TaskModel("T1", "Description of\n T1", createdProject.getProjectId(), 10000,
+                defaultStartDate, defaultDeadline, false, createdUser, 8, 9, 7, defaultStartDate, defaultDeadline);
+        t1.persistData();
+
+        TaskModel t2 = new TaskModel("T2", "Description of\n TX2", createdProject.getProjectId(), 10000,
+                defaultStartDate, defaultDeadline, false, createdUser, 8, 9, 7, defaultStartDate, defaultDeadline);
+        t2.persistData();
+        t1.makeDependencyOf(t2);
+        t2.persistData();
+
+        assertTrue(t2.getDependencies().contains(t1));
     }
 
     public void testGetLastInsertedId() throws Exception {
@@ -388,7 +405,7 @@ public class TaskModelTest {
         t1.persistData();
 
         try {
-            t2 = TaskModel.getById(2);
+            t2 = TaskModel.getById(t2.getTaskId());
         } catch (ModelNotFoundException e) {
             fail(e.getMessage());
         }
@@ -397,7 +414,7 @@ public class TaskModelTest {
         t2.persistData();
 
         try {
-            t3 = TaskModel.getById(3);
+            t3 = TaskModel.getById(t3.getTaskId());
         } catch (ModelNotFoundException e) {
             fail(e.getMessage());
         }

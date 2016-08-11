@@ -1,18 +1,12 @@
 package com.sepgroup.sep.controller;
 
-import java.text.ParseException;
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.sepgroup.sep.Main;
-import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.model.*;
-import com.sepgroup.sep.utils.DateUtils;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -43,7 +37,7 @@ public class TaskViewerController extends AbstractController {
     @FXML
     public Label nameLabel;
     @FXML
-    public Label description;
+    public TextArea taskDescriptionArea;
     @FXML
     public Label status;
     @FXML
@@ -58,6 +52,20 @@ public class TaskViewerController extends AbstractController {
     public Label assignee;
     @FXML
     public Pane pertInfo;
+    @FXML
+    public Label mostLikelyDurationLabel;
+    @FXML
+    public Label optimisticDurationLabel;
+    @FXML
+    public Label actualStartDateLabel;
+    @FXML
+    public Label actualEndDateLabel;
+    @FXML
+    public Label expectedStartDateLabel;
+    @FXML
+    public Label expectedEndDateLabel;
+    @FXML
+    public Label pessimisticDurationLabel;
     @FXML
     public DatePicker pertDate;
     @FXML
@@ -90,17 +98,30 @@ public class TaskViewerController extends AbstractController {
     }
 
     @FXML
-    public void onPERTClicked() {
+    public void onDateChanged() {
         if(pertDate.getValue() != null)
         {
             if(!model.shouldBeDone())
             {
-                LocalDate projectStartDate = project.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                LocalDate projectStartDate = null;
+                try {
+                    projectStartDate = project.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                }
+                catch(NullPointerException e)
+                {
+                    DialogCreator.showErrorDialog("Project Start Date Not Set", "This project's start date has not been set. P.E.R.T." +
+                                                    " analysis cannot be performed without it.");
+                    return;
+                }
+                catch(Exception e)
+                {
+                    DialogCreator.showExceptionDialog(e);
+                    return;
+                }
                 LocalDate expectedFinishingDate = pertDate.getValue();
 
                 Period diff = Period.between(projectStartDate, expectedFinishingDate);
                 double dayDifference = diff.getDays() + diff.getMonths() * 30 + diff.getYears() * 365;
-                System.out.println(dayDifference);
 
                 try {
                     pertPercentage.setText(String.format("%.2f", PERTAnalysisTools.pertAnalysis(model, (int)dayDifference) * 100)
@@ -109,6 +130,7 @@ public class TaskViewerController extends AbstractController {
                 catch(Exception e)
                 {
                     DialogCreator.showExceptionDialog(e);
+                    return;
                 }
             }
 
@@ -124,6 +146,13 @@ public class TaskViewerController extends AbstractController {
         tec.setReturnProject(project);
     }
 
+    @FXML
+    public void onGraphViewClicked()
+    {
+        GraphViewController gvc = (GraphViewController) Main.setPrimaryScene(GraphViewController.getFxmlPath());
+        gvc.setReturnProject(project);
+    }
+
     public void setModel(TaskModel t) {
         this.model = t;
         update();
@@ -134,15 +163,32 @@ public class TaskViewerController extends AbstractController {
         nameLabel.setText(String.valueOf(model.getName()));
         budget.setText("$" + String.valueOf(String.format("%.2f", model.getBudget())));
         expectedDuration.setText(String.valueOf(String.format("%.2f", model.getExpectedDuration())) + " day" + (model.getExpectedDuration() > 1 ? "s": ""));
-        if(model.getAssignee() != null)
+        if(model.getAssignee() != null) {
+            logger.info("assignee not null");
             assignee.setText(String.valueOf(model.getAssignee()));
+        }
+        else {
+            logger.info("assignee null");
+            assignee.setText("[ none ]");
+        }
 
         if(model.getDescription() != null && !model.getDescription().equals(""))
-            description.setText(model.getDescription());
+            taskDescriptionArea.setText(model.getDescription());
         else {
-            description.setVisible(false);
-            description.setManaged(false);
+            taskDescriptionArea.setVisible(false);
+            taskDescriptionArea.setManaged(false);
         }
+
+        // Durations
+        pessimisticDurationLabel.setText(Integer.toString(model.getPesimisticTimeToFinish()));
+        optimisticDurationLabel.setText(Integer.toString(model.getOptimisticTimeToFinish()));
+        mostLikelyDurationLabel.setText(Integer.toString(model.getMostLikelyTimeToFinish()));
+
+        // actual / expected dates
+        actualStartDateLabel.setText(model.getActualStartDateString());
+        actualEndDateLabel.setText(model.getActualEndDateString());
+        expectedStartDateLabel.setText(model.getStartDateString());
+        expectedEndDateLabel.setText(model.getDeadlineString());
 
         status.setText("In Progress");
         if(!model.isDone() && !model.shouldBeDone()) {
@@ -208,10 +254,7 @@ public class TaskViewerController extends AbstractController {
         GraphFactory.makeGraph(model.getProjectId(), newGraph);
 
         ArrayList<Node> outNodes = newGraph.getNodeByID(model.getTaskId()).getOutNodes();
-        ArrayList<TaskModel> outTasks = new ArrayList<TaskModel>();
-
-        for (Node n : outNodes)
-            outTasks.add(n.getData().task);
+        ArrayList<TaskModel> outTasks = outNodes.stream().map(n -> n.getData().task).collect(Collectors.toCollection(ArrayList::new));
 
         dependentsObservableList.addAll(outTasks.stream().map(ListableTaskModel::new).collect(Collectors.toList()));
         ObservableList<ListableTaskModel> dependents = FXCollections.observableList(dependentsObservableList);

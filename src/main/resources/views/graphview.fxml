@@ -1,19 +1,96 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.shape.*?>
 <?import javafx.scene.canvas.*?>
-<?import javafx.embed.swing.*?>
 <?import java.lang.*?>
 <?import java.util.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
 <?import javafx.scene.text.*?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ScrollPane?>
 
-<Pane fx:id="graphview" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="657.0" prefWidth="1087.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sepgroup.sep.controller.GraphViewController">
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="1100.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sepgroup.sep.controller.GraphViewController">
    <children>
-      <Button fx:id="backButton" layoutX="28.0" layoutY="20.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="102.0" text="Back" />
-      <Pane fx:id="graphArea" layoutX="28.0" layoutY="89.0" prefHeight="538.0" prefWidth="1026.0" />
+      <Button fx:id="backButton" layoutX="28.0" layoutY="20.0" mnemonicParsing="false" onAction="#onBackButtonClicked" prefHeight="36.0" prefWidth="102.0" text="Detailed View" />
+      <Pane fx:id="graphArea" layoutY="67.0" onMouseClicked="#onPaneClicked" onZoom="#onZoom" prefHeight="540.0" prefWidth="1029.0" style="-fx-background-image: url(&quot;grid.jpg&quot;); -fx-background-position: center center; -fx-background-repeat: stretch;">
+         <children>
+            <ParallelCamera fx:id="camera" pickOnBounds="true" />
+         </children></Pane>
+      <DatePicker fx:id="pertDate" layoutX="838.0" layoutY="30.0" onAction="#onDateChanged" prefHeight="27.0" prefWidth="217.0" />
+      <RadioButton fx:id="cPView" layoutX="458.0" layoutY="619.0" mnemonicParsing="false" onAction="#onCPSelected" prefHeight="38.0" prefWidth="187.0" text="Critical Path">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </RadioButton>
+      <RadioButton fx:id="pertView" layoutX="732.0" layoutY="619.0" mnemonicParsing="false" onAction="#onPERTSelected" prefHeight="39.0" prefWidth="134.0" text="P.E.R.T">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </RadioButton>
+      <RadioButton fx:id="normalView" layoutX="199.0" layoutY="618.0" mnemonicParsing="false" onAction="#onNormalSelected" prefHeight="38.0" prefWidth="134.0" text="Progress">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </RadioButton>
+      <Pane fx:id="progressLegend" layoutX="153.0" layoutY="11.0" prefHeight="55.0" prefWidth="657.0" visible="false">
+         <children>
+            <Label layoutX="33.0" layoutY="16.0" prefHeight="26.0" prefWidth="107.0" text="Completed">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Label>
+            <Label layoutX="186.0" layoutY="14.0" prefHeight="26.0" prefWidth="107.0" text="In Progress">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Label>
+            <Label layoutX="336.0" layoutY="15.0" prefHeight="26.0" prefWidth="157.0" text="In Progress (Late)">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Label>
+            <Label layoutX="541.0" layoutY="15.0" prefHeight="26.0" prefWidth="67.0" text="To Do">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Label>
+            <Circle fill="#60adf5" layoutX="139.0" layoutY="30.0" radius="9.0" stroke="BLACK" strokeType="INSIDE" />
+            <Circle fill="#e8f577" layoutX="295.0" layoutY="28.0" radius="9.0" stroke="BLACK" strokeType="INSIDE" />
+            <Circle fill="#f4857f" layoutX="500.0" layoutY="29.0" radius="9.0" stroke="BLACK" strokeType="INSIDE" />
+            <Circle fill="#a9e897" layoutX="607.0" layoutY="29.0" radius="9.0" stroke="BLACK" strokeType="INSIDE" />
+         </children>
+      </Pane>
+      <Pane fx:id="cPLegend" layoutX="153.0" layoutY="12.0" prefHeight="55.0" prefWidth="657.0" visible="false">
+         <children>
+            <Label layoutX="33.0" layoutY="16.0" prefHeight="24.0" prefWidth="112.0" text="Critical Path">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Label>
+            <Circle fill="#f4857f" layoutX="149.0" layoutY="29.0" radius="9.0" stroke="BLACK" strokeType="INSIDE" />
+         </children>
+      </Pane>
+      <Pane fx:id="pertLegend" layoutX="158.0" layoutY="12.0" prefHeight="55.0" prefWidth="657.0">
+         <children>
+            <ImageView fitHeight="25.0" fitWidth="379.0" layoutX="153.0" layoutY="1.0" pickOnBounds="true">
+               <image>
+                  <Image url="@../style/gradient.jpg" />
+               </image>
+            </ImageView>
+            <Label layoutX="154.0" layoutY="35.0" prefHeight="24.0" prefWidth="29.0" text="0%">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Label>
+            <Label layoutX="489.0" layoutY="35.0" prefHeight="24.0" prefWidth="53.0" text="100%">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Label>
+         </children>
+      </Pane>
+      <ScrollBar layoutX="1066.0" layoutY="73.0" orientation="VERTICAL" prefHeight="550.0" prefWidth="17.0" />
    </children>
 </Pane>

@@ -54,4 +54,8 @@ public class TaskNodePath {
 		nodeList.addAll(nodes);
 		return nodeList;
 	}
+
+	public String toString() {
+		return toList().toString();
+	}
 }

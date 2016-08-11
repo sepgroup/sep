@@ -142,9 +142,19 @@ public class PhysicsNode extends Node implements Physics,Drawable {
     }
 
 
-    public void setRelativePosition(double maxX,double maxY){
-        relativePosition[0] = position[0]/maxX;
-        relativePosition[1] = position[1]/maxY;
+    public void setRelativePosition(double maxX,double maxY, double offsetX, double offsetY){
+        if(maxX == 0)
+        {
+            offsetX = -position[0] + 0.5;
+            maxX = 1;
+        }
+        if(maxY == 0)
+        {
+            offsetY = -position[1] + 0.5;
+            maxY = 1;
+        }
+        relativePosition[0] = (position[0] + offsetX) / maxX;
+        relativePosition[1] = (position[1] + offsetY) / maxY;
     }
     public double getRelX(){
         return relativePosition[0];
@@ -166,7 +176,7 @@ public class PhysicsNode extends Node implements Physics,Drawable {
             color = new Color(192,229,213);
     }
 
-
+    // Chinchilla
     public void draw(Graphics2D g) {
         g.setColor(color);
         int offset = -radius / 2;

@@ -7,6 +7,8 @@ import com.sepgroup.sep.analysis.TaskNodePath;
 
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import com.sepgroup.sep.analysis.Node;
+
 
 /**
  * Created by Demo on 8/4/2016.
@@ -15,6 +17,7 @@ public class PhysicsGraphController implements KeyInputController{
     private Display display;
     private PhysicsGraph graph;
     private ArrayList<Integer> keyDown = new ArrayList<Integer>(10);
+    private boolean reset = false;
 
     public PhysicsGraphController(boolean display,int projectID){
 
@@ -39,23 +42,16 @@ public class PhysicsGraphController implements KeyInputController{
             graph.printInfo();
         }
         if(e.getKeyCode() == KeyEvent.VK_D){
-            graph.depthSections = !graph.depthSections;
-            graph.update();
+            reset = true;
         }
         if(e.getKeyCode() == KeyEvent.VK_P)
             ((PhysicsNode)graph.getCursor()).setPhysics(!((PhysicsNode)graph.getCursor()).getPhysics());
 
         if(e.getKeyCode() == KeyEvent.VK_T){
-            if(graph.getCursor().getOutNodes().contains(graph.getTerminal()))
-                graph.getCursor().removeOutNode(graph.getTerminal());
-            else
-                graph.addDirectedEdge(graph.getCursor(),graph.getTerminal());
+            linkUnlinkNodeToTerminal(graph.getCursor());
         }
         if(e.getKeyCode() == KeyEvent.VK_R){
-            if(graph.getCursor().getInNodes().contains(graph.getRoot()))
-                graph.getCursor().removeInNode(graph.getRoot());
-            else
-                graph.addDirectedEdge(graph.getRoot(),graph.getCursor());
+            linkUnlinkRootToNode(graph.getCursor());
         }
     }
     public void releaseEvent(KeyEvent e){
@@ -89,17 +85,73 @@ public class PhysicsGraphController implements KeyInputController{
 
     public void positionNodes(){
         graph.update();
-        for(int i = 0; i<1000000;i++){
-       // while(true){
+        loadSequentially();
+        for(int i = 0; i<10000;i++){
             update();
+            if(reset){
+                loadSequentially();
+                reset = false;
+            }
+            if(display!=null)
+                i = 0;
         }
         moveToEdge();
+        pushPositions(graph.getRoot());
         graph.setRelativePosition();
+    }
+    private void loadSequentially(){
+        graph.disableAllPhysics();
+        graph.positionAllNodes( ((PhysicsNode)graph.getTerminal()).position[0]-100, ((PhysicsNode)graph.getTerminal()).position[1]+1);
+        graph.bfs(graph.getRoot());
+        while(graph.iterator.hasNext()) {
+            Node n = graph.iterator.next();
+            if(!n.equals(graph.getRoot()) && !n.equals(graph.getTerminal())) {
+                loadNode(n);
+                for (int i = 0; i < 100000; i++)
+                    update();
+            }
+        }
 
     }
-    private void setCriticalNodes(){
-        graph.setCriticalNodes();
+    private void loadNode(Node n){
+        ((PhysicsNode)n).setPhysics(true);
+        ((PhysicsNode)n).setAnchor(false);
+
+        ArrayList<Node> inNodes = n.getInNodes();
+        for(Node node : inNodes)
+            if(node.getOutNodes().contains(graph.getTerminal()))
+                linkUnlinkNodeToTerminal(node);
+        if(!n.getOutNodes().contains(graph.getTerminal())){
+            linkUnlinkNodeToTerminal(n);
+        }
+
+
     }
+    private void linkUnlinkRootToNode(Node n){
+        if(n.getInNodes().contains(graph.getRoot()))
+           n.removeInNode(graph.getRoot());
+        else
+            graph.addDirectedEdge(graph.getRoot(),n);
+    }
+    private void linkUnlinkNodeToTerminal(Node n){
+        if(n.getOutNodes().contains(graph.getTerminal()))
+            n.removeOutNode(graph.getTerminal());
+        else
+            graph.addDirectedEdge(n,graph.getTerminal());
+    }
+
+    protected void pushPositions(Node currentNode)
+    {
+        for(Node n: currentNode.getOutNodes()) {
+            double diffX = ((PhysicsNode)n).position[0] - ((PhysicsNode)currentNode).position[0];
+
+            if(diffX < 1000)
+                ((PhysicsNode)n).position[0] = ((PhysicsNode)currentNode).position[0] + 1000;
+
+            pushPositions(n);
+        }
+    }
+
     public PhysicsGraph getGraph(){
         return graph;
     }

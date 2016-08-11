@@ -25,6 +25,7 @@ public final class CriticalPath {
 	}
 
 	private static Collection<TaskNodePath> getCriticalPathsStartingFrom(final Node node) {
+		System.out.print(node.getID() + ", ");
 		final Collection<TaskNodePath> criticalPaths = new ArrayList<>();
 		final Collection<Node> children = node.outNodes;
 

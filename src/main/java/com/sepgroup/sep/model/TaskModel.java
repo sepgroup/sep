@@ -1,8 +1,8 @@
 package com.sepgroup.sep.model;
 
 import com.sepgroup.sep.db.DBException;
-import com.sepgroup.sep.db.DatabaseFactory;
 import com.sepgroup.sep.db.Database;
+import com.sepgroup.sep.db.DatabaseFactory;
 import com.sepgroup.sep.utils.CurrencyUtils;
 import com.sepgroup.sep.utils.DateUtils;
 import org.slf4j.Logger;
@@ -11,10 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -203,6 +200,16 @@ public class TaskModel extends AbstractModel {
         }
     }
 
+    /**
+     * Makes this task a dependency of the specified task.
+     * @param t
+     * @throws TaskDependencyException
+     */
+    public void makeDependencyOf(TaskModel t) throws TaskDependencyException {
+        t.addDependency(this);
+//        t.persistData();
+    }
+
     private void internalAddDependency(TaskModel task) {
         try {
             addDependency(task);
@@ -289,8 +296,6 @@ public class TaskModel extends AbstractModel {
         }
     }
 
-
-
     public Date getActualEndDate() {
         return actualEndDate;
     }
@@ -342,6 +347,7 @@ public class TaskModel extends AbstractModel {
 
     @Override
     public void persistData() throws DBException {
+        super.persistData();
         if (getName() == null || getName().equals("") || getProjectId() == 0) {
             logger.error("Name & project ID must be set to persist model to DB");
             throw new DBException("Name & project ID must be set to persist model to DB");
@@ -763,6 +769,7 @@ public class TaskModel extends AbstractModel {
         }
     }
 
+<<<<<<< HEAD
     public void setDone(boolean done) {
         if(done==true && this.isDone()==false){
             this.actualEndDate=new Date();
@@ -773,7 +780,26 @@ public class TaskModel extends AbstractModel {
         }else{
             this.done=done;
         }
+=======
+    public void setDone(boolean done) throws InvalidInputException {
+    	if (done && !allAncestorsAreDone()) {
+    		throw new InvalidInputException("TaskModel " + taskId + " - " + name + " cannot be marked complete - some ancestors are not marked complete.");
+		}
+        this.done = done;
+>>>>>>> 3e6ec61c9e33eb08530dc74f695c2ec8ef1ba982
     }
+
+    public boolean allAncestorsAreDone() {
+    	Collection<TaskModel> parents = getDependencies();
+		boolean allDone = true;
+		if (!parents.isEmpty()) {
+			for (final TaskModel parent : parents) {
+				allDone &= parent.isDone() && parent.allAncestorsAreDone();
+			}
+		}
+		return allDone;
+	}
+
 
     public UserModel getAssignee() {
         return assignee;
@@ -898,10 +924,6 @@ public class TaskModel extends AbstractModel {
         if (!equalsNullable(other.getTags(), getTags())) {
             return false;
         }
-//        if (!equalsNullable(other.getDependencies(), getDependencies())) {
-//            return false;
-//        }
-
 
         return true;
     }

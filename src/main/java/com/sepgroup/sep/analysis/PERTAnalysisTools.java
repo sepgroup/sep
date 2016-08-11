@@ -23,16 +23,21 @@ public final class PERTAnalysisTools {
         Graph newGraph = new Graph();
         GraphFactory.makeGraph(projectId, newGraph);
 
-        forwardPass(newGraph.getRoot(), 0);
-        backwardPass(newGraph.getTerminal(), (int)newGraph.getTerminal().getData().earliestFinish);
-
-        ArrayList<ArrayList<Node>> criticalPaths = new ArrayList<ArrayList<Node>>();
-        criticalPaths.add(new ArrayList<Node>());
+        setPasses(newGraph);
 
         Node currentNode = newGraph.getNodeByID(currentTask.getTaskId());
+        ArrayList<ArrayList<Node>> criticalPaths = getCriticalPath(newGraph, currentNode);
+        return calculateProbability(criticalPaths, currentNode, days);
+    }
 
-        backTrack(criticalPaths, criticalPaths.get(criticalPaths.size() - 1), currentNode);
+    public static void setPasses(Graph newGraph)
+    {
+        forwardPass(newGraph.getRoot(), 0);
+        backwardPass(newGraph.getTerminal(), (int)newGraph.getTerminal().getData().earliestFinish);
+    }
 
+    public static double calculateProbability(ArrayList<ArrayList<Node>> criticalPaths, Node currentNode, int days)
+    {
         double minVariance = Double.MAX_VALUE;
         ArrayList<Node> minSlackCriticalPath = null;
 
@@ -53,8 +58,10 @@ public final class PERTAnalysisTools {
         double expectedTime = (double)(currentNode.getData().earliestFinish + currentNode.getData().latestFinish) / 2;
 
         double sum = 0;
+        double stDev = Math.sqrt(minVariance);
+
         for(double i = 0; i <= days; i += 0.001) {
-            double prob = probability(i - expectedTime, Math.sqrt(minVariance));
+            double prob = probability(i - expectedTime, stDev);
             prob *= 0.001;
             sum += prob;
         }
@@ -89,10 +96,11 @@ public final class PERTAnalysisTools {
             backwardPass(nextNode, timeSoFar);
     }
 
-    private static ArrayList<ArrayList<Node>> getCriticalPath(Graph graph, Node targetNode)
+    public static ArrayList<ArrayList<Node>> getCriticalPath(Graph graph, Node targetNode)
     {
-        ArrayList<ArrayList<Node>> allPaths = new ArrayList<ArrayList<Node>>();
+        clearCritical(graph);
 
+        ArrayList<ArrayList<Node>> allPaths = new ArrayList<ArrayList<Node>>();
         allPaths.add(new ArrayList<Node>());
 
         backTrack(allPaths, allPaths.get(0), targetNode);
@@ -102,42 +110,61 @@ public final class PERTAnalysisTools {
 
     private static void backTrack(ArrayList<ArrayList<Node>> paths, ArrayList<Node> currentPath, Node currentNode)
     {
+
         currentPath.add(0, currentNode);
+        currentNode.setCritical(true);
 
         ArrayList<Node> nextNodes = currentNode.getInNodes();
-        int min = Integer.MAX_VALUE;
+        double minSlack = Integer.MAX_VALUE;
+        double maxTime = Integer.MIN_VALUE;
         ArrayList<Node> minNodes = new ArrayList<Node>();
+
         for(Node nextNode: nextNodes)
         {
-            int slack = (int)(nextNode.getData().latestFinish - nextNode.getData().earliestFinish);
-            if(slack < min)
+            double slack = (int)(nextNode.getData().latestFinish - nextNode.getData().earliestFinish);
+            if(nextNode.getData().latestFinish > maxTime)
             {
-                min = slack;
+                maxTime = nextNode.getData().latestFinish;
+                minSlack = slack;
                 minNodes.clear();
                 minNodes.add(nextNode);
             }
-            else if(slack == min)
-                minNodes.add(nextNode);
+            else if(nextNode.getData().latestFinish == maxTime)
+            {
+                if(slack < minSlack)
+                {
+                    minSlack = slack;
+                    minNodes.clear();
+                    minNodes.add(nextNode);
+                }
+                else if(slack == minSlack)
+                    minNodes.add(nextNode);
+            }
         }
 
+        ArrayList<Node> pathTillNow = new ArrayList<Node>(currentPath);
         int i = 0;
         for(Node node: minNodes)
         {
-            if (i > 0)
-            {
-                paths.add(new ArrayList<Node>(currentPath));
-                backTrack(paths, paths.get(paths.size() - 1), node);
+            if(i > 0) {
+                currentPath = new ArrayList<Node>(pathTillNow);
+                paths.add(currentPath);
             }
-            else
-                backTrack(paths, currentPath, node);
-
+            backTrack(paths, currentPath, node);
             i++;
         }
+
+    }
+
+    private static void clearCritical(Graph g)
+    {
+        for(Node n: g.nodes)
+            n.setCritical(false);
     }
 
     private static double taskVariance(TaskModel task)
     {
-        return Math.pow((task.getPesimisticTimeToFinish() - task.getOptimisticTimeToFinish()) / 6, 2);
+        return Math.pow(((double)task.getPesimisticTimeToFinish() - (double)task.getOptimisticTimeToFinish()) / 6, 2);
     }
 
     private static double zScore(double timeDifference, double standardDeviation)

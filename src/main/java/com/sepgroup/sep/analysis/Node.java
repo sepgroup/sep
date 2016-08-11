@@ -5,6 +5,8 @@ package com.sepgroup.sep.analysis;
  */
 
 import com.sepgroup.sep.model.TaskModel;
+import javafx.scene.control.Button;
+import javafx.scene.shape.Line;
 
 import java.util.ArrayList;
 public class Node {
@@ -22,6 +24,11 @@ public class Node {
     STATES state;
 
     private boolean isCritical;
+
+
+    public Button myButton;
+    public ArrayList<Line> inArrows = new ArrayList<Line>();
+    public ArrayList<Line> outArrows = new ArrayList<Line>();
 
     public Node(){
     }
@@ -162,6 +169,8 @@ public class Node {
     public void setCritical(boolean set){
         isCritical = set;
     }
+
+
     public boolean getCritical(){
         return isCritical;
     }

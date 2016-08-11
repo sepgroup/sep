@@ -1,5 +1,6 @@
 package com.sepgroup.sep.tests.ut.db;
 
+import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.db.DatabaseFactory;
 import com.sepgroup.sep.db.Database;
 import com.sepgroup.sep.model.DBManager;
@@ -7,11 +8,12 @@ import com.sepgroup.sep.model.ProjectModel;
 import org.junit.*;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
-import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by jeremybrown on 2016-05-21.
@@ -33,6 +35,11 @@ public class DatabaseTest {
         if (db != null) {
             db.closeConnection();
         }
+    }
+
+    @AfterClass
+    public static void tearDown() throws Exception {
+        db.dropTable("Project");
     }
 
     @Test
@@ -92,6 +99,40 @@ public class DatabaseTest {
 
         ResultSet rs = db.query("SELECT * FROM " + projectTableName + " WHERE " + projectIDColumn + "=" + insertedKey);
         assertThat(rs.next(), equalTo(true));
+    }
+
+    @Test(expected = SQLException.class)
+    public void testQueryError() throws Exception {
+        db = DatabaseFactory.getDB(dbPath);
+        db.query("invalid sql query;");
+    }
+
+    @Test(expected = SQLException.class)
+    public void testInsertError() throws Exception {
+        db = DatabaseFactory.getDB(dbPath);
+        db.insert("invalid sql insert;");
+    }
+
+    @Test(expected = SQLException.class)
+    public void testUpdateError() throws Exception {
+        db = DatabaseFactory.getDB(dbPath);
+        db.update("invalid sql update;");
+    }
+
+    @Test(expected = DBException.class)
+    public void testDropTableError() throws Exception {
+        db = DatabaseFactory.getDB(dbPath);
+        db.dropTable("asdf; hello");
+    }
+
+    @Test
+    public void testCloseConnection() throws Exception {
+        db = DatabaseFactory.getDB(dbPath);
+        String sql = "INSERT INTO Project (" + projectNameColumn + ") VALUES ('" + expectedProjectName + "');";
+        db.insert(sql);
+
+        assertTrue(db.closeConnection());
+        assertFalse(db.closeConnection());
     }
 
     private int insertProject() throws Exception {

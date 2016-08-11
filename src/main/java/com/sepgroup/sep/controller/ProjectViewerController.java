@@ -117,6 +117,7 @@ public class ProjectViewerController extends AbstractController {
     @Override
     public void update() {
         if (this.model != null) {
+            ProjectModel.tempTasks = null;
             projectNameText.setText(model.getName());
             if (model.getProjectDescription() != null) projectDescriptionTextArea.setText(model.getProjectDescription());
             if (model.getStartDate() != null) startDateValueLabel.setText(model.getStartDateString());
@@ -157,6 +158,7 @@ public class ProjectViewerController extends AbstractController {
                 logger.debug("No tasks found for project " + model.toString());
                 tasksList = new LinkedList<>();
             }
+
             taskIdColumn.setCellValueFactory(cellData -> cellData.getValue().taskIdProperty().asObject());
             taskNameColumn.setCellValueFactory(cellData -> cellData.getValue().taskNameProperty());
             taskBudgetColumn.setCellValueFactory(cellData -> cellData.getValue().taskBudgetProperty().asObject());

@@ -87,6 +87,7 @@ public class UserModel extends AbstractModel {
 
     @Override
     public void persistData() throws DBException {
+        super.persistData();
         if (this.firstName == null || this.lastName == null) {
             logger.error("First & last names must be set to persist model to DB");
             throw new DBException("First & last names must be set to persist model to DB");

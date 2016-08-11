@@ -35,6 +35,12 @@ Ensure you have Java 8 installed.
 - Press 'Build Model', select the `sep` project, and press 'Finish'
 - 'Run as...' > 'Gradle (STS) Build' with tasks `clean run`
 
+## Database File
+The project database is a SQLite3 file is stored in the user's home folder.
+For OS X / Linux, it will be in ```~/.sep/```.
+For Windows, it will be in ```%UserProfile%\.sep\```.
+
+The file used for unit tests and such is ```test.db```, while the running application uses ```ProjectManagement.db```
 
 ## How to build
 ### OS X / Linux

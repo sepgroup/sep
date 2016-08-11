@@ -1,8 +1,7 @@
 package com.sepgroup.sep.tests.ut.model;
 
-import com.sepgroup.sep.model.DBManager;
-import com.sepgroup.sep.model.ModelNotFoundException;
-import com.sepgroup.sep.model.UserModel;
+import com.sepgroup.sep.db.DBException;
+import com.sepgroup.sep.model.*;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -41,6 +40,58 @@ public class UserModelTest {
     }
 
     @Test
+    public void testEqualsNull() throws Exception {
+        UserModel u = new UserModel();
+        assertThat(u.equals(null), equalTo(false));
+    }
+
+    @Test
+    public void testEqualsDifferentType() throws Exception {
+        UserModel u = new UserModel();
+        assertThat(u.equals(new TaskModel()), equalTo(false));
+    }
+
+    @Test
+    public void testEqualsDifferentUserId() throws Exception {
+        UserModel u1 = new UserModel("J", "D", 20);
+        u1.persistData();
+        UserModel u2 = new UserModel("J", "D", 20);
+        u2.persistData();
+
+        assertThat(u1.equals(u2), equalTo(false));
+    }
+
+    @Test
+    public void testEqualsDifferentFirstName() throws Exception {
+        UserModel u1 = new UserModel("Ja", "Dom", 20);
+        u1.persistData();
+        UserModel u2 = new UserModel("Jo", "Dom", 20);
+        u2.persistData();
+
+        assertThat(u1.equals(u2), equalTo(false));
+    }
+
+    @Test
+    public void testEqualsDifferentLastName() throws Exception {
+        UserModel u1 = new UserModel("J", "Dom", 20);
+        u1.persistData();
+        UserModel u2 = new UserModel("J", "Dim", 20);
+        u2.persistData();
+
+        assertThat(u1.equals(u2), equalTo(false));
+    }
+
+    @Test
+    public void testEqualsDifferentSalaryPerHour() throws Exception {
+        UserModel u1 = new UserModel("J", "Dom", 20.1);
+        u1.persistData();
+        UserModel u2 = new UserModel("J", "Dom", 20.23);
+        u2.persistData();
+
+        assertThat(u1.equals(u2), equalTo(false));
+    }
+
+    @Test
     public void testPersistData() throws Exception {
         UserModel createdUser = new UserModel("John2", "Smith2", 1.00);
         createdUser.persistData();
@@ -53,6 +104,35 @@ public class UserModelTest {
             fail(e.getMessage());
         }
         assertThat(fetchedUser, equalTo(createdUser));
+    }
+
+    @Test(expected = DBException.class)
+    public void testPersistDataNoNames() throws Exception {
+        UserModel u = new UserModel();
+        u.persistData();
+    }
+
+    @Test(expected = DBException.class)
+    public void testPersistDataNoFirstName() throws Exception {
+        UserModel u = new UserModel();
+        u.setLastName("LN");
+        u.persistData();
+    }
+
+    @Test(expected = DBException.class)
+    public void testPersistDataNoLastName() throws Exception {
+        UserModel u = new UserModel();
+        u.setFirstName("FN");
+        u.persistData();
+    }
+
+    @Test(expected = ModelNotFoundException.class)
+    public void testCleanData() throws Exception {
+        UserModel u1 = new UserModel("FN", "LN", 43.30);
+        u1.persistData();
+        UserModel.cleanData();
+
+        UserModel.getAll();
     }
 
     @Test
@@ -119,6 +199,82 @@ public class UserModelTest {
         UserModel fetchedUser = UserModel.getById(uId);
 
         assertThat(fetchedUser, equalTo(createdUser));
+    }
+
+    @Test
+    public void testGetEmptyUser() throws Exception {
+        UserModel emptyUser = UserModel.getEmptyUser();
+        assertThat(emptyUser.getFirstName(), equalTo("None"));
+        assertThat(emptyUser.getLastName(), equalTo(""));
+    }
+
+    @Test
+    public void testSetFirstName() throws Exception {
+        UserModel u1 = new UserModel();
+        u1.setFirstName("FN1");
+        String expected = "FN1";
+        assertThat(u1.getFirstName(), equalTo(expected));
+    }
+
+    @Test(expected = InvalidInputException.class)
+    public void testSetFirstNameTooLong() throws Exception {
+        UserModel u1 = new UserModel();
+        u1.setFirstName("FNlksdjf;ljlkkljdsfkljslakdfjalj3290jfdsaf092j0fj03dajlfdjasf90233j0i1");
+    }
+
+    @Test
+    public void testSetLastName() throws Exception {
+        UserModel u1 = new UserModel();
+        u1.setLastName("LN1");
+        String expected = "LN1";
+        assertThat(u1.getLastName(), equalTo(expected));
+    }
+
+    @Test(expected = InvalidInputException.class)
+    public void testSetLastNameTooLong() throws Exception {
+        UserModel u1 = new UserModel();
+        u1.setLastName("FNlksdjf;ljlkkljdsfkljslakdfjalj3290jfdsaf092j0fj03dajlfdjasf90233j0i1");
+    }
+
+    @Test
+    public void testGetFullName() throws Exception {
+        UserModel u = new UserModel("Johnny", "Smithy", 50.43);
+        String expected = "Johnny Smithy";
+        String actual = u.getFullName();
+        assertThat(expected, equalTo(actual));
+    }
+
+    @Test
+    public void testSetSalaryPerHour() throws Exception {
+        UserModel u = new UserModel();
+
+        u.setSalaryPerHour(49.58);
+        double expected1 = 49.58;
+        assertThat(u.getSalaryPerHour(), equalTo(expected1));
+
+        u.setSalaryPerHour(53.495820);
+        double expected2 = 53.50;
+        assertThat(u.getSalaryPerHour(), equalTo(expected2));
+    }
+
+    @Test(expected = InvalidInputException.class)
+    public void testSetSalaryPerHourNegative() throws Exception {
+        UserModel u = new UserModel();
+        u.setSalaryPerHour(-23.9485);
+    }
+
+    @Test
+    public void testToString() throws Exception {
+        UserModel u = new UserModel();
+        String expected1 = "[ ]    ";
+        assertThat(expected1, equalTo(u.toString()));
+
+        u.setFirstName("Bobby");
+        u.setLastName("Moynihan");
+        u.persistData();
+        int uId = u.getUserId();
+        String expected2 = "[" + uId + "] Bobby Moynihan";
+
     }
 
     @Test

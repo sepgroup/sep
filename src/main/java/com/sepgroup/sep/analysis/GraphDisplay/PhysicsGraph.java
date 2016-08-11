@@ -40,6 +40,9 @@ public class PhysicsGraph extends Graph implements Physics,Drawable {
                 n.setPosition(1100, y);
         }
     }
+
+
+
     public void shiftCursor(double x, double y){
         if(cursor!=null){
             PhysicsNode t = (PhysicsNode)cursor;
@@ -56,6 +59,22 @@ public class PhysicsGraph extends Graph implements Physics,Drawable {
         for(Node n : nodes){
             PhysicsNode t = (PhysicsNode)n;
             t.shift(x,y);
+        }
+    }
+    public void disableAllPhysics(){
+        for(Node n : nodes) {
+            PhysicsNode p = (PhysicsNode) n;
+            if(!p.equals(root) && !p.equals(terminal)) {
+                p.setPhysics(false);
+                p.setAnchor(true);
+            }
+        }
+    }
+    public void positionAllNodes(double x, double y){
+        for(Node n : nodes) {
+            PhysicsNode p = (PhysicsNode) n;
+            if(!p.equals(root) && !p.equals(terminal))
+                p.setPosition(x,y);
         }
     }
     public void setStateProperties(){
@@ -124,19 +143,26 @@ public class PhysicsGraph extends Graph implements Physics,Drawable {
             shiftAll(-minX,-minY);
     }
     public void setRelativePosition(){
-        double maxX = 0, maxY = 0;
+        double maxX = Double.MIN_VALUE, maxY = Double.MIN_VALUE, minX = Double.MAX_VALUE, minY = Double.MAX_VALUE;
         for(Node n : nodes){
             PhysicsNode t = (PhysicsNode)n;
             if(t.position[0]>maxX)
                 maxX = t.position[0];
+            if(t.position[0]<minX)
+                minX = t.position[0];
             if(t.position[1]>maxY)
                 maxY = t.position[1];
-        }
-        for(Node n : nodes){
-            PhysicsNode t = (PhysicsNode)n;
-            t.setRelativePosition(maxX,maxY);
+            if(t.position[1]<minY)
+                minY = t.position[1];
         }
 
+        double diffX = maxX - minX;
+        double diffY = maxY - minY;
+
+        for(Node n : nodes){
+            PhysicsNode t = (PhysicsNode)n;
+            t.setRelativePosition(diffX, diffY, -minX, -minY);
+        }
     }
 
     public void draw(Graphics2D g){
@@ -156,7 +182,6 @@ public class PhysicsGraph extends Graph implements Physics,Drawable {
         root.restDepth();
         findAndSetAllStates();
         setStateProperties();
-        setCriticalNodes();
         setCharges();
         if(depthSections)
             moveToSections();
