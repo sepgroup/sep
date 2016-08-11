@@ -125,8 +125,6 @@ public class ProjectViewerController extends AbstractController {
             budgetValueLabel.setText("$" + String.format("%.2f", model.getBudget()));
             completeValueLabel.setText(model.isDone() ? "Yes" : "No");
 
-            System.out.println("START");
-            double start = System.nanoTime();
             // Populate earned value analysis box
             pvValueLabel.setText("$" + String.format("%.2f", model.getPlannedValue()));
             evValueLabel.setText("$" + String.format("%.2f", model.getEarnedValue()));
@@ -138,7 +136,6 @@ public class ProjectViewerController extends AbstractController {
             svValueLabel.setText(String.format("%.2f", model.getScheduleVariance()) + " days");
             cpiValueLabel.setText(String.format("%.2f", model.getCostPerformanceIndex()));
             spiValueLabel.setText(String.format("%.2f", model.getSchedulePerformanceIndex()));
-            System.out.println((System.nanoTime() - start) / 1000000000);
 
             // Populate manager
             String managerName;

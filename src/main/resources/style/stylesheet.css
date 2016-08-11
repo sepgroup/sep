@@ -112,3 +112,10 @@
 .critical-path-button:hover {
     -fx-background-color: linear-gradient(#2A5058, #61a2b1);
 }
+
+.selected-button {
+    -fx-border-color: blue;
+    -fx-border-style: solid;
+    -fx-border-width: 5px;
+    -fx-border-radius: 15;
+}

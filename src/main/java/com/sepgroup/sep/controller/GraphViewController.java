@@ -24,6 +24,7 @@ import javafx.scene.transform.Rotate;
 import javafx.event.ActionEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.MouseDragEvent;
+import javafx.scene.input.ZoomEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.ContentDisplay;
 
@@ -36,9 +37,10 @@ import java.util.ArrayList;
 /**
  * Created by Andres Gonzalez on 2016-08-07.
  */
-public class GraphViewController extends AbstractController{
+public class GraphViewController extends AbstractController
+{
 
-    class CustomArrow extends Line {
+    private class CustomArrow extends Line {
         Polygon tip = new Polygon();
 
         protected CustomArrow(double x1, double y1, double x2, double y2) {
@@ -80,7 +82,7 @@ public class GraphViewController extends AbstractController{
         }
     }
 
-    class NodeButton extends Button {
+    private class NodeButton extends Button {
         ArrayList<CustomArrow> inNodes = new ArrayList<CustomArrow>();
         ArrayList<CustomArrow> outNodes = new ArrayList<CustomArrow>();
         Node taskNode;
@@ -93,6 +95,7 @@ public class GraphViewController extends AbstractController{
             setLayoutX(posX);
             setLayoutY(posY);
             setDimensions(width, height);
+            this.taskNode = taskNode;
 
             setOnMouseClicked(new EventHandler<MouseEvent>() {
                 public void handle(MouseEvent event) {
@@ -104,10 +107,21 @@ public class GraphViewController extends AbstractController{
                 }
             });
 
+            Button thisButton = this;
             setOnMousePressed(new EventHandler<MouseEvent>() {
                 public void handle(MouseEvent event) {
                     deltaX = event.getX();
                     deltaY = event.getY();
+
+                    if(selectedTask != null) {
+                        selectedTask.getStyleClass().remove("selected-button");
+                    }
+
+                    selectedTask = thisButton;
+                    getStyleClass().add("selected-button");
+
+                    if(cPView.isSelected())
+                        onCPSelected();
                 }
             });
 
@@ -118,6 +132,11 @@ public class GraphViewController extends AbstractController{
                     updateRelations();
                 }
             });
+        }
+
+        protected Node getTaskNode()
+        {
+            return taskNode;
         }
 
         protected void addInNode(CustomArrow inNode)
@@ -165,6 +184,8 @@ public class GraphViewController extends AbstractController{
     private ProjectModel project;
     private Graph graph;
     private double deltaX, deltaY;
+    private Button selectedTask;
+    private Scene scene;
 
     @FXML
     public Pane graphArea;
@@ -182,6 +203,8 @@ public class GraphViewController extends AbstractController{
     public Pane cPLegend;
     @FXML
     public Pane pertLegend;
+    @FXML
+    public ParallelCamera camera;
 
     public GraphViewController() {
         setCssPath("/style/stylesheet.css");
@@ -202,6 +225,22 @@ public class GraphViewController extends AbstractController{
         // Return to project viewer
         ProjectViewerController pvc = (ProjectViewerController) Main.setPrimaryScene(ProjectViewerController.getFxmlPath());
         pvc.setModel(project);
+    }
+
+    @FXML
+    public void onPaneClicked()
+    {
+        if(selectedTask != null) {
+            selectedTask.getStyleClass().remove("selected-button");
+            selectedTask = null;
+        }
+    }
+
+    @FXML
+    public void onZoom(ZoomEvent e)
+    {
+        double zoomFactor = e.getZoomFactor();
+        System.out.println("CHINCHILLA");
     }
 
     @FXML
@@ -246,7 +285,6 @@ public class GraphViewController extends AbstractController{
 
         try {
             for (Node n : graph.nodes) {
-                n.myButton.setStyle("");
                 n.myButton.getStyleClass().clear();
                 n.myButton.getStyleClass().add("button");
 
@@ -270,9 +308,15 @@ public class GraphViewController extends AbstractController{
                             n.myButton.getStyleClass().add("critical-path-button");
                         else
                             n.myButton.getStyleClass().add("meh-button");
-                    } else
+                    }
+                    else
                         n.myButton.getStyleClass().add("graph-button");
                 }
+
+                if(n.myButton == selectedTask)
+                    n.myButton.getStyleClass().add("selected-button");
+
+                n.myButton.setStyle("");
             }
         }
         catch(Exception e)
@@ -307,16 +351,24 @@ public class GraphViewController extends AbstractController{
 
         try {
             PERTAnalysisTools.setPasses(graph);
-            PERTAnalysisTools.getCriticalPath(graph, graph.getTerminal());
+            if(selectedTask == null)
+                PERTAnalysisTools.getCriticalPath(graph, graph.getTerminal());
+            else
+                PERTAnalysisTools.getCriticalPath(graph, ((NodeButton)selectedTask).getTaskNode());
 
             for (Node n : graph.nodes) {
-                n.myButton.setStyle("");
                 n.myButton.getStyleClass().clear();
                 n.myButton.getStyleClass().add("button");
+
                 if (n.getCritical())
                     n.myButton.getStyleClass().add("critical-path-button");
                 else
                     n.myButton.getStyleClass().add("graph-button");
+
+                if(n.myButton == selectedTask)
+                    n.myButton.getStyleClass().add("selected-button");
+
+                n.myButton.setStyle("");
             }
         }
         catch(Exception e)
@@ -391,9 +443,11 @@ public class GraphViewController extends AbstractController{
         for(Node n: graph.nodes) {
             ArrayList<ArrayList<Node>> criticalPaths = PERTAnalysisTools.getCriticalPath(graph, n);
             double prob = PERTAnalysisTools.calculateProbability(criticalPaths, n, (int)dayDifference);
-            n.myButton.setStyle("");
+
             n.myButton.getStyleClass().clear();
             n.myButton.getStyleClass().add("button");
+            if(n.myButton == selectedTask)
+                n.myButton.getStyleClass().add("selected-button");
 
             int r;
             int g;

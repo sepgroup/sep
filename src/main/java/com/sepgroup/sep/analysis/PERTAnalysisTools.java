@@ -105,7 +105,6 @@ public final class PERTAnalysisTools {
 
         backTrack(allPaths, allPaths.get(0), targetNode);
 
-        System.out.println(allPaths);
         return allPaths;
     }
 
