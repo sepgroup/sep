@@ -17,9 +17,10 @@
 }
 
 #projecteditor{
--fx-background-image:url("newproject.jpg");
--fx-background-repeat:no-repeat;
--fx-background-position:top right;
+-fx-background-image:url("background2.png");
+-fx-background-height: auto;
+-fx-background-size: cover;
+-fx-backround-position: center;
 }
 
 #taskview{
@@ -47,7 +48,7 @@
 }
 
 .button:hover {
--fx-background-color: linear-gradient(#0066cc, #093d9e);
+-fx-background-color: linear-gradient(#052054, #041941);
 -fx-background-radius: 5;
 -fx-background-insets: 0;
 -fx-text-fill: white;
@@ -118,4 +119,20 @@
 -fx-border-insets: 2 0 0 0;
   -fx-border-color: -fx-text-box-border;
   -fx-border-width: 2;
+}
+
+#delete-project{
+-fx-background-color: linear-gradient(#e60000, #b30000);
+-fx-background-radius: 5;
+-fx-background-insets: 0;
+-fx-text-fill: white;
+}
+
+#delete-project:hover{
+
+-fx-background-color: linear-gradient(#660000, #4d0000);
+-fx-background-radius: 5;
+-fx-background-insets: 0;
+-fx-text-fill: white;
+
 }
