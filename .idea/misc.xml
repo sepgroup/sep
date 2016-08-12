@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-<<<<<<< HEAD
-  <component name="EntryPointsManager">
-    <entry_points version="2.0" />
-=======
   <component name="ClientPropertiesManager">
     <properties class="javax.swing.AbstractButton">
       <property name="hideActionText" class="java.lang.Boolean" />
@@ -41,7 +37,6 @@
       <property name="caretAspectRatio" class="java.lang.Double" />
       <property name="caretWidth" class="java.lang.Integer" />
     </properties>
->>>>>>> 3e6ec61c9e33eb08530dc74f695c2ec8ef1ba982
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />

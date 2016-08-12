@@ -40,7 +40,7 @@ public class TaskModel extends AbstractModel {
     private int optimisticTimeToFinish;
     private Date actualStartDate;
     private Date actualEndDate;
-    private static double MaxBudgetTast=100000;
+
     /**
      * Default constructor
      */
@@ -582,9 +582,6 @@ public class TaskModel extends AbstractModel {
         if (budget < 0) {
             throw new InvalidInputException("Budget must be a positive number");
         }
-        if(budget > MaxBudgetTast){
-            throw new InvalidInputException("Budget must be less than "+MaxBudgetTast+"$.");
-        }
 
         double projectTotalBudget = 0;
         double projectTasksBudget = 0;
@@ -762,31 +759,14 @@ public class TaskModel extends AbstractModel {
     }
 
     public boolean isDone() {
-        if(this.actualEndDate!=null && (new Date().compareTo(this.actualEndDate)>=0)){
-            return true;
-        }else{
-            return false;
-        }
+        return done;
     }
 
-<<<<<<< HEAD
-    public void setDone(boolean done) {
-        if(done==true && this.isDone()==false){
-            this.actualEndDate=new Date();
-            this.done = done;
-        }else if(done==false && this.isDone()==true){
-            this.actualEndDate=null;
-            this.done=false;
-        }else{
-            this.done=done;
-        }
-=======
     public void setDone(boolean done) throws InvalidInputException {
     	if (done && !allAncestorsAreDone()) {
     		throw new InvalidInputException("TaskModel " + taskId + " - " + name + " cannot be marked complete - some ancestors are not marked complete.");
 		}
         this.done = done;
->>>>>>> 3e6ec61c9e33eb08530dc74f695c2ec8ef1ba982
     }
 
     public boolean allAncestorsAreDone() {
