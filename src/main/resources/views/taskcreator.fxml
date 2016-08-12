@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
@@ -13,69 +9,78 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="taskview" prefHeight="494.0" prefWidth="586.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sepgroup.sep.controller.TaskCreatorController">
+<AnchorPane fx:id="taskview" prefHeight="494.0" prefWidth="586.0" xmlns="http://javafx.com/javafx/8.0.102-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sepgroup.sep.controller.TaskCreatorController">
    <children>
-      <Label layoutX="218.0" layoutY="23.0" prefHeight="32.0" prefWidth="129.0" text="Create Task">
+      <Label layoutX="20.0" layoutY="26.0" prefHeight="32.0" prefWidth="201.0" text="Create Task">
          <font>
-            <Font name="System Bold" size="14.0" />
-         </font></Label>
-      <Label layoutX="22.0" layoutY="171.0" prefHeight="32.0" prefWidth="74.0" text="Start Date">
-         <font>
-            <Font name="System Bold" size="12.0" />
-         </font></Label>
-      <Label layoutX="22.0" layoutY="133.0" prefHeight="32.0" prefWidth="129.0" text="Budget">
-         <font>
-            <Font name="System Bold" size="12.0" />
-         </font></Label>
-      <Label layoutX="22.0" layoutY="91.0" prefHeight="32.0" prefWidth="74.0" text="Name">
-         <font>
-            <Font name="System Bold" size="12.0" />
-         </font></Label>
-      <Label layoutX="22.0" layoutY="216.0" prefHeight="32.0" prefWidth="63.0" text="Deadline">
-         <font>
-            <Font name="System Bold" size="12.0" />
-         </font></Label>
-      <Button layoutX="118.0" layoutY="417.0" mnemonicParsing="false" onAction="#onCreateTaskClicked" prefHeight="40.0" prefWidth="129.0" text="Create Task" textFill="WHITE">
-         <font>
-            <Font name="System Bold" size="12.0" />
-         </font></Button>
-      <Button layoutX="300.0" layoutY="417.0" mnemonicParsing="false" onAction="#onTaskCancelClicked" prefHeight="40.0" prefWidth="129.0" text="Cancel" textFill="WHITE">
-         <font>
-            <Font name="System Bold" size="12.0" />
-         </font></Button>
-      <TextField fx:id="taskNameField" layoutX="105.0" layoutY="95.0" />
-      <TextField fx:id="taskBudgetField" layoutX="105.0" layoutY="137.0" />
-      <TextArea fx:id="taskDescriptionArea" layoutX="289.0" layoutY="138.0" prefHeight="108.0" prefWidth="227.0" />
-      <Label layoutX="289.0" layoutY="106.0" prefHeight="32.0" prefWidth="105.0" text="Description">
-         <font>
-            <Font name="System Bold" size="12.0" />
+            <Font name="System Regular" size="24.0" />
          </font>
       </Label>
-      <DatePicker fx:id="taskStartDatePicker" layoutX="106.0" layoutY="175.0" prefHeight="27.0" prefWidth="167.0" />
-      <DatePicker fx:id="taskDeadlinePicker" layoutX="106.0" layoutY="220.0" prefHeight="27.0" prefWidth="167.0" />
-      <Label layoutX="22.0" layoutY="262.0" prefHeight="32.0" prefWidth="74.0" text="Assignee">
+      <Label layoutX="20.0" layoutY="60.0" prefHeight="32.0" prefWidth="74.0" text="Name">
          <font>
-            <Font name="System Bold" size="12.0" />
+            <Font name="System Regular" size="12.0" />
          </font>
       </Label>
-      <ComboBox fx:id="assigneeComboBox" layoutX="106.0" layoutY="265.0" prefHeight="27.0" prefWidth="167.0" />
-      <Label layoutX="32.0" layoutY="305.0" prefHeight="32.0" prefWidth="150.0" text="Most Likely duration">
+      <Label layoutX="20.0" layoutY="90.0" prefHeight="32.0" prefWidth="129.0" text="Budget">
          <font>
-            <Font name="System Bold" size="12.0" />
+            <Font name="System Regular" size="12.0" />
          </font>
       </Label>
-      <Label layoutX="32.0" layoutY="337.0" prefHeight="32.0" prefWidth="150.0" text="Pessimistic duration">
+      <Label layoutX="20.0" layoutY="120.0" prefHeight="32.0" prefWidth="74.0" text="Start Date">
          <font>
-            <Font name="System Bold" size="12.0" />
+            <Font name="System Regular" size="12.0" />
          </font>
       </Label>
-      <Label layoutX="32.0" layoutY="369.0" prefHeight="32.0" prefWidth="150.0" text="Optimistic duration">
+      <Label layoutX="20.0" layoutY="150.0" prefHeight="32.0" prefWidth="63.0" text="Deadline">
          <font>
-            <Font name="System Bold" size="12.0" />
+            <Font name="System Regular" size="12.0" />
          </font>
       </Label>
-      <TextField fx:id="mostLikelyTime" layoutX="213.0" layoutY="309.0" prefHeight="26.0" prefWidth="51.0" />
-      <TextField fx:id="pessimisticTime" layoutX="213.0" layoutY="341.0" prefHeight="26.0" prefWidth="51.0" />
-      <TextField fx:id="optimisticTime" layoutX="213.0" layoutY="373.0" prefHeight="26.0" prefWidth="51.0" />
+      <TextField fx:id="taskNameField" layoutX="105.0" layoutY="60.0" prefWidth="167.0" />
+      <TextField fx:id="taskBudgetField" layoutX="105.0" layoutY="90.0" prefWidth="167.0" />
+      <DatePicker fx:id="taskStartDatePicker" layoutX="105.0" layoutY="120.0" prefHeight="27.0" prefWidth="167.0" />
+      <DatePicker fx:id="taskDeadlinePicker" layoutX="105.0" layoutY="150.0" prefHeight="27.0" prefWidth="167.0" />
+      <Label layoutX="20.0" layoutY="180.0" prefHeight="32.0" prefWidth="74.0" text="Assignee">
+         <font>
+            <Font name="System Regular" size="12.0" />
+         </font>
+      </Label>
+      <ComboBox fx:id="assigneeComboBox" layoutX="105.0" layoutY="180.0" prefHeight="27.0" prefWidth="167.0" />
+
+
+      <Label layoutX="20.0" layoutY="210.0" prefHeight="32.0" prefWidth="150.0" text="Most Likely duration">
+         <font>
+            <Font name="System Regular" size="12.0" />
+         </font>
+      </Label>
+      <Label layoutX="20.0" layoutY="240.0" prefHeight="32.0" prefWidth="150.0" text="Pessimistic duration">
+         <font>
+            <Font name="System Regular" size="12.0" />
+         </font>
+      </Label>
+      <Label layoutX="20.0" layoutY="270.0" prefHeight="32.0" prefWidth="150.0" text="Optimistic duration">
+         <font>
+            <Font name="System Regular" size="12.0" />
+         </font>
+      </Label>
+      <TextField fx:id="mostLikelyTime" layoutX="221.0" layoutY="210.0" prefHeight="26.0" prefWidth="51.0" />
+      <TextField fx:id="pessimisticTime" layoutX="221.0" layoutY="240.0" prefHeight="26.0" prefWidth="51.0" />
+      <TextField fx:id="optimisticTime" layoutX="221.0" layoutY="270.0" prefHeight="26.0" prefWidth="51.0" />
+      <TextArea fx:id="taskDescriptionArea" layoutX="12.0" layoutY="332.0" prefHeight="68.0" prefWidth="259.0" />
+      <Label layoutX="20.0" layoutY="300.0" prefHeight="32.0" prefWidth="105.0" text="Description">
+         <font>
+            <Font name="System Regular" size="12.0" />
+         </font>
+      </Label>
+      <Button layoutX="12.0" layoutY="410.0" mnemonicParsing="false" onAction="#onCreateTaskClicked" prefHeight="30.0" prefWidth="120.0" text="Create Task" textFill="WHITE">
+         <font>
+            <Font name="System Regular" size="12.0" />
+         </font>
+      </Button>
+      <Button layoutX="149.0" layoutY="410.0" mnemonicParsing="false" onAction="#onTaskCancelClicked" prefHeight="30.0" prefWidth="120.0" text="Cancel" textFill="WHITE">
+         <font>
+            <Font name="System Regular" size="12.0" />
+         </font>
+      </Button>
    </children>
 </AnchorPane>

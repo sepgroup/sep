@@ -1,6 +1,12 @@
 .root{
 	-fx-background-color: white;
 }
+projectviewer{
+-fx-background-image:url("background2.png");
+-fx-background-height: auto;
+-fx-background-size: cover;
+-fx-backround-position: center;
+}
 
 #projectview{
 -fx-background-image:url("background2.png");
@@ -28,16 +34,10 @@
 -fx-background-repeat:stretch;
 -fx-background-position:top right;
 }
-#projectInfoPane{
--fx-background-image:url("newproject.jpg");
-
-	
-}
 
 .table-view .column-header .label {
-    -fx-text-fill: white;
-    -fx-background-color: #3366FF;
- 
+-fx-font-weight: normal;
+-fx-font-size: 0.8em;
 }
 
 .button {
@@ -129,10 +129,28 @@
 }
 
 #delete-project:hover{
-
 -fx-background-color: linear-gradient(#660000, #4d0000);
 -fx-background-radius: 5;
 -fx-background-insets: 0;
 -fx-text-fill: white;
+}
 
+.menu-bar{
+-fx-background-color: #0066cc;
+-fx-border-color:  #0066cc;
+-fx-border-width: 1
+
+}
+
+.menu-bar .label {
+-fx-text-fill: white;
+}
+
+
+.menu:hover {
+    -fx-background-color: #222222;
+}
+
+.menu-item .label{
+-fx-text-fill: black;
 }
