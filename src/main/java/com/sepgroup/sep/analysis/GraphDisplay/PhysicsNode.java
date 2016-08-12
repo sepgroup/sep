@@ -27,6 +27,7 @@ public class PhysicsNode extends Node implements Physics,Drawable {
 
     private double[] relativePosition = {-1,-1};
 
+    public PhysicsNode() {}
 
     public PhysicsNode(Data d) {
         super(d);
