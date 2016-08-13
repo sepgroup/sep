@@ -40,7 +40,7 @@ public class TaskModel extends AbstractModel {
     private int optimisticTimeToFinish;
     private Date actualStartDate;
     private Date actualEndDate;
-    public static double MaxBudgetTast=100000;
+    public static double MaxBudgetTask = 100000;
     /**
      * Default constructor
      */

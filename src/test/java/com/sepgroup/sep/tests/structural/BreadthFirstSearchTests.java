@@ -2,9 +2,8 @@ package com.sepgroup.sep.tests.structural;
 
 import com.sepgroup.sep.analysis.Graph;
 import com.sepgroup.sep.analysis.Node;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import com.sepgroup.sep.model.DBManager;
+import org.junit.*;
 
 import java.util.ArrayDeque;
 
@@ -18,6 +17,16 @@ import static org.junit.Assert.assertTrue;
 public class BreadthFirstSearchTests {
 
     Graph g;
+
+    @BeforeClass
+    public static void setUpBeforeClass() throws Exception {
+        DBManager.createDBTablesIfNotExisting();
+    }
+
+    @AfterClass
+    public static void tearDownAfterClass() throws Exception {
+        DBManager.dropAllDBTables();
+    }
 
     @Before
     public void setUp() {
@@ -39,12 +48,13 @@ public class BreadthFirstSearchTests {
 
     /**
      * Path: <73,74,75,76,77,78,75,81,84,exit>
+     * Test path unreachable
+     * Line 78 adds a node to q, so line 82 must be part of the path
      */
     @Ignore
     @Test
     public void testBreadthFirstSearchPath2() throws Exception {
-        // Test path unreachable
-        // line 78 adds a node to q, so line 82 must be part of the path
+
     }
 
     /**
@@ -80,5 +90,4 @@ public class BreadthFirstSearchTests {
         assertTrue(q.isEmpty());
         assertTrue(n1.wasVisited());
     }
-
 }

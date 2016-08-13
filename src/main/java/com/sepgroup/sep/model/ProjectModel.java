@@ -36,7 +36,7 @@ public class ProjectModel extends AbstractModel {
     private boolean done;
     private UserModel manager;
     private String projectDescription;
-    public static double MaxBudgetProject=10000000;
+    public static double MaxBudgetProject = 10000000;
 
 	/**
 	 * Default constructor
@@ -461,8 +461,8 @@ public class ProjectModel extends AbstractModel {
      * @return
      */
     public double getBudgetAtCompletion() throws Exception{
-        if(getTasksExceptionSafe().stream().mapToDouble(t -> t.getBudget()).sum()<=MaxBudgetProject){
-            return getTasksExceptionSafe().stream().mapToDouble(t -> t.getBudget()).sum();
+        if(getTasksExceptionSafe().stream().mapToDouble(TaskModel::getBudget).sum()<=MaxBudgetProject){
+            return getTasksExceptionSafe().stream().mapToDouble(TaskModel::getBudget).sum();
         }else{
             logger.debug("sum of tasks budgets passed upper boundary of project budget");
             throw new Exception("sum of tasks passed upper boundary of project budget");
