@@ -27,7 +27,7 @@ public class PhysicsNode extends Node implements Physics,Drawable {
 
     private double[] relativePosition = {-1,-1};
 
-
+    public PhysicsNode() {}
     public PhysicsNode(Data d) {
         super(d);
         int flip = Math.random()>0?1:-1;
@@ -183,5 +183,9 @@ public class PhysicsNode extends Node implements Physics,Drawable {
         for (Node n : outNodes) {
             g.drawLine((int) position[0], (int) position[1], (int) ((PhysicsNode) n).position[0], (int) ((PhysicsNode) n).position[1]);
         }
+    }
+
+    public double[] getNetForce() {
+        return this.netForce;
     }
 }

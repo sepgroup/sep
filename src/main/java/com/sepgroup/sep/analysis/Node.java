@@ -47,13 +47,17 @@ public class Node {
         setData(d);
     }
 
+    public void setDepth(int depth) {
+        this.depth = depth;
+    }
+
     void addInNode(Node n){
         if(!inNodes.contains(n)) {
             inNodes.add(n);
             n.outNodes.add(this);
         }
     }
-    void addOutNode(Node n){
+    public void addOutNode(Node n){
         if(!outNodes.contains(n)) {
             outNodes.add(n);
             n.inNodes.add(this);
