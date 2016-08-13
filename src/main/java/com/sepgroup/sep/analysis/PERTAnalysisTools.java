@@ -13,7 +13,7 @@ import java.util.List;
 public final class PERTAnalysisTools {
     private PERTAnalysisTools(){};
 
-    public static double pertAnalysis(TaskModel currentTask, int days) throws ModelNotFoundException
+    public static double pertAnalysis(TaskModel currentTask, int days) throws Exception
     {
         int projectId = currentTask.getProjectId();
         ProjectModel project;
@@ -27,7 +27,13 @@ public final class PERTAnalysisTools {
 
         Node currentNode = newGraph.getNodeByID(currentTask.getTaskId());
         ArrayList<ArrayList<Node>> criticalPaths = getCriticalPath(newGraph, currentNode);
-        return calculateProbability(criticalPaths, currentNode, days);
+        try {
+            return calculateProbability(criticalPaths, currentNode, days);
+        }
+        catch(Exception e)
+        {
+            throw new Exception();
+        }
     }
 
     public static void setPasses(Graph newGraph)
@@ -36,7 +42,7 @@ public final class PERTAnalysisTools {
         backwardPass(newGraph.getTerminal(), (int)newGraph.getTerminal().getData().earliestFinish);
     }
 
-    public static double calculateProbability(ArrayList<ArrayList<Node>> criticalPaths, Node currentNode, int days)
+    public static double calculateProbability(ArrayList<ArrayList<Node>> criticalPaths, Node currentNode, int days) throws Exception
     {
         double minVariance = Double.MAX_VALUE;
         ArrayList<Node> minSlackCriticalPath = null;
@@ -66,6 +72,20 @@ public final class PERTAnalysisTools {
             sum += prob;
         }
         return sum;
+    }
+
+    private void validatePERTInputData(ArrayList<ArrayList<Node>> criticalPaths, Node currentNode, int days) throws Exception {
+        if(criticalPaths == null || criticalPaths.size() == 0 || days <= 0)
+            throw new Exception("No critical paths!");
+
+        if(currentNode == null)
+            throw new Exception();
+
+        for(int i = 0; i< criticalPaths.size(); i++)
+        {
+            if(criticalPaths.get(i).size() <= 0)
+                throw new Exception("Some exceptions have no Nodes");
+        }
     }
 
     private static void forwardPass(Node currentNode, int timeSoFar)

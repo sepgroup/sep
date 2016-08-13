@@ -272,6 +272,14 @@ public class GraphViewController extends AbstractController
             normalView.setSelected(true);
             return;
         }
+
+        if(project.getStartDate() == null)
+        {
+            DialogCreator.showErrorDialog("No project start date!", "Please set the project's start date before continuing");
+            cPView.setSelected(true);
+            onCPSelected();
+            return;
+        }
         
         boolean wasCPSelected = cPView.isSelected();
         boolean wasPERTSelected = pertView.isSelected();
