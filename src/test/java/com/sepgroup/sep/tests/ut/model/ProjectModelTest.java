@@ -5,6 +5,7 @@ import com.sepgroup.sep.model.*;
 import com.sepgroup.sep.utils.DateUtils;
 import org.junit.*;
 
+import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.List;
 
@@ -664,7 +665,6 @@ public class ProjectModelTest {
         //TODO test that other project variables can be accessed
     }
 
-
     /**
      * Tests that getAllByManager fails when no projects are assigned to the manager in question
      */
@@ -955,6 +955,21 @@ public class ProjectModelTest {
 
         p.setName("Monty\t\rPython");
         assertThat(p.getName(), equalTo("Monty  Python"));
+    }
+
+    /**
+     * Test that setting a project ID works as expected.
+     * Uses reflection to test the private method ProjectModel::setProjectId(int)
+     * @throws Exception
+     */
+    @Test
+    public void testSetProjectId() throws Exception {
+        ProjectModel p = new ProjectModel();
+        Method setProjectId = p.getClass().getDeclaredMethod("setProjectId", int.class);
+        setProjectId.setAccessible(true);
+        setProjectId.invoke(p, 4);
+
+        assertThat(p.getProjectId(), equalTo(4));
     }
 
     /**
