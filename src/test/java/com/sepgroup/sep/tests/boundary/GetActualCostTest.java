@@ -20,11 +20,16 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 /**
- * Test getActualCose() from TaskModel.java.
- * Two (2) input variables, 5^2 = 25 test cases.
  * <p>
- * 4 tests for basis path coverage.
- * Created by jeremybrown on 2016-08-12.
+ *     Identifier: F5-1
+ * </p>
+ * <p>
+ *     Test getActualCost() from TaskModel.java.
+ *     Two (2) input variables, 5^2 = 25 test cases.
+ * </p>
+ * <p>
+ *     Created by jeremybrown on 2016-08-12.
+ * </p>
  */
 @RunWith(Parameterized.class)
 public class GetActualCostTest {

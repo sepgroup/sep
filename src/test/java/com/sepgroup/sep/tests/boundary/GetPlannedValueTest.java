@@ -18,11 +18,16 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 /**
- * Test getPlannedValue() from TaskModel.java.
- * One (1) input variables, 5^1 = 5 test cases.
  * <p>
- * 4 tests for basis path coverage.
- * Created by jeremybrown on 2016-08-13.
+ *     Identifier: F4-1
+ * </p>
+ * <p>
+ *     Test getPlannedValue() from TaskModel.java.
+ *     One (1) input variables, 5^1 = 5 test cases.
+ * </p>
+ * <p>
+ *     Created by jeremybrown on 2016-08-13.
+ * </p>
  */
 @RunWith(Parameterized.class)
 public class GetPlannedValueTest {
