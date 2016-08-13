@@ -4,6 +4,7 @@ import com.sepgroup.sep.model.DBManager;
 import com.sepgroup.sep.model.InvalidInputException;
 import com.sepgroup.sep.model.ProjectModel;
 import com.sepgroup.sep.model.TaskModel;
+import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -15,6 +16,7 @@ import java.util.Date;
 /**
  * Created by Ali on 8/10/2016.
  */
+@org.junit.Ignore
 public class ProjectModelBoundaryTest {
 
     private ProjectModel createdProject;

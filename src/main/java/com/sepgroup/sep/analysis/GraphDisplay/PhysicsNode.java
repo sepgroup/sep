@@ -54,12 +54,10 @@ public class PhysicsNode extends Node implements Physics,Drawable {
                 PhysicsNode nextNode = (PhysicsNode) outNodes.get(i);
                 if (nextNode.getPhysics()) {
                     double direction[] = {nextNode.position[0] - position[0], nextNode.position[1] - position[1]};
-                    //double depthLength = 100*(nextNode.getDepth() - getDepth());
                     double length = Math.sqrt(direction[0] * direction[0] + direction[1] * direction[1]);
                     direction[0] /= length;
                     direction[1] /= length;
                     double forceMultiplier = hooksConstant * length;
-                   // if (length < 5 * radius) { // (depth-children.get(i).depth)*
                     if(length < 100 *(getDepth() - outNodes.get(i).getDepth())){
                         forceMultiplier *= -1;
                     }
