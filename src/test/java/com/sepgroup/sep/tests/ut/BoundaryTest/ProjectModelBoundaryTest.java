@@ -133,7 +133,7 @@ public class ProjectModelBoundaryTest {
             t1.persistData();
             expectedResult+=mediumBudgetForTask;
         }
-        assertThat(createdProject.getBudgetAtCompletion(), equalTo(mediumBudgetForTask));
+        assertThat(createdProject.getBudgetAtCompletion(), equalTo(expectedResult));
     }
 
     @Test (expected = Exception.class)
