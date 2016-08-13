@@ -34,7 +34,12 @@ public class BreadthFirstSearchTests {
     }
 
     /**
-     * Path: <73,74,75,81,84,exit>
+     * <p>
+     *     Identifier: S1-1
+     * </p>
+     * <p>
+     *     Path: <73,74,75,81,84,exit>
+     * </p>
      */
     @Test
     public void testBreadthFirstSearchPath1() throws Exception {
@@ -47,9 +52,16 @@ public class BreadthFirstSearchTests {
     }
 
     /**
-     * Path: <73,74,75,76,77,78,75,81,84,exit>
-     * Test path unreachable
-     * Line 78 adds a node to q, so line 82 must be part of the path
+     * <p>
+     *     Identifier: S1-2
+     * </p>
+     * <p>
+     *     Path: <73,74,75,76,77,78,75,81,84,exit>
+     * </p>
+     * <p>
+     *     Test path unreachable
+     *     Line 78 adds a node to q, so line 82 must be part of the path
+     * </p>
      */
     @Ignore
     @Test
@@ -58,7 +70,12 @@ public class BreadthFirstSearchTests {
     }
 
     /**
-     * Path: <73,74,75,76,75,81,84,exit>
+     * <p>
+     *     Identifier: S1-3
+     * </p>
+     * <p>
+     *     Path: <73,74,75,76,75,81,84,exit>
+     * </p>
      */
     @Test
     public void testBreadthFirstSearchPath3() throws Exception {
@@ -74,7 +91,12 @@ public class BreadthFirstSearchTests {
     }
 
     /**
-     * Path: <73,74,75,81,82,84,exit>
+     * <p>
+     *     Identifier: S1-4
+     * </p>
+     * <p>
+     *     Path: <73,74,75,81,82,84,exit>
+     * </p>
      */
     @Test
     public void testBreadthFirstSearchPath4() throws Exception {
