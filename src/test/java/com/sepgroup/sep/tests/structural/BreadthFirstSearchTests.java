@@ -38,13 +38,13 @@ public class BreadthFirstSearchTests {
     }
 
     /**
-     * Path: <73,74,75,76,77,78,75,81,82,84,exit>
+     * Path: <73,74,75,76,77,78,75,81,84,exit>
      */
     @Ignore
     @Test
     public void testBreadthFirstSearchPath2() throws Exception {
         // Test path unreachable
-        // line 78 adds a node to q, so line 82 is never reachable
+        // line 78 adds a node to q, so line 82 must be part of the path
     }
 
     /**
