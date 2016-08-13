@@ -126,16 +126,21 @@ public class ProjectViewerController extends AbstractController {
             completeValueLabel.setText(model.isDone() ? "Yes" : "No");
 
             // Populate earned value analysis box
-            pvValueLabel.setText("$" + String.format("%.2f", model.getPlannedValue()));
-            evValueLabel.setText("$" + String.format("%.2f", model.getEarnedValue()));
-            bacValueLabel.setText("$" + String.format("%.2f", model.getBudgetAtCompletion()));
-            pscValueLabel.setText(String.format("%.2f", model.getPercentScheduledCompletion()) + "%");
-            acValueLabel.setText("$" + String.format("%.2f", model.getActualCost()));
-            pcValueLabel.setText(String.format("%.2f", model.getPercentComplete()) + "%");
-            cvValueLabel.setText("$" + String.format("%.2f", model.getCostVariance()));
-            svValueLabel.setText(String.format("%.2f", model.getScheduleVariance()) + " days");
-            cpiValueLabel.setText(String.format("%.2f", model.getCostPerformanceIndex()));
-            spiValueLabel.setText(String.format("%.2f", model.getSchedulePerformanceIndex()));
+            try{
+                pvValueLabel.setText("$" + String.format("%.2f", model.getPlannedValue()));
+                evValueLabel.setText("$" + String.format("%.2f", model.getEarnedValue()));
+                bacValueLabel.setText("$" + String.format("%.2f", model.getBudgetAtCompletion()));
+                pscValueLabel.setText(String.format("%.2f", model.getPercentScheduledCompletion()) + "%");
+                acValueLabel.setText("$" + String.format("%.2f", model.getActualCost()));
+                pcValueLabel.setText(String.format("%.2f", model.getPercentComplete()) + "%");
+                cvValueLabel.setText("$" + String.format("%.2f", model.getCostVariance()));
+                svValueLabel.setText(String.format("%.2f", model.getScheduleVariance()) + " days");
+                cpiValueLabel.setText(String.format("%.2f", model.getCostPerformanceIndex()));
+                spiValueLabel.setText(String.format("%.2f", model.getSchedulePerformanceIndex()));
+            }catch(Exception e){
+                logger.error("unable to calculate");
+            }
+
 
             // Populate manager
             String managerName;

@@ -36,7 +36,7 @@ public class ProjectModel extends AbstractModel {
     private boolean done;
     private UserModel manager;
     private String projectDescription;
-    private static double MaxBudgetProject=10000000;
+    public static double MaxBudgetProject=10000000;
 
 	/**
 	 * Default constructor
@@ -460,8 +460,13 @@ public class ProjectModel extends AbstractModel {
      * Total budget of all tasks in the project.
      * @return
      */
-    public double getBudgetAtCompletion() {
-        return getTasksExceptionSafe().stream().mapToDouble(t -> t.getBudget()).sum();
+    public double getBudgetAtCompletion() throws Exception{
+        if(getTasksExceptionSafe().stream().mapToDouble(t -> t.getBudget()).sum()<=MaxBudgetProject){
+            return getTasksExceptionSafe().stream().mapToDouble(t -> t.getBudget()).sum();
+        }else{
+            logger.debug("sum of tasks budgets passed upper boundary of project budget");
+            throw new Exception("sum of tasks passed upper boundary of project budget");
+        }
     }
 
     /**
@@ -478,25 +483,104 @@ public class ProjectModel extends AbstractModel {
         return pv;
     }
 
-    public double getPercentScheduledCompletion() { return getPlannedValue() / getBudgetAtCompletion() * 100.0; }
+    public double getPercentScheduledCompletion() {
+        double result=0;
+        try{
+            result= getPlannedValue() / getBudgetAtCompletion() * 100.0;
+        }catch(Exception e){
+            logger.error("unable to calculate");
+        }
+        return result;
+    }
 
-    public double getPercentComplete() { return getEarnedValue() / getBudgetAtCompletion() * 100.0; }
+    public double getPercentComplete() {
+        double result=0;
+        try{
+            result= getEarnedValue() / getBudgetAtCompletion() * 100.0;
+        }catch(Exception e){
+            logger.error("unable to calculate");
+        }
+        return result;
+    }
 
-    public double getPlannedValue() { return getTasksExceptionSafe().stream().mapToDouble(t -> t.getPlannedValue()).sum(); }
+    public double getPlannedValue() throws Exception{
+        if(getTasksExceptionSafe().stream().mapToDouble(t -> t.getPlannedValue()).sum()<=MaxBudgetProject){
+            return getTasksExceptionSafe().stream().mapToDouble(t -> t.getPlannedValue()).sum();
+        }else{
+            logger.error("sum of the budget of the tasks passed upper boundary of project budget");
+            throw new Exception("sum of the budget of the tasks passed upper boundary of project budget");
+        }
+    }
 
-    public double getActualCost() { return getTasksExceptionSafe().stream().mapToDouble(t -> t.getActualCost()).sum(); }
+    public double getActualCost() throws Exception{
+        if(getTasksExceptionSafe().stream().mapToDouble(t -> t.getActualCost()).sum()<=MaxBudgetProject){
+            return getTasksExceptionSafe().stream().mapToDouble(t -> t.getActualCost()).sum();
+        }else{
+            logger.debug("sum of tasks budgets passed upper boundary of project budget");
+            throw new Exception("sum of tasks passed upper boundary of project budget");
+        }
 
-    public double getCostVariance() { return getEarnedValue() - getActualCost(); }
+    }
 
-    public double getScheduleVariance() { return getEarnedValue() - getPlannedValue(); }
+    public double getCostVariance() {
+        double result=0;
+        try{
+            result= getEarnedValue() - getActualCost();
+        }catch(Exception e){
+            logger.error("unable to calculate");
+        }
+        return result;
+    }
 
-    public double getCostPerformanceIndex() { return getEarnedValue() / getActualCost(); }
+    public double getScheduleVariance() {
+        double result=0;
+        try{
+            result= getEarnedValue() - getPlannedValue();
+        }catch(Exception e){
+            logger.error("unable to calculate");
+        }
+        return result;
+    }
 
-    public double getSchedulePerformanceIndex() { return getEarnedValue() / getPlannedValue(); }
+    public double getCostPerformanceIndex() {
+        double result=0;
+        try{
+            result= getEarnedValue() / getActualCost();
+        }catch(Exception e){
+            logger.error("unable to calculate");
+        }
+        return result;
+    }
 
-    public double getEstimateAtCompletion() { return getBudgetAtCompletion() / getCostPerformanceIndex(); }
+    public double getSchedulePerformanceIndex() {
+        double result=0;
+        try{
+            result=getEarnedValue() / getPlannedValue();
+        }catch(Exception e){
+            logger.error("unable to calculate");
+        }
+        return result;
+    }
 
-    public double getEstimateToComplete() { return getEstimateAtCompletion() - getActualCost(); }
+    public double getEstimateAtCompletion() {
+        double result=0;
+        try{
+            result=getBudgetAtCompletion() / getCostPerformanceIndex();
+        }catch(Exception e){
+            logger.error("unable to calculate");
+        }
+        return result;
+    }
+
+    public double getEstimateToComplete() {
+        double result=0;
+        try{
+            result=getEstimateAtCompletion() - getActualCost();
+        }catch(Exception e){
+            logger.error("unable to calculate");
+        }
+        return result;
+    }
 
     @Override
 	public String toString() {
