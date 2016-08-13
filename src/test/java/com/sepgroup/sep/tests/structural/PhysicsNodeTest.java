@@ -29,7 +29,7 @@ public class PhysicsNodeTest {
         // method we are testing
         node.addTensionForce();
         double[] expected = {0.0, 0.0};
-        assertArrayEquals(expected, node.getNetForce(), 0.001);
+        assertArrayEquals(expected, node.getNetForce(), 0.0000000000001);
     }
 
     @Test
@@ -42,7 +42,7 @@ public class PhysicsNodeTest {
         // method we are testing
         node.addTensionForce();
         double[] expected = {0.0, 0.0};
-        assertArrayEquals(expected, node.getNetForce(), 0.001);
+        assertArrayEquals(expected, node.getNetForce(), 0.0000000000001);
     }
 
     @Test
@@ -60,7 +60,7 @@ public class PhysicsNodeTest {
         // method we are testing
         node.addTensionForce();
         double[] expected = {0.0, 0.0};
-        assertArrayEquals(expected, node.getNetForce(), 0.001);
+        assertArrayEquals(expected, node.getNetForce(), 0.0000000000001);
 
     }
 
