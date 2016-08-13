@@ -46,7 +46,6 @@ public class GetActualCostTest {
     @Parameter(value = 2)
     public double expectedActualCost;
 
-    private ProjectModel createdProject;
     private static Date defaultStartDate = new Date();
     private static Date defaultDeadline = new Date(System.currentTimeMillis() + 2 * 9999 * 9999);
     private UserModel createdUser;
@@ -59,7 +58,7 @@ public class GetActualCostTest {
 
     @Before
     public void setUp() throws Exception {
-        createdProject = new ProjectModel();
+        ProjectModel createdProject = new ProjectModel();
         createdProject.setName("Project 1");
         createdProject.setBudget(100000);
         createdProject.setStartDate(new Date(System.currentTimeMillis() - 5 * 9999 * 9999));
