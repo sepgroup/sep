@@ -119,7 +119,7 @@ public class ProjectViewerController extends AbstractController {
         if (this.model != null) {
             ProjectModel.tempTasks = null;
             projectNameText.setText(model.getName());
-            if (model.getProjectDescription() != null) projectDescriptionTextArea.setText(model.getProjectDescription());
+            if (model.getProjectDescription() != null && !model.getProjectDescription().equals("")) projectDescriptionTextArea.setText(model.getProjectDescription());
             if (model.getStartDate() != null) startDateValueLabel.setText(model.getStartDateString());
             if (model.getDeadline() != null) deadlineValueLabel.setText(model.getDeadlineString());
             budgetValueLabel.setText("$" + String.format("%.2f", model.getBudget()));
@@ -138,7 +138,7 @@ public class ProjectViewerController extends AbstractController {
                 cpiValueLabel.setText(String.format("%.2f", model.getCostPerformanceIndex()));
                 spiValueLabel.setText(String.format("%.2f", model.getSchedulePerformanceIndex()));
             }catch(Exception e){
-                logger.error("unable to calculate");
+                logger.error("Unable to calculate earned value analysis");
             }
 
 
