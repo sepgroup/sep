@@ -109,15 +109,15 @@ public class ProjectModelBoundaryTest {
     }
     @Test
     public void budgetAtCompletionBoundaryTestMaxMinPlusOne() throws Exception{
-        double minPulsOneBudgetForTask=1;
+        double minPlusOneBudgetForTask=1;
         ProjectModel createdProject = new ProjectModel();
         createdProject.setName("Project Y");
         createdProject.setBudget(ProjectModel.MaxBudgetProject);
         createdProject.persistData();
         TaskModel t1=new TaskModel("test", "description of test",createdProject.getProjectId());
-        t1.setBudget(minPulsOneBudgetForTask);
+        t1.setBudget(minPlusOneBudgetForTask);
         t1.persistData();
-        assertThat(createdProject.getBudgetAtCompletion(), equalTo(minPulsOneBudgetForTask));
+        assertThat(createdProject.getBudgetAtCompletion(), equalTo(minPlusOneBudgetForTask));
     }
     @Test
     public void budgetAtCompletionBoundaryTestMaxMed() throws Exception{
@@ -133,15 +133,15 @@ public class ProjectModelBoundaryTest {
             t1.persistData();
             expectedResult+=mediumBudgetForTask;
         }
-        assertThat(createdProject.getBudgetAtCompletion(), equalTo(mediumBudgetForTask));
+        assertThat(createdProject.getBudgetAtCompletion(), equalTo(expectedResult));
     }
 
     @Test (expected = Exception.class)
     public void budgetAtCompletionBoundaryTestMaxMinusOneMax() throws Exception{
-        double expectedResult=ProjectModel.MaxBudgetProject-1;
+        double setBudgetForProject=ProjectModel.MaxBudgetProject-1;
         ProjectModel createdProject = new ProjectModel();
         createdProject.setName("Project Y");
-        createdProject.setBudget(expectedResult);
+        createdProject.setBudget(setBudgetForProject);
         createdProject.persistData();
         for(int i=0; i<100; i++){
             TaskModel t1=new TaskModel("test", "description of test",createdProject.getProjectId());
@@ -151,18 +151,288 @@ public class ProjectModelBoundaryTest {
     }
     @Test
     public void budgetAtCompletionBoundaryTestMaxMinusOneMaxMinusOne() throws Exception{
-        double expectedResultProject=ProjectModel.MaxBudgetProject-1;
+        double setBudgetForProject=ProjectModel.MaxBudgetProject-1;
         ProjectModel createdProject = new ProjectModel();
         createdProject.setName("Project Y");
-        createdProject.setBudget(expectedResultProject);
+        createdProject.setBudget(setBudgetForProject);
         createdProject.persistData();
+        double sumBudgetForTask=0;
         for(int i=0; i<100; i++){
             TaskModel t1=new TaskModel("test", "description of test",createdProject.getProjectId());
             t1.setBudget(TaskModel.MaxBudgetTast-1);
             t1.persistData();
+            sumBudgetForTask+=TaskModel.MaxBudgetTast-1;
         }
-        assertThat(createdProject.getBudgetAtCompletion()+99, equalTo(expectedResultProject));
+        assertThat(createdProject.getBudgetAtCompletion(), equalTo(sumBudgetForTask));
     }
 
+    @Test
+    public void budgetAtCompletionBoundaryTestMaxMinusOneMin() throws Exception{
+        double setBudgetForProject=ProjectModel.MaxBudgetProject-1;
+        double minBudgetForTask=0;
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setName("Project Y");
+        createdProject.setBudget(setBudgetForProject);
+        createdProject.persistData();
+        TaskModel t1=new TaskModel("test", "description of test",createdProject.getProjectId());
+        t1.setBudget(minBudgetForTask);
+        t1.persistData();
+        assertThat(createdProject.getBudgetAtCompletion(), equalTo(minBudgetForTask));
+    }
+
+    @Test
+    public void budgetAtCompletionBoundaryTestMaxMinusOneMinPlusOne() throws Exception{
+        double setBudgetForProject=ProjectModel.MaxBudgetProject-1;
+        double minPlusOneBudgetForTask=5000;
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setName("Project Y");
+        createdProject.setBudget(setBudgetForProject);
+        createdProject.persistData();
+        TaskModel t1=new TaskModel("test", "description of test",createdProject.getProjectId());
+        t1.setBudget(minPlusOneBudgetForTask);
+        t1.persistData();
+        assertThat(createdProject.getBudgetAtCompletion(), equalTo(minPlusOneBudgetForTask));
+    }
+
+    @Test
+    public void budgetAtCompletionBoundaryTestMaxMinusOneMed() throws Exception{
+        double setBudgetForProject=ProjectModel.MaxBudgetProject-1;
+        double mediumBudgetForTask=5000;
+        createdProject.setName("Project Y");
+        createdProject.setBudget(setBudgetForProject);
+        createdProject.persistData();
+        double expectedResult=0;
+        for(int i=0; i<10; i++){
+            TaskModel t1=new TaskModel("test", "description of test",createdProject.getProjectId());
+            t1.setBudget(mediumBudgetForTask);
+            t1.persistData();
+            expectedResult+=mediumBudgetForTask;
+        }
+        assertThat(createdProject.getBudgetAtCompletion(), equalTo(expectedResult));
+    }
+
+    @Test (expected = Exception.class)
+    public void budgetAtCompletionBoundaryTestMedMax() throws Exception{
+        double setBudgetForProject=7500000;
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setName("Project Y");
+        createdProject.setBudget(setBudgetForProject);
+        createdProject.persistData();
+        for(int i=0; i<100; i++){
+            TaskModel t1=new TaskModel("test", "description of test",createdProject.getProjectId());
+            t1.setBudget(TaskModel.MaxBudgetTast);
+            t1.persistData();
+        }
+    }
+    @Test (expected = Exception.class)
+    public void budgetAtCompletionBoundaryTestMedMaxMinusOne() throws Exception{
+        double setBudgetForProject=7500000;
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setName("Project Y");
+        createdProject.setBudget(setBudgetForProject);
+        createdProject.persistData();
+        double sumBudgetForTask=0;
+        for(int i=0; i<100; i++){
+            TaskModel t1=new TaskModel("test", "description of test",createdProject.getProjectId());
+            t1.setBudget(TaskModel.MaxBudgetTast-1);
+            t1.persistData();
+            sumBudgetForTask+=TaskModel.MaxBudgetTast-1;
+        }
+        assertThat(createdProject.getBudgetAtCompletion(), equalTo(sumBudgetForTask));
+    }
+
+    @Test
+    public void budgetAtCompletionBoundaryTestMedMin() throws Exception{
+        double setBudgetForProject=7500000;
+        double minBudgetForTask=0;
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setName("Project Y");
+        createdProject.setBudget(setBudgetForProject);
+        createdProject.persistData();
+        TaskModel t1=new TaskModel("test", "description of test",createdProject.getProjectId());
+        t1.setBudget(minBudgetForTask);
+        t1.persistData();
+        assertThat(createdProject.getBudgetAtCompletion(), equalTo(minBudgetForTask));
+    }
+
+    @Test
+    public void budgetAtCompletionBoundaryTestMedMinPlusOne() throws Exception{
+        double setBudgetForProject=7500000;
+        double minPlusOneBudgetForTask=1;
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setName("Project Y");
+        createdProject.setBudget(setBudgetForProject);
+        createdProject.persistData();
+        TaskModel t1=new TaskModel("test", "description of test",createdProject.getProjectId());
+        t1.setBudget(minPlusOneBudgetForTask);
+        t1.persistData();
+        assertThat(createdProject.getBudgetAtCompletion(), equalTo(minPlusOneBudgetForTask));
+    }
+
+    @Test
+    public void budgetAtCompletionBoundaryTestMedMed() throws Exception{
+        double setBudgetForProject=7500000;
+        double mediumBudgetForTask=5000;
+        createdProject.setName("Project Y");
+        createdProject.setBudget(setBudgetForProject);
+        createdProject.persistData();
+        double expectedResult=0;
+        for(int i=0; i<10; i++){
+            TaskModel t1=new TaskModel("test", "description of test",createdProject.getProjectId());
+            t1.setBudget(mediumBudgetForTask);
+            t1.persistData();
+            expectedResult+=mediumBudgetForTask;
+        }
+        assertThat(createdProject.getBudgetAtCompletion(), equalTo(expectedResult));
+    }
+
+    @Test (expected = Exception.class)
+    public void budgetAtCompletionBoundaryTestMinMax() throws Exception{
+        double setBudgetForProject=0;
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setName("Project Y");
+        createdProject.setBudget(setBudgetForProject);
+        createdProject.persistData();
+        for(int i=0; i<100; i++){
+            TaskModel t1=new TaskModel("test", "description of test",createdProject.getProjectId());
+            t1.setBudget(TaskModel.MaxBudgetTast);
+            t1.persistData();
+        }
+    }
+    @Test (expected = Exception.class)
+    public void budgetAtCompletionBoundaryMinMaxMinusOne() throws Exception{
+        double setBudgetForProject=0;
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setName("Project Y");
+        createdProject.setBudget(setBudgetForProject);
+        createdProject.persistData();
+        double sumBudgetForTask=0;
+        for(int i=0; i<100; i++){
+            TaskModel t1=new TaskModel("test", "description of test",createdProject.getProjectId());
+            t1.setBudget(TaskModel.MaxBudgetTast-1);
+            t1.persistData();
+            sumBudgetForTask+=TaskModel.MaxBudgetTast-1;
+        }
+        assertThat(createdProject.getBudgetAtCompletion(), equalTo(sumBudgetForTask));
+    }
+
+    @Test
+    public void budgetAtCompletionBoundaryTestMinMin() throws Exception{
+        double setBudgetForProject=0;
+        double minBudgetForTask=0;
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setName("Project Y");
+        createdProject.setBudget(setBudgetForProject);
+        createdProject.persistData();
+        TaskModel t1=new TaskModel("test", "description of test",createdProject.getProjectId());
+        t1.setBudget(minBudgetForTask);
+        t1.persistData();
+        assertThat(createdProject.getBudgetAtCompletion(), equalTo(minBudgetForTask));
+    }
+
+    @Test(expected = Exception.class)
+    public void budgetAtCompletionBoundaryTestMinMinPlusOne() throws Exception{
+        double setBudgetForProject=0;
+        double minPlusOneBudgetForTask=1;
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setName("Project Y");
+        createdProject.setBudget(setBudgetForProject);
+        createdProject.persistData();
+        TaskModel t1=new TaskModel("test", "description of test",createdProject.getProjectId());
+        t1.setBudget(minPlusOneBudgetForTask);
+        t1.persistData();
+        assertThat(createdProject.getBudgetAtCompletion(), equalTo(minPlusOneBudgetForTask));
+    }
+
+    @Test(expected = Exception.class)
+    public void budgetAtCompletionBoundaryTestMinMed() throws Exception{
+        double setBudgetForProject=0;
+        double mediumBudgetForTask=5000;
+        createdProject.setName("Project Y");
+        createdProject.setBudget(setBudgetForProject);
+        createdProject.persistData();
+        double expectedResult=0;
+        for(int i=0; i<10; i++){
+            TaskModel t1=new TaskModel("test", "description of test",createdProject.getProjectId());
+            t1.setBudget(mediumBudgetForTask);
+            t1.persistData();
+            expectedResult+=mediumBudgetForTask;
+        }
+        assertThat(createdProject.getBudgetAtCompletion(), equalTo(expectedResult));
+    }
+    @Test (expected = Exception.class)
+    public void budgetAtCompletionBoundaryTestMinPlusOneMax() throws Exception{
+        double setBudgetForProject=1;
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setName("Project Y");
+        createdProject.setBudget(setBudgetForProject);
+        createdProject.persistData();
+        for(int i=0; i<100; i++){
+            TaskModel t1=new TaskModel("test", "description of test",createdProject.getProjectId());
+            t1.setBudget(TaskModel.MaxBudgetTast);
+            t1.persistData();
+        }
+    }
+    @Test (expected = Exception.class)
+    public void budgetAtCompletionBoundaryMinPlusOneMaxMinusOne() throws Exception{
+        double setBudgetForProject=1;
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setName("Project Y");
+        createdProject.setBudget(setBudgetForProject);
+        createdProject.persistData();
+        double sumBudgetForTask=0;
+        for(int i=0; i<100; i++){
+            TaskModel t1=new TaskModel("test", "description of test",createdProject.getProjectId());
+            t1.setBudget(TaskModel.MaxBudgetTast-1);
+            t1.persistData();
+            sumBudgetForTask+=TaskModel.MaxBudgetTast-1;
+        }
+        assertThat(createdProject.getBudgetAtCompletion(), equalTo(sumBudgetForTask));
+    }
+
+    @Test
+    public void budgetAtCompletionBoundaryTestMinPlusOneMin() throws Exception{
+        double setBudgetForProject=1;
+        double minBudgetForTask=0;
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setName("Project Y");
+        createdProject.setBudget(setBudgetForProject);
+        createdProject.persistData();
+        TaskModel t1=new TaskModel("test", "description of test",createdProject.getProjectId());
+        t1.setBudget(minBudgetForTask);
+        t1.persistData();
+        assertThat(createdProject.getBudgetAtCompletion(), equalTo(minBudgetForTask));
+    }
+
+    @Test
+    public void budgetAtCompletionBoundaryTestMinPlusOneMinPlusOne() throws Exception{
+        double setBudgetForProject=1;
+        double minPlusOneBudgetForTask=1;
+        ProjectModel createdProject = new ProjectModel();
+        createdProject.setName("Project Y");
+        createdProject.setBudget(setBudgetForProject);
+        createdProject.persistData();
+        TaskModel t1=new TaskModel("test", "description of test",createdProject.getProjectId());
+        t1.setBudget(minPlusOneBudgetForTask);
+        t1.persistData();
+        assertThat(createdProject.getBudgetAtCompletion(), equalTo(minPlusOneBudgetForTask));
+    }
+
+    @Test(expected = Exception.class)
+    public void budgetAtCompletionBoundaryTestMinPlusOneMed() throws Exception{
+        double setBudgetForProject=1;
+        double mediumBudgetForTask=5000;
+        createdProject.setName("Project Y");
+        createdProject.setBudget(setBudgetForProject);
+        createdProject.persistData();
+        double expectedResult=0;
+        for(int i=0; i<10; i++){
+            TaskModel t1=new TaskModel("test", "description of test",createdProject.getProjectId());
+            t1.setBudget(mediumBudgetForTask);
+            t1.persistData();
+            expectedResult+=mediumBudgetForTask;
+        }
+        assertThat(createdProject.getBudgetAtCompletion(), equalTo(expectedResult));
+    }
 
 }
