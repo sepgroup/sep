@@ -63,7 +63,8 @@ public class BreadthFirstSearchTests {
      *     Line 78 adds a node to q, so line 82 must be part of the path
      * </p>
      */
-    @Ignore
+    @Ignore("Test path unreachable\n" +
+            "Line 78 adds a node to q, so line 82 must be part of the path")
     @Test
     public void testBreadthFirstSearchPath2() throws Exception {
 
