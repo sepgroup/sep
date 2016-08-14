@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
 /**
  * Created by mark on 8/13/16.
  */
-public class PhysicsNodeTest {
+public class AddTensionForceTests {
 
 
     @Test
