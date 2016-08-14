@@ -1,9 +1,12 @@
 package com.sepgroup.sep.tests.unit.model;
 
+import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.model.*;
 import com.sepgroup.sep.utils.DateUtils;
+import com.sun.javafx.tk.Toolkit;
 import org.junit.*;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -19,14 +22,17 @@ import static org.junit.Assert.*;
  * Created by jeremybrown on 2016-05-22.
  */
 public class TaskModelTest {
+	
 
     private static Date defaultStartDate = new Date();
     private static Date defaultDeadline = new Date(System.currentTimeMillis() + 2* 9999*9999);
 
-    private ProjectModel createdProject,createdProject2;
+    private ProjectModel createdProject,createdProject2,createdProject3;
     private static Date createdProjectStartDate = new Date(System.currentTimeMillis() - 5 * 9999*9999);
     private static Date createdProjectDeadline = new Date(System.currentTimeMillis() + 5 * 9999*9999);
     private UserModel createdUser;
+    private UserModel createdUser2;
+    private UserModel createdUser3;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -48,9 +54,20 @@ public class TaskModelTest {
         createdProject2.setStartDate(createdProjectStartDate);
         createdProject2.setDeadline(createdProjectDeadline);
         createdProject2.persistData();
+        
+        createdProject3 = new ProjectModel();
+        createdProject3.setName("Project 3");
+        createdProject3.setBudget(100000);
+        createdProject3.setStartDate(createdProjectStartDate);
+        createdProject3.setDeadline(createdProjectDeadline);
+        createdProject3.persistData();
 
         createdUser = new UserModel("FIRST", "LAST", 22.00);
+        createdUser2 = new UserModel("FIRST", "LAST", 22.00);
+        createdUser3 = new UserModel("FIRST", "LAST", 22.00);
         createdUser.persistData();
+        createdUser2.persistData();
+        createdUser3.persistData();
     }
 
     @AfterClass
@@ -929,5 +946,146 @@ public class TaskModelTest {
         ts1.setBudget(actualValue);
         double expectedResult=ts1.getPlannedValue();
         assertThat(expectedResult, equalTo(actualValue));
+    }
+    @Ignore@Test(expected=ModelNotFoundException.class)//Test isolated with empty database.
+    public void testRunSingleResultQueryPath1() throws Exception{
+    	
+    	int tId = 1;
+
+        // Fetch from empty database
+        TaskModel fetchedTask = TaskModel.getById(tId);
+    
+        
+    }
+    
+    
+    
+    @Test(expected=DBException.class)//Error detected at Database input level, else the expected error should be a ModelNotFoundException.
+    public void testRunSingleResultQueryPath2() throws Exception{
+    	
+    	 // Create task
+    	
+    	Date incorrectStartDate = new Date(1000,15,45);
+    	
+        TaskModel task1 = new TaskModel("T1", "Description of\n T1", createdProject3.getProjectId(), 10000,
+                defaultStartDate, defaultDeadline, false, createdUser, 8, 9, 7, incorrectStartDate, defaultDeadline);
+        task1.persistData();
+        int tId = task1.getTaskId();
+
+        // Fetch task
+        TaskModel fetchedTask = TaskModel.getById(tId);
+
+      
+      	
+		       
+	           
+    }
+    
+    @Ignore@Test(expected=SQLException.class)//Error will not happen since it will be caught before hand.
+    public void testRunSingleResultQueryPath3() throws Exception{
+    	
+    	 
+    	    	   	
+        TaskModel task1 = new TaskModel("T1", "Description of\n T1", createdProject3.getProjectId(), 10000,
+                defaultStartDate, defaultDeadline, false, createdUser, 8, 9, 7, defaultStartDate, defaultDeadline);
+        task1.persistData();
+        int tId = task1.getTaskId();
+
+        // Fetch same task
+        TaskModel fetchedTask = TaskModel.getById(tId);
+
+        
+                
+    }
+    
+    @Test(expected=NullPointerException.class)//Error detected at Database input level, else the expected error should be a SQLException error.
+    public void testRunSingleResultQueryPath4() throws Exception{
+    	
+    	
+    	    	   	
+        TaskModel task2 = new TaskModel("T2", "Description of\n T2", createdProject3.getProjectId(), 10000,
+                defaultStartDate, defaultDeadline, false, createdUser2, 8, 9, 7, defaultStartDate, defaultDeadline);
+        task2.persistData();
+        int tId = task2.getTaskId();
+        TaskModel fetchedTaskTemp = TaskModel.getById(tId);//Create a Tag list.
+        tId = fetchedTaskTemp.getTaskId();
+        int testInt = (Integer) null;
+        createdUser2.setUserId(testInt);
+
+        // Fetch same task
+        TaskModel fetchedTask = TaskModel.getById(tId);
+
+        
+    
+    
+    }
+    
+    @Test(expected=NullPointerException.class)//Error detected at Database input level, else the expected error should be a SQLException error.
+    public void testRunSingleResultQueryPath5() throws Exception{
+    	
+   	    	    	   	
+       TaskModel task3 = new TaskModel("T3", "Description of\n T3", createdProject3.getProjectId(), 10000,
+               defaultStartDate, defaultDeadline, false, createdUser2, 8, 9, 7, defaultStartDate, defaultDeadline);
+       task3.persistData();
+       int tId = task3.getTaskId();
+       
+       int testInt = (Integer) null;
+       createdUser2.setUserId(testInt);
+
+       // Fetch same task
+       TaskModel fetchedTask = TaskModel.getById(tId);
+
+       
+   
+   
+   }
+    
+    @Test
+    public void testRunSingleResultQueryPath6() throws Exception{
+    	
+   	    	    	   	
+       TaskModel task4 = new TaskModel("T4", "Description of\n T4", createdProject3.getProjectId(), 10000,
+               defaultStartDate, defaultDeadline, false, createdUser3, 8, 9, 7, defaultStartDate, defaultDeadline);
+       task4.persistData();
+       int tId = task4.getTaskId();
+                
+
+       // Fetch same task
+       TaskModel fetchedTask = TaskModel.getById(tId);
+
+       assertThat(fetchedTask, equalTo(task4));
+   
+   
+   }
+    
+    @Ignore@Test(expected=SQLException.class)//Error should not happen as database connection would need to close after task is created and placed inside the database.
+    public void testRunSingleResultQueryPath7() throws Exception{
+    	
+    	 	    	   	
+        TaskModel task6 = new TaskModel("T6", "Description of\n T6", createdProject3.getProjectId(), 10000,
+                defaultStartDate, defaultDeadline, false, createdUser2, 8, 9, 7, defaultStartDate, defaultDeadline);
+        task6.persistData();
+        int tId = task6.getTaskId();
+        createdUser2.setUserId(0);
+        
+        TaskModel fetchedTaskTemp = TaskModel.getById(tId);//Create a Tag list.
+        
+    }
+    
+    
+    @Test(expected=ModelNotFoundException.class)//Error detected at Database input level, else the expected error should be a SQLException error.
+    public void testRunSingleResultQueryPath8() throws Exception{
+    	
+    	
+    	    	   	
+        TaskModel task5 = new TaskModel("T5", "Description of\n T5", createdProject3.getProjectId(), 10000,
+                defaultStartDate, defaultDeadline, false, createdUser2, 8, 9, 7, defaultStartDate, defaultDeadline);
+        task5.persistData();
+        int tId = task5.getTaskId()+1;
+
+        createdUser2.setUserId(0);
+        
+        TaskModel fetchedTaskTemp = TaskModel.getById(tId);//Create a Tag list.
+        
     }
 }
