@@ -14,9 +14,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
  *     Identifier: F3-1
  * </p>
  * <p>
- *
- * </p>
- * <p>
  *     Created by Ali on 8/10/2016.
  * </p>
  */

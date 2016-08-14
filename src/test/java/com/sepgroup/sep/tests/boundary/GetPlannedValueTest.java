@@ -65,7 +65,7 @@ public class GetPlannedValueTest {
                 defaultStartDate, null, false, null, 8, 9, 7, defaultStartDate, null);
     }
 
-    @Parameters
+    @Parameters(name = "{index}: testGetPlannedValue({0} deadline) = {1}")
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
                 {new Date(0L), taskBudget}, // "1970-01-01"
