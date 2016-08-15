@@ -16,7 +16,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
  *     Identifier: F2-1
  * </p>
  * <p>
- *
+ *     Test getPlannedValue() from TaskModel.java.
+ *     One (1) input variables, 5^1 = 5 test cases.
  * </p>
  * <p>
  *     Created by Ali on 8/10/2016.

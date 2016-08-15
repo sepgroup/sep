@@ -1,9 +1,12 @@
 package com.sepgroup.sep.tests.unit.model;
 
+import com.sepgroup.sep.db.DBException;
 import com.sepgroup.sep.model.*;
 import com.sepgroup.sep.utils.DateUtils;
+import com.sun.javafx.tk.Toolkit;
 import org.junit.*;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -19,6 +22,7 @@ import static org.junit.Assert.*;
  * Created by jeremybrown on 2016-05-22.
  */
 public class TaskModelTest {
+	
 
     private static Date defaultStartDate = new Date();
     private static Date defaultDeadline = new Date(System.currentTimeMillis() + 2* 9999*9999);

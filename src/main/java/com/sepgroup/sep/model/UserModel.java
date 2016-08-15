@@ -159,7 +159,7 @@ public class UserModel extends AbstractModel {
      * @param userId the user's User ID
      * @throws InvalidInputException if the user ID is not a positive integer
      */
-    private void setUserId(int userId) throws InvalidInputException {
+    public void setUserId(int userId) throws InvalidInputException {
         if (userId < 0) {
             throw new InvalidInputException("User ID must be a positive integer.");
         }

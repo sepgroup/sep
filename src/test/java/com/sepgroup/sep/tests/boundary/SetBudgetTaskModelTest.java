@@ -15,9 +15,6 @@ import java.util.Date;
  *     Identifier: F1-1
  * </p>
  * <p>
- *
- * </p>
- * <p>
  *     Created by Ali on 8/10/2016.
  * </p>
  */
