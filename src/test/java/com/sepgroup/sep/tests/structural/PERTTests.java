@@ -33,12 +33,13 @@ public class PERTTests {
         DBManager.dropAllDBTables();
     }
 
+    //S5-1
     @Test
-    public void testEmptySet() {
+    public void testEmptySetAndDaysZero() {
         ArrayList<ArrayList<Node>> paths = new ArrayList<ArrayList<Node>>();
         Node currentNode = new Node();
         try {
-            double output = PERTAnalysisTools.calculateProbability(paths, currentNode, 50);
+            double output = PERTAnalysisTools.calculateProbability(paths, currentNode, 0);
             assert(false);
         }
         catch(Exception e)
@@ -47,6 +48,7 @@ public class PERTTests {
         }
     }
 
+    //S5-2
     @Test
     public void testEmptyPaths() {
         ArrayList<ArrayList<Node>> paths = new ArrayList<ArrayList<Node>>();
@@ -65,6 +67,7 @@ public class PERTTests {
         }
     }
 
+    //S5-3
     @Test
     public void testZeroDays() {
         Graph graph = new Graph();
@@ -80,6 +83,7 @@ public class PERTTests {
         }
     }
 
+    //S5-4
     @Test
     public void testPERT() {
         Graph graph = new Graph();
