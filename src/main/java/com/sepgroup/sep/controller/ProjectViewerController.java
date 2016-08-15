@@ -120,8 +120,8 @@ public class ProjectViewerController extends AbstractController {
             ProjectModel.tempTasks = null;
             projectNameText.setText(model.getName());
             if (model.getProjectDescription() != null && !model.getProjectDescription().equals("")) projectDescriptionTextArea.setText(model.getProjectDescription());
-            if (model.getStartDate() != null) startDateValueLabel.setText(model.getStartDateString());
-            if (model.getDeadline() != null) deadlineValueLabel.setText(model.getDeadlineString());
+            if (model.getStartDateString() != null && !model.getStartDateString().equals("")) startDateValueLabel.setText(model.getStartDateString());
+            if (model.getDeadline() != null && !model.getDeadlineString().equals("")) deadlineValueLabel.setText(model.getDeadlineString());
             budgetValueLabel.setText("$" + String.format("%.2f", model.getBudget()));
             completeValueLabel.setText(model.isDone() ? "Yes" : "No");
 
@@ -144,7 +144,7 @@ public class ProjectViewerController extends AbstractController {
 
             // Populate manager
             String managerName;
-            if (model.getManager() == null) {
+            if (model.getManager() == null || model.getManager().equals("")) {
                 managerName = "[ none ]";
             }
             else {
