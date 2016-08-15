@@ -8,6 +8,7 @@ import com.sepgroup.sep.model.*;
 import com.sepgroup.sep.model.DBManager;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import java.util.ArrayList;
 
@@ -16,9 +17,12 @@ import java.util.ArrayDeque;
 import static org.junit.Assert.assertTrue;
 
 /**
+ * Test calculateProbability() from PERTAnalysisTools.java.
+ * 5 tests for basis path coverage.
  * Created by Andres Gonzalez on 2016-08-14.
  */
-public class PERTTests {
+public class CalculateProbabilityTest {
+
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
         DBManager.createDBTablesIfNotExisting();
@@ -33,7 +37,14 @@ public class PERTTests {
         DBManager.dropAllDBTables();
     }
 
-    //S5-1
+    /**
+     * <p>
+     *     Identifier: S5-1
+     * </p>
+     * <p>
+     *     Path: <41,42,44,58,60,61,63,68,exit>
+     * </p>
+     */
     @Test
     public void testEmptySetAndDaysZero() {
         ArrayList<ArrayList<Node>> paths = new ArrayList<ArrayList<Node>>();
@@ -48,7 +59,14 @@ public class PERTTests {
         }
     }
 
-    //S5-2
+    /**
+     * <p>
+     *     Identifier: S5-2
+     * </p>
+     * <p>
+     *     Path:  <41,42,44,46,47,51,44,58,60,61,63,68,exit>
+     * </p>
+     */
     @Test
     public void testEmptyPaths() {
         ArrayList<ArrayList<Node>> paths = new ArrayList<ArrayList<Node>>();
@@ -67,7 +85,14 @@ public class PERTTests {
         }
     }
 
-    //S5-3
+    /**
+     * <p>
+     *     Identifier: S5-3
+     * </p>
+     * <p>
+     *     Path: <41,42,44,46,47,48,49,47,51,44,58,60,61,63,68,exit>
+     * </p>
+     */
     @Test
     public void testZeroDays() {
         Graph graph = new Graph();
@@ -83,7 +108,14 @@ public class PERTTests {
         }
     }
 
-    //S5-4
+    /**
+     * <p>
+     *     Identifier: S5-4
+     * </p>
+     * <p>
+     *     Path: <41,42,44,46,47,48,49,47,51,44,58,60,61,63,64,65,66,63,68,exit>
+     * </p>
+     */
     @Test
     public void testPERT() {
         Graph graph = new Graph();
@@ -97,5 +129,22 @@ public class PERTTests {
         {
             assert(false);
         }
+    }
+
+    /**
+     * <p>
+     *     Identifier: S5-5
+     * </p>
+     * <p>
+     *     Path: <41,42,44,58,60,61,63,64,65,66,63,68,exit>
+     * </p>
+     * <p>
+     *     Test path unreachable
+     * </p>
+     */
+    @Ignore("Test path unreachable")
+    @Test
+    public void testCalculateProbability5() throws Exception {
+
     }
 }

@@ -17,7 +17,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
  *     Created by Ali on 8/10/2016.
  * </p>
  */
-@Ignore
 public class GetBudgetAtCompletionTest {
 
     private ProjectModel createdProject;

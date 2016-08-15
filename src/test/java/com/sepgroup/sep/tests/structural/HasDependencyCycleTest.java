@@ -142,7 +142,7 @@ public class HasDependencyCycleTest {
      *     Path 5: <228,229,230,233,234,237,242,243,244,exit> Unreachable test.
      * </p>
      */
-	@Ignore
+	@Ignore("Test path unreachable")
 	@Test
 	public void testHasDependencyCyclePath5() throws Exception {
 
@@ -156,7 +156,7 @@ public class HasDependencyCycleTest {
      *     Path 6: <228,229,233,234,237,242,243,242,243,244,exit> Unreachable test.
      * </p>
      */
-	@Ignore
+	@Ignore("Test path unreachable")
 	@Test
 	public void testHasDependencyCyclePath6() throws Exception {
 

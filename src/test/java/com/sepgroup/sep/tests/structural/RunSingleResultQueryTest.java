@@ -76,7 +76,7 @@ public class RunSingleResultQueryTest {
      *     This path is not reproducible without invalid data in the database, which does not seem possible with SQLite3.
      * </p>
      */
-    @Ignore
+    @Ignore("Test path unfeasible")
     @Test(expected = DBException.class)
     public void testRunSingleResultQueryPath2() throws Exception {
         // Create task
@@ -150,7 +150,7 @@ public class RunSingleResultQueryTest {
      *     This is not simple to simulate with our current code.
      * </p>
      */
-    @Ignore
+    @Ignore("Test path unfeasible")
     @Test
     public void testRunSingleResultQueryPath5() throws Exception {
         TaskModel task = new TaskModel("T2", "Description of\n T2", createdProject.getProjectId(), 10000,
@@ -199,7 +199,7 @@ public class RunSingleResultQueryTest {
      *     This is not simple to simulate with our current code.
      * </p>
      */
-    @Ignore
+    @Ignore("Test path unfeasible")
     @Test
     public void testRunSingleResultQueryPath7() throws Exception {
         TaskModel task = new TaskModel("T2", "Description of\n T2", createdProject.getProjectId(), 10000,
@@ -224,7 +224,7 @@ public class RunSingleResultQueryTest {
      *     This does not happen if all the lines before the exception have executed without an error (the exception would be thrown earlier).
      * </p>
      */
-    @Ignore
+    @Ignore("Test path unfeasible")
     @Test
     public void testRunSingleResultQueryPath8() throws Exception {
         TaskModel task = new TaskModel("T2", "Description of\n T2", createdProject.getProjectId(), 10000,
