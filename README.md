@@ -8,9 +8,10 @@ COMP 354 Software Engineering Project
 [![Code Coverage](https://img.shields.io/codecov/c/github/sepgroup/sep/master.svg)](https://codecov.io/github/sepgroup/sep?branch=master)
 
 ## Description
-This was our submission for COMP 354 Summer 2016 project.
-
 SEP is a project management application allowing users to track resources, time, and costs over multiple projects and tasks.
+It is a desktop application built in Java that is available for Windows, MacOS, and Linux.
+
+This was our submission for COMP 354 Summer 2016 project.
 
 ## How to run
 Ensure you have Java 8 installed.
