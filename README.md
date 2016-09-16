@@ -8,8 +8,9 @@ COMP 354 Software Engineering Project
 [![Code Coverage](https://img.shields.io/codecov/c/github/sepgroup/sep/master.svg)](https://codecov.io/github/sepgroup/sep?branch=master)
 
 ## Description
+This was our submission for COMP 354 Summer 2016 project.
 
-This is the repository for the project code.
+SEP is a project management application allowing users to track resources, time, and costs over multiple projects and tasks.
 
 ## How to run
 Ensure you have Java 8 installed.
